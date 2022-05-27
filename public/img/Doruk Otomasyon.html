@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<!-- saved from url=(0032)http://127.0.0.1:5500/index.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+    
+    <title>Doruk Otomasyon</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="http://127.0.0.1:5500/img/favicon.png">
+    <link href="./Doruk Otomasyon_files/bootstrap.min.css" id="bootstrap-style" rel="stylesheet" type="text/css">
+    <link href="./Doruk Otomasyon_files/icons.min.css" rel="stylesheet" type="text/css">
+    <link href="./Doruk Otomasyon_files/app.min.css" id="app-style" rel="stylesheet" type="text/css">
+    <link href="./Doruk Otomasyon_files/doruk.css" rel="stylesheet" type="text/css">
+<style type="text/css">.jqstooltip { position: absolute;left: 0px;top: 0px;visibility: hidden;background: rgb(0, 0, 0) transparent;background-color: rgba(0,0,0,0.6);filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#99000000, endColorstr=#99000000);-ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#99000000, endColorstr=#99000000)";color: white;font: 10px arial, san serif;text-align: left;white-space: nowrap;padding: 5px;border: 1px solid white;box-sizing: content-box;z-index: 10000;}.jqsfield { color: white;font: 10px arial, san serif;text-align: left;}</style></head>
+
+<body data-layout="detached" data-topbar="colored" cz-shortcut-listen="true">
+    <div class="container-fluid">
+        <div id="layout-wrapper">
+            <div class="vertical-menu">
+                <div class="h-100">
+                    <div class="user-wid text-center py-4">
+                        <div class="text-center">
+                            <img src="./Doruk Otomasyon_files/doruk-logo.png" alt="">
+                        </div>
+                    </div>
+                    <div id="sidebar-menu">
+                        <ul class="metismenu list-unstyled" id="side-menu">
+                            <li>
+                                <a href="http://127.0.0.1:5500/index.html#" class=" waves-effect">
+                                    <i class="mdi mdi-home"></i> Anasayfa
+                                </a>
+                            </li>
+                            <li>
+                                <a href="http://127.0.0.1:5500/index.html#" class=" waves-effect">
+                                    Sipariş Takip
+                                </a>
+                            </li>
+                            <li>
+                                <a href="http://127.0.0.1:5500/index.html#" class=" waves-effect">
+                                    Isıl İşlem Takip
+                                </a>
+                            </li>
+                            <li>
+                                <a href="javascript: void(0);" class="has-arrow waves-effect">
+                                    Yönetim
+                                </a>
+                                <ul class="sub-menu mm-collapse" aria-expanded="false">
+                                    <li><a href="http://127.0.0.1:5500/index.html#">Fırınlar</a></li>
+                                    <li><a href="http://127.0.0.1:5500/index.html#">Sepetler</a></li>
+                                    <li><a href="http://127.0.0.1:5500/index.html#">Firmalar</a></li>
+                                    <li><a href="http://127.0.0.1:5500/index.html#">Kullanıcılar</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="main-content">
+                <div class="page-content">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="page-title-box d-flex align-items-center justify-content-between">
+                                <h4 class="page-title mb-0 font-size-18">ISIL İŞLEM TAKİP OTOMASYONU</h4>
+                                <div class="page-title-right">
+                                    <div class="float-end">
+                                        <div class="dropdown d-none d-lg-inline-block ms-1">
+                                            <button type="button" class="btn header-item noti-icon waves-effect" data-toggle="fullscreen">
+                                            <i class="mdi mdi-fullscreen"></i>
+                                        </button>
+                                        </div>
+                                        <div class="dropdown d-inline-block">
+                                            <button type="button" class="btn header-item noti-icon waves-effect" id="page-header-notifications-dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            <i class="mdi mdi-bell-outline"></i>
+                                            <span class="badge rounded-pill bg-danger">1</span>
+                                        </button>
+                                            <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end p-0" aria-labelledby="page-header-notifications-dropdown">
+                                                <div class="p-3">
+                                                    <div class="row align-items-center">
+                                                        <div class="col">
+                                                            <h6 class="m-0"> Bildirimler </h6>
+                                                        </div>
+                                                        <div class="col-auto">
+                                                            <a href="http://127.0.0.1:5500/index.html#!" class="small"> Tümünü gör</a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div data-simplebar="init" style="max-height: 230px;"><div class="simplebar-wrapper" style="margin: 0px;"><div class="simplebar-height-auto-observer-wrapper"><div class="simplebar-height-auto-observer"></div></div><div class="simplebar-mask"><div class="simplebar-offset" style="right: 0px; bottom: 0px;"><div class="simplebar-content-wrapper" style="height: auto; overflow: hidden;"><div class="simplebar-content" style="padding: 0px;">
+                                                    <a href="http://127.0.0.1:5500/index.html" class="text-reset notification-item">
+                                                        <div class="d-flex align-items-start">
+                                                            <div class="avatar-xs me-3">
+                                                                <span class="avatar-title bg-primary rounded-circle font-size-16">
+                                                                <i class="bx bx-badge-check"></i>
+                                                            </span>
+                                                            </div>
+                                                            <div class="flex-1">
+                                                                <h6 class="mt-0 mb-1">Bildirim başlığı</h6>
+                                                                <div class="font-size-12 text-muted">
+                                                                    <p class="mb-1">Bildirim açıklaması</p>
+                                                                    <p class="mb-0"><i class="mdi mdi-clock-outline"></i> 12.05.2022 15.18.55</p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </a>
+                                                </div></div></div></div><div class="simplebar-placeholder" style="width: 0px; height: 0px;"></div></div><div class="simplebar-track simplebar-horizontal" style="visibility: hidden;"><div class="simplebar-scrollbar" style="transform: translate3d(0px, 0px, 0px); display: none;"></div></div><div class="simplebar-track simplebar-vertical" style="visibility: hidden;"><div class="simplebar-scrollbar" style="transform: translate3d(0px, 0px, 0px); display: none;"></div></div></div>
+                                            </div>
+                                        </div>
+                                        <div class="dropdown d-inline-block">
+                                            <button type="button" class="btn header-item waves-effect" id="page-header-user-dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            <span class="d-none d-xl-inline-block ms-1">Admin</span>
+                                            <i class="mdi mdi-chevron-down d-none d-xl-inline-block"></i>
+                                        </button>
+                                            <div class="dropdown-menu dropdown-menu-end">
+                                                <a class="dropdown-item d-block" href="http://127.0.0.1:5500/index.html#"><i class="bx bx-wrench font-size-16 align-middle me-1"></i> Ayarlar</a>
+
+                                                <div class="dropdown-divider"></div>
+                                                <a class="dropdown-item text-danger" href="http://127.0.0.1:5500/index.html#"><i class="bx bx-power-off font-size-16 align-middle me-1 text-danger"></i> Çıkış</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row doruk-content">
+                        <h4 style="color:#999"><i class="fa fa-home"></i> ANASAYFA</h4>
+                        <div class="card p-3" style="border-radius: 20px;">
+                            <div class="card-title">
+                                <h5><i class="fa fa-cogs"></i> Isıl İşlemler</h5>
+                            </div>
+                            <div class="card-body">
+                                <table id="tablo-isil-islem" class="table w-100 nowrap">
+                                    <tbody>
+                                        <tr>
+                                            <td style="vertical-align: middle;">
+                                                <i class="mdi mdi-bell-outline" style="font-size: 40px;">
+                                                </i>
+                                            </td>
+                                            <td style="vertical-align: middle;" class="p-2">
+                                                <strong>A FİRMASI A.Ş.</strong>
+                                                <div class="float-end">
+                                                    <span class="bg-pink badge p-1">KAMARALI FIRIN</span>
+                                                    <span class="bg-danger badge p-1">1.ŞARJ</span>
+                                                </div>
+                                                <table class="table table-bordered table-sm table-hover table-striped table-active mt-2">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Malzeme</th>
+                                                            <th>İst. Sertlik</th>
+                                                            <th>Kalite</th>
+                                                            <th>Sıcaklık</th>
+                                                            <th>Carbon</th>
+                                                            <th>Süre</th>
+                                                            <th>Ç.Sertliği</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody><tr>
+                                                        <td>Karışık</td>
+                                                        <td>38-42</td>
+                                                        <td>41-40</td>
+                                                        <td>840</td>
+                                                        <td>40</td>
+                                                        <td>1.30</td>
+                                                        <td>45-50</td>
+                                                    </tr>
+                                                </tbody></table>
+                                            </td>
+                                            <td style="vertical-align: middle;">
+                                                <i class="fa fa-toggle-off" aria-hidden="true" style="font-size:40px;"></i>
+                                            </td>
+                                            <td style="vertical-align: middle;">
+                                                <i class="fa fa-spinner" aria-hidden="true" style="font-size:32px;"></i>
+                                                <span style="font-size: 22px;margin-left: 20px;"> İşlemde</span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td style="vertical-align: middle;">
+                                                <i class="mdi mdi-bell-outline" style="font-size: 40px;">
+                                                </i>
+                                            </td>
+                                            <td style="vertical-align: middle;" class="p-2">
+                                                <strong>A FİRMASI A.Ş.</strong>
+                                                <div class="float-end">
+                                                    <span class="bg-pink badge p-1">KAMARALI FIRIN</span>
+                                                    <span class="bg-danger badge p-1">1.ŞARJ</span>
+                                                </div>
+                                                <table class="table table-bordered table-sm table-hover table-striped table-active mt-2">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Malzeme</th>
+                                                            <th>İst. Sertlik</th>
+                                                            <th>Kalite</th>
+                                                            <th>Sıcaklık</th>
+                                                            <th>Carbon</th>
+                                                            <th>Süre</th>
+                                                            <th>Ç.Sertliği</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody><tr>
+                                                        <td>Karışık</td>
+                                                        <td>38-42</td>
+                                                        <td>41-40</td>
+                                                        <td>840</td>
+                                                        <td>40</td>
+                                                        <td>1.30</td>
+                                                        <td>45-50</td>
+                                                    </tr>
+                                                </tbody></table>
+                                            </td>
+                                            <td style="vertical-align: middle;">
+                                                <i class="fa fa-toggle-on" aria-hidden="true" style="font-size:40px;"></i>
+                                            </td>
+                                            <td style="vertical-align: middle;">
+                                                <i class="fa fa-check-circle" aria-hidden="true" style="font-size:32px;"></i>
+                                                <span style="font-size: 22px;margin-left: 20px;"> Hazır</span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <footer class="footer">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="col-sm-6">
+                                © 2022
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="text-sm-end d-none d-sm-block">
+                                    KodGaraj
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </footer>
+            </div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT -->
+    <script src="./Doruk Otomasyon_files/jquery.min.js"></script>
+    <script src="./Doruk Otomasyon_files/bootstrap.bundle.min.js"></script>
+    <script src="./Doruk Otomasyon_files/metisMenu.min.js"></script>
+    <script src="./Doruk Otomasyon_files/simplebar.min.js"></script>
+    <script src="./Doruk Otomasyon_files/waves.min.js"></script>
+    <script src="./Doruk Otomasyon_files/jquery.sparkline.min.js"></script>
+    <script src="./Doruk Otomasyon_files/app.js"></script>
+
+<!-- Code injected by live-server -->
+<script type="text/javascript">
+	// <![CDATA[  <-- For SVG support
+	if ('WebSocket' in window) {
+		(function () {
+			function refreshCSS() {
+				var sheets = [].slice.call(document.getElementsByTagName("link"));
+				var head = document.getElementsByTagName("head")[0];
+				for (var i = 0; i < sheets.length; ++i) {
+					var elem = sheets[i];
+					var parent = elem.parentElement || head;
+					parent.removeChild(elem);
+					var rel = elem.rel;
+					if (elem.href && typeof rel != "string" || rel.length == 0 || rel.toLowerCase() == "stylesheet") {
+						var url = elem.href.replace(/(&|\?)_cacheOverride=\d+/, '');
+						elem.href = url + (url.indexOf('?') >= 0 ? '&' : '?') + '_cacheOverride=' + (new Date().valueOf());
+					}
+					parent.appendChild(elem);
+				}
+			}
+			var protocol = window.location.protocol === 'http:' ? 'ws://' : 'wss://';
+			var address = protocol + window.location.host + window.location.pathname + '/ws';
+			var socket = new WebSocket(address);
+			socket.onmessage = function (msg) {
+				if (msg.data == 'reload') window.location.reload();
+				else if (msg.data == 'refreshcss') refreshCSS();
+			};
+			if (sessionStorage && !sessionStorage.getItem('IsThisFirstTime_Log_From_LiveServer')) {
+				console.log('Live reload enabled.');
+				sessionStorage.setItem('IsThisFirstTime_Log_From_LiveServer', true);
+			}
+		})();
+	}
+	else {
+		console.error('Upgrade your browser. This Browser is NOT supported WebSocket for Live-Reloading.');
+	}
+	// ]]>
+</script>
+
+</body></html>
