@@ -14,7 +14,7 @@
 </head>
 
 <body data-layout="detached" data-topbar="colored">
-    <div class="container-fluid">
+    <div id="app" class="container-fluid">
         <div id="layout-wrapper">
             <div class="vertical-menu">
                 <div class="h-100">
@@ -26,23 +26,23 @@
                     <div id="sidebar-menu">
                         <ul class="metismenu list-unstyled" id="side-menu">
                             <li>
-                                <a href="#" class=" waves-effect">
+                                <a href="{{ route('home') }}" class=" waves-effect">
                                     <i class="mdi mdi-home"></i> Anasayfa
                                 </a>
                             </li>
                             <li>
-                                <a href="#" class=" waves-effect">
-                                    Sipariş Takip
+                                <a href="{{ route('siparis-formu') }}" class=" waves-effect">
+                                    <i class="mdi mdi-tag-plus-outline"></i> Sipariş Formu
                                 </a>
                             </li>
                             <li>
-                                <a href="#" class=" waves-effect">
-                                    Isıl İşlem Takip
+                                <a href="{{ route("isil-islem-formu") }}" class=" waves-effect">
+                                    <i class="mdi mdi-stove"></i> Isıl İşlemler
                                 </a>
                             </li>
                             <li>
                                 <a href="javascript: void(0);" class="has-arrow waves-effect">
-                                    Yönetim
+                                    <i class="mdi mdi-account-multiple-outline"></i> Yönetim
                                 </a>
                                 <ul class="sub-menu" aria-expanded="false">
                                     <li><a href="#">Fırınlar</a></li>
@@ -147,7 +147,10 @@
         </div>
     </div>
 
+    @yield("script")
+
     <!-- JAVASCRIPT -->
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
     <script src="assets/libs/jquery/jquery.min.js"></script>
     <script src="assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
     <script src="assets/libs/metismenu/metisMenu.min.js"></script>
@@ -155,6 +158,15 @@
     <script src="assets/libs/node-waves/waves.min.js"></script>
     <script src="assets/libs/jquery-sparkline/jquery.sparkline.min.js"></script>
     <script src="assets/js/app.js"></script>
+
+    <script>
+        new Vue({
+            mixins: [mixinApp],
+            el: '#app',
+            data: {},
+            methods: {},
+        });
+    </script>
 
 </body>
 

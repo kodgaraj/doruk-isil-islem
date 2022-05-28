@@ -11,9 +11,9 @@ class isilIslemController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function isilIslenEkle()
+    public function isilIslemTakipFormu()
     {
-        return view('isil-islem-ekleme');
+        return view('isil-islemler');
     }
 
     /**

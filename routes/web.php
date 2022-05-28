@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\isilIslemController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\siparisTakipController;
@@ -17,10 +18,10 @@ use App\Http\Controllers\siparisTakipController;
 
 Route::group(['middleware' => ['auth']], function () {
     Route::get('/', function () {
-    return view("index");
-    });
-    Route::get('/siparis-formu', [siparisTakipController::class, 'siparisEklemeFormu']);
-
+        return view("index");
+    })->name("home");
+    Route::get('/siparis-formu', [siparisTakipController::class, 'siparisEklemeFormu'])->name("siparis-formu");
+    Route::get('/isil-islem-takip-formu', [isilIslemController::class, 'isilIslemTakipFormu'])->name("isil-islem-formu");
 });
 
 
