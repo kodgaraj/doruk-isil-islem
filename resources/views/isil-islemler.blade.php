@@ -83,9 +83,7 @@
                                                 </tbody>
                                             </table>
                                         </div>
-    
                                     </div>
-    
                                 </div>
                             </div>
                         </div>
@@ -132,7 +130,7 @@
                                 <th>İşlemler</th>
                             </thead>
                             <tbody id="urun-satir-ekle">
-                                <tr v-for="(urun, index) in urunler" :key="index">
+                                <tr v-for="(isilIslem, index) in isilIslemler" :key="index">
                                     <td>@{{ index + 1 }}</td>
                                     <td>
                                         <select class="form-select" aria-label="Default select example">
@@ -142,17 +140,10 @@
                                         </select>
                                     </td>
                                     <td>
-                                        <input class="form-control" type="text" placeholder="Miktar KG" v-model="urun.miktar">
+                                        <input class="form-control" type="text" placeholder="Miktar KG" v-model="isilIslem.miktar">
                                     </td>
                                     <td>
-                                        <input class="form-control" type="text" placeholder="Adet" v-model="urun.adet">
-                                    </td>
-                                    <td>
-                                        <select class="form-select" aria-label="Default select example">
-                                            <option selected>Select</option>
-                                            <option>Large select</option>
-                                            <option>Small select</option>
-                                        </select>
+                                        <input class="form-control" type="text" placeholder="Adet" v-model="isilIslem.adet">
                                     </td>
                                     <td>
                                         <select class="form-select" aria-label="Default select example">
@@ -169,7 +160,14 @@
                                         </select>
                                     </td>
                                     <td>
-                                        <button class="btn btn-danger" @click="urunSil(index)">Sil</button>
+                                        <select class="form-select" aria-label="Default select example">
+                                            <option selected>Select</option>
+                                            <option>Large select</option>
+                                            <option>Small select</option>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-danger" @click="islemSil(index)">Sil</button>
                                     </td>
                                 </tr>
 
@@ -177,7 +175,7 @@
                             <tfoot>
                                 <tr>
                                     <td colspan="8">
-                                        <button class="btn btn-success" @click="urunEkle">Ekle</button>
+                                        <button class="btn btn-success" @click="isilIslemEkle">Ekle</button>
                                     </td>
                                 </tr>
                             </tfoot>
@@ -195,7 +193,7 @@
 
 <script>
     let mixinApp = {
-        data: function () {
+        data() {
             return {
                 aktifIslem: null,
                 islemler: [
@@ -223,16 +221,29 @@
                         sarjClass: "btn-dark",
                         sepetClass: "btn-outline-warning",
                     },
+                    {
+                        firma: "Firma 3",
+                        firin: "Alüminyum Fırın",
+                        sarj: "1. Şarj",
+                        sepet: "Geniş Sepet",
+                        malzeme: "Çelik Mil",
+                        kalite: "Kalite 1",
+                        sonSertlik: "Sert",
+                        firinClass: "btn-secondary",
+                        sarjClass: "btn-dark",
+                        sepetClass: "btn-outline-warning",
+                    },
                 ],
-                urun: {
+                isilIslem: {
                     malzeme: '',
                     miktar: '',
                     adet: '',
                     kalite: '',
                     yapilacak_islem: '',
                     istenilen_sertlik: ''
-                }
-            }
+                },
+                isilIslemler: [],
+            };
         },
         methods: {
             islemEkle() {
@@ -240,11 +251,17 @@
                     tarih: '',
                     sira_no: '',
                     musteri: '',
-                }
+                };
+            },
+            islemSil(index) {
+                this.isilIslemler.splice(index, 1);
+            },
+            isilIslemEkle() {
+                this.isilIslemler.push({ ...this.isilIslem });
             },
             geri() {
                 this.aktifIslem = null;
-            }
+            },
         }
     };
 </script>

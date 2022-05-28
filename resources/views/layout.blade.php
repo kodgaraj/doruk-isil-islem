@@ -125,7 +125,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row doruk-content">
+                    <div class="row doruk-content mt-5">
                         @yield('content')
                     </div>
                 </div>
