@@ -159,12 +159,37 @@
     <script src="assets/libs/jquery-sparkline/jquery.sparkline.min.js"></script>
     <script src="assets/js/app.js"></script>
 
+    <!-- axios cdn -->
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <!-- v-mask -->
+    <script src="https://cdn.jsdelivr.net/npm/v-mask/dist/v-mask.min.js"></script>
+    <!-- lodash -->
+    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
+    <!-- momentjs -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.3/moment.min.js"></script>
+
     <script>
+        Vue.use(VueMask.VueMaskPlugin);
+
         new Vue({
             mixins: [mixinApp],
             el: '#app',
-            data: {},
-            methods: {},
+            data: {
+                yukleniyor: false,
+            },
+            methods: {
+                uyariAc(obje) {
+                    Swal.fire({
+                        title: obje.baslik,
+                        text: obje.mesaj,
+                        type: obje.tur,
+                        ...obje.ozellikler
+                    });
+                },
+                yukleniyorDurum(durum) {
+                    this.yukleniyor = durum;
+                },
+            },
         });
     </script>
 

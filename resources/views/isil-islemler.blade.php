@@ -133,10 +133,14 @@
                                 <tr v-for="(isilIslem, index) in isilIslemler" :key="index">
                                     <td>@{{ index + 1 }}</td>
                                     <td>
-                                        <select class="form-select" aria-label="Default select example">
-                                            <option selected>Select</option>
-                                            <option>Large select</option>
-                                            <option>Small select</option>
+                                        <select class="form-control select2">
+                                            <optgroup label="Firmalar">
+                                                <option
+                                                    v-for="(firma, index) in firmalar"
+                                                    :value="firma.id"
+                                                    :key="index"
+                                                >@{{ firma.ad }}</option>
+                                            </optgroup>
                                         </select>
                                     </td>
                                     <td>
@@ -170,7 +174,6 @@
                                         <button class="btn btn-danger" @click="islemSil(index)">Sil</button>
                                     </td>
                                 </tr>
-
                             </tbody>
                             <tfoot>
                                 <tr>
@@ -196,61 +199,33 @@
         data() {
             return {
                 aktifIslem: null,
-                islemler: [
-                    {
-                        firma: "Firma 1",
-                        firin: "Kamaralı Fırın",
-                        sarj: "1. Şarj",
-                        sepet: "Uzun Sepet",
-                        malzeme: "Pul",
-                        kalite: "Kalite 1",
-                        sonSertlik: "Çok Sert",
-                        firinClass: "btn-danger",
-                        sarjClass: "btn-dark",
-                        sepetClass: "btn-outline-warning",
-                    },
-                    {
-                        firma: "Firma 2",
-                        firin: "Kamaralı Fırın",
-                        sarj: "2. Şarj",
-                        sepet: "Uzun Sepet",
-                        malzeme: "Çelik Mil",
-                        kalite: "Kalite 2",
-                        sonSertlik: "Yumuşak",
-                        firinClass: "btn-danger",
-                        sarjClass: "btn-dark",
-                        sepetClass: "btn-outline-warning",
-                    },
-                    {
-                        firma: "Firma 3",
-                        firin: "Alüminyum Fırın",
-                        sarj: "1. Şarj",
-                        sepet: "Geniş Sepet",
-                        malzeme: "Çelik Mil",
-                        kalite: "Kalite 1",
-                        sonSertlik: "Sert",
-                        firinClass: "btn-secondary",
-                        sarjClass: "btn-dark",
-                        sepetClass: "btn-outline-warning",
-                    },
-                ],
-                isilIslem: {
-                    malzeme: '',
-                    miktar: '',
-                    adet: '',
-                    kalite: '',
-                    yapilacak_islem: '',
-                    istenilen_sertlik: ''
+                islemObjesi: {
                 },
-                isilIslemler: [],
+                siparisler: [],
+                firmalar: [],
             };
         },
+        mounted() {
+            this.siparisleriGetir();
+        },
         methods: {
+            siparisleriGetir() {
+                axios.get('/api/siparisler')
+                .then(response => {
+                    if (!response.data.success) {
+                        this.alertDikkat('Siparişler Getirilemedi', response.data.message);
+                    }
+
+                    this.siparisler = response.data.siparisler;
+                })
+                .catch(error => {
+                    console.log(error);
+                });
+            },
             islemEkle() {
                 this.aktifIslem = {
-                    tarih: '',
-                    sira_no: '',
-                    musteri: '',
+                    tarih: moment().toISOString(),
+                    siparisNo: '',
                 };
             },
             islemSil(index) {
