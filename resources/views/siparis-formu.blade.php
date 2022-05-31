@@ -339,7 +339,6 @@
         },
         mounted() {
             this.siparisleriGetir();
-            this.siparisEklemeAc();
         },
         computed: {
             araYukleniyor() {
