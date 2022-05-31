@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\isilIslemController;
+use App\Http\Controllers\IslemTurleriController;
+use App\Http\Controllers\MalzemeController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SiparisController;
@@ -26,6 +28,11 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/numaralariGetir', [SiparisController::class, 'numaralariGetir'])->name("numaralariGetir");
     Route::get('/siparisDurumlariGetir', [SiparisController::class, 'siparisDurumlariGetir'])->name("siparisDurumlariGetir");
     Route::get('/firmalariGetir', [SiparisController::class, 'firmalariGetir'])->name("firmalariGetir");
+    Route::post('/siparisKaydet', [SiparisController::class, 'siparisKaydet'])->name("siparisKaydet");
+
+    Route::get('/islemTurleriGetir', [IslemTurleriController::class, 'islemTurleriGetir'])->name("islemTurleriGetir");
+
+    Route::get('/malzemeleriGetir', [MalzemeController::class, 'malzemeleriGetir'])->name("malzemeleriGetir");
 
     Route::get('/siparisDetay', [SiparisController::class, 'siparisDetay'])->name("siparisDetay");
     Route::get('/isil-islem-takip-formu', [isilIslemController::class, 'isilIslemTakipFormu'])->name("isil-islem-formu");

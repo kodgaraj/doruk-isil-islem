@@ -102,14 +102,30 @@
                 <template v-else>
                     <div class="row">
                         <div class="col-8">
-                            <h4 class="card-title">SİPARİŞ EKLEME</h4>
+                            <div class="d-flex flex-row align-items-center">
+                                <button @click="geri" class="btn btn-warning"><i class="fas fa-arrow-left"></i> GERİ</button>
+                                <h4 class="card-title m-0 ms-2">
+                                    SİPARİŞ EKLEME
+                                    <div class="d-inline-flex" v-if="araYukleniyor">
+                                        <div class="spinner-grow text-primary m-1 spinner-grow-sm" role="status">
+                                            <span class="sr-only">Yükleniyor...</span>
+                                        </div>
+                                    </div>
+                                </h4>
+                            </div>
                         </div>
                         <div class="col-4 text-end">
-                            <button @click="geri" class="btn btn-primary btn-sm"><i class="fas fa-arrow-left"></i> GERİ</button>
+                            <button
+                                @click="siparisKaydet"
+                                class="btn btn-success"
+                                :disabled="aktifSiparis.islemler.length === 0"
+                            >
+                                <i class="fas fa-save"></i> KAYDET
+                            </button>
                         </div>
                     </div>
 
-                    <div class="row">
+                    <div class="row mt-3">
                         <div class="col-12 col-sm-6 col-md-4 mb-2">
                             <div class="form-group">
                                 <label for="tarih">Tarih</label>
@@ -200,7 +216,7 @@
                                                 @{{ firma.firmaAdi }}
                                             </div>
                                             <div class="col-4">
-                                                @{{ firma.sorumluKisi }}
+                                                (@{{ firma.sorumluKisi }})
                                             </div>
                                         </div>
                                     </option>
@@ -220,51 +236,59 @@
                     <div class="mb-3 row">
                         <table class="table table-striped table-bordered nowrap" id="urun-detay">
                             <thead>
-                                <th>No</th>
+                                <th>Sıra No</th>
                                 <th>Malzeme</th>
-                                <th>Miktar KG</th>
                                 <th>Adet</th>
+                                <th>Miktar (KG)</th>
+                                <th>Dara (KG)</th>
+                                <th>Birim Fiyat</th>
                                 <th>Kalite</th>
                                 <th>Yapılacak İşlem</th>
                                 <th>İstenilen Sertlik</th>
                                 <th>İşlemler</th>
                             </thead>
                             <tbody id="urun-satir-ekle">
-                                <tr v-for="(urun, index) in aktifSiparis.urunler" :key="index">
-                                    <td>@{{ index + 1 }}</td>
+                                <tr v-for="(urun, index) in aktifSiparis.islemler" :key="index">
+                                    <td># @{{ index + 1 }}</td>
                                     <td>
-                                        <select class="form-select" aria-label="Default select example">
-                                            <option selected>Select</option>
-                                            <option>Large select</option>
-                                            <option>Small select</option>
+                                        <select class="form-select" aria-label="Malzemeler" v-model="urun.malzeme">
+                                            <option
+                                                v-for="(malzeme, index) in malzemeler"
+                                                :value="malzeme"
+                                                :key="index"
+                                            >
+                                                @{{ malzeme.ad }}
+                                            </option>
                                         </select>
                                     </td>
                                     <td>
-                                        <input class="form-control" type="text" placeholder="Miktar KG" v-model="urun.miktar">
+                                        <input class="form-control" type="number" placeholder="Adet" v-model="urun.adet">
                                     </td>
                                     <td>
-                                        <input class="form-control" type="text" placeholder="Adet" v-model="urun.adet">
+                                        <input class="form-control" type="number" placeholder="Miktar (KG)" v-model="urun.miktar">
                                     </td>
                                     <td>
-                                        <select class="form-select" aria-label="Default select example">
-                                            <option selected>Select</option>
-                                            <option>Large select</option>
-                                            <option>Small select</option>
+                                        <input class="form-control" type="number" placeholder="Dara (KG)" v-model="urun.dara">
+                                    </td>
+                                    <td>
+                                        <input class="form-control" type="text" placeholder="Birim Fiyat" v-model="urun.birimFiyat">
+                                    </td>
+                                    <td>
+                                        <input class="form-control" type="text" placeholder="Kalite" v-model="urun.kalite">
+                                    </td>
+                                    <td>
+                                        <select class="form-select" aria-label="İşlemler" v-model="urun.yapilacakIslem">
+                                            <option
+                                                v-for="(islem, index) in islemTurleri"
+                                                :value="islem"
+                                                :key="index"
+                                            >
+                                                @{{ islem.ad }}
+                                            </option>
                                         </select>
                                     </td>
                                     <td>
-                                        <select class="form-select" aria-label="Default select example">
-                                            <option selected>Select</option>
-                                            <option>Large select</option>
-                                            <option>Small select</option>
-                                        </select>
-                                    </td>
-                                    <td>
-                                        <select class="form-select" aria-label="Default select example">
-                                            <option selected>Select</option>
-                                            <option>Large select</option>
-                                            <option>Small select</option>
-                                        </select>
+                                        <input class="form-control" type="text" placeholder="İstenilen Sertlik" v-model="urun.istenilenSertlik">
                                     </td>
                                     <td>
                                         <button class="btn btn-danger" @click="urunSil(index)">Sil</button>
@@ -275,7 +299,10 @@
                             <tfoot>
                                 <tr>
                                     <td colspan="8">
-                                        <button class="btn btn-success" @click="urunEkle">Ekle</button>
+                                        <button class="btn btn-info btn-sm" @click="urunEkle">
+                                            <i class="fa fa-plus"></i>
+                                            Ekle
+                                        </button>
                                     </td>
                                 </tr>
                             </tfoot>
@@ -301,14 +328,30 @@
                     numaralar: false,
                     siparisDurumlari: false,
                     firmalar: false,
+                    malzemeler: false,
+                    islemTurleri: false,
                 },
                 siparisDurumlari: [],
                 firmalar: [],
+                malzemeler: [],
+                islemTurleri: [],
             }
         },
         mounted() {
             this.siparisleriGetir();
             this.siparisEklemeAc();
+        },
+        computed: {
+            araYukleniyor() {
+                let yukleniyor = false;
+                for (let i in this.yukleniyorObjesi) {
+                    if (this.yukleniyorObjesi[i]) {
+                        yukleniyor = true;
+                        break;
+                    }
+                }
+                return yukleniyor;
+            },
         },
         methods: {
             siparisleriGetir(url = "/siparisler") {
@@ -338,12 +381,15 @@
                     siparisNo: "",
                     siparisAdi: "",
                     terminSuresi: 5,
-                    urunler: [],
+                    islemler: [],
                 };
 
                 this.numaralariGetir();
                 this.siparisDurumlariGetir();
                 this.firmalariGetir();
+            },
+            geri() {
+                this.aktifSiparis = null;
             },
             numaralariGetir() {
                 this.yukleniyorObjesi.numaralar = true;
@@ -424,32 +470,97 @@
                     console.log(error);
                 });
             },
+            malzemeleriGetir() {
+                this.yukleniyorObjesi.malzemeler = true;
+                axios.get("/malzemeleriGetir")
+                .then(response => {
+                    this.yukleniyorObjesi.malzemeler = false;
+                    if (!response.data.durum) {
+                        return this.uyariAc({
+                            baslik: 'Hata',
+                            mesaj: response.data.mesaj,
+                            tur: "error"
+                        });
+                    }
 
+                    this.malzemeler = response.data.malzemeler;
+                })
+                .catch(error => {
+                    this.yukleniyorObjesi.malzemeler = false;
+                    console.log(error);
+                });
+            },
+            islemTurleriGetir() {
+                this.yukleniyorObjesi.islemTurleri = true;
+                axios.get("/islemTurleriGetir")
+                .then(response => {
+                    this.yukleniyorObjesi.islemTurleri = false;
+                    if (!response.data.durum) {
+                        return this.uyariAc({
+                            baslik: 'Hata',
+                            mesaj: response.data.mesaj,
+                            tur: "error"
+                        });
+                    }
+
+                    this.islemTurleri = response.data.islemTurleri;
+                })
+                .catch(error => {
+                    this.yukleniyorObjesi.islemTurleri = false;
+                    console.log(error);
+                });
+            },
             urunEkle() {
-                this.urunler.push(this.urun);
-                this.urun = {
-                    malzeme: '',
-                    miktar: '',
-                    adet: '',
-                    kalite: '',
-                    yapilacak_islem: '',
-                    istenilen_sertlik: ''
+                if (!this.malzemeler.length) {
+                    this.malzemeleriGetir();
                 }
+
+                if (!this.islemTurleri.length) {
+                    this.islemTurleriGetir();
+                }
+
+                this.aktifSiparis.islemler.push({
+                    malzeme: null,
+                    adet: 1,
+                    miktar: 1,
+                    dara: 0,
+                    birimFiyat: 0,
+                    kalite: "",
+                    yapilacakIslem: null,
+                    istenilenSertlik: "",
+                });
             },
             urunSil(index) {
-                this.urunler.splice(index, 1);
+                this.aktifSiparis.islemler.splice(index, 1);
             },
-            siparisEkle() {
-                this.aktifSiparis = {
-                    tarih: '',
-                    sira_no: '',
-                    musteri: '',
-                    urunler: this.urunler
-                }
+            siparisKaydet() {
+                this.yukleniyorObjesi.kaydet = true;
+                axios.post("/siparisKaydet", {
+                    siparis: this.aktifSiparis
+                })
+                .then(response => {
+                    this.yukleniyorObjesi.kaydet = false;
+                    if (!response.data.durum) {
+                        return this.uyariAc({
+                            baslik: 'Hata',
+                            mesaj: response.data.mesaj,
+                            tur: "error"
+                        });
+                    }
+
+                    this.uyariAc({
+                        baslik: 'Başarılı',
+                        mesaj: response.data.mesaj,
+                        tur: "success"
+                    });
+                    this.siparisleriGetir();
+                    this.geri();
+                })
+                .catch(error => {
+                    this.yukleniyorObjesi.kaydet = false;
+                    console.log(error);
+                });
             },
-            geri() {
-                this.aktifSiparis = null;
-            }
         }
     };
 </script>
