@@ -29,6 +29,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/siparisDurumlariGetir', [SiparisController::class, 'siparisDurumlariGetir'])->name("siparisDurumlariGetir");
     Route::get('/firmalariGetir', [SiparisController::class, 'firmalariGetir'])->name("firmalariGetir");
     Route::post('/siparisKaydet', [SiparisController::class, 'siparisKaydet'])->name("siparisKaydet");
+    Route::post('/siparisDetay', [SiparisController::class, 'siparisDetay'])->name("siparisDetay");
 
     Route::get('/islemTurleriGetir', [IslemTurleriController::class, 'islemTurleriGetir'])->name("islemTurleriGetir");
 

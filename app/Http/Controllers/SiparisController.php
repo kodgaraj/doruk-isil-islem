@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Firmalar;
 use App\Models\Islemler;
+use App\Models\IslemTurleri;
+use App\Models\Malzemeler;
 use App\Models\SiparisDurumlari;
 use App\Models\Siparisler;
 use Illuminate\Http\Request;
@@ -30,6 +32,7 @@ class SiparisController extends Controller
             $firmaTabloAdi = (new Firmalar())->getTable();
             $siparisDurumTabloAdi = (new SiparisDurumlari())->getTable();
             $siparisTabloAdi = (new Siparisler())->getTable();
+            $islemTabloAdi = (new Islemler())->getTable();
 
             $siparisler = Siparisler::select(DB::raw("
                     $siparisTabloAdi.id as siparisId,
@@ -40,12 +43,31 @@ class SiparisController extends Controller
                     $siparisTabloAdi.tutar,
                     $siparisTabloAdi.firmaId,
                     $siparisTabloAdi.durumId,
+                    $siparisTabloAdi.terminSuresi,
+                    $siparisTabloAdi.aciklama,
                     $siparisDurumTabloAdi.ad as siparisDurumAdi,
                     $firmaTabloAdi.firmaAdi,
-                    $firmaTabloAdi.sorumluKisi
+                    $firmaTabloAdi.sorumluKisi,
+                    COUNT(*) as islemSayisi
                 "))
                 ->join($firmaTabloAdi, $firmaTabloAdi . '.id', '=', $siparisTabloAdi . '.firmaId')
                 ->join($siparisDurumTabloAdi, $siparisDurumTabloAdi . '.id', '=', $siparisTabloAdi . '.durumId')
+                ->join($islemTabloAdi, $islemTabloAdi . '.siparisId', '=', $siparisTabloAdi . '.id')
+                ->groupBy(
+                    $siparisTabloAdi . '.id',
+                    $siparisTabloAdi . '.ad',
+                    $siparisTabloAdi . '.irsaliyeNo',
+                    $siparisTabloAdi . '.siparisNo',
+                    $siparisTabloAdi . '.tarih',
+                    $siparisTabloAdi . '.tutar',
+                    $siparisTabloAdi . '.firmaId',
+                    $siparisTabloAdi . '.durumId',
+                    $siparisTabloAdi . '.terminSuresi',
+                    $siparisTabloAdi . '.aciklama',
+                    $siparisDurumTabloAdi . '.ad',
+                    $firmaTabloAdi . '.firmaAdi',
+                    $firmaTabloAdi . '.sorumluKisi'
+                )
                 ->paginate($sayfalamaSayisi);
 
             // dd($siparisler->getPageName());
@@ -173,7 +195,17 @@ class SiparisController extends Controller
 
             DB::beginTransaction();
 
-            $siparis = new Siparisler();
+            if (isset($siparisBilgileri['siparisId']))
+            {
+                $siparis = Siparisler::find($siparisBilgileri['siparisId']);
+            }
+            else
+            {
+                $siparis = new Siparisler();
+            }
+
+            // dd($siparis);
+
             $siparis->firmaId = $siparisBilgileri['firma']["id"];
             $siparis->userId = $userId;
             $siparis->durumId = $siparisBilgileri['siparisDurumu']["id"];
@@ -198,11 +230,20 @@ class SiparisController extends Controller
 
             foreach ($siparisBilgileri['islemler'] as $key => $islem)
             {
-                $islemModel = new Islemler();
+                if (isset($islem['id']))
+                {
+                    $islemModel = Islemler::find($islem['id']);
+                }
+                else
+                {
+                    $islemModel = new Islemler();
+                }
+
+                // dd($islemModel->siparisId, $siparisIslemleri, $siparis->id);
 
                 $islemModel->siparisId = $siparis->id;
                 $islemModel->malzemeId = $islem['malzeme']["id"] ?? null;
-                $islemModel->islemTuruId = $islem['islemTuru']["id"] ?? null;
+                $islemModel->islemTuruId = $islem['yapilacakIslem']["id"] ?? null;
                 $islemModel->siraNo = $key + 1;
                 $islemModel->adet = $islem['adet'];
                 $islemModel->miktar = $islem['miktar'];
@@ -244,9 +285,61 @@ class SiparisController extends Controller
     {
         try
         {
-            $siparis = $request->siparis;
+            $siparisId = $request->siparisId;
 
+            $malzemeTabloAdi = (new Malzemeler())->getTable();
+            $islemTuruTabloAdi = (new IslemTurleri())->getTable();
+            $islemTabloAdi = (new Islemler())->getTable();
 
+            $islemler = Islemler::where('siparisId', $siparisId)->get();
+
+            return response()->json([
+                'durum' => true,
+                'mesaj' => 'Sipariş başarıyla getirildi.',
+                'veriler' => [
+                    "islemler" => $islemler,
+                ],
+            ]);
+        }
+        catch(\Exception $e)
+        {
+            return response()->json([
+                'durum' => false,
+                'mesaj' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function siparisSil(Request $request)
+    {
+        try
+        {
+            $siparisId = $request->siparisId;
+
+            $siparis = Siparisler::find($siparisId);
+
+            if (!$siparis)
+            {
+                return response()->json([
+                    'durum' => false,
+                    'mesaj' => 'Sipariş bulunamadı.'
+                ], 404);
+            }
+
+            if (!$siparis->delete())
+            {
+                return response()->json([
+                    'durum' => false,
+                    'mesaj' => 'Sipariş silinirken bir hata oluştu.'
+                ], 500);
+            }
+
+            
+
+            return response()->json([
+                'durum' => true,
+                'mesaj' => 'Sipariş başarıyla silindi.'
+            ]);
         }
         catch(\Exception $e)
         {

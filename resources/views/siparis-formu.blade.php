@@ -416,7 +416,7 @@
             },
             siparisDurumlariGetir() {
                 this.yukleniyorObjesi.siparisDurumlari = true;
-                axios.get("/siparisDurumlariGetir")
+                return axios.get("/siparisDurumlariGetir")
                 .then(response => {
                     this.yukleniyorObjesi.siparisDurumlari = false;
                     if (!response.data.durum) {
@@ -429,12 +429,14 @@
 
                     this.siparisDurumlari = response.data.siparisDurumlari;
 
-                    const siparisAlindiDurum = _.find(this.siparisDurumlari, {
-                        kod: "SIPARIS_ALINDI"
-                    });
+                    if (this.aktifSiparis && !this.aktifSiparis.siparisId) {
+                        const siparisAlindiDurum = _.find(this.siparisDurumlari, {
+                            kod: "SIPARIS_ALINDI"
+                        });
 
-                    if (siparisAlindiDurum) {
-                        this.aktifSiparis.siparisDurumu = siparisAlindiDurum;
+                        if (siparisAlindiDurum) {
+                            this.aktifSiparis.siparisDurumu = siparisAlindiDurum;
+                        }
                     }
                 })
                 .catch(error => {
@@ -451,7 +453,7 @@
             },
             firmalariGetir() {
                 this.yukleniyorObjesi.firmalar = true;
-                axios.get("/firmalariGetir")
+                return axios.get("/firmalariGetir")
                 .then(response => {
                     this.yukleniyorObjesi.firmalar = false;
                     if (!response.data.durum) {
@@ -471,7 +473,7 @@
             },
             malzemeleriGetir() {
                 this.yukleniyorObjesi.malzemeler = true;
-                axios.get("/malzemeleriGetir")
+                return axios.get("/malzemeleriGetir")
                 .then(response => {
                     this.yukleniyorObjesi.malzemeler = false;
                     if (!response.data.durum) {
@@ -491,7 +493,7 @@
             },
             islemTurleriGetir() {
                 this.yukleniyorObjesi.islemTurleri = true;
-                axios.get("/islemTurleriGetir")
+                return axios.get("/islemTurleriGetir")
                 .then(response => {
                     this.yukleniyorObjesi.islemTurleri = false;
                     if (!response.data.durum) {
@@ -550,13 +552,107 @@
                     this.uyariAc({
                         baslik: 'Başarılı',
                         mesaj: response.data.mesaj,
-                        tur: "success"
+                        tur: "success",
+                        ozellikler: {
+                            position: 'top-end',
+                            icon: 'success',
+                            showConfirmButton: false,
+                            timer: 2000
+                        }
                     });
                     this.siparisleriGetir();
                     this.geri();
                 })
                 .catch(error => {
                     this.yukleniyorObjesi.kaydet = false;
+                    console.log(error);
+                });
+            },
+            siparisDuzenle(siparis) {
+                console.log(siparis);
+
+                const promises = [];
+
+                if (!_.size(this.siparisDurumlari)) {
+                    promises.push(this.siparisDurumlariGetir());
+                }
+
+                if (!_.size(this.firmalar)) {
+                    promises.push(this.firmalariGetir());
+                }
+
+                if (!_.size(this.malzemeler)) {
+                    promises.push(this.malzemeleriGetir());
+                }
+
+                if (!_.size(this.islemTurleri)) {
+                    promises.push(this.islemTurleriGetir());
+                }
+
+                axios.post("/siparisDetay", {
+                    siparisId: siparis.siparisId
+                })
+                .then(response => {
+                    if (!response.data.durum) {
+                        return this.uyariAc({
+                            baslik: 'Hata',
+                            mesaj: response.data.mesaj,
+                            tur: "error"
+                        });
+                    }
+
+                    Promise.all(promises)
+                    .then(p => {
+                        const aktifSiparis = {
+                            ...siparis,
+                            islemler: response.data.veriler.islemler,
+                        };
+
+                        const firma = _.find(this.firmalar, {
+                            id: aktifSiparis.firmaId
+                        });
+
+                        if (firma) {
+                            aktifSiparis.firma = firma;
+                        }
+
+                        const siparisDurumu = _.find(this.siparisDurumlari, {
+                            id: aktifSiparis.durumId
+                        });
+
+                        if (siparisDurumu) {
+                            aktifSiparis.siparisDurumu = siparisDurumu;
+                        }
+
+                        if (_.size(aktifSiparis.islemler)) {
+                            aktifSiparis.islemler.forEach(islem => {
+
+                                if (islem.malzemeId) {
+                                    const malzeme = _.find(this.malzemeler, {
+                                        id: islem.malzemeId
+                                    });
+
+                                    if (malzeme) {
+                                        islem.malzeme = malzeme;
+                                    }
+                                }
+
+                                if (islem.islemTuruId) {
+                                    const islemTur = _.find(this.islemTurleri, {
+                                        id: islem.islemTuruId
+                                    });
+
+                                    if (islemTur) {
+                                        islem.yapilacakIslem = islemTur;
+                                    }
+                                }
+                            });
+                        }
+
+                        this.aktifSiparis = aktifSiparis;
+                    });
+                })
+                .catch(error => {
                     console.log(error);
                 });
             },
