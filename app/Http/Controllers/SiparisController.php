@@ -48,7 +48,7 @@ class SiparisController extends Controller
                     $siparisDurumTabloAdi.ad as siparisDurumAdi,
                     $firmaTabloAdi.firmaAdi,
                     $firmaTabloAdi.sorumluKisi,
-                    COUNT(*) as islemSayisi
+                    COUNT(IF($islemTabloAdi.deleted_at IS NULL, $islemTabloAdi.id, NULL)) as islemSayisi
                 "))
                 ->join($firmaTabloAdi, $firmaTabloAdi . '.id', '=', $siparisTabloAdi . '.firmaId')
                 ->join($siparisDurumTabloAdi, $siparisDurumTabloAdi . '.id', '=', $siparisTabloAdi . '.durumId')
@@ -220,6 +220,7 @@ class SiparisController extends Controller
             if (!$siparis->save())
             {
                 DB::rollBack();
+
                 return response()->json([
                     'durum' => false,
                     'mesaj' => 'Sipariş kaydedilirken bir hata oluştu.',
@@ -256,12 +257,33 @@ class SiparisController extends Controller
                 if (!$islemModel->save())
                 {
                     DB::rollBack();
+
                     return response()->json([
                         'durum' => false,
                         'mesaj' => 'İşlem kaydedilirken bir hata oluştu.',
                         'hata' => $islemModel->getErrors(),
                         "hataKodu" => "S002"
                     ], 500);
+                }
+            }
+
+            if (isset($siparisBilgileri['silinenIslemler']) && $siparisBilgileri['silinenIslemler'])
+            {
+                foreach ($siparisBilgileri['silinenIslemler'] as $islemId)
+                {
+                    $islemModel = Islemler::where("id", $islemId)->first();
+
+                    if (!$islemModel->delete())
+                    {
+                        DB::rollBack();
+
+                        return response()->json([
+                            'durum' => false,
+                            'mesaj' => 'İşlem silinirken bir hata oluştu.',
+                            'hata' => $islemModel->getErrors(),
+                            "hataKodu" => "S003"
+                        ], 500);
+                    }
                 }
             }
 
@@ -276,7 +298,8 @@ class SiparisController extends Controller
         {
             return response()->json([
                 'durum' => false,
-                'mesaj' => $e->getMessage()
+                'mesaj' => $e->getMessage(),
+                'satir' => $e->getLine(),
             ], 500);
         }
     }

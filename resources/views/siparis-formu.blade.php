@@ -105,7 +105,12 @@
                             <div class="d-flex flex-row align-items-center">
                                 <button @click="geri" class="btn btn-warning"><i class="fas fa-arrow-left"></i> GERİ</button>
                                 <h4 class="card-title m-0 ms-2">
-                                    SİPARİŞ EKLEME
+                                    <template v-if="aktifSiparis.siparisId">
+                                        @{{ aktifSiparis.siparisAdi }}
+                                    </template>
+                                    <template v-else>
+                                        SİPARİŞ EKLEME
+                                    </template>
                                     <div class="d-inline-flex" v-if="araYukleniyor">
                                         <div class="spinner-grow text-primary m-1 spinner-grow-sm" role="status">
                                             <span class="sr-only">Yükleniyor...</span>
@@ -532,45 +537,71 @@
                 });
             },
             urunSil(index) {
+                if (this.aktifSiparis.siparisId) {
+                    if (!this.aktifSiparis.silinenIslemler) {
+                        this.aktifSiparis.silinenIslemler = [];
+                    }
+
+                    this.aktifSiparis.silinenIslemler.push(this.aktifSiparis.islemler[index].id);
+                }
+
                 this.aktifSiparis.islemler.splice(index, 1);
             },
             siparisKaydet() {
-                this.yukleniyorObjesi.kaydet = true;
-                axios.post("/siparisKaydet", {
-                    siparis: this.aktifSiparis
-                })
-                .then(response => {
-                    this.yukleniyorObjesi.kaydet = false;
-                    if (!response.data.durum) {
-                        return this.uyariAc({
-                            baslik: 'Hata',
-                            mesaj: response.data.mesaj,
-                            tur: "error"
-                        });
-                    }
-
-                    this.uyariAc({
-                        baslik: 'Başarılı',
-                        mesaj: response.data.mesaj,
-                        tur: "success",
-                        ozellikler: {
-                            position: 'top-end',
-                            icon: 'success',
-                            showConfirmButton: false,
-                            timer: 2000
+                const islem = () => {
+                    this.yukleniyorObjesi.kaydet = true;
+                    axios.post("/siparisKaydet", {
+                        siparis: this.aktifSiparis
+                    })
+                    .then(response => {
+                        this.yukleniyorObjesi.kaydet = false;
+                        if (!response.data.durum) {
+                            return this.uyariAc({
+                                baslik: 'Hata',
+                                mesaj: response.data.mesaj,
+                                tur: "error"
+                            });
                         }
+    
+                        this.uyariAc({
+                            baslik: 'Başarılı',
+                            mesaj: response.data.mesaj,
+                            tur: "success",
+                            ozellikler: {
+                                position: 'top-end',
+                                icon: 'success',
+                                showConfirmButton: false,
+                                timer: 2000
+                            }
+                        });
+                        this.siparisleriGetir();
+                        this.geri();
+                    })
+                    .catch(error => {
+                        this.yukleniyorObjesi.kaydet = false;
+                        console.log(error);
                     });
-                    this.siparisleriGetir();
-                    this.geri();
-                })
-                .catch(error => {
-                    this.yukleniyorObjesi.kaydet = false;
-                    console.log(error);
-                });
+                };
+
+                if (_.size(this.aktifSiparis.silinenIslemler)) {
+                    Swal.fire({
+                        title: "Uyarı",
+                        text: `Eğer devam ederseniz, ${_.size(this.aktifSiparis.silinenIslemler)} adet ürün silinecektir. Devam etmek istiyor musunuz?`,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'Devam Et',
+                        cancelButtonText: 'İptal',
+                    }).then((result) => {
+                        /* Read more about isConfirmed, isDenied below */
+                        if (result.isConfirmed) {
+                            islem();
+                        } else if (result.isDenied) {}
+                    });
+                } else {
+                    islem();
+                }
             },
             siparisDuzenle(siparis) {
-                console.log(siparis);
-
                 const promises = [];
 
                 if (!_.size(this.siparisDurumlari)) {
@@ -654,6 +685,52 @@
                 })
                 .catch(error => {
                     console.log(error);
+                });
+            },
+            siparisSil(siparis) {
+                Swal.fire({
+                    title: "Uyarı",
+                    text: `Siparişi silerseniz siparişe ait ${siparis.islemSayisi} adet işlem kaydı da silinecektir. Siparişi silmek istediğinizden emin misiniz?`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Sil',
+                    cancelButtonText: 'İptal',
+                }).then((result) => {
+                    /* Read more about isConfirmed, isDenied below */
+                    if (result.isConfirmed) {
+                        this.yukleniyorObjesi.siparisSil = true;
+                        axios.post("/siparisSil", {
+                            siparisId: siparis.siparisId
+                        })
+                        .then(response => {
+                            this.yukleniyorObjesi.siparisSil = false;
+                            if (!response.data.durum) {
+                                return this.uyariAc({
+                                    baslik: 'Hata',
+                                    mesaj: response.data.mesaj,
+                                    tur: "error"
+                                });
+                            }
+
+                            this.uyariAc({
+                                baslik: 'Başarılı',
+                                mesaj: response.data.mesaj,
+                                tur: "success",
+                                ozellikler: {
+                                    position: 'top-end',
+                                    icon: 'success',
+                                    showConfirmButton: false,
+                                    timer: 2000
+                                }
+                            });
+
+                            this.siparisleriGetir();
+                        })
+                        .catch(error => {
+                            this.yukleniyorObjesi.siparisSil = false;
+                            console.log(error);
+                        });
+                    } else if (result.isDenied) {}
                 });
             },
         }
