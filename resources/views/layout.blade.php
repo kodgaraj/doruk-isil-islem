@@ -11,6 +11,8 @@
     <link href="assets/css/icons.min.css" rel="stylesheet" type="text/css" />
     <link href="assets/css/app.min.css" id="app-style" rel="stylesheet" type="text/css" />
     <link href="assets/css/doruk.css" rel="stylesheet" type="text/css" />
+
+    @yield('style')
 </head>
 
 <body data-layout="detached" data-topbar="colored">
@@ -36,8 +38,8 @@
                                 </a>
                             </li>
                             <li>
-                                <a href="{{ route("isil-islem-formu") }}" class=" waves-effect">
-                                    <i class="mdi mdi-stove"></i> Isıl İşlemler
+                                <a href="{{ route("isil-islemler") }}" class=" waves-effect">
+                                    <i class="mdi mdi-stove"></i> Isıl İşlem Formları
                                 </a>
                             </li>
                             <li>
@@ -107,7 +109,6 @@
                                         </div>
                                         <div class="dropdown d-inline-block">
                                             <button type="button" class="btn header-item waves-effect" id="page-header-user-dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                            
                                             <span class="d-none d-xl-inline-block ms-1">Admin</span>
                                             <i class="mdi mdi-chevron-down d-none d-xl-inline-block"></i>
                                         </button>
@@ -125,7 +126,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row doruk-content mt-5">
+                    <div class="row doruk-content mt-5 pt-3">
                         @yield('content')
                     </div>
                 </div>
@@ -166,11 +167,13 @@
     <!-- lodash -->
     <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
     <!-- momentjs -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.3/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.3/moment-with-locales.min.js"></script>
     <!-- sweetalert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
 
     <script>
+        moment.locale("tr");
+
         Vue.use(VueMask.VueMaskPlugin);
 
         new Vue({
@@ -178,6 +181,11 @@
             el: '#app',
             data: {
                 yukleniyor: false,
+            },
+            computed: {
+                m() {
+                    return moment;
+                }
             },
             methods: {
                 uyariAc(obje) {

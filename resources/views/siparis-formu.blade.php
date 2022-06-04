@@ -30,6 +30,7 @@
                                             <table id="tech-companies-1" class="table table-striped table-hover">
                                                 <thead>
                                                     <tr>
+                                                        <th>Termin</th>
                                                         <th>Sipariş No</th>
                                                         <th data-priority="2">Firma</th>
                                                         <th data-priority="2">Sipariş</th>
@@ -42,11 +43,14 @@
                                                 </thead>
                                                 <tbody>
                                                     <tr v-for="(siparis, index) in siparisler.data" :key="index">
+                                                        <td>
+                                                            <span class="badge badge-pill" :class="`bg-${ siparis.gecenSureRenk }`">@{{ siparis.gecenSure }} Gün</span>
+                                                        </td>
                                                         <td>@{{ siparis.siparisNo }}</td>
                                                         <td>
                                                             <div class="row">
                                                                 <div class="col-12">
-                                                                    @{{ siparis.firmaAdi }} 
+                                                                    @{{ siparis.firmaAdi }}
                                                                 </div>
                                                                 <div class="col-12">
                                                                     <h6>@{{ siparis.sorumluKisi }}</h6>
@@ -57,7 +61,7 @@
                                                         <td>@{{ siparis.islemSayisi }}</td>
                                                         <td>@{{ siparis.irsaliyeNo }}</td>
                                                         <td>@{{ siparis.tutar ? siparis.tutar + " ₺" : "-" }}</td>
-                                                        <td>@{{ siparis.tarih }}</td>
+                                                        <td>@{{ m(siparis.tarih).format("L") }}</td>
                                                         <td>
                                                             <button @click="siparisDuzenle(siparis)" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></button>
                                                             <button @click="siparisSil(siparis)" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>
@@ -250,13 +254,14 @@
                                 <th>Kalite</th>
                                 <th>Yapılacak İşlem</th>
                                 <th>İstenilen Sertlik</th>
+                                <th>İşlem Durumu</th>
                                 <th>İşlemler</th>
                             </thead>
-                            <tbody id="urun-satir-ekle">
-                                <tr v-for="(urun, index) in aktifSiparis.islemler" :key="index">
+                            <tbody id="islem-satir-ekle">
+                                <tr v-for="(islem, index) in aktifSiparis.islemler" :key="index">
                                     <td># @{{ index + 1 }}</td>
                                     <td>
-                                        <select class="form-select" aria-label="Malzemeler" v-model="urun.malzeme">
+                                        <select class="form-select" aria-label="Malzemeler" v-model="islem.malzeme">
                                             <option
                                                 v-for="(malzeme, index) in malzemeler"
                                                 :value="malzeme"
@@ -267,22 +272,22 @@
                                         </select>
                                     </td>
                                     <td>
-                                        <input class="form-control" type="number" placeholder="Adet" v-model="urun.adet">
+                                        <input class="form-control" type="number" placeholder="Adet" v-model="islem.adet">
                                     </td>
                                     <td>
-                                        <input class="form-control" type="number" placeholder="Miktar (KG)" v-model="urun.miktar">
+                                        <input class="form-control" type="number" placeholder="Miktar (KG)" v-model="islem.miktar">
                                     </td>
                                     <td>
-                                        <input class="form-control" type="number" placeholder="Dara (KG)" v-model="urun.dara">
+                                        <input class="form-control" type="number" placeholder="Dara (KG)" v-model="islem.dara">
                                     </td>
                                     <td>
-                                        <input class="form-control" type="text" placeholder="Birim Fiyat" v-model="urun.birimFiyat">
+                                        <input class="form-control" type="text" placeholder="Birim Fiyat" v-model="islem.birimFiyat">
                                     </td>
                                     <td>
-                                        <input class="form-control" type="text" placeholder="Kalite" v-model="urun.kalite">
+                                        <input class="form-control" type="text" placeholder="Kalite" v-model="islem.kalite">
                                     </td>
                                     <td>
-                                        <select class="form-select" aria-label="İşlemler" v-model="urun.yapilacakIslem">
+                                        <select class="form-select" aria-label="İşlemler" v-model="islem.yapilacakIslem">
                                             <option
                                                 v-for="(islem, index) in islemTurleri"
                                                 :value="islem"
@@ -293,10 +298,21 @@
                                         </select>
                                     </td>
                                     <td>
-                                        <input class="form-control" type="text" placeholder="İstenilen Sertlik" v-model="urun.istenilenSertlik">
+                                        <input class="form-control" type="text" placeholder="İstenilen Sertlik" v-model="islem.istenilenSertlik">
                                     </td>
                                     <td>
-                                        <button class="btn btn-danger" @click="urunSil(index)">Sil</button>
+                                        <select class="form-select" aria-label="İşlem Durumu" v-model="islem.islemDurumu">
+                                            <option
+                                                v-for="(islemDurumu, index) in islemDurumlari"
+                                                :value="islemDurumu"
+                                                :key="index"
+                                            >
+                                                @{{ islemDurumu.ad }}
+                                            </option>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-danger" @click="islemSil(index)">Sil</button>
                                     </td>
                                 </tr>
 
@@ -304,7 +320,7 @@
                             <tfoot>
                                 <tr>
                                     <td colspan="8">
-                                        <button class="btn btn-info btn-sm" @click="urunEkle">
+                                        <button class="btn btn-info btn-sm" @click="islemEkle">
                                             <i class="fa fa-plus"></i>
                                             Ekle
                                         </button>
@@ -327,7 +343,7 @@
     let mixinApp = {
         data: function () {
             return {
-                siparisler: [],
+                siparisler: {},
                 aktifSiparis: null,
                 yukleniyorObjesi: {
                     numaralar: false,
@@ -335,8 +351,10 @@
                     firmalar: false,
                     malzemeler: false,
                     islemTurleri: false,
+                    islemDurumlari: false,
                 },
                 siparisDurumlari: [],
+                islemDurumlari: [],
                 firmalar: [],
                 malzemeler: [],
                 islemTurleri: [],
@@ -373,6 +391,22 @@
                     }
 
                     this.siparisler = response.data.siparisler;
+
+                    _.forEach(this.siparisler.data, (siparis) => {
+                        const terminBirinciFaz = _.floor(siparis.terminSuresi * 30 / 100);
+                        const terminIkinciFaz = _.floor(siparis.terminSuresi * 60 / 100);
+
+                        const siparisTarihi = this.m(siparis.tarih);
+                        const simdiTarihi = this.m();
+                        siparis.gecenSure = simdiTarihi.diff(siparisTarihi, 'days');
+                        siparis.gecenSureRenk = siparis.gecenSure > terminIkinciFaz
+                            ? "danger"
+                            : siparis.gecenSure > terminBirinciFaz
+                                ? "warning"
+                                : "success";
+                    });
+
+                    this.siparisler = _.cloneDeep(this.siparisler);
                 })
                 .catch(error => {
                     this.yukleniyorDurum(false);
@@ -381,7 +415,7 @@
             },
             siparisEklemeAc() {
                 this.aktifSiparis = {
-                    tarih: moment().format("YYYY-MM-DD"),
+                    tarih: this.m().format("YYYY-MM-DD"),
                     siparisNo: "",
                     siparisAdi: "",
                     terminSuresi: 5,
@@ -516,13 +550,47 @@
                     console.log(error);
                 });
             },
-            urunEkle() {
-                if (!this.malzemeler.length) {
+            islemDurumlariGetir(islemEkleme = false) {
+                this.yukleniyorObjesi.islemDurumlari = true;
+                return axios.get("/islemDurumlariGetir")
+                .then(response => {
+                    this.yukleniyorObjesi.islemDurumlari = false;
+                    if (!response.data.durum) {
+                        return this.uyariAc({
+                            baslik: 'Hata',
+                            mesaj: response.data.mesaj,
+                            tur: "error"
+                        });
+                    }
+
+                    this.islemDurumlari = response.data.islemDurumlari;
+
+                    if (islemEkleme) {
+                        _.forEach(this.aktifSiparis.islemler, (islem) => {
+                            if (!islem.islemDurumu) {
+                                islem.islemDurumu = _.find(this.islemDurumlari, {
+                                    kod: "BASLANMADI"
+                                });
+                            }
+                        });
+                    }
+                })
+                .catch(error => {
+                    this.yukleniyorObjesi.islemDurumlari = false;
+                    console.log(error);
+                });
+            },
+            islemEkle() {
+                if (!this.malzemeler.length && !this.yukleniyorObjesi.malzemeler) {
                     this.malzemeleriGetir();
                 }
 
-                if (!this.islemTurleri.length) {
+                if (!this.islemTurleri.length && !this.yukleniyorObjesi.islemTurleri) {
                     this.islemTurleriGetir();
+                }
+
+                if (!this.islemDurumlari.length && !this.yukleniyorObjesi.islemDurumlari) {
+                    this.islemDurumlariGetir(true);
                 }
 
                 this.aktifSiparis.islemler.push({
@@ -534,10 +602,11 @@
                     kalite: "",
                     yapilacakIslem: null,
                     istenilenSertlik: "",
+                    islemDurumu: null,
                 });
             },
-            urunSil(index) {
-                if (this.aktifSiparis.siparisId) {
+            islemSil(index) {
+                if (this.aktifSiparis.siparisId && this.aktifSiparis.islemler[index].id) {
                     if (!this.aktifSiparis.silinenIslemler) {
                         this.aktifSiparis.silinenIslemler = [];
                     }
@@ -562,13 +631,12 @@
                                 tur: "error"
                             });
                         }
-    
+
                         this.uyariAc({
                             baslik: 'Başarılı',
                             mesaj: response.data.mesaj,
                             tur: "success",
                             ozellikler: {
-                                position: 'top-end',
                                 icon: 'success',
                                 showConfirmButton: false,
                                 timer: 2000
@@ -618,6 +686,10 @@
 
                 if (!_.size(this.islemTurleri)) {
                     promises.push(this.islemTurleriGetir());
+                }
+
+                if (!_.size(this.islemDurumlari)) {
+                    promises.push(this.islemDurumlariGetir());
                 }
 
                 axios.post("/siparisDetay", {
@@ -677,6 +749,16 @@
                                         islem.yapilacakIslem = islemTur;
                                     }
                                 }
+
+                                if (islem.durumId) {
+                                    const islemDurumu = _.find(this.islemDurumlari, {
+                                        id: islem.durumId
+                                    });
+
+                                    if (islemDurumu) {
+                                        islem.islemDurumu = islemDurumu;
+                                    }
+                                }
                             });
                         }
 
@@ -717,7 +799,6 @@
                                 mesaj: response.data.mesaj,
                                 tur: "success",
                                 ozellikler: {
-                                    position: 'top-end',
                                     icon: 'success',
                                     showConfirmButton: false,
                                     timer: 2000

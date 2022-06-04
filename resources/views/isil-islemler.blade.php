@@ -1,243 +1,574 @@
-@extends('layout') 
+@extends('layout')
+
 @section('content')
-<div class="row doruk-content">
-    <h4 style="color:#999"><i class="fab fa-wpforms"> </i> ISIL İŞLEM TAKİP</h4>
+    <h4 style="color:#999"><i class="mdi mdi-stove"> </i> ISIL İŞLEMLER</h4>
     <div class="col-12">
         <div class="card">
             <div class="card-body">
-                <template v-if="aktifIslem === null">
+                <template v-if="aktifSayfa.kod === 'ANASAYFA'">
                     <div class="row">
                         <div class="col-8">
-                            <h4 class="card-title">ISIL İŞLEMLER</h4>
+                            <h4 class="card-title">FORMLAR</h4>
                         </div>
                         <div class="col-4 text-end">
-                            <button @click="islemEkle" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> ISIL İŞLEM EKLE</button>
+                            <button @click="formEkleAc" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> FORM EKLE</button>
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-12">
-                            <div class="card">
-                                <div class="card-body">
+                        <div class="col-12 mt-3">
+                            <template v-if="yukleniyor">
+                                <div class="text-center">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="sr-only">Yükleniyor...</span>
+                                    </div>
+                                </div>
+                            </template>
+                            <template v-else>
+                                <template v-if="formlar.data && formlar.data.length">
                                     <div class="table-rep-plugin">
                                         <div class="table-responsive mb-0" data-pattern="priority-columns">
-                                            <table id="tech-companies-1" class="table table-hover table-striped">
+                                            <table id="tech-companies-1" class="table table-striped table-hover">
                                                 <thead>
                                                     <tr>
-                                                        <th>Firma</th>
-                                                        <th data-priority="1">Fırın</th>
-                                                        <th data-priority="2">Şarj</th>
-                                                        <th data-priority="3">Sepet</th>
-                                                        <th data-priority="4">Malzeme</th>
-                                                        <th data-priority="5">Kalite</th>
-                                                        <th data-priority="6">Son Sertlik</th>
-                                                        <th data-priority="7">İşlemler</th>
+                                                        
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    <template v-if="islemler.length">
-                                                        <tr v-for="(islem, index) in islemler" :key="index">
-                                                            <th>
-                                                                @{{ islem.firma }}
-                                                            </th>
-                                                            <td>
-                                                                <button type="button" class="btn btn-sm waves-effect waves-light" :class="islem.firinClass">
-                                                                    @{{ islem.firin }}
-                                                                </button>
-                                                            </td>
-                                                            <td>
-                                                                <button type="button" class="btn btn-sm waves-effect waves-light" :class="islem.sarjClass">
-                                                                    @{{ islem.sarj }}
-                                                                </button>
-                                                            </td>
-                                                            <td>
-                                                                <button type="button" class="btn btn-sm waves-effect waves-light" :class="islem.sepetClass">
-                                                                    @{{ islem.sepet }}
-                                                                </button>
-                                                            </td>
-                                                            <td>
-                                                                @{{ islem.malzeme }}
-                                                            </td>
-                                                            <td>
-                                                                @{{ islem.kalite }}
-                                                            </td>
-                                                            <td>
-                                                                @{{ islem.sonSertlik }}
-                                                            </td>
-                                                            <td>
-                                                                <button @click="islemDuzenle(islem)" class="btn btn-sm btn-warning waves-effect waves-light">
-                                                                    <i class="fas fa-edit"></i>
-                                                                </button>
-                                                                <button @click="islemSil(islem)" class="btn btn-sm btn-danger waves-effect waves-light">
-                                                                    <i class="fas fa-trash-alt"></i>
-                                                                </button>
-                                                            </td>
-                                                        </tr>
-                                                    </template>
-                                                    <template v-else>
-                                                        <tr>
-                                                            <td colspan="8" class="text-center">
-                                                                <h6>İşlem Bulunamadı</h6>
-                                                            </td>
-                                                        </tr>
-                                                    </template>
+                                                    <tr v-for="(siparis, index) in formlar.data" :key="index">
+                                                        
+                                                    </tr>
                                                 </tbody>
+                                                <tfoot>
+                                                    <tr>
+                                                        <td colspan="100%">
+                                                            
+                                                        </td>
+                                                    </tr>
+                                                </tfoot>
                                             </table>
                                         </div>
                                     </div>
-                                </div>
-                            </div>
+                                </template>
+                                <template v-else>
+                                    <div class="text-center">
+                                        <h4>Isıl İşlem Formu Bulunamadı</h4>
+                                    </div>
+                                </template>
+                            </template>
                         </div>
                         <!-- end col -->
                     </div>
                 </template>
-                <template v-else>
-                    <h4 class="card-title">SİPARİŞ TAKİP FORMU</h4>
-                    <button @click="geri" class="btn btn-primary btn-sm"><i class="fas fa-arrow-left"></i> GERİ</button>
-                    <BR></BR>
+                <template v-else-if="aktifSayfa.kod === 'YENI_FORM'">
+                    <div class="row">
+                        <div class="col-8">
+                            <div class="d-flex flex-row align-items-center">
+                                <button @click="geriAnasayfa" class="btn btn-warning"><i class="fas fa-arrow-left"></i> GERİ</button>
+                                <h4 class="card-title m-0 ms-2">
+                                    ISIL İŞLEM FORMU EKLEME
+                                    <div class="d-inline-flex" v-if="araYukleniyor">
+                                        <div class="spinner-grow text-primary m-1 spinner-grow-sm" role="status">
+                                            <span class="sr-only">Yükleniyor...</span>
+                                        </div>
+                                    </div>
+                                </h4>
+                            </div>
+                        </div>
+                        <div class="col-4 text-end">
+                            <button
+                                @click="formHazirla()"
+                                class="btn btn-primary"
+                            >
+                                FORM HAZIRLA
+                                <i class="fas fa-arrow-right"></i>
+                        </button>
+                        </div>
+                    </div>
 
-                    <div class="mb-3 row">
-                        <label for="example-date-input" class="col-md-2 col-form-label">Tarih</label>
-                        <div class="col-md-10">
-                            <input class="form-control" type="date" id="example-date-input">
+                    <div class="row mt-3">
+                        <div class="col-12 col-sm-6 col-md-4 mb-2">
+                            <label class="form-label">Form Takip No *</label>
+                            <input
+                                v-model="aktifForm.takipNo"
+                                v-mask="'TKP##########'"
+                                class="form-control"
+                                placeholder="Form numarası giriniz... (Örn: TKP2022060301)"
+                                type="text"
+                            />
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4 mb-2">
+                            <label class="form-label">Form Adı *</label>
+                            <input
+                                v-model="aktifForm.formAdi"
+                                class="form-control"
+                                placeholder="Form adı giriniz..."
+                                type="text"
+                            />
+                            <small class="text-muted">Forma özel bir isim girebilirsiniz</small>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4 mb-2">
+                            <div class="form-group">
+                                <label for="baslangicTarihi">Başlangıç Tarihi</label>
+                                <input
+                                    v-model="aktifForm.baslangicTarihi"
+                                    type="date"
+                                    class="form-control"
+                                    placeholder="gg.aa.yyyy"
+                                    data-date-container='#datepicker2'
+                                    data-provide="datepicker"
+                                    data-date-autoclose="true"
+                                    id="baslangicTarihi"
+                                />
+                                <small class="text-muted">Bitiş tarihi, formdaki tüm işlemler bittiğinde otomatik olarak ayarlanır</small>
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-12" v-for="(firma, fIndex) in aktifForm.firmaGrupluIslemler" :key="fIndex">
+                                <div class="row">
+                                    <h5>@{{ firma.firmaAdi }} (@{{ firma.sorumluKisi }})</h5>
+                                </div>
+                                <div class="table-rep-plugin">
+                                    <div class="table-responsive mb-0" data-pattern="priority-columns">
+                                        <table id="tech-companies-1" class="table table-striped table-hover">
+                                            <thead>
+                                                <tr>
+                                                    <th>Sipariş/Sıra No</th>
+                                                    <th>Termin</th>
+                                                    <th>Malzeme</th>
+                                                    <th>İşlem</th>
+                                                    <th>İstenilen Sertlik</th>
+                                                    <th>Kalite</th>
+                                                    <th>Fırın</th>
+                                                    <th>Şarj</th>
+                                                    <th>Ekle</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr v-for="(islem, iIndex) in firma.islemler" :key="iIndex">
+                                                    <td>@{{ islem.siparisNo }}</td>
+                                                    <td>
+                                                        <span class="badge badge-pill" :class="`bg-${ islem.gecenSureRenk }`">@{{ islem.gecenSure }} Gün</span>
+                                                    </td>
+                                                    <td>
+                                                        <div class="row">
+                                                            <div class="col-12">
+                                                                @{{ islem.malzemeAdi }}
+                                                            </div>
+                                                            <div class="col-12">
+                                                                <small class="text-muted">Adet: @{{ islem.adet }} adet</small>
+                                                            </div>
+                                                            <div class="col-12">
+                                                                <small class="text-muted">Miktar: @{{ islem.miktar }} kg</small>
+                                                            </div>
+                                                            <div class="col-12">
+                                                                <small class="text-muted">Dara: @{{ islem.dara }} kg</small>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td>@{{ islem.islemTuruAdi ? islem.islemTuruAdi : "-" }}</td>
+                                                    <td>@{{ islem.istenilenSertlik ? islem.istenilenSertlik : "-" }}</td>
+                                                    <td>@{{ islem.kalite ? islem.kalite : "-" }}</td>
+                                                    <td>
+                                                        <div class="form-group">
+                                                            <select class="form-control select2" v-model="islem.firin" @change="formaEkle(islem)">
+                                                                <optgroup label="Fırınlar">
+                                                                    <option
+                                                                        v-for="(firin, firinIndex) in firinlar"
+                                                                        :value="firin"
+                                                                        :key="firinIndex"
+                                                                    >
+                                                                        @{{ firin.ad }}
+                                                                    </option>
+                                                                </optgroup>
+                                                            </select>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <div class="form-group">
+                                                            <input
+                                                                v-model="islem.sarj"
+                                                                type="number"
+                                                                class="form-control"
+                                                                placeholder="Şarj (Örn: 1)"
+                                                                @change="formaEkle(islem)"
+                                                            />
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <button
+                                                            @click="formaIslemEkleSil(islem)"
+                                                            class="btn"
+                                                            :class="islem.secildi ? 'btn-success' : 'btn-outline-primary'"
+                                                        >
+                                                            <i class="fas" :class="islem.secildi ? 'fa-check' : 'fa-plus'"></i>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                            <tfoot></tfoot>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div class="mb-3 row">
-                        <label for="sira-no-input" class="col-md-2 col-form-label">Sıra No</label>
-                        <div class="col-md-10">
-                            <input class="form-control" type="text" placeholder="Sıra No" id="sira-no-input">
+                </template>
+                <template v-else-if="aktifSayfa.kod === 'FORM_GORUNUMU'">
+                    <div class="row">
+                        <div class="row">
+                            <div class="col-8">
+                                <div class="d-flex flex-row align-items-center">
+                                    <button @click="geriYeniForm" class="btn btn-warning"><i class="fas fa-arrow-left"></i> GERİ</button>
+                                    <h4 class="card-title m-0 ms-2">
+                                        @{{ aktifForm.formAdi }}
+                                        <div class="d-inline-flex" v-if="araYukleniyor">
+                                            <div class="spinner-grow text-primary m-1 spinner-grow-sm" role="status">
+                                                <span class="sr-only">Yükleniyor...</span>
+                                            </div>
+                                        </div>
+                                    </h4>
+                                </div>
+                            </div>
+                            <div class="col-4 text-end">
+                                <button @click="ciktiAl" class="btn btn-primary">
+                                    ÇIKTI
+                                </button>
+                                <button
+                                    @click=""
+                                    class="btn btn-success"
+                                >
+                                    <i class="fas fa-save"></i>
+                                    KAYDET
+                                </button>
+                            </div>
                         </div>
                     </div>
-                    <div class="mb-3 row">
-                        <label for="example-email-input" class="col-md-2 col-form-label">Müşteri</label>
-                        <div class="col-md-10">
-                            <select class="form-select" aria-label="Default select example">
-                                <option selected>Select</option>
-                                <option>Large select</option>
-                                <option>Small select</option>
-                            </select>
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <div class="table-rep-plugin">
+                                <div class="table-responsive mb-0" data-pattern="priority-columns">
+                                    <table id="formGorunumu" class="table table-striped table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>F.</th>
+                                                <th>Ş.</th>
+                                                <th>Firma</th>
+                                                <th>Malzeme</th>
+                                                <th>İst. Sertlik</th>
+                                                <th>Kalite</th>
+                                                <th>Sıcaklık</th>
+                                                <th>Carbon</th>
+                                                <th>Süre</th>
+                                                <th>Ç. Sertliği</th>
+                                                <th>Men. Sıcaklığı</th>
+                                                <th>Süre</th>
+                                                <th>Son Sertlik</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <template v-for="(firin, firinId, firinIndex) in aktifForm.firinSarjGrupluIslemler">
+                                                <template v-for="(sarj, sarjId, sarjIndex) in firin.sarjlar">
+                                                    <template v-for="(islem, islemIndex) in sarj.islemler">
+                                                        <tr :key="firinId + '-' + sarjId + '-' + islemIndex">
+                                                            <td
+                                                                class="dikey"
+                                                                :rowspan="firin.toplamIslemSayisi"
+                                                                v-if="sarjIndex === 0 && islemIndex === 0"
+                                                            >
+                                                                <span>@{{ firin.firinAdi }}</span>
+                                                            </td>
+                                                            <td
+                                                                class="dikey"
+                                                                :rowspan="sarj.toplamIslemSayisi"
+                                                                v-if="islemIndex === 0"
+                                                            >
+                                                                <span>@{{ sarj.sarj }}. Şarj</span>
+                                                            </td>
+                                                            <td>@{{ islem.firmaAdi }}</td>
+                                                            <td>@{{ islem.malzemeAdi }}</td>
+                                                            <td>@{{ islem.istenilenSertlik }}</td>
+                                                            <td>@{{ islem.kalite }}</td>
+                                                            <td>@{{ islem.sicaklik }}</td>
+                                                            <td>@{{ islem.carbon }}</td>
+                                                            <td>@{{ islem.sure }}</td>
+                                                            <td>@{{ islem.ciftSertlik }}</td>
+                                                            <td>@{{ islem.menSicaklik }}</td>
+                                                            <td>@{{ islem.sure }}</td>
+                                                            <td>@{{ islem.sonSertlik }}</td>
+                                                        </tr>
+                                                    </template>
+                                                </template>
+                                            </template>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="mb-3 row">
-                        <table class="table table-striped table-bordered nowrap" id="urun-detay">
-                            <thead>
-                                <th>No</th>
-                                <th>Malzeme</th>
-                                <th>Miktar KG</th>
-                                <th>Adet</th>
-                                <th>Kalite</th>
-                                <th>Yapılacak İşlem</th>
-                                <th>İstenilen Sertlik</th>
-                                <th>İşlemler</th>
-                            </thead>
-                            <tbody id="urun-satir-ekle">
-                                <tr v-for="(isilIslem, index) in isilIslemler" :key="index">
-                                    <td>@{{ index + 1 }}</td>
-                                    <td>
-                                        <select class="form-control select2">
-                                            <optgroup label="Firmalar">
-                                                <option
-                                                    v-for="(firma, index) in firmalar"
-                                                    :value="firma.id"
-                                                    :key="index"
-                                                >@{{ firma.ad }}</option>
-                                            </optgroup>
-                                        </select>
-                                    </td>
-                                    <td>
-                                        <input class="form-control" type="text" placeholder="Miktar KG" v-model="isilIslem.miktar">
-                                    </td>
-                                    <td>
-                                        <input class="form-control" type="text" placeholder="Adet" v-model="isilIslem.adet">
-                                    </td>
-                                    <td>
-                                        <select class="form-select" aria-label="Default select example">
-                                            <option selected>Select</option>
-                                            <option>Large select</option>
-                                            <option>Small select</option>
-                                        </select>
-                                    </td>
-                                    <td>
-                                        <select class="form-select" aria-label="Default select example">
-                                            <option selected>Select</option>
-                                            <option>Large select</option>
-                                            <option>Small select</option>
-                                        </select>
-                                    </td>
-                                    <td>
-                                        <select class="form-select" aria-label="Default select example">
-                                            <option selected>Select</option>
-                                            <option>Large select</option>
-                                            <option>Small select</option>
-                                        </select>
-                                    </td>
-                                    <td>
-                                        <button class="btn btn-danger" @click="islemSil(index)">Sil</button>
-                                    </td>
-                                </tr>
-                            </tbody>
-                            <tfoot>
-                                <tr>
-                                    <td colspan="8">
-                                        <button class="btn btn-success" @click="isilIslemEkle">Ekle</button>
-                                    </td>
-                                </tr>
-                            </tfoot>
-                        </table>
                     </div>
                 </template>
             </div>
         </div>
     </div>
-    <!-- end col -->
-</div>
 @endsection
 
 @section('script')
-
+<script src="https://html2canvas.hertzen.com/dist/html2canvas.js"></script>
 <script>
     let mixinApp = {
         data() {
             return {
-                aktifIslem: null,
-                islemObjesi: {
+                aktifSayfa: {
+                    kod: "ANASAYFA",
+                    baslik: "Formlar",
                 },
-                siparisler: [],
-                firmalar: [],
-            };
+                sayfalar: [
+                    {
+                        kod: "ANASAYFA",
+                        baslik: "Formlar",
+                    },
+                    {
+                        kod: "YENI_FORM",
+                        baslik: "Form Oluştur",
+                    },
+                    {
+                        kod: "FORM_GORUNUMU",
+                        baslik: "Form Görünümü",
+                    },
+                ],
+                formlar: {},
+                aktifForm: null,
+                yukleniyorObjesi: {
+                    takipNo: false,
+                    firmaGrupluIslemler: false,
+                    firinlar: false,
+                },
+                firinlar: [],
+            }
         },
         mounted() {
-            this.siparisleriGetir();
+            // this.formEkleAc();
+            // this.formHazirla();
+        },
+        computed: {
+            araYukleniyor() {
+                let yukleniyor = false;
+                for (let i in this.yukleniyorObjesi) {
+                    if (this.yukleniyorObjesi[i]) {
+                        yukleniyor = true;
+                        break;
+                    }
+                }
+                return yukleniyor;
+            },
         },
         methods: {
-            siparisleriGetir() {
-                axios.get('/api/siparisler')
+            aktifSayfaDegistir(kod) {
+                this.aktifSayfa = _.find(this.sayfalar, { kod });
+            },
+            formEkleAc() {
+                this.aktifForm = {
+                    formId: null,
+                    formAdi: '',
+                    takipNo: '',
+                    baslangicTarihi: this.m().format("YYYY-MM-DD"),
+                    bitisTarihi: null,
+                    firmaGrupluIslemler: [],
+                    secilenIslemler: [],
+                    firinSarjGrupluIslemler: {},
+                };
+
+                if (!_.size(this.firinlar)) {
+                    this.firinlariGetir();
+                }
+
+                this.takipNumarasiGetir();
+                this.firmaGrupluIslemleriGetir();
+                this.aktifSayfaDegistir("YENI_FORM");
+            },
+            firinlariGetir() {
+                this.yukleniyorObjesi.firinlar = true;
+                axios.get('{{ route('firinlariGetir') }}')
+                    .then(response => {
+                        this.yukleniyorObjesi.firinlar = false;
+                        if (!response.data.durum) {
+                            return this.uyariAc({
+                                baslik: 'Hata',
+                                mesaj: response.data.mesaj,
+                                tur: "error"
+                            });
+                        }
+
+                        this.firinlar = response.data.firinlar;
+                    })
+                    .catch(error => {
+                        this.yukleniyorObjesi.firinlar = false;
+                        console.log(error);
+                    });
+            },
+            takipNumarasiGetir() {
+                this.yukleniyorObjesi.takipNo = true;
+                axios.get("/takipNumarasiGetir")
                 .then(response => {
-                    if (!response.data.success) {
-                        this.alertDikkat('Siparişler Getirilemedi', response.data.message);
+                    this.yukleniyorObjesi.takipNo = false;
+                    if (!response.data.durum) {
+                        return this.uyariAc({
+                            baslik: 'Hata',
+                            mesaj: response.data.mesaj,
+                            tur: "error"
+                        });
                     }
 
-                    this.siparisler = response.data.siparisler;
+                    this.aktifForm.takipNo = response.data.takipNo;
+                    this.formAdiOlustur();
+
+                    this.aktifForm = _.cloneDeep(this.aktifForm);
                 })
                 .catch(error => {
+                    this.yukleniyorObjesi.takipNo = false;
                     console.log(error);
                 });
             },
-            islemEkle() {
-                this.aktifIslem = {
-                    tarih: moment().toISOString(),
-                    siparisNo: '',
-                };
+            formAdiOlustur() {
+                if (this.aktifForm.formAdi) {
+                    return;
+                }
+
+                this.aktifForm.formAdi = this.aktifForm.takipNo + " - Isıl İşlem Formu";
             },
-            islemSil(index) {
-                this.isilIslemler.splice(index, 1);
+            geriAnasayfa() {
+                this.aktifSayfaDegistir("ANASAYFA");
+
+                this.aktifForm = null;
             },
-            isilIslemEkle() {
-                this.isilIslemler.push({ ...this.isilIslem });
+            geriYeniForm() {
+                this.aktifSayfaDegistir("YENI_FORM");
             },
-            geri() {
-                this.aktifIslem = null;
+            firmaGrupluIslemleriGetir() {
+                this.yukleniyorObjesi.firmaGrupluIslemler = true;
+                axios.get("/firmaGrupluIslemleriGetir")
+                .then(response => {
+                    this.yukleniyorObjesi.firmaGrupluIslemler = false;
+                    if (!response.data.durum) {
+                        return this.uyariAc({
+                            baslik: 'Hata',
+                            mesaj: response.data.mesaj,
+                            tur: "error"
+                        });
+                    }
+
+                    this.aktifForm.firmaGrupluIslemler = response.data.firmaGrupluIslemler;
+                })
+                .catch(error => {
+                    this.yukleniyorObjesi.firmaGrupluIslemler = false;
+                    console.log(error);
+                });
+            },
+            formaIslemEkleSil(islem) {
+                islem.secildi = !islem.secildi;
+
+                const islemIndex = _.findIndex(this.aktifForm.secilenIslemler, { id: islem.id });
+                if (islemIndex > -1) {
+                    this.aktifForm.secilenIslemler.splice(islemIndex, 1);
+                } else {
+                    this.aktifForm.secilenIslemler.push(islem);
+                }
+
+                this.aktifForm = _.cloneDeep(this.aktifForm);
+            },
+            formaEkle(islem) {
+                const islemIndex = _.findIndex(this.aktifForm.secilenIslemler, { id: islem.id });
+                if (islemIndex === -1) {
+                    this.aktifForm.secilenIslemler.push(islem);
+                }
+
+                islem.secildi = true;
+
+                this.aktifForm = _.cloneDeep(this.aktifForm);
+            },
+            formHazirla() {
+                if (!_.size(this.aktifForm.secilenIslemler)) {
+                    return this.uyariAc({
+                        baslik: 'Hata',
+                        mesaj: 'Lütfen en az bir işlem seçiniz.',
+                        tur: "error"
+                    });
+                }
+
+                this.aktifForm.firinSarjGrupluIslemler = {};
+
+                let oncekiFirinId = null;
+
+                for (const [index, islem] of _.toPairs(this.aktifForm.secilenIslemler)) {
+                    if (!islem.firin) {
+                        return this.uyariAc({
+                            baslik: 'Hata',
+                            mesaj: `Formda görmek istediğiniz, ${ islem.siparisNo } sipariş numaralı ${ islem.malzemeAdi } malzemesi için bir fırın seçmelisiniz.`,
+                            tur: "error"
+                        });
+                    }
+
+                    if (!islem.sarj) {
+                        return this.uyariAc({
+                            baslik: 'Hata',
+                            mesaj: `Formda görmek istediğiniz, ${ islem.siparisNo } sipariş numaralı ${ islem.malzemeAdi } malzemesi için geçerli bir sarj seçmelisiniz.`,
+                            tur: "error"
+                        });
+                    }
+
+                    const firinId = islem.firin.id;
+                    const sarjId = "sarj" + islem.sarj;
+
+                    if (!this.aktifForm.firinSarjGrupluIslemler[firinId]) {
+                        this.aktifForm.firinSarjGrupluIslemler[firinId] = {
+                            firinId,
+                            firinAdi: islem.firin.ad,
+                            toplamIslemSayisi: 0,
+                            sarjlar: {},
+                        };
+                    }
+
+                    if (!this.aktifForm.firinSarjGrupluIslemler[firinId].sarjlar[sarjId]) {
+                        this.aktifForm.firinSarjGrupluIslemler[firinId].sarjlar[sarjId] = {
+                            sarj: islem.sarj,
+                            toplamIslemSayisi: 0,
+                            islemler: [],
+                        };
+                    }
+
+                    this.aktifForm.firinSarjGrupluIslemler[firinId].sarjlar[sarjId].islemler.push(islem);
+
+                    this.aktifForm.firinSarjGrupluIslemler[firinId].sarjlar[sarjId].toplamIslemSayisi++;
+                    this.aktifForm.firinSarjGrupluIslemler[firinId].toplamIslemSayisi++;
+                }
+
+                this.aktifSayfaDegistir("FORM_GORUNUMU");
+            },
+            ciktiAl() {
+                html2canvas(document.getElementById("formGorunumu")).then(canvas => {
+                    let bas = canvas.toDataURL("image/png");
+                    console.log(bas);
+                    window.open(bas);
+                });
             },
         }
     };
 </script>
+@endsection
+
+@section('style')
+    <style>
+        table .dikey {
+            writing-mode: vertical-rl;
+            text-align: center;
+        }
+
+        table .dikey span {
+            /* transform: rotate(-90deg); */
+        }
+
+        table#formGorunumu td {
+            vertical-align: middle;
+            text-align: center;
+        }
+    </style>
 @endsection

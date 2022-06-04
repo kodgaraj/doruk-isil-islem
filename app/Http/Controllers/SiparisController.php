@@ -19,7 +19,7 @@ class SiparisController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function siparisEklemeFormu()
+    public function index()
     {
         return view('siparis-formu');
     }
@@ -52,7 +52,7 @@ class SiparisController extends Controller
                 "))
                 ->join($firmaTabloAdi, $firmaTabloAdi . '.id', '=', $siparisTabloAdi . '.firmaId')
                 ->join($siparisDurumTabloAdi, $siparisDurumTabloAdi . '.id', '=', $siparisTabloAdi . '.durumId')
-                ->join($islemTabloAdi, $islemTabloAdi . '.siparisId', '=', $siparisTabloAdi . '.id')
+                ->leftJoin($islemTabloAdi, $islemTabloAdi . '.siparisId', '=', $siparisTabloAdi . '.id')
                 ->groupBy(
                     $siparisTabloAdi . '.id',
                     $siparisTabloAdi . '.ad',
@@ -69,6 +69,8 @@ class SiparisController extends Controller
                     $firmaTabloAdi . '.sorumluKisi'
                 )
                 ->paginate($sayfalamaSayisi);
+
+                // dd($siparisler->toSql());
 
             // dd($siparisler->getPageName());
 
@@ -245,6 +247,7 @@ class SiparisController extends Controller
                 $islemModel->siparisId = $siparis->id;
                 $islemModel->malzemeId = $islem['malzeme']["id"] ?? null;
                 $islemModel->islemTuruId = $islem['yapilacakIslem']["id"] ?? null;
+                $islemModel->durumId = $islem['islemDurumu']["id"] ?? null;
                 $islemModel->siraNo = $key + 1;
                 $islemModel->adet = $islem['adet'];
                 $islemModel->miktar = $islem['miktar'];
@@ -339,10 +342,31 @@ class SiparisController extends Controller
         {
             $siparisId = $request->siparisId;
 
+            DB::beginTransaction();
+
+            $islemler = Islemler::where('siparisId', $siparisId)->get();
+
+            foreach ($islemler as $islem)
+            {
+                if (!$islem->delete())
+                {
+                    DB::rollBack();
+
+                    return response()->json([
+                        'durum' => false,
+                        'mesaj' => 'İşlem silinirken bir hata oluştu.',
+                        'hata' => $islem->getErrors(),
+                        "hataKodu" => "S004"
+                    ], 500);
+                }
+            }
+
             $siparis = Siparisler::find($siparisId);
 
             if (!$siparis)
             {
+                DB::rollBack();
+
                 return response()->json([
                     'durum' => false,
                     'mesaj' => 'Sipariş bulunamadı.'
@@ -351,13 +375,15 @@ class SiparisController extends Controller
 
             if (!$siparis->delete())
             {
+                DB::rollBack();
+
                 return response()->json([
                     'durum' => false,
                     'mesaj' => 'Sipariş silinirken bir hata oluştu.'
                 ], 500);
             }
 
-            
+            DB::commit();
 
             return response()->json([
                 'durum' => true,

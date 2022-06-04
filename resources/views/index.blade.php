@@ -191,7 +191,7 @@
                     console.log('kullanicilarSayfasiAc');
                 },
                 isilIslemSayfasiAc: function () {
-                    window.location.href = "{{ route('isil-islem-formu') }}";
+                    window.location.href = "{{ route('isil-islemler') }}";
                 }
             }
         };
