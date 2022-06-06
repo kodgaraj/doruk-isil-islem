@@ -122,6 +122,16 @@
                                 <small class="text-muted">Bitiş tarihi, formdaki tüm işlemler bittiğinde otomatik olarak ayarlanır</small>
                             </div>
                         </div>
+                        <div class="col-12">
+                            <label for="baslangicTarihi">Açıklama</label>
+                            <textarea
+                                v-model="aktifForm.aciklama"
+                                class="form-control"
+                                id="aciklama"
+                                name="aciklama"
+                                rows="3"
+                            ></textarea>
+                        </div>
                         <div class="row mt-3">
                             <div class="col-12" v-for="(firma, fIndex) in aktifForm.firmaGrupluIslemler" :key="fIndex">
                                 <div class="row">
@@ -215,32 +225,30 @@
                 </template>
                 <template v-else-if="aktifSayfa.kod === 'FORM_GORUNUMU'">
                     <div class="row">
-                        <div class="row">
-                            <div class="col-8">
-                                <div class="d-flex flex-row align-items-center">
-                                    <button @click="geriYeniForm" class="btn btn-warning"><i class="fas fa-arrow-left"></i> GERİ</button>
-                                    <h4 class="card-title m-0 ms-2">
-                                        @{{ aktifForm.formAdi }}
-                                        <div class="d-inline-flex" v-if="araYukleniyor">
-                                            <div class="spinner-grow text-primary m-1 spinner-grow-sm" role="status">
-                                                <span class="sr-only">Yükleniyor...</span>
-                                            </div>
+                        <div class="col-8">
+                            <div class="d-flex flex-row align-items-center">
+                                <button @click="geriYeniForm" class="btn btn-warning"><i class="fas fa-arrow-left"></i> GERİ</button>
+                                <h4 class="card-title m-0 ms-2">
+                                    @{{ aktifForm.formAdi }}
+                                    <div class="d-inline-flex" v-if="araYukleniyor">
+                                        <div class="spinner-grow text-primary m-1 spinner-grow-sm" role="status">
+                                            <span class="sr-only">Yükleniyor...</span>
                                         </div>
-                                    </h4>
-                                </div>
+                                    </div>
+                                </h4>
                             </div>
-                            <div class="col-4 text-end">
-                                <button @click="ciktiAl" class="btn btn-primary">
-                                    ÇIKTI
-                                </button>
-                                <button
-                                    @click=""
-                                    class="btn btn-success"
-                                >
-                                    <i class="fas fa-save"></i>
-                                    KAYDET
-                                </button>
-                            </div>
+                        </div>
+                        <div class="col-4 text-end">
+                            <button @click="ciktiAl" class="btn btn-primary">
+                                ÇIKTI
+                            </button>
+                            <button
+                                @click=""
+                                class="btn btn-success"
+                            >
+                                <i class="fas fa-save"></i>
+                                KAYDET
+                            </button>
                         </div>
                     </div>
                     <div class="row mt-3">
@@ -250,8 +258,8 @@
                                     <table id="formGorunumu" class="table table-striped table-hover">
                                         <thead>
                                             <tr>
-                                                <th>F.</th>
-                                                <th>Ş.</th>
+                                                <th>Firma</th>
+                                                <th>Şarj</th>
                                                 <th>Firma</th>
                                                 <th>Malzeme</th>
                                                 <th>İst. Sertlik</th>
@@ -284,17 +292,137 @@
                                                             >
                                                                 <span>@{{ sarj.sarj }}. Şarj</span>
                                                             </td>
-                                                            <td>@{{ islem.firmaAdi }}</td>
-                                                            <td>@{{ islem.malzemeAdi }}</td>
-                                                            <td>@{{ islem.istenilenSertlik }}</td>
-                                                            <td>@{{ islem.kalite }}</td>
-                                                            <td>@{{ islem.sicaklik }}</td>
-                                                            <td>@{{ islem.carbon }}</td>
-                                                            <td>@{{ islem.sure }}</td>
-                                                            <td>@{{ islem.ciftSertlik }}</td>
-                                                            <td>@{{ islem.menSicaklik }}</td>
-                                                            <td>@{{ islem.sure }}</td>
-                                                            <td>@{{ islem.sonSertlik }}</td>
+                                                            <td class="orta-uzunluk align-left">@{{ islem.firmaAdi }}</td>
+                                                            <td class="kisa-uzunluk align-left">@{{ islem.malzemeAdi }}</td>
+                                                            <td class="kisa-uzunluk">
+                                                                <template v-if="aktifForm.onizlemeModu">
+                                                                    <span>@{{ islem.istenilenSertlik }}</span>
+                                                                </template>
+                                                                <template v-else>
+                                                                    <input
+                                                                        v-model="islem.istenilenSertlik"
+                                                                        type="text"
+                                                                        class="form-control"
+                                                                        placeholder="İstenilen Sertlik"
+                                                                    />
+                                                                </template>
+                                                            </td>
+                                                            <td class="kisa-uzunluk">
+                                                                <template v-if="aktifForm.onizlemeModu">
+                                                                    <span>@{{ islem.kalite }}</span>
+                                                                </template>
+                                                                <template v-else>
+                                                                    <input
+                                                                        v-model="islem.kalite"
+                                                                        type="text"
+                                                                        class="form-control"
+                                                                        placeholder="Kalite"
+                                                                    />
+                                                                </template>
+                                                            </td>
+                                                            <td
+                                                                :rowspan="sarj.toplamIslemSayisi"
+                                                                v-if="islemIndex === 0"
+                                                                class="kisa-uzunluk"
+                                                            >
+                                                                <template v-if="aktifForm.onizlemeModu">
+                                                                    <span>@{{ islem.sicaklik }}</span>
+                                                                </template>
+                                                                <template v-else>
+                                                                    <input
+                                                                        v-model="islem.sicaklik"
+                                                                        type="text"
+                                                                        class="form-control"
+                                                                        placeholder="Sıcaklık"
+                                                                    />
+                                                                </template>
+                                                            </td>
+                                                            <td
+                                                                :rowspan="sarj.toplamIslemSayisi"
+                                                                v-if="islemIndex === 0"
+                                                                class="kisa-uzunluk"
+                                                            >
+                                                                <template v-if="aktifForm.onizlemeModu">
+                                                                    <span>@{{ islem.carbon }}</span>
+                                                                </template>
+                                                                <template v-else>
+                                                                    <input
+                                                                        v-model="islem.carbon"
+                                                                        type="number"
+                                                                        class="form-control"
+                                                                        placeholder="Carbon"
+                                                                    />
+                                                                </template>
+                                                            </td>
+                                                            <td
+                                                                :rowspan="sarj.toplamIslemSayisi"
+                                                                v-if="islemIndex === 0"
+                                                                class="kisa-uzunluk"
+                                                            >
+                                                                <template v-if="aktifForm.onizlemeModu">
+                                                                    <span>@{{ islem.sure }}</span>
+                                                                </template>
+                                                                <template v-else>
+                                                                    <input
+                                                                        v-model="islem.sure"
+                                                                        type="number"
+                                                                        class="form-control"
+                                                                        placeholder="Süre"
+                                                                    />
+                                                                </template>
+                                                            </td>
+                                                            <td class="kisa-uzunluk">
+                                                                <template v-if="aktifForm.onizlemeModu">
+                                                                    <span>@{{ islem.cikisSertligi }}</span>
+                                                                </template>
+                                                                <template v-else>
+                                                                    <input
+                                                                        v-model="islem.cikisSertligi"
+                                                                        type="text"
+                                                                        class="form-control"
+                                                                        placeholder="Ç. Sertliği"
+                                                                    />
+                                                                </template>
+                                                            </td>
+                                                            <td class="kisa-uzunluk">
+                                                                <template v-if="aktifForm.onizlemeModu">
+                                                                    <span>@{{ islem.menevisSicakligi }}</span>
+                                                                </template>
+                                                                <template v-else>
+                                                                    <input
+                                                                        v-model="islem.menevisSicakligi"
+                                                                        type="number"
+                                                                        class="form-control"
+                                                                        placeholder="Men. Sıcaklığı"
+                                                                    />
+                                                                </template>
+                                                            </td>
+                                                            <td class="kisa-uzunluk">
+                                                                <template v-if="aktifForm.onizlemeModu">
+                                                                    <span>@{{ islem.sure }}</span>
+                                                                </template>
+                                                                <template v-else>
+                                                                    <input
+                                                                        v-model="islem.sure"
+                                                                        type="number"
+                                                                        class="form-control"
+                                                                        placeholder="Süre"
+                                                                    />
+                                                                </template>
+                                                            </td>
+                                                            <td class="kisa-uzunluk">
+                                                                <template v-if="aktifForm.onizlemeModu">
+                                                                    <span>@{{ islem.sonSertlik }}</span>
+                                                                </template>
+                                                                <template v-else>
+                                                                    <input
+                                                                        v-model="islem.sonSertlik"
+                                                                        type="text"
+                                                                        class="form-control"
+                                                                        placeholder="Son Sertlik"
+                                                                    />
+                                                                </template>
+                                                            </td>
                                                         </tr>
                                                     </template>
                                                 </template>
@@ -494,6 +622,8 @@
                     });
                 }
 
+                this.aktifForm.onizlemeModu = false;
+
                 this.aktifForm.firinSarjGrupluIslemler = {};
 
                 let oncekiFirinId = null;
@@ -544,10 +674,18 @@
                 this.aktifSayfaDegistir("FORM_GORUNUMU");
             },
             ciktiAl() {
-                html2canvas(document.getElementById("formGorunumu")).then(canvas => {
-                    let bas = canvas.toDataURL("image/png");
-                    console.log(bas);
-                    window.open(bas);
+                const baslangicDurum = !!this.aktifForm.onizlemeModu;
+
+                this.aktifForm.onizlemeModu = true;
+                this.aktifForm = _.cloneDeep(this.aktifForm);
+                this.$nextTick(() => {
+                    html2canvas(document.getElementById("formGorunumu")).then(canvas => {
+                        var a = document.createElement("a");
+                        a.href = canvas.toDataURL("image/png");
+                        a.download = this.aktifForm.formAdi + ".png";
+                        a.click();
+                        this.aktifForm.onizlemeModu = baslangicDurum;
+                    });
                 });
             },
         }
@@ -558,7 +696,7 @@
 @section('style')
     <style>
         table .dikey {
-            writing-mode: vertical-rl;
+            /* writing-mode: vertical-rl; */
             text-align: center;
         }
 
@@ -569,6 +707,30 @@
         table#formGorunumu td {
             vertical-align: middle;
             text-align: center;
+        }
+
+        table td.kisa-uzunluk {
+            min-width: 100px;
+        }
+
+        table td.orta-uzunluk {
+            min-width: 150px;
+        }
+
+        table td.uzun-uzunluk {
+            min-width: 200px;
+        }
+
+        table td.align-left {
+            text-align: left !important;
+        }
+
+        table td.align-right {
+            text-align: right !important;
+        }
+
+        table td.align-center {
+            text-align: center !important;
         }
     </style>
 @endsection
