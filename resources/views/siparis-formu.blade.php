@@ -654,7 +654,7 @@
                 if (_.size(this.aktifSiparis.silinenIslemler)) {
                     Swal.fire({
                         title: "Uyarı",
-                        text: `Eğer devam ederseniz, ${_.size(this.aktifSiparis.silinenIslemler)} adet ürün silinecektir. Devam etmek istiyor musunuz?`,
+                        text: `Eğer devam ederseniz, ${_.size(this.aktifSiparis.silinenIslemler)} adet işlem silinecektir. Devam etmek istiyor musunuz?`,
                         icon: 'warning',
                         showCancelButton: true,
                         confirmButtonText: 'Devam Et',

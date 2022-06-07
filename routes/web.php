@@ -27,7 +27,7 @@ Route::group(['middleware' => ['auth']], function () {
 
     Route::get('/siparis-formu', [SiparisController::class, 'index'])->name("siparis-formu");
     Route::get('/isil-islemler', [IsilIslemController::class, 'index'])->name("isil-islemler");
-    
+
     Route::get('/siparisler', [SiparisController::class, 'siparisler'])->name("siparisler");
     Route::get('/numaralariGetir', [SiparisController::class, 'numaralariGetir'])->name("numaralariGetir");
     Route::get('/siparisDurumlariGetir', [SiparisController::class, 'siparisDurumlariGetir'])->name("siparisDurumlariGetir");
@@ -36,8 +36,12 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('/siparisDetay', [SiparisController::class, 'siparisDetay'])->name("siparisDetay");
     Route::post('/siparisSil', [SiparisController::class, 'siparisSil'])->name("siparisSil");
 
+    Route::get('/formlar', [IsilIslemController::class, 'formlar'])->name("formlar");
     Route::get('/takipNumarasiGetir', [IsilIslemController::class, 'takipNumarasiGetir'])->name("takipNumarasiGetir");
     Route::get('/firmaGrupluIslemleriGetir', [IsilIslemController::class, 'firmaGrupluIslemleriGetir'])->name("firmaGrupluIslemleriGetir");
+    Route::post('/formKaydet', [IsilIslemController::class, 'formKaydet'])->name("formKaydet");
+    Route::post('/formDetay', [IsilIslemController::class, 'formDetay'])->name("formDetay");
+    Route::post('/formSil', [IsilIslemController::class, 'formSil'])->name("formSil");
 
     Route::get('/islemTurleriGetir', [IslemTurleriController::class, 'islemTurleriGetir'])->name("islemTurleriGetir");
 

@@ -30,18 +30,72 @@
                                             <table id="tech-companies-1" class="table table-striped table-hover">
                                                 <thead>
                                                     <tr>
-                                                        
+                                                        <th>Form Adı</th>
+                                                        <th>Takip No</th>
+                                                        <th>İşlem Sayısı</th>
+                                                        <th>Baslangıç/Bitiş Tarihi</th>
+                                                        <th>İşlemler</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    <tr v-for="(siparis, index) in formlar.data" :key="index">
-                                                        
+                                                    <tr v-for="(form, index) in formlar.data" :key="index">
+                                                        <td>@{{ form.formAdi }}</td>
+                                                        <td>@{{ form.takipNo }}</td>
+                                                        <td>@{{ form.islemSayisi }}</td>
+                                                        <td>
+                                                            <div class="row">
+                                                                <div class="col-12">
+                                                                    <span>@{{ form.baslangicTarihi }}</span>
+                                                                </div>
+                                                                <div class="col-12">
+                                                                    <span v-if="form.bitisTarihi">
+                                                                        @{{ form.bitisTarihi }}
+                                                                    </span>
+                                                                    <small v-else class="text-muted">
+                                                                        Form henüz tamamlanmadı
+                                                                    </small>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                        <td>
+                                                            <div class="row">
+                                                                <div class="col-4">
+                                                                    <button @click="formDetayGoruntule(form)" class="btn btn-info btn-sm">
+                                                                        <i class="fas fa-eye"></i>
+                                                                    </button>
+                                                                </div>
+                                                                <div class="col-4">
+                                                                    <button @click="formDuzenle(form)" class="btn btn-warning btn-sm">
+                                                                        <i class="fas fa-edit"></i>
+                                                                    </button>
+                                                                </div>
+                                                                <div class="col-4">
+                                                                    <button @click="formSil(form)" class="btn btn-danger btn-sm">
+                                                                        <i class="fas fa-trash"></i>
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                        </td>
                                                     </tr>
                                                 </tbody>
                                                 <tfoot>
                                                     <tr>
                                                         <td colspan="100%">
-                                                            
+                                                            <ul class="pagination pagination-rounded justify-content-center mb-0">
+                                                                <li class="page-item">
+                                                                    <button class="page-link" :disabled="!formlar.prev_page_url" @click="formlariGetir(formlar.prev_page_url)">Önceki</button>
+                                                                </li>
+                                                                <li
+                                                                    v-for="sayfa in formlar.last_page"
+                                                                    class="page-item"
+                                                                    :class="[formlar.current_page === sayfa ? 'active' : '']"
+                                                                >
+                                                                    <button class="page-link" @click="formlariGetir('/formlar?page=' + sayfa)">@{{ sayfa }}</button>
+                                                                </li>
+                                                                <li class="page-item">
+                                                                    <button class="page-link" :disabled="!formlar.next_page_url" @click="formlariGetir(formlar.next_page_url)">Sonraki</button>
+                                                                </li>
+                                                            </ul>
                                                         </td>
                                                     </tr>
                                                 </tfoot>
@@ -78,10 +132,11 @@
                             <button
                                 @click="formHazirla()"
                                 class="btn btn-primary"
+                                :disabled="!_.size(aktifForm.secilenIslemler)"
                             >
                                 FORM HAZIRLA
                                 <i class="fas fa-arrow-right"></i>
-                        </button>
+                            </button>
                         </div>
                     </div>
 
@@ -133,7 +188,7 @@
                             ></textarea>
                         </div>
                         <div class="row mt-3">
-                            <div class="col-12" v-for="(firma, fIndex) in aktifForm.firmaGrupluIslemler" :key="fIndex">
+                            <div class="col-12" v-for="(firma, fIndex) in aktifForm.firmaGrupluIslemler.data" :key="fIndex">
                                 <div class="row">
                                     <h5>@{{ firma.firmaAdi }} (@{{ firma.sorumluKisi }})</h5>
                                 </div>
@@ -148,8 +203,8 @@
                                                     <th>İşlem</th>
                                                     <th>İstenilen Sertlik</th>
                                                     <th>Kalite</th>
-                                                    <th>Fırın</th>
-                                                    <th>Şarj</th>
+                                                    <th>Fırın *</th>
+                                                    <th>Şarj *</th>
                                                     <th>Ekle</th>
                                                 </tr>
                                             </thead>
@@ -215,10 +270,26 @@
                                                     </td>
                                                 </tr>
                                             </tbody>
-                                            <tfoot></tfoot>
                                         </table>
                                     </div>
                                 </div>
+                            </div>
+                            <div class="col-12">
+                                <ul class="pagination pagination-rounded justify-content-center mb-0">
+                                    <li class="page-item">
+                                        <button class="page-link" :disabled="!aktifForm.firmaGrupluIslemler.prev_page_url" @click="firmaGrupluIslemleriGetir(null, aktifForm.firmaGrupluIslemler.prev_page_url)">Önceki</button>
+                                    </li>
+                                    <li
+                                        v-for="sayfa in aktifForm.firmaGrupluIslemler.last_page"
+                                        class="page-item"
+                                        :class="[aktifForm.firmaGrupluIslemler.current_page === sayfa ? 'active' : '']"
+                                    >
+                                        <button class="page-link" @click="firmaGrupluIslemleriGetir(null, '/firmaGrupluIslemleriGetir?page=' + sayfa)">@{{ sayfa }}</button>
+                                    </li>
+                                    <li class="page-item">
+                                        <button class="page-link" :disabled="!aktifForm.firmaGrupluIslemler.next_page_url" @click="firmaGrupluIslemleriGetir(null, aktifForm.firmaGrupluIslemler.next_page_url)">Sonraki</button>
+                                    </li>
+                                </ul>
                             </div>
                         </div>
                     </div>
@@ -239,12 +310,17 @@
                             </div>
                         </div>
                         <div class="col-4 text-end">
+                            <button @click="moduDegistir" class="btn btn-outline-info">
+                                <i class="fas fa-eye" v-if="!aktifForm.onizlemeModu"></i>
+                                <i class="fas fa-eye-slash" v-else></i>
+                            </button>
                             <button @click="ciktiAl" class="btn btn-primary">
                                 ÇIKTI
                             </button>
                             <button
-                                @click=""
+                                @click="formKaydet"
                                 class="btn btn-success"
+                                {{-- v-if="!aktifForm.detayGoruntule" --}}
                             >
                                 <i class="fas fa-save"></i>
                                 KAYDET
@@ -360,11 +436,11 @@
                                                                 class="kisa-uzunluk"
                                                             >
                                                                 <template v-if="aktifForm.onizlemeModu">
-                                                                    <span>@{{ islem.sure }}</span>
+                                                                    <span>@{{ islem.beklenenSure }}</span>
                                                                 </template>
                                                                 <template v-else>
                                                                     <input
-                                                                        v-model="islem.sure"
+                                                                        v-model="islem.beklenenSure"
                                                                         type="number"
                                                                         class="form-control"
                                                                         placeholder="Süre"
@@ -391,19 +467,19 @@
                                                                 <template v-else>
                                                                     <input
                                                                         v-model="islem.menevisSicakligi"
-                                                                        type="number"
+                                                                        type="text"
                                                                         class="form-control"
-                                                                        placeholder="Men. Sıcaklığı"
+                                                                        placeholder="Meneviş Sıcaklığı"
                                                                     />
                                                                 </template>
                                                             </td>
                                                             <td class="kisa-uzunluk">
                                                                 <template v-if="aktifForm.onizlemeModu">
-                                                                    <span>@{{ islem.sure }}</span>
+                                                                    <span>@{{ islem.cikisSuresi }}</span>
                                                                 </template>
                                                                 <template v-else>
                                                                     <input
-                                                                        v-model="islem.sure"
+                                                                        v-model="islem.cikisSuresi"
                                                                         type="number"
                                                                         class="form-control"
                                                                         placeholder="Süre"
@@ -469,11 +545,13 @@
                     takipNo: false,
                     firmaGrupluIslemler: false,
                     firinlar: false,
+                    form: false,
                 },
                 firinlar: [],
             }
         },
         mounted() {
+            this.formlariGetir();
             // this.formEkleAc();
             // this.formHazirla();
         },
@@ -490,16 +568,34 @@
             },
         },
         methods: {
+            formlariGetir(url = "/formlar") {
+                this.yukleniyorObjesi.form = true;
+                axios.get(url).then(response => {
+                    if (!response.data.durum) {
+                        return this.uyariAc({
+                            baslik: 'Hata',
+                            mesaj: response.data.mesaj,
+                            tur: "error"
+                        });
+                    }
+
+                    this.formlar = response.data.formlar;
+                    this.yukleniyorObjesi.form = false;
+                }).catch(error => {
+                    this.yukleniyorObjesi.form = false;
+                    console.log(error);
+                });
+            },
             aktifSayfaDegistir(kod) {
                 this.aktifSayfa = _.find(this.sayfalar, { kod });
             },
             formEkleAc() {
                 this.aktifForm = {
-                    formId: null,
                     formAdi: '',
                     takipNo: '',
                     baslangicTarihi: this.m().format("YYYY-MM-DD"),
                     bitisTarihi: null,
+                    aciklama: "",
                     firmaGrupluIslemler: [],
                     secilenIslemler: [],
                     firinSarjGrupluIslemler: {},
@@ -515,7 +611,7 @@
             },
             firinlariGetir() {
                 this.yukleniyorObjesi.firinlar = true;
-                axios.get('{{ route('firinlariGetir') }}')
+                return axios.get('{{ route('firinlariGetir') }}')
                     .then(response => {
                         this.yukleniyorObjesi.firinlar = false;
                         if (!response.data.durum) {
@@ -569,11 +665,19 @@
                 this.aktifForm = null;
             },
             geriYeniForm() {
+                if (this.aktifForm.geriFonksiyon) {
+                    return this.aktifForm.geriFonksiyon();
+                }
+
                 this.aktifSayfaDegistir("YENI_FORM");
             },
-            firmaGrupluIslemleriGetir() {
+            firmaGrupluIslemleriGetir(formId = null, url = "/firmaGrupluIslemleriGetir") {
                 this.yukleniyorObjesi.firmaGrupluIslemler = true;
-                axios.get("/firmaGrupluIslemleriGetir")
+                return axios.get(url, {
+                    params: {
+                        formId,
+                    }
+                })
                 .then(response => {
                     this.yukleniyorObjesi.firmaGrupluIslemler = false;
                     if (!response.data.durum) {
@@ -597,13 +701,23 @@
                 const islemIndex = _.findIndex(this.aktifForm.secilenIslemler, { id: islem.id });
                 if (islemIndex > -1) {
                     this.aktifForm.secilenIslemler.splice(islemIndex, 1);
+
+                    // Eğer düzenleme modundaysa silineceklere ekle
+                    if (this.aktifForm.id && _.find(this.aktifForm.baslangictakiIslemler, { id: islem.id })) {
+                        this.aktifForm.silinecekIslemler.push(islem.id);
+                    }
                 } else {
                     this.aktifForm.secilenIslemler.push(islem);
+
+                    // Eğer düzenleme modundaysa silineceklerde varsa kaldır
+                    if (this.aktifForm.id && _.includes(this.aktifForm.silinecekIslemler, islem.id)) {
+                        this.aktifForm.silinecekIslemler = _.without(this.aktifForm.silinecekIslemler, islem.id);
+                    }
                 }
 
                 this.aktifForm = _.cloneDeep(this.aktifForm);
             },
-            formaEkle(islem) {
+            formaEkle(islem, cloneYap = true) {
                 const islemIndex = _.findIndex(this.aktifForm.secilenIslemler, { id: islem.id });
                 if (islemIndex === -1) {
                     this.aktifForm.secilenIslemler.push(islem);
@@ -611,7 +725,9 @@
 
                 islem.secildi = true;
 
-                this.aktifForm = _.cloneDeep(this.aktifForm);
+                if (cloneYap) {
+                    this.aktifForm = _.cloneDeep(this.aktifForm);
+                }
             },
             formHazirla() {
                 if (!_.size(this.aktifForm.secilenIslemler)) {
@@ -646,7 +762,7 @@
                     }
 
                     const firinId = islem.firin.id;
-                    const sarjId = "sarj" + islem.sarj;
+                    const sarjId = islem.sarj;
 
                     if (!this.aktifForm.firinSarjGrupluIslemler[firinId]) {
                         this.aktifForm.firinSarjGrupluIslemler[firinId] = {
@@ -686,6 +802,169 @@
                         a.click();
                         this.aktifForm.onizlemeModu = baslangicDurum;
                     });
+                });
+            },
+            moduDegistir() {
+                this.aktifForm.onizlemeModu = !this.aktifForm.onizlemeModu;
+
+                this.aktifForm = _.cloneDeep(this.aktifForm);
+            },
+            formKaydet() {
+                const islem = () => {
+                    this.yukleniyorObjesi.form = true;
+                    axios.post("{{ route('formKaydet') }}", {
+                        form: this.aktifForm,
+                        silinecekIslemler: this.aktifForm.silinecekIslemler,
+                    })
+                    .then(response => {
+                        this.yukleniyorObjesi.form = false;
+
+                        if (!response.data.durum) {
+                            return this.uyariAc({
+                                baslik: 'Hata',
+                                mesaj: response.data.mesaj,
+                                tur: "error"
+                            });
+                        }
+
+                        this.uyariAc({
+                            baslik: 'Başarılı',
+                            mesaj: 'Form başarıyla kaydedildi.',
+                            tur: "success"
+                        });
+
+                        this.formlariGetir();
+                        this.geriAnasayfa();
+                    })
+                    .catch(error => {
+                        this.yukleniyorObjesi.form = false;
+                        console.log(error);
+                    });
+                };
+
+                if (_.size(this.aktifForm.silinecekIslemler)) {
+                    Swal.fire({
+                        title: "Uyarı",
+                        text: `Eğer devam ederseniz, form silinecektir. Devam etmek istiyor musunuz?`,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'Devam Et',
+                        cancelButtonText: 'İptal',
+                    }).then((result) => {
+                        /* Read more about isConfirmed, isDenied below */
+                        if (result.isConfirmed) {
+                            islem();
+                        } else if (result.isDenied) {}
+                    });
+                } else {
+                    islem();
+                }
+            },
+            formDuzenle(form) {
+                this.yukleniyorObjesi.form = true;
+
+                this.aktifForm = {
+                    formAdi: '',
+                    takipNo: '',
+                    baslangicTarihi: this.m().format("YYYY-MM-DD"),
+                    bitisTarihi: null,
+                    aciklama: "",
+                    firmaGrupluIslemler: [],
+                    secilenIslemler: [],
+                    firinSarjGrupluIslemler: {},
+                    silinecekIslemler: [],
+                    baslangictakiIslemler: [],
+                    ...form,
+                };
+
+                const promises = [];
+
+                if (!_.size(this.firinlar)) {
+                    promises.push(this.firinlariGetir());
+                }
+
+                promises.push(this.firmaGrupluIslemleriGetir(this.aktifForm.id));
+
+                return Promise.all(promises)
+                .then((p) => {
+                    this.yukleniyorObjesi.form = false;
+                    // this.aktifForm.secilenIslemler = response.data.secilenIslemler;
+
+                    for (const [index, firma] of _.toPairs(this.aktifForm.firmaGrupluIslemler.data)) {
+                        for (const [index, islem] of _.toPairs(firma.islemler)) {
+                            if (islem.firinId) {
+                                islem.firin = _.find(this.firinlar, { id: islem.firinId });
+
+                                this.formaEkle(islem, false);
+                            }
+                        }
+                    }
+
+                    this.aktifForm.baslangictakiIslemler = _.cloneDeep(this.aktifForm.secilenIslemler);
+
+                    this.aktifSayfaDegistir("YENI_FORM");
+
+                    this.aktifForm = _.cloneDeep(this.aktifForm);
+                });
+            },
+            formSil(form) {
+                const islem = () => {
+                    this.yukleniyorObjesi.form = true;
+
+                    axios.post("{{ route('formSil') }}", {
+                        formId: form.id,
+                    })
+                    .then(response => {
+                        this.yukleniyorObjesi.form = false;
+
+                        if (!response.data.durum) {
+                            return this.uyariAc({
+                                baslik: 'Hata',
+                                mesaj: response.data.mesaj,
+                                tur: "error"
+                            });
+                        }
+
+                        this.uyariAc({
+                            baslik: 'Başarılı',
+                            mesaj: 'Form başarıyla silindi.',
+                            tur: "success"
+                        });
+
+                        this.formlariGetir();
+                    })
+                    .catch(error => {
+                        this.yukleniyorObjesi.form = false;
+                        console.log(error);
+                    });
+                };
+
+                Swal.fire({
+                    title: "Uyarı",
+                    text: `Bu forma ait durumu, "İşlemde" veya "Tamamlandı" olan işlem varsa formu silemezsiniz.
+                        Formu sildiğinizde forma ait tüm işlemler "Başlanmadı" olarak ayarlanacaktır.
+                        Formu silmek istediğinizden emin misiniz?`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Sil',
+                    cancelButtonText: 'İptal',
+                }).then((result) => {
+                    /* Read more about isConfirmed, isDenied below */
+                    if (result.isConfirmed) {
+                        islem();
+                    }
+                });
+            },
+            formDetayGoruntule(form) {
+                this.formDuzenle(form).then(() => {
+                    this.formHazirla();
+                    this.aktifForm.onizlemeModu = true;
+                    this.aktifForm.detayGoruntule = true;
+                    this.aktifForm.geriFonksiyon = () => {
+                        this.geriAnasayfa();
+                    };
+
+                    this.aktifForm = _.cloneDeep(this.aktifForm);
                 });
             },
         }
