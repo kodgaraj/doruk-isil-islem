@@ -43,6 +43,7 @@ class IsilIslemController extends Controller
                     $formTabloAdi . '.baslangicTarihi',
                     $formTabloAdi . '.bitisTarihi'
                 )
+                ->orderBy($formTabloAdi . '.id', 'desc')
                 ->paginate(10);
 
             return response()->json([
@@ -271,6 +272,7 @@ class IsilIslemController extends Controller
             {
                 $form = new Formlar();
             }
+
             $form->takipNo = $formBilgileri["takipNo"];
             $form->formAdi = $formBilgileri["formAdi"];
             $form->baslangicTarihi = $formBilgileri["baslangicTarihi"];
@@ -588,6 +590,17 @@ class IsilIslemController extends Controller
                     'durum' => false,
                     'mesaj' => 'İşlem kaydedilemedi.',
                     "hataKodu" => "F006",
+                ], 500);
+            }
+
+            if (!$this->islemBitisTarihleriAyarla($islem->id))
+            {
+                DB::rollBack();
+
+                return response()->json([
+                    'durum' => false,
+                    'mesaj' => 'İşlem bitiş tarihleri ayarlanamadı.',
+                    "hataKodu" => "IBT001",
                 ], 500);
             }
 

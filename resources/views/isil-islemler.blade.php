@@ -27,7 +27,7 @@
                     </div>
                     <div class="row">
                         <div class="col-12 mt-3">
-                            <template v-if="yukleniyor">
+                            <template v-if="yukleniyorObjesi.form">
                                 <div class="text-center">
                                     <div class="spinner-border text-primary" role="status">
                                         <span class="sr-only">Yükleniyor...</span>
@@ -41,19 +41,21 @@
                                             <table id="tech-companies-1" class="table table-striped table-hover">
                                                 <thead>
                                                     <tr>
-                                                        <th>Form Adı</th>
+                                                        <th class="text-center">Form ID</th>
                                                         <th>Takip No</th>
-                                                        <th>İşlem Sayısı</th>
+                                                        <th>Form Adı</th>
+                                                        <th class="text-center">İşlem Sayısı</th>
                                                         <th>Baslangıç/Bitiş Tarihi</th>
-                                                        <th>İşlemler</th>
+                                                        <th class="text-center">İşlemler</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
                                                     <tr v-for="(form, index) in formlar.data" :key="index">
-                                                        <td>@{{ form.formAdi }}</td>
-                                                        <td>@{{ form.takipNo }}</td>
-                                                        <td>@{{ form.islemSayisi }}</td>
-                                                        <td>
+                                                        <td class="kisa-uzunluk text-center"># @{{ form.id }}</td>
+                                                        <td class="kisa-uzunluk">@{{ form.takipNo }}</td>
+                                                        <td class="uzun-uzunluk">@{{ form.formAdi }}</td>
+                                                        <td class="text-center kisa-uzunluk">@{{ form.islemSayisi }}</td>
+                                                        <td class="kisa-uzunluk">
                                                             <div class="row">
                                                                 <div class="col-12">
                                                                     <span>@{{ form.baslangicTarihi }}</span>
@@ -68,19 +70,19 @@
                                                                 </div>
                                                             </div>
                                                         </td>
-                                                        <td>
-                                                            <div class="row">
-                                                                <div class="col-4">
+                                                        <td class="text-center orta-uzunluk">
+                                                            <div class="row g-1 d-inline-flex">
+                                                                <div class="col">
                                                                     <button @click="formDetayGoruntule(form)" class="btn btn-info btn-sm">
                                                                         <i class="fas fa-eye"></i>
                                                                     </button>
                                                                 </div>
-                                                                <div class="col-4">
+                                                                <div class="col">
                                                                     <button @click="formDuzenle(form)" class="btn btn-warning btn-sm">
                                                                         <i class="fas fa-edit"></i>
                                                                     </button>
                                                                 </div>
-                                                                <div class="col-4">
+                                                                <div class="col">
                                                                     <button @click="formSil(form)" class="btn btn-danger btn-sm">
                                                                         <i class="fas fa-trash"></i>
                                                                     </button>
@@ -209,33 +211,44 @@
                                             <thead>
                                                 <tr>
                                                     <th>İşlem ID</th>
-                                                    <th>Sipariş/Sıra No</th>
-                                                    <th>Termin</th>
+                                                    <th class="text-center">Termin</th>
                                                     <th>Malzeme</th>
                                                     <th>İşlem</th>
                                                     <th>İstenilen Sertlik</th>
                                                     <th>Kalite</th>
-                                                    <th>Fırın *</th>
-                                                    <th>Şarj *</th>
-                                                    <th>Ekle</th>
+                                                    <th class="text-center">Fırın*</th>
+                                                    <th class="text-center">Şarj*</th>
+                                                    <th class="text-center">Ekle</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 <tr v-for="(islem, iIndex) in firma.islemler" :key="iIndex">
-                                                    <td>
-                                                        <span
-                                                            v-if="sorguParametreleri.islemId && sorguParametreleri.islemId === islem.id"
-                                                            class="badge rounded-pill bg-danger"
-                                                        >
-                                                            # @{{ islem.id }}
-                                                        </span>
-                                                        <span v-else># @{{ islem.id }}</span>
+                                                    <td class="kisa-uzunluk">
+                                                        <div class="row">
+                                                            <div class="col-12">
+                                                                <span
+                                                                    v-if="sorguParametreleri.islemId && sorguParametreleri.islemId === islem.id"
+                                                                    class="badge rounded-pill bg-danger"
+                                                                >
+                                                                    # @{{ islem.id }}
+                                                                </span>
+                                                                <span v-else># @{{ islem.id }}</span>
+                                                            </div>
+                                                            <div class="col-12">
+                                                                <span class="badge bg-primary">Sipariş No: @{{ islem.siparisNo }}</span>
+                                                            </div>
+                                                            <div v-if="islem.tekrarEdenId" class="col-12">
+                                                                <span class="badge rounded-pill bg-danger">Tekrar Eden İşlem ID: @{{ islem.tekrarEdenId }}</span>
+                                                            </div>
+                                                            <div v-if="islem.tekrarEdilenId" class="col-12">
+                                                                <span class="badge rounded-pill bg-info">Tekrar Edilen İşlem ID: @{{ islem.tekrarEdilenId }}</span>
+                                                            </div>
+                                                        </div>
                                                     </td>
-                                                    <td>@{{ islem.siparisNo }}</td>
-                                                    <td>
+                                                    <td class="kisa-uzunluk text-center">
                                                         <span class="badge badge-pill" :class="`bg-${ islem.gecenSureRenk }`">@{{ islem.gecenSure }} Gün</span>
                                                     </td>
-                                                    <td>
+                                                    <td class="orta-uzunluk">
                                                         <div class="row">
                                                             <div class="col-12">
                                                                 @{{ islem.malzemeAdi }}
@@ -251,10 +264,10 @@
                                                             </div>
                                                         </div>
                                                     </td>
-                                                    <td>@{{ islem.islemTuruAdi ? islem.islemTuruAdi : "-" }}</td>
-                                                    <td>@{{ islem.istenilenSertlik ? islem.istenilenSertlik : "-" }}</td>
-                                                    <td>@{{ islem.kalite ? islem.kalite : "-" }}</td>
-                                                    <td>
+                                                    <td class="kisa-uzunluk">@{{ islem.islemTuruAdi ? islem.islemTuruAdi : "-" }}</td>
+                                                    <td class="kisa-uzunluk">@{{ islem.istenilenSertlik ? islem.istenilenSertlik : "-" }}</td>
+                                                    <td class="kisa-uzunluk">@{{ islem.kalite ? islem.kalite : "-" }}</td>
+                                                    <td class="orta-uzunluk text-center">
                                                         <div class="form-group">
                                                             <select class="form-control select2" v-model="islem.firin" @change="formaEkle(islem)">
                                                                 <optgroup label="Fırınlar">
@@ -269,7 +282,7 @@
                                                             </select>
                                                         </div>
                                                     </td>
-                                                    <td>
+                                                    <td class="kisa-uzunluk text-center">
                                                         <div class="form-group">
                                                             <input
                                                                 v-model="islem.sarj"
@@ -280,7 +293,7 @@
                                                             />
                                                         </div>
                                                     </td>
-                                                    <td>
+                                                    <td class="kisa-uzunluk text-center">
                                                         <button
                                                             @click="formaIslemEkleSil(islem)"
                                                             class="btn"
@@ -620,6 +633,11 @@
                     this.yukleniyorObjesi.form = false;
                 }).catch(error => {
                     this.yukleniyorObjesi.form = false;
+                    this.uyariAc({
+                        baslik: 'Hata',
+                        mesaj: error.response.data.mesaj + " - Hata Kodu: " + error.response.data.hataKodu,
+                        tur: "error"
+                    });
                     console.log(error);
                 });
             },
@@ -663,6 +681,11 @@
                     })
                     .catch(error => {
                         this.yukleniyorObjesi.firinlar = false;
+                        this.uyariAc({
+                            baslik: 'Hata',
+                            mesaj: error.response.data.mesaj + " - Hata Kodu: " + error.response.data.hataKodu,
+                            tur: "error"
+                        });
                         console.log(error);
                     });
             },
@@ -686,6 +709,11 @@
                 })
                 .catch(error => {
                     this.yukleniyorObjesi.takipNo = false;
+                    this.uyariAc({
+                        baslik: 'Hata',
+                        mesaj: error.response.data.mesaj + " - Hata Kodu: " + error.response.data.hataKodu,
+                        tur: "error"
+                    });
                     console.log(error);
                 });
             },
@@ -729,6 +757,11 @@
                 })
                 .catch(error => {
                     this.yukleniyorObjesi.firmaGrupluIslemler = false;
+                    this.uyariAc({
+                        baslik: 'Hata',
+                        mesaj: error.response.data.mesaj + " - Hata Kodu: " + error.response.data.hataKodu,
+                        tur: "error"
+                    });
                     console.log(error);
                 });
             },
@@ -875,14 +908,20 @@
                     })
                     .catch(error => {
                         this.yukleniyorObjesi.form = false;
+                        this.uyariAc({
+                            baslik: 'Hata',
+                            mesaj: error.response.data.mesaj + " - Hata Kodu: " + error.response.data.hataKodu,
+                            tur: "error"
+                        });
                         console.log(error);
                     });
                 };
 
-                if (_.size(this.aktifForm.silinecekIslemler)) {
+                const silinecekIslemlerToplam = _.size(this.aktifForm.silinecekIslemler);
+                if (silinecekIslemlerToplam) {
                     Swal.fire({
                         title: "Uyarı",
-                        text: `Eğer devam ederseniz, form silinecektir. Devam etmek istiyor musunuz?`,
+                        text: `Eğer devam ederseniz, ${silinecekIslemlerToplam} adet işlem kaldırılıcak. Devam etmek istiyor musunuz?`,
                         icon: 'warning',
                         showCancelButton: true,
                         confirmButtonText: 'Devam Et',
@@ -972,6 +1011,11 @@
                     })
                     .catch(error => {
                         this.yukleniyorObjesi.form = false;
+                        this.uyariAc({
+                            baslik: 'Hata',
+                            mesaj: error.response.data.mesaj + " - Hata Kodu: " + error.response.data.hataKodu,
+                            tur: "error"
+                        });
                         console.log(error);
                     });
                 };

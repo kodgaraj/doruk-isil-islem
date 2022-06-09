@@ -41,6 +41,19 @@
 </head>
 
 <body data-layout="detached" data-topbar="colored">
+    <div id="preloader">
+        <div id="status">
+            <div class="spinner-chase">
+                <div class="chase-dot"></div>
+                <div class="chase-dot"></div>
+                <div class="chase-dot"></div>
+                <div class="chase-dot"></div>
+                <div class="chase-dot"></div>
+                <div class="chase-dot"></div>
+            </div>
+        </div>
+    </div>
+
     <div id="app" class="container-fluid">
         <div id="layout-wrapper">
             <div class="vertical-menu">
@@ -90,7 +103,7 @@
             </div>
 
             <div class="main-content">
-                <div class="page-content">
+                <div class="page-content mb-5">
                     <div class="row">
                         <div class="col-12">
                             <div class="page-title-box d-flex align-items-center justify-content-between">
@@ -175,7 +188,7 @@
                     <div class="container-fluid">
                         <div class="row">
                             <div class="col-sm-6">
-                                &copy; 2022
+                                &copy; @{{ new Date().getFullYear() }}
                             </div>
                             <div class="col-sm-6">
                                 <div class="text-sm-end d-none d-sm-block">

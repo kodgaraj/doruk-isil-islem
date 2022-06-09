@@ -2,6 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Formlar;
+use App\Models\IslemDurumlari;
+use App\Models\Islemler;
+use App\Models\Siparisler;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
@@ -40,5 +44,43 @@ class Controller extends BaseController
             'gecenSure' => $termin,
             'gecenSureRenk' => $renk,
         ];
+    }
+
+    /**
+     * İşleme ait formun içindeki tüm işlemler tamamlandıysa,
+     * bu formun bitiş tarihini ayarlar.
+     */
+    public function islemBitisTarihleriAyarla($islemId)
+    {
+        $islemTabloAdi = (new Islemler())->getTable();
+        $formTabloAdi = (new Formlar())->getTable();
+        $islemDurumTabloAdi = (new IslemDurumlari())->getTable();
+        $siparisTabloAdi = (new Siparisler())->getTable();
+
+        $form = Formlar::join($islemTabloAdi, $formTabloAdi . '.id', '=', $islemTabloAdi . '.formId')
+            ->where("$islemTabloAdi.id", $islemId)
+            ->first();
+
+        if (!$form)
+        {
+            return false;
+        }
+
+        $tamamlanmamisFormIslemler = Islemler::join($islemDurumTabloAdi, $islemDurumTabloAdi . '.id', '=', $islemTabloAdi . '.durumId')
+            ->where("$islemTabloAdi.formId", $form->id)
+            ->where("$islemDurumTabloAdi.kod", "<>", "TAMAMLANDI")
+            ->count();
+
+        if ($tamamlanmamisFormIslemler === 0)
+        {
+            $form->bitisTarihi = Carbon::now();
+
+            if (!$form->save())
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 }
