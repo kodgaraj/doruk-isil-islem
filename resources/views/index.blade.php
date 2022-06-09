@@ -3,7 +3,7 @@
 <div class="row doruk-content">
     <h4 style="color:#999"><i class="fa fa-home"></i> ANASAYFA</h4>
     <div class="col-12 col-sm-4">
-        <div class="card" @click="siparisSayfasiAc()">
+        <div class="card waves-effect" style="width: 100%;" @click="siparisSayfasiAc()">
             <div class="card-body">
                 <div class="d-flex align-items-start">
                     <div class="avatar-sm font-size-20 me-3">
@@ -32,7 +32,7 @@
         </div>
     </div>
     <div class="col-12 col-sm-4">
-        <div class="card" @click="kullanicilarSayfasiAc()">
+        <div class="card waves-effect" style="width: 100%;" @click="kullanicilarSayfasiAc()">
             <div class="card-body">
                 <div class="d-flex align-items-start">
                     <div class="avatar-sm font-size-20 me-3">
@@ -62,7 +62,7 @@
         </div>
     </div>
     <div class="col-12 col-sm-4">
-        <div class="card" @click="isilIslemSayfasiAc()">
+        <div class="card waves-effect" style="width: 100%;" @click="isilIslemSayfasiAc()">
             <div class="card-body">
                 <div class="d-flex align-items-start">
                     <div class="avatar-sm font-size-20 me-3">
