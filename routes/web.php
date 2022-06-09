@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\FirinlarController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\IsilIslemController;
 use App\Http\Controllers\IslemDurumlariController;
 use App\Http\Controllers\IslemTurleriController;
@@ -21,10 +22,7 @@ use App\Http\Controllers\SiparisController;
 */
 
 Route::group(['middleware' => ['auth']], function () {
-    Route::get('/', function () {
-        return view("index");
-    })->name("home");
-
+    Route::get('/', [HomeController::class, "index"])->name("home");
     Route::get('/siparis-formu', [SiparisController::class, 'index'])->name("siparis-formu");
     Route::get('/isil-islemler', [IsilIslemController::class, 'index'])->name("isil-islemler");
 
@@ -42,6 +40,10 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('/formKaydet', [IsilIslemController::class, 'formKaydet'])->name("formKaydet");
     Route::post('/formDetay', [IsilIslemController::class, 'formDetay'])->name("formDetay");
     Route::post('/formSil', [IsilIslemController::class, 'formSil'])->name("formSil");
+    Route::get('/islemler', [IsilIslemController::class, 'islemler'])->name("islemler");
+    Route::post('/islemDurumuDegistir', [IsilIslemController::class, 'islemDurumuDegistir'])->name("islemDurumuDegistir");
+    Route::post('/islemTekrarEt', [IsilIslemController::class, 'islemTekrarEt'])->name("islemTekrarEt");
+    Route::post('/islemTamamlandiGeriAl', [IsilIslemController::class, 'islemTamamlandiGeriAl'])->name("islemTamamlandiGeriAl");
 
     Route::get('/islemTurleriGetir', [IslemTurleriController::class, 'islemTurleriGetir'])->name("islemTurleriGetir");
 

@@ -1,7 +1,18 @@
 @extends('layout')
 
 @section('content')
-    <h4 style="color:#999"><i class="mdi mdi-stove"> </i> ISIL İŞLEMLER</h4>
+    <div class="d-inline-flex">
+        <h4 style="color:#999">
+            <i class="mdi mdi-stove"> </i>
+            ISIL İŞLEMLER
+        </h4>
+        <div class="ms-1">
+            <button @click="sorguParametreleriTemizle" v-if="sorguParametreleri.formId" class="btn btn-danger btn-sm">
+                <b>Form ID: @{{ sorguParametreleri.formId }}</b>
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </div>
     <div class="col-12">
         <div class="card">
             <div class="card-body">
@@ -197,6 +208,7 @@
                                         <table id="tech-companies-1" class="table table-striped table-hover">
                                             <thead>
                                                 <tr>
+                                                    <th>İşlem ID</th>
                                                     <th>Sipariş/Sıra No</th>
                                                     <th>Termin</th>
                                                     <th>Malzeme</th>
@@ -210,6 +222,15 @@
                                             </thead>
                                             <tbody>
                                                 <tr v-for="(islem, iIndex) in firma.islemler" :key="iIndex">
+                                                    <td>
+                                                        <span
+                                                            v-if="sorguParametreleri.islemId && sorguParametreleri.islemId === islem.id"
+                                                            class="badge rounded-pill bg-danger"
+                                                        >
+                                                            # @{{ islem.id }}
+                                                        </span>
+                                                        <span v-else># @{{ islem.id }}</span>
+                                                    </td>
                                                     <td>@{{ islem.siparisNo }}</td>
                                                     <td>
                                                         <span class="badge badge-pill" :class="`bg-${ islem.gecenSureRenk }`">@{{ islem.gecenSure }} Gün</span>
@@ -548,6 +569,10 @@
                     form: false,
                 },
                 firinlar: [],
+                sorguParametreleri: {
+                    formId: null,
+                    islemNo: null,
+                },
             }
         },
         mounted() {
@@ -580,6 +605,18 @@
                     }
 
                     this.formlar = response.data.formlar;
+
+                    let url = new URL(window.location.href);
+                    this.sorguParametreleri.formId = _.toNumber(url.searchParams.get("formId"));
+                    this.sorguParametreleri.islemId = _.toNumber(url.searchParams.get("islemId"));
+                    if (this.sorguParametreleri.formId && this.sorguParametreleri.islemId) {
+                        const form = _.find(this.formlar.data, { id: this.sorguParametreleri.formId });
+
+                        if (form) {
+                            this.formDuzenle(form);
+                        }
+                    }
+
                     this.yukleniyorObjesi.form = false;
                 }).catch(error => {
                     this.yukleniyorObjesi.form = false;
@@ -967,6 +1004,14 @@
                     this.aktifForm = _.cloneDeep(this.aktifForm);
                 });
             },
+            sorguParametreleriTemizle() {
+                this.sorguParametreleri = {
+                    formId: null,
+                    islemId: null,
+                };
+
+                window.history.replaceState({}, document.title, (new URL(window.location.href)).pathname)
+            },
         }
     };
 </script>
@@ -986,30 +1031,6 @@
         table#formGorunumu td {
             vertical-align: middle;
             text-align: center;
-        }
-
-        table td.kisa-uzunluk {
-            min-width: 100px;
-        }
-
-        table td.orta-uzunluk {
-            min-width: 150px;
-        }
-
-        table td.uzun-uzunluk {
-            min-width: 200px;
-        }
-
-        table td.align-left {
-            text-align: left !important;
-        }
-
-        table td.align-right {
-            text-align: right !important;
-        }
-
-        table td.align-center {
-            text-align: center !important;
         }
     </style>
 @endsection

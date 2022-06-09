@@ -12,6 +12,31 @@
     <link href="assets/css/app.min.css" id="app-style" rel="stylesheet" type="text/css" />
     <link href="assets/css/doruk.css" rel="stylesheet" type="text/css" />
 
+    <style>
+        table td.kisa-uzunluk {
+            min-width: 100px;
+        }
+
+        table td.orta-uzunluk {
+            min-width: 150px;
+        }
+
+        table td.uzun-uzunluk {
+            min-width: 200px;
+        }
+
+        table td.align-left {
+            text-align: left !important;
+        }
+
+        table td.align-right {
+            text-align: right !important;
+        }
+
+        table td.align-center {
+            text-align: center !important;
+        }
+    </style>
     @yield('style')
 </head>
 
@@ -20,6 +45,12 @@
         <div id="layout-wrapper">
             <div class="vertical-menu">
                 <div class="h-100">
+                    <!--- Sidemenu close button -->
+                    <div v-if="sidebarButonDurum" class="position-absolute top-0 end-0 m-2">
+                        <button @click="sidebarAcKapat(false)" class="btn btn-outline-danger btn-sm">
+                            <i class="mdi mdi-close-circle-outline"></i>
+                        </button>
+                    </div>
                     <div class="user-wid text-center py-4">
                         <div class="text-center">
                             <img src="img/doruk-logo.png" alt="">
@@ -28,7 +59,7 @@
                     <div id="sidebar-menu">
                         <ul class="metismenu list-unstyled" id="side-menu">
                             <li>
-                                <a href="{{ route('home') }}" class=" waves-effect">
+                                <a href="{{ route('home') }}" class="waves-effect">
                                     <i class="mdi mdi-home"></i> Anasayfa
                                 </a>
                             </li>
@@ -63,7 +94,17 @@
                     <div class="row">
                         <div class="col-12">
                             <div class="page-title-box d-flex align-items-center justify-content-between">
-                                <h4 class="page-title mb-0 font-size-18">ISIL İŞLEM TAKİP OTOMASYONU</h4>
+                                <!-- sidebar button -->
+                                <div class="d-inline-flex align-items-center justify-content-between">
+                                    <div v-if="sidebarButonDurum" class="me-2">
+                                        <button @click="sidebarAcKapat(true)" class="btn btn-outline-light btn-sm">
+                                            <i class="fas fa-bars"></i>
+                                        </button>
+                                    </div>
+                                    <a href="{{ route('home') }}" class="waves-effect">
+                                        <h4 class="page-title mb-0 font-size-18">ISIL İŞLEM TAKİP OTOMASYONU</h4>
+                                    </a>
+                                </div>
                                 <div class="page-title-right">
                                     <div class="float-end">
                                         <div class="dropdown d-none d-lg-inline-block ms-1">
@@ -181,11 +222,17 @@
             el: '#app',
             data: {
                 yukleniyor: false,
+                sidebarButonDurum: false,
             },
             computed: {
                 m() {
                     return moment;
                 }
+            },
+            mounted() {
+                this.$nextTick(() => {
+                    this.sidebarButonDurum = window.innerWidth < 992;
+                });
             },
             methods: {
                 uyariAc(obje) {
@@ -198,6 +245,17 @@
                 },
                 yukleniyorDurum(durum) {
                     this.yukleniyor = durum;
+                },
+                sidebarAcKapat(durum = null) {
+                    if (durum === null) {
+                        document.body.classList.toggle('sidebar-enable');
+                    } else {
+                        if (durum) {
+                            document.body.classList.add('sidebar-enable');
+                        } else {
+                            document.body.classList.remove('sidebar-enable');
+                        }
+                    }
                 },
             },
         });

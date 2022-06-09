@@ -15,8 +15,8 @@
                         <div class="font-size-16 mt-2">Siparişler</div>
                     </div>
                 </div>
-                <h4 class="mt-4">1,368</h4>
-                <div class="row">
+                <h4 class="mt-4">@{{ toplamKayitlar.siparisler }}</h4>
+                {{-- <div class="row">
                     <div class="col-7">
                         <p class="mb-0"><span class="text-success me-2"> 0.28% <i
                                     class="mdi mdi-arrow-up"></i> </span></p>
@@ -27,7 +27,7 @@
                                 aria-valuenow="62" aria-valuemin="0" aria-valuemax="100"></div>
                         </div>
                     </div>
-                </div>
+                </div> --}}
             </div>
         </div>
     </div>
@@ -45,8 +45,8 @@
 
                     </div>
                 </div>
-                <h4 class="mt-4">2,456</h4>
-                <div class="row">
+                <h4 class="mt-4">@{{ toplamKayitlar.kullanicilar }}</h4>
+                {{-- <div class="row">
                     <div class="col-7">
                         <p class="mb-0"><span class="text-success me-2"> 0.16% <i
                                     class="mdi mdi-arrow-up"></i> </span></p>
@@ -57,7 +57,7 @@
                                 aria-valuenow="62" aria-valuemin="0" aria-valuemax="100"></div>
                         </div>
                     </div>
-                </div>
+                </div> --}}
             </div>
         </div>
     </div>
@@ -75,8 +75,8 @@
 
                     </div>
                 </div>
-                <h4 class="mt-4">2,456</h4>
-                <div class="row">
+                <h4 class="mt-4">@{{ toplamKayitlar.islemler }}</h4>
+                {{-- <div class="row">
                     <div class="col-7">
                         <p class="mb-0"><span class="text-success me-2"> 0.16% <i
                                     class="mdi mdi-arrow-up"></i> </span></p>
@@ -87,7 +87,7 @@
                                 aria-valuenow="62" aria-valuemin="0" aria-valuemax="100"></div>
                         </div>
                     </div>
-                </div>
+                </div> --}}
             </div>
         </div>
     </div>
@@ -96,7 +96,7 @@
             <div class="card-body">
                 <div class="row">
                     <div class="col-8">
-                        <h4 class="card-title mb-4">Son Isıl İşlemler</h4>
+                        <h4 class="card-title mb-4">Isıl İşlemler</h4>
                     </div>
                     <div class="col-4 text-end ">
                         <button @click="isilIslemSayfasiAc()" class="btn btn-primary btn-sm">Tümünü Gör</button>
@@ -104,76 +104,176 @@
                 </div>
 
                 <div class="table-responsive">
-                    <table class="table table-centered">
+                    <table id="tech-companies-1" class="table table-striped table-hover">
                         <thead>
                             <tr>
-                                <th scope="col">Date</th>
-                                <th scope="col">Id no.</th>
-                                <th scope="col">Billing Name</th>
-                                <th scope="col">Amount</th>
-                                <th scope="col" colspan="2">Payment Status</th>
+                                <th>İşlem ID</th>
+                                <th>Malzeme</th>
+                                <th>İşlem</th>
+                                <th>Fırın/Şarj</th>
+                                <th class="text-center">İşlemler</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td>15/01/2020</td>
-                                <td>
-                                    <a href="#" class="text-body fw-medium">#SK1235</a>
-                                </td>
-                                <td>Werner Berlin</td>
-                                <td>$ 125</td>
-                                <td><span class="badge badge-soft-success font-size-12">Paid</span>
-                                </td>
-                                <td><a href="#" class="btn btn-primary btn-sm">View</a></td>
-                            </tr>
-                            <tr>
-                                <td>16/01/2020</td>
-                                <td>
-                                    <a href="#" class="text-body fw-medium">#SK1236</a>
-                                </td>
-                                <td>Robert Jordan</td>
-                                <td>$ 118</td>
-                                <td><span class="badge badge-soft-danger font-size-12">Chargeback</span>
-                                </td>
-                                <td><a href="#" class="btn btn-primary btn-sm">View</a></td>
-                            </tr>
-                            <tr>
-                                <td>17/01/2020</td>
-                                <td>
-                                    <a href="#" class="text-body fw-medium">#SK1237</a>
-                                </td>
-                                <td>Daniel Finch</td>
-                                <td>$ 115</td>
-                                <td><span class="badge badge-soft-success font-size-12">Paid</span>
-                                </td>
-                                <td><a href="#" class="btn btn-primary btn-sm">View</a></td>
-                            </tr>
-                            <tr>
-                                <td>18/01/2020</td>
-                                <td>
-                                    <a href="#" class="text-body fw-medium">#SK1238</a>
-                                </td>
-                                <td>James Hawkins</td>
-                                <td>$ 121</td>
-                                <td><span class="badge badge-soft-warning font-size-12">Refund</span>
-                                </td>
-                                <td><a href="#" class="btn btn-primary btn-sm">View</a></td>
-                            </tr>
+                            <template v-if="yukleniyorObjesi.islemler">
+                                <tr>
+                                    <td colspan="9" class="text-center">
+                                        <div class="col-12 text-center">
+                                            <div class="spinner-border text-primary" role="status">
+                                                <span class="sr-only">Yükleniyor...</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </template>
+                            <template v-else-if="!_.size(islemler.data)">
+                                <tr>
+                                    <td colspan="9" class="text-center">
+                                        <div class="col-12 text-center">
+                                            <h5>İşlem Bulunamadı</h5>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </template>
+                            <template v-else>
+                                <tr
+                                    v-for="(islem, iIndex) in islemler.data"
+                                    @click.stop="islemDetayiAc(islem)"
+                                    style="cursor: pointer;"
+                                    :key="iIndex"
+                                >
+                                    <td>
+                                        <div class="row">
+                                            <div class="col-12 d-inline-flex">
+                                                <span># @{{ islem.id }}</span>
+                                                <div v-if="islem.tekrarEdilenId" class="ms-1">
+                                                    <span class="badge rounded-pill bg-danger">Tekrar Edilen İşlem ID: @{{ islem.tekrarEdilenId }}</span>
+                                                </div>
+                                            </div>
+                                            <div class="col-12">
+                                                <span class="badge badge-pill bg-primary">Sipariş No: @{{ islem.siparisNo }}</span>
+                                            </div>
+                                            <div class="col-12">
+                                                <span class="badge badge-pill" :class="`bg-${ islem.gecenSureRenk }`">Termin: @{{ islem.gecenSure }} Gün</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="row">
+                                            <div class="col-12">
+                                                @{{ islem.malzemeAdi }}
+                                            </div>
+                                            <div class="col-12">
+                                                <small class="text-muted">Adet: @{{ islem.adet }} adet</small>
+                                            </div>
+                                            <div class="col-12">
+                                                <small class="text-muted">Miktar: @{{ islem.miktar }} kg</small>
+                                            </div>
+                                            <div class="col-12">
+                                                <small class="text-muted">Dara: @{{ islem.dara }} kg</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="row">
+                                            <div class="col-12">
+                                                <small class="text-muted">Türü: @{{ islem.islemTuruAdi ? islem.islemTuruAdi : "-" }}</small>
+                                            </div>
+                                            <div class="col-12">
+                                                <small class="text-muted">İ. Sertlik: @{{ islem.istenilenSertlik ? islem.istenilenSertlik : "-" }}</small>
+                                            </div>
+                                            <div class="col-12">
+                                                <small class="text-muted">Kalite: @{{ islem.kalite ? islem.kalite : "-" }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="row">
+                                            <div class="col-12">
+                                                <span class="badge badge-pill" :class="`bg-${ islem.firinRenk }`">@{{ islem.firinAdi }}</span>
+                                            </div>
+                                            <div class="col-12">
+                                                <span class="badge badge-pill bg-secondary">@{{ islem.sarj }}. ŞARJ</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="uzun-uzunluk text-center align-center">
+                                        <div class="btn-group row">
+                                            <div class="col-12">
+                                                <b :class="islem.islemDurumuRenk">
+                                                    @{{ islem.islemDurumuAdi }}
+                                                    <i
+                                                        class="ml-2"
+                                                        :class="islem.islemDurumuIkon"
+                                                    ></i>
+                                                </b>
+                                            </div>
+                                            <hr class="m-2" />
+                                            <div class="col-12">
+                                                <button
+                                                    class="btn btn-primary btn-sm"
+                                                    @click.stop="islemBaslat(islem)"
+                                                    v-if="islem.islemDurumuKodu === 'ISLEM_BEKLIYOR'"
+                                                >
+                                                    <i class="mdi mdi-play"></i>
+                                                </button>
+                                                <button
+                                                    v-else-if="islem.islemDurumuKodu === 'ISLEMDE'"
+                                                    class="btn btn-success btn-sm"
+                                                    @click.stop="islemTamamla(islem)"
+                                                >
+                                                    <i class="mdi mdi-check"></i>
+                                                </button>
+                                                <template v-if="islem.islemDurumuKodu === 'TAMAMLANDI'">
+                                                    <button
+                                                        v-if="islem.bildirim !== 1"
+                                                        class="btn btn-info btn-sm"
+                                                        @click.stop="islemBildirimAt(islem)"
+                                                    >
+                                                        <i class="mdi mdi-bell"></i>
+                                                    </button>
+                                                    <button
+                                                        class="btn btn-danger btn-sm"
+                                                        @click.stop="islemTamamlandiGeriAl(islem)"
+                                                    >
+                                                        <i class="mdi mdi-close"></i>
+                                                    </button>
+                                                    <div v-if="islem.tekrarEdenId" class="col-12">
+                                                        <span class="badge rounded-pill bg-danger">Tekrar Eden İşlem ID: @{{ islem.tekrarEdenId }}</span>
+                                                    </div>
+                                                </template>
+                                                <button
+                                                    v-if="islem.islemDurumuKodu === 'ISLEMDE'"
+                                                    class="btn btn-warning btn-sm"
+                                                    @click.stop="islemTekrar(islem)"
+                                                >
+                                                    <i class="mdi mdi-replay"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </template>
                         </tbody>
                     </table>
                 </div>
-
-                <div class="mt-3">
-                    <ul class="pagination pagination-rounded justify-content-center mb-0">
-                        <li class="page-item">
-                            <a class="page-link" href="#">Previous</a>
-                        </li>
-                        <li class="page-item"><a class="page-link" href="#">1</a></li>
-                        <li class="page-item active"><a class="page-link" href="#">2</a></li>
-                        <li class="page-item"><a class="page-link" href="#">3</a></li>
-                        <li class="page-item"><a class="page-link" href="#">Next</a></li>
-                    </ul>
-                </div>
+            </div>
+            <div class="card-footer">
+                <ul class="pagination pagination-rounded justify-content-center mb-0">
+                    <li class="page-item">
+                        <button class="page-link" :disabled="!islemler.prev_page_url" @click="isilIslemleriGetir(islemler.prev_page_url)">Önceki</button>
+                    </li>
+                    <li
+                        v-for="sayfa in islemler.last_page"
+                        class="page-item"
+                        :class="[islemler.current_page === sayfa ? 'active' : '']"
+                    >
+                        <button class="page-link" @click='isilIslemleriGetir("{{ route("islemler") }}?page=" + sayfa)'>@{{ sayfa }}</button>
+                    </li>
+                    <li class="page-item">
+                        <button class="page-link" :disabled="!islemler.next_page_url" @click="isilIslemleriGetir(islemler.next_page_url)">Sonraki</button>
+                    </li>
+                </ul>
             </div>
         </div>
     </div>
@@ -183,6 +283,19 @@
 @section('script')
     <script>
         let mixinApp = {
+            data() {
+                return {
+                    islemler: {},
+                    yukleniyorObjesi: {
+                        islemler: false,
+                    },
+                    firinlar: @json($firinlar),
+                    toplamKayitlar: @json($toplamKayitlar),
+                };
+            },
+            mounted() {
+                this.isilIslemleriGetir();
+            },
             methods: {
                 siparisSayfasiAc: function () {
                     window.location.href = "{{ route('siparis-formu') }}";
@@ -192,7 +305,191 @@
                 },
                 isilIslemSayfasiAc: function () {
                     window.location.href = "{{ route('isil-islemler') }}";
-                }
+                },
+                isilIslemleriGetir(url = "{{ route('islemler') }}") {
+                    this.yukleniyorObjesi.islemler = true;
+                    axios.get(url)
+                    .then(response => {
+                        this.yukleniyorObjesi.islemler = false;
+                        if (!response.data.durum) {
+                            return this.uyariAc({
+                                baslik: 'Hata',
+                                mesaj: response.data.mesaj,
+                                tur: "error"
+                            });
+                        }
+
+                        this.islemler = response.data.islemler;
+                    })
+                    .catch(error => {
+                        this.yukleniyorObjesi.islemler = false;
+                        this.uyariAc({
+                            baslik: 'Hata',
+                            mesaj: error.response.data.mesaj + " - Hata Kodu: " + error.response.data.hataKodu,
+                            tur: "error"
+                        });
+                        console.log(error);
+                    });
+                },
+                islemBaslat(islem) {
+                    this.yukleniyorObjesi.islemler = true;
+                    axios.post("{{ route('islemDurumuDegistir') }}", {
+                        islem: islem,
+                        islemDurumuKodu: "ISLEMDE"
+                    })
+                    .then(response => {
+                        this.yukleniyorObjesi.islemler = false;
+                        if (!response.data.durum) {
+                            return this.uyariAc({
+                                baslik: 'Hata',
+                                mesaj: response.data.mesaj,
+                                tur: "error"
+                            });
+                        }
+
+                        this.uyariAc({
+                            baslik: 'Başarılı',
+                            mesaj: response.data.mesaj,
+                            tur: "success"
+                        });
+
+                        this.isilIslemleriGetir();
+                    })
+                    .catch(error => {
+                        this.yukleniyorObjesi.islemler = false;
+                        this.uyariAc({
+                            baslik: 'Hata',
+                            mesaj: error.response.data.mesaj + " - Hata Kodu: " + error.response.data.hataKodu,
+                            tur: "error"
+                        });
+                        console.log(error);
+                    });
+                },
+                islemTamamla(islem) {
+                    this.yukleniyorObjesi.islemler = true;
+                    axios.post("{{ route('islemDurumuDegistir') }}", {
+                        islem: islem,
+                        islemDurumuKodu: "TAMAMLANDI"
+                    })
+                    .then(response => {
+                        this.yukleniyorObjesi.islemler = false;
+                        if (!response.data.durum) {
+                            return this.uyariAc({
+                                baslik: 'Hata',
+                                mesaj: response.data.mesaj,
+                                tur: "error"
+                            });
+                        }
+
+                        this.uyariAc({
+                            baslik: 'Başarılı',
+                            mesaj: response.data.mesaj,
+                            tur: "success"
+                        });
+
+                        this.isilIslemleriGetir();
+                    })
+                    .catch(error => {
+                        this.yukleniyorObjesi.islemler = false;
+                        this.uyariAc({
+                            baslik: 'Hata',
+                            mesaj: error.response.data.mesaj + " - Hata Kodu: " + error.response.data.hataKodu,
+                            tur: "error"
+                        });
+                        console.log(error);
+                    });
+                },
+                islemTekrar(islem) {
+                    const fonksiyon = (aciklama) => {
+                        this.yukleniyorObjesi.islemler = true;
+                        islem.aciklama = aciklama;
+                        console.log("islem açıklaması", islem.aciklama);
+                        axios.post("{{ route('islemTekrarEt') }}", {
+                            islem: islem,
+                        })
+                        .then(response => {
+                            this.yukleniyorObjesi.islemler = false;
+                            if (!response.data.durum) {
+                                return this.uyariAc({
+                                    baslik: 'Hata',
+                                    mesaj: response.data.mesaj,
+                                    tur: "error"
+                                });
+                            }
+
+                            this.uyariAc({
+                                baslik: 'Başarılı',
+                                mesaj: response.data.mesaj,
+                                tur: "success"
+                            });
+
+                            this.isilIslemleriGetir();
+                        })
+                        .catch(error => {
+                            this.yukleniyorObjesi.islemler = false;
+                            this.uyariAc({
+                                baslik: 'Hata',
+                                mesaj: error.response.data.mesaj + " - Hata Kodu: " + error.response.data.hataKodu,
+                                tur: "error"
+                            });
+                            console.log(error);
+                        });
+                    };
+
+                    Swal.fire({
+                        title: 'İşlem Tekrar Edilsin mi?',
+                        text: "İşlem tekrardan başlatılacaktır. İşlemi tekrar etmek istediğinize emin misiniz?",
+                        icon: 'warning',
+                        input: 'textarea',
+                        showCancelButton: true,
+                        cancelButtonText: 'İptal',
+                        confirmButtonText: 'Tekrar Et',
+                        inputPlaceholder: 'Tekrar açıklaması...',
+                        inputAttributes: {
+                            'aria-label': 'Tekrar açıklaması'
+                        },
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            fonksiyon(result.value);
+                        }
+                    });
+                },
+                islemDetayiAc(islem) {
+                    window.location.href = "{{ route('isil-islemler') }}?islemId=" + islem.id + "&formId=" + islem.formId;
+                },
+                islemTamamlandiGeriAl(islem) {
+                    this.yukleniyorObjesi.islemler = true;
+                    axios.post("{{ route('islemTamamlandiGeriAl') }}", {
+                        islem: islem,
+                    })
+                    .then(response => {
+                        this.yukleniyorObjesi.islemler = false;
+                        if (!response.data.durum) {
+                            return this.uyariAc({
+                                baslik: 'Hata',
+                                mesaj: response.data.mesaj,
+                                tur: "error"
+                            });
+                        }
+
+                        this.uyariAc({
+                            baslik: 'Başarılı',
+                            mesaj: response.data.mesaj,
+                            tur: "success"
+                        });
+
+                        this.isilIslemleriGetir();
+                    })
+                    .catch(error => {
+                        this.yukleniyorObjesi.islemler = false;
+                        this.uyariAc({
+                            baslik: 'Hata',
+                            mesaj: error.response.data.mesaj + " - Hata Kodu: " + error.response.data.hataKodu,
+                            tur: "error"
+                        });
+                        console.log(error);
+                    });
+                },
             }
         };
     </script>

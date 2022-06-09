@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Firinlar;
 use App\Models\Firmalar;
 use App\Models\Formlar;
 use App\Models\IslemDurumlari;
@@ -173,7 +174,8 @@ class IsilIslemController extends Controller
                     $islemTabloAdi.menevisSicakligi,
                     $islemTabloAdi.cikisSuresi,
                     $islemTabloAdi.sonSertlik,
-                    $islemTabloAdi.tekrar,
+                    $islemTabloAdi.tekrarEdenId,
+                    $islemTabloAdi.tekrarEdilenId,
                     $islemTabloAdi.aciklama as islemAciklama,
                     $siparisTabloAdi.firmaId,
                     $siparisTabloAdi.durumId as siparisDurumId,
@@ -327,7 +329,8 @@ class IsilIslemController extends Controller
                 $islem->menevisSicakligi = $secilen["menevisSicakligi"] ?? null;
                 $islem->cikisSuresi = $secilen["cikisSuresi"] ?? null;
                 $islem->sonSertlik = $secilen["sonSertlik"] ?? null;
-                $islem->tekrar = $secilen["tekrar"] ?? 0;
+                $islem->tekrarEdenId = $secilen["tekrarEdenId"] ?? null;
+                $islem->tekrarEdilenId = $secilen["tekrarEdilenId"] ?? null;
                 $islem->aciklama = $secilen["aciklama"] ?? null;
 
                 if (!$islem->save())
@@ -471,6 +474,325 @@ class IsilIslemController extends Controller
             return response()->json([
                 'durum' => true,
                 'mesaj' => 'Form silindi.',
+            ], 200);
+        }
+        catch(\Exception $e)
+        {
+            return response()->json([
+                'durum' => false,
+                'mesaj' => $e->getMessage(),
+                'satir' => $e->getLine(),
+            ], 500);
+        }
+    }
+
+    public function islemler(Request $request)
+    {
+        try
+        {
+            $islemTabloAdi = (new Islemler())->getTable();
+            $islemDurumTabloAdi = (new IslemDurumlari())->getTable();
+            $firinTabloAdi = (new Firinlar())->getTable();
+            $siparisTabloAdi = (new Siparisler())->getTable();
+            $malzemeTabloAdi = (new Malzemeler())->getTable();
+
+            $islemler = Islemler::select(DB::raw("
+                    $islemTabloAdi.*,
+                    $islemDurumTabloAdi.ad as islemDurumuAdi,
+                    $islemDurumTabloAdi.kod as islemDurumuKodu,
+                    $islemDurumTabloAdi.json as islemDurumuJson,
+                    $firinTabloAdi.ad as firinAdi,
+                    $firinTabloAdi.json as firinJson,
+                    $siparisTabloAdi.siparisNo,
+                    $siparisTabloAdi.ad as siparisAdi,
+                    $siparisTabloAdi.terminSuresi,
+                    $siparisTabloAdi.tarih,
+                    $malzemeTabloAdi.ad as malzemeAdi
+                "))
+                ->join($islemDurumTabloAdi, $islemDurumTabloAdi . ".id", "=", $islemTabloAdi . ".durumId")
+                ->join($firinTabloAdi, $firinTabloAdi . ".id", "=", $islemTabloAdi . ".firinId")
+                ->join($siparisTabloAdi, $siparisTabloAdi . ".id", "=", $islemTabloAdi . ".siparisId")
+                ->join($malzemeTabloAdi, $malzemeTabloAdi . ".id", "=", $islemTabloAdi . ".malzemeId")
+                ->whereIn("$islemDurumTabloAdi.kod", ["ISLEM_BEKLIYOR", "ISLEMDE", "TAMAMLANDI"])
+                ->orderBy("$islemDurumTabloAdi.kod", "asc")
+                ->paginate(6);
+
+            $islemler = $islemler->toArray();
+
+            foreach ($islemler["data"] as &$islem)
+            {
+                $terminBilgileri = $this->terminHesapla($islem["tarih"], $islem["terminSuresi"] ?? 5);
+                $islem["gecenSure"] = $terminBilgileri["gecenSure"];
+                $islem["gecenSureRenk"] = $terminBilgileri["gecenSureRenk"];
+
+                $islem["firinJson"] = json_decode($islem["firinJson"], true);
+
+                if (isset(($islem["firinJson"]["renk"])))
+                {
+                    $islem["firinRenk"] = $islem["firinJson"]["renk"];
+                }
+
+                $islem["islemDurumuJson"] = json_decode($islem["islemDurumuJson"], true);
+
+                if (isset(($islem["islemDurumuJson"]["renk"])))
+                {
+                    $islem["islemDurumuRenk"] = $islem["islemDurumuJson"]["renk"];
+                    $islem["islemDurumuIkon"] = $islem["islemDurumuJson"]["ikon"];
+                }
+            }
+
+            return response()->json([
+                'durum' => true,
+                'mesaj' => 'İşlemler listelendi.',
+                'islemler' => $islemler,
+            ], 200);
+        }
+        catch(\Exception $e)
+        {
+            return response()->json([
+                'durum' => false,
+                'mesaj' => $e->getMessage(),
+                'satir' => $e->getLine(),
+            ], 500);
+        }
+    }
+
+    public function islemDurumuDegistir(Request $request)
+    {
+        try
+        {
+            $islemBilgileri = $request->islem;
+            $islemDurumuKodu = $request->islemDurumuKodu;
+
+            $islemDurumTabloAdi = (new IslemDurumlari())->getTable();
+            $islemTabloAdi = (new Islemler())->getTable();
+
+            $islemDurum = IslemDurumlari::where("kod", $islemDurumuKodu)->first();
+
+            $islem = Islemler::where("id", $islemBilgileri["id"])->first();
+
+            if (!$islem)
+            {
+                return response()->json([
+                    'durum' => false,
+                    'mesaj' => 'İşlem bulunamadı.',
+                    "hataKodu" => "F005",
+                ], 500);
+            }
+
+            $islem->durumId = $islemDurum->id;
+
+            if (!$islem->save())
+            {
+                return response()->json([
+                    'durum' => false,
+                    'mesaj' => 'İşlem kaydedilemedi.',
+                    "hataKodu" => "F006",
+                ], 500);
+            }
+
+            return response()->json([
+                'durum' => true,
+                'mesaj' => 'İşlem durumu \'' . $islemDurum->ad . '\' olarak değiştirildi.',
+            ], 200);
+        }
+        catch(\Exception $e)
+        {
+            return response()->json([
+                'durum' => false,
+                'mesaj' => $e->getMessage(),
+                'satir' => $e->getLine(),
+            ], 500);
+        }
+    }
+
+    public function islemTekrarEt(Request $request)
+    {
+        try
+        {
+            $islemBilgileri = $request->islem;
+
+            DB::beginTransaction();
+
+            $islem = Islemler::where("id", $islemBilgileri["id"])->first();
+
+            if (!$islem)
+            {
+                DB::rollBack();
+
+                return response()->json([
+                    'durum' => false,
+                    'mesaj' => 'İşlem bulunamadı.',
+                    "hataKodu" => "F005",
+                ], 500);
+            }
+
+            $yeniIslem = $islem->replicate();
+
+            $baslanmadiDurum = IslemDurumlari::where("kod", "BASLANMADI")->first();
+
+            if (!$baslanmadiDurum)
+            {
+                DB::rollBack();
+
+                return response()->json([
+                    'durum' => false,
+                    'mesaj' => 'İşlem başlanmadı durumu bulunamadı.',
+                    "hataKodu" => "F008",
+                ], 500);
+            }
+
+            $yeniIslem->tekrarEdilenId = $islem->id;
+            $yeniIslem->durumId = $baslanmadiDurum->id;
+            $yeniIslem->formId = null;
+            $yeniIslem->firinId = null;
+            $yeniIslem->sarj = null;
+            $yeniIslem->birimFiyat = 0;
+
+            if (!$yeniIslem->save())
+            {
+                DB::rollBack();
+
+                return response()->json([
+                    'durum' => false,
+                    'mesaj' => 'İşlem tekrar edilemedi.',
+                    "hataKodu" => "F006",
+                ], 500);
+            }
+
+            $tamamlandiDurum = IslemDurumlari::where("kod", "TAMAMLANDI")->first();
+
+            if (!$tamamlandiDurum)
+            {
+                DB::rollBack();
+
+                return response()->json([
+                    'durum' => false,
+                    'mesaj' => 'İşlem tamamlandı durumu bulunamadı.',
+                    "hataKodu" => "F008",
+                ], 500);
+            }
+
+            $islem->durumId = $tamamlandiDurum->id;
+            $islem->tekrarEdenId = $yeniIslem->id;
+            $islem->aciklama = $islemBilgileri["aciklama"] ?? null;
+
+            if (!$islem->save())
+            {
+                DB::rollBack();
+
+                return response()->json([
+                    'durum' => false,
+                    'mesaj' => 'İşlem kaydedilemedi.',
+                    "hataKodu" => "F007",
+                ], 500);
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'durum' => true,
+                'mesaj' => 'İşlem tekrar edildi.',
+            ], 200);
+        }
+        catch(\Exception $e)
+        {
+            return response()->json([
+                'durum' => false,
+                'mesaj' => $e->getMessage(),
+                'satir' => $e->getLine(),
+            ], 500);
+        }
+    }
+
+    public function islemTamamlandiGeriAl(Request $request)
+    {
+        try
+        {
+            $islemBilgileri = $request->islem;
+
+            $islemTabloAdi = (new Islemler())->getTable();
+            $islemDurumTabloAdi = (new IslemDurumlari())->getTable();
+
+            DB::beginTransaction();
+
+            $islem = Islemler::where("id", $islemBilgileri["id"])->first();
+
+            if (!$islem)
+            {
+                DB::rollBack();
+
+                return response()->json([
+                    'durum' => false,
+                    'mesaj' => 'İşlem bulunamadı.',
+                    "hataKodu" => "ITG001",
+                ], 500);
+            }
+
+            // İşlem tekrar edilerek tamamlandıysa
+            if ($islem->tekrarEdenId)
+            {
+                $tekrarEdenIslem = Islemler::select(DB::raw("$islemTabloAdi.*, $islemDurumTabloAdi.ad as islemDurumuAdi, $islemDurumTabloAdi.kod as islemDurumuKodu"))
+                    ->join($islemDurumTabloAdi, $islemDurumTabloAdi . ".id", "=", $islemTabloAdi . ".durumId")
+                    ->where("$islemTabloAdi.id", $islem->tekrarEdenId)
+                    ->first();
+
+                if (in_array($tekrarEdenIslem->islemDurumuKodu, ["ISLEMDE", "TAMAMLANDI"]))
+                {
+                    DB::rollBack();
+
+                    return response()->json([
+                        'durum' => false,
+                        'mesaj' => 'Tekrar edilen işlem durumu \'' . $tekrarEdenIslem->islemDurumuAdi . '\' olduğu için işlem geri alınamaz.',
+                        "hataKodu" => "ITG002",
+                    ], 500);
+                }
+
+                if (!$tekrarEdenIslem->delete())
+                {
+                    DB::rollBack();
+
+                    return response()->json([
+                        'durum' => false,
+                        'mesaj' => 'Tekrar edilen işlem silinemedi.',
+                        "hataKodu" => "ITG003",
+                    ], 500);
+                }
+
+                $islem->tekrarEdenId = null;
+            }
+
+            $islemdeDurum = IslemDurumlari::where("kod", "ISLEMDE")->first();
+
+            if (!$islemdeDurum)
+            {
+                DB::rollBack();
+
+                return response()->json([
+                    'durum' => false,
+                    'mesaj' => 'İşlemde durumu bulunamadı.',
+                    "hataKodu" => "ITG004",
+                ], 500);
+            }
+
+            $islem->durumId = $islemdeDurum->id;
+
+            if (!$islem->save())
+            {
+                DB::rollBack();
+
+                return response()->json([
+                    'durum' => false,
+                    'mesaj' => 'İşlem kaydedilemedi.',
+                    "hataKodu" => "ITG005",
+                ], 500);
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'durum' => true,
+                'mesaj' => 'İşlem geri alındı.',
             ], 200);
         }
         catch(\Exception $e)
