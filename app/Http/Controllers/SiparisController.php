@@ -169,30 +169,6 @@ class SiparisController extends Controller
         }
     }
 
-    /**
-     * @global
-     */
-    public function firmalariGetir()
-    {
-        try
-        {
-            $firmalar = Firmalar::all();
-
-            return response()->json([
-                'durum' => true,
-                'mesaj' => 'Firmalar başarıyla getirildi.',
-                'firmalar' => $firmalar
-            ]);
-        }
-        catch(\Exception $e)
-        {
-            return response()->json([
-                'durum' => false,
-                'mesaj' => $e->getMessage()
-            ], 500);
-        }
-    }
-
     public function siparisKaydet(Request $request)
     {
         try

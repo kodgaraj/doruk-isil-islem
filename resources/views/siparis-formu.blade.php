@@ -218,25 +218,37 @@
                             </select>
                         </div>
                         <div class="mb-3 col-12 col-sm-6 col-md-4">
-                            <label class="form-label">Firmalar *</label>
-                            <select class="form-control select2" v-model="aktifSiparis.firma">
-                                <optgroup label="Firmalar">
-                                    <option
-                                        v-for="(firma, index) in firmalar"
-                                        :value="firma"
-                                        :key="index"
+                            <div class="row d-flex align-items-end">
+                                <div class="col">
+                                    <label class="form-label">Firmalar *</label>
+                                    <select class="form-control select2" v-model="aktifSiparis.firma">
+                                        <optgroup label="Firmalar">
+                                            <option
+                                                v-for="(firma, index) in firmalar"
+                                                :value="firma"
+                                                :key="index"
+                                            >
+                                                <div class="row">
+                                                    <div class="col-8">
+                                                        @{{ firma.firmaAdi }}
+                                                    </div>
+                                                    <div class="col-4">
+                                                        (@{{ firma.sorumluKisi }})
+                                                    </div>
+                                                </div>
+                                            </option>
+                                        </optgroup>
+                                    </select>
+                                </div>
+                                <div class="col-auto p-0">
+                                    <button
+                                        class="btn btn-primary"
+                                        @click="firmaEkleAc()"
                                     >
-                                        <div class="row">
-                                            <div class="col-8">
-                                                @{{ firma.firmaAdi }}
-                                            </div>
-                                            <div class="col-4">
-                                                (@{{ firma.sorumluKisi }})
-                                            </div>
-                                        </div>
-                                    </option>
-                                </optgroup>
-                            </select>
+                                        <i class="fas fa-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                         <div class="form-group col-12 mb-2">
                             <label for="aciklama">Açıklama</label>
@@ -248,7 +260,7 @@
                             ></textarea>
                         </div>
                     </div>
-                    <div class="mb-3 row">
+                    <div class="mb-3 row overflow-auto">
                         <div class="col-12">
                             <table class="table table-striped table-bordered nowrap" id="urun-detay">
                                 <thead>
@@ -267,16 +279,33 @@
                                 <tbody id="islem-satir-ekle">
                                     <tr v-for="(islem, index) in aktifSiparis.islemler" :key="index">
                                         <td># @{{ index + 1 }}</td>
-                                        <td class="kisa-uzunluk">
-                                            <select class="form-select" aria-label="Malzemeler" v-model="islem.malzeme">
-                                                <option
-                                                    v-for="(malzeme, index) in malzemeler"
-                                                    :value="malzeme"
-                                                    :key="index"
-                                                >
-                                                    @{{ malzeme.ad }}
-                                                </option>
-                                            </select>
+                                        <td class="uzun-uzunluk">
+                                            <div class="row d-flex">
+                                                <div class="col">
+                                                    <select
+                                                        v-model="islem.malzeme"
+                                                        @change="malzemeSecildiginde(index)"
+                                                        class="form-select"
+                                                        aria-label="Malzemeler"
+                                                    >
+                                                        <option
+                                                            v-for="(malzeme, index) in malzemeler"
+                                                            :value="malzeme"
+                                                            :key="index"
+                                                        >
+                                                            @{{ malzeme.ad }}
+                                                        </option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-auto ps-0">
+                                                    <button
+                                                        class="btn btn-primary"
+                                                        @click="malzemeEkleAc(index)"
+                                                    >
+                                                        <i class="fas fa-plus"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
                                         </td>
                                         <td class="kisa-uzunluk">
                                             <input class="form-control" type="number" placeholder="Adet" v-model="islem.adet">
@@ -293,16 +322,33 @@
                                         <td class="kisa-uzunluk">
                                             <input class="form-control" type="text" placeholder="Kalite" v-model="islem.kalite">
                                         </td>
-                                        <td class="orta-uzunluk">
-                                            <select class="form-select" aria-label="İşlemler" v-model="islem.yapilacakIslem">
-                                                <option
-                                                    v-for="(islem, index) in islemTurleri"
-                                                    :value="islem"
-                                                    :key="index"
-                                                >
-                                                    @{{ islem.ad }}
-                                                </option>
-                                            </select>
+                                        <td class="uzun-uzunluk">
+                                            <div class="row d-flex">
+                                                <div class="col">
+                                                    <select
+                                                        v-model="islem.yapilacakIslem"
+                                                        @change="malzemeSecildiginde(index)"
+                                                        class="form-select"
+                                                        aria-label="İşlemler"
+                                                    >
+                                                        <option
+                                                            v-for="(islem, index) in islemTurleri"
+                                                            :value="islem"
+                                                            :key="index"
+                                                        >
+                                                            @{{ islem.ad }}
+                                                        </option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-auto ps-0">
+                                                    <button
+                                                        class="btn btn-primary"
+                                                        @click="islemTuruEklemeAc(index)"
+                                                    >
+                                                        <i class="fas fa-plus"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
                                         </td>
                                         <td class="kisa-uzunluk">
                                             <input class="form-control" type="text" placeholder="İstenilen Sertlik" v-model="islem.istenilenSertlik">
@@ -366,6 +412,11 @@
                 firmalar: [],
                 malzemeler: [],
                 islemTurleri: [],
+                firmaObjesi: {
+                    ad: '',
+                    firmaSorumlusu: '',
+                    telefon: '',
+                },
             }
         },
         mounted() {
@@ -429,6 +480,7 @@
                     siparisAdi: "",
                     terminSuresi: 5,
                     islemler: [],
+                    firma: null,
                 };
 
                 this.numaralariGetir();
@@ -516,6 +568,11 @@
                 })
                 .catch(error => {
                     this.yukleniyorObjesi.firmalar = false;
+                    this.uyariAc({
+                        baslik: 'Hata',
+                        mesaj: error.response.data.mesaj + " - Hata Kodu: " + error.response.data.hataKodu,
+                        tur: "error"
+                    });
                     console.log(error);
                 });
             },
@@ -536,6 +593,11 @@
                 })
                 .catch(error => {
                     this.yukleniyorObjesi.malzemeler = false;
+                    this.uyariAc({
+                        baslik: 'Hata',
+                        mesaj: error.response.data.mesaj + " - Hata Kodu: " + error.response.data.hataKodu,
+                        tur: "error"
+                    });
                     console.log(error);
                 });
             },
@@ -556,6 +618,11 @@
                 })
                 .catch(error => {
                     this.yukleniyorObjesi.islemTurleri = false;
+                    this.uyariAc({
+                        baslik: 'Hata',
+                        mesaj: error.response.data.mesaj + " - Hata Kodu: " + error.response.data.hataKodu,
+                        tur: "error"
+                    });
                     console.log(error);
                 });
             },
@@ -586,6 +653,11 @@
                 })
                 .catch(error => {
                     this.yukleniyorObjesi.islemDurumlari = false;
+                    this.uyariAc({
+                        baslik: 'Hata',
+                        mesaj: error.response.data.mesaj + " - Hata Kodu: " + error.response.data.hataKodu,
+                        tur: "error"
+                    });
                     console.log(error);
                 });
             },
@@ -656,6 +728,11 @@
                     })
                     .catch(error => {
                         this.yukleniyorObjesi.kaydet = false;
+                        this.uyariAc({
+                            baslik: 'Hata',
+                            mesaj: error.response.data.mesaj + " - Hata Kodu: " + error.response.data.hataKodu,
+                            tur: "error"
+                        });
                         console.log(error);
                     });
                 };
@@ -776,6 +853,11 @@
                 })
                 .catch(error => {
                     console.log(error);
+                    this.uyariAc({
+                        baslik: 'Hata',
+                        mesaj: error.response.data.mesaj + " - Hata Kodu: " + error.response.data.hataKodu,
+                        tur: "error"
+                    });
                 });
             },
             siparisSil(siparis) {
@@ -818,6 +900,238 @@
                         })
                         .catch(error => {
                             this.yukleniyorObjesi.siparisSil = false;
+                            this.uyariAc({
+                                baslik: 'Hata',
+                                mesaj: error.response.data.mesaj + " - Hata Kodu: " + error.response.data.hataKodu,
+                                tur: "error"
+                            });
+                            console.log(error);
+                        });
+                    } else if (result.isDenied) {}
+                });
+            },
+            malzemeSecildiginde(islemIndex, malzeme) {
+                this.aktifSiparis.islemler[islemIndex].birimFiyat =
+                    this.aktifSiparis.islemler[islemIndex].malzeme && this.aktifSiparis.islemler[islemIndex].malzeme.birimFiyat
+                        ? this.aktifSiparis.islemler[islemIndex].malzeme.birimFiyat
+                        : 0;
+            },
+            firmaEkleAc() {
+                // Firma adı, firma sorumlusu, firma telefon
+                Swal.fire({
+                    title: "Firma Ekle",
+                    html: `
+                        <div class="row g-3">
+                            <div class="form-group col-12">
+                                <input type="text" class="form-control" id="firmaAdi" placeholder="Firma Adı *">
+                            </div>
+                            <div class="form-group col-12">
+                                <input type="text" class="form-control" id="firmaSorumlusu" placeholder="Firma Sorumlusu *">
+                            </div>
+                            <div class="form-group col-12">
+                                <input type="text" class="form-control" id="firmaTelefon" placeholder="Firma Telefon">
+                                <small class="text-muted">Başında sıfır olmadan 10 haneli olarak giriniz. (Örn: 5554443322)</small>
+                            </div>
+                        </div>
+                    `,
+                    showCancelButton: true,
+                    confirmButtonText: 'Ekle',
+                    cancelButtonText: 'İptal',
+                })
+                .then((result) => {
+                    /* Read more about isConfirmed, isDenied below */
+                    if (result.isConfirmed) {
+                        const firmaAdi = document.getElementById("firmaAdi").value;
+                        const sorumluKisi = document.getElementById("firmaSorumlusu").value;
+                        const telefon = document.getElementById("firmaTelefon").value;
+
+                        this.yukleniyorObjesi.firmaEkle = true;
+                        axios.post("/firmaEkle", {
+                            firma: {
+                                firmaAdi,
+                                sorumluKisi,
+                                telefon,
+                            },
+                        })
+                        .then(response => {
+                            this.yukleniyorObjesi.firmaEkle = false;
+                            if (!response.data.durum) {
+                                return this.uyariAc({
+                                    baslik: 'Hata',
+                                    mesaj: response.data.mesaj,
+                                    tur: "error"
+                                });
+                            }
+
+                            this.uyariAc({
+                                baslik: 'Başarılı',
+                                mesaj: response.data.mesaj,
+                                tur: "success",
+                                ozellikler: {
+                                    icon: 'success',
+                                    showConfirmButton: false,
+                                    timer: 2000
+                                }
+                            });
+
+                            this.firmalariGetir().then(() => {
+                                if (!this.aktifSiparis.firma) {
+                                    this.aktifSiparis.firma = response.data.firma;
+
+                                    this.aktifSiparis = _.cloneDeep(this.aktifSiparis);
+                                }
+                            });
+                        })
+                        .catch(error => {
+                            this.yukleniyorObjesi.firmaEkle = false;
+                            this.uyariAc({
+                                baslik: 'Hata',
+                                mesaj: error.response.data.mesaj + " - Hata Kodu: " + error.response.data.hataKodu,
+                                tur: "error"
+                            });
+                            console.log(error);
+                        });
+                    } else if (result.isDenied) {}
+                });
+            },
+            malzemeEkleAc(islemIndex) {
+                // Malzeme adı, malzeme fiyat
+                Swal.fire({
+                    title: "Malzeme Ekle",
+                    html: `
+                        <div class="row g-3">
+                            <div class="form-group col-12">
+                                <input type="text" class="form-control" id="malzemeAdi" placeholder="Malzeme Adı *">
+                            </div>
+                            <div class="form-group col-12">
+                                <input type="text" class="form-control" id="malzemeBirimFiyat" placeholder="Malzeme Fiyat">
+                            </div>
+                        </div>
+                    `,
+                    showCancelButton: true,
+                    confirmButtonText: 'Ekle',
+                    cancelButtonText: 'İptal',
+                })
+                .then((result) => {
+                    /* Read more about isConfirmed, isDenied below */
+                    if (result.isConfirmed) {
+                        const malzemeAdi = document.getElementById("malzemeAdi").value;
+                        const malzemeBirimFiyat = document.getElementById("malzemeBirimFiyat").value;
+
+                        console.log(malzemeAdi, malzemeBirimFiyat);
+
+                        this.yukleniyorObjesi.malzemeEkle = true;
+                        axios.post("/malzemeEkle", {
+                            malzeme: {
+                                malzemeAdi,
+                                malzemeBirimFiyat,
+                            },
+                        })
+                        .then(response => {
+                            this.yukleniyorObjesi.malzemeEkle = false;
+                            if (!response.data.durum) {
+                                return this.uyariAc({
+                                    baslik: 'Hata',
+                                    mesaj: response.data.mesaj,
+                                    tur: "error"
+                                });
+                            }
+
+                            this.uyariAc({
+                                baslik: 'Başarılı',
+                                mesaj: response.data.mesaj,
+                                tur: "success",
+                                ozellikler: {
+                                    icon: 'success',
+                                    showConfirmButton: false,
+                                    timer: 2000
+                                }
+                            });
+
+                            this.malzemeleriGetir().then(() => {
+                                if (!this.aktifSiparis.islemler[islemIndex].malzeme) {
+                                    this.aktifSiparis.islemler[islemIndex].malzeme = response.data.malzeme;
+
+                                    this.malzemeSecildiginde(islemIndex);
+
+                                    this.aktifSiparis = _.cloneDeep(this.aktifSiparis);
+                                }
+                            });
+                        })
+                        .catch(error => {
+                            this.yukleniyorObjesi.malzemeEkle = false;
+                            this.uyariAc({
+                                baslik: 'Hata',
+                                mesaj: error.response.data.mesaj + " - Hata Kodu: " + error.response.data.hataKodu,
+                                tur: "error"
+                            });
+                            console.log(error);
+                        });
+                    } else if (result.isDenied) {}
+                });
+            },
+            islemTuruEklemeAc(islemIndex) {
+                // İşlem türü adı
+                Swal.fire({
+                    title: "İşlem Türü Ekle",
+                    html: `
+                        <div class="row g-3">
+                            <div class="form-group col-12">
+                                <input type="text" class="form-control" id="islemTuruAdi" placeholder="İşlem Türü Adı *">
+                            </div>
+                        </div>
+                    `,
+                    showCancelButton: true,
+                    confirmButtonText: 'Ekle',
+                    cancelButtonText: 'İptal',
+                })
+                .then((result) => {
+                    /* Read more about isConfirmed, isDenied below */
+                    if (result.isConfirmed) {
+                        const islemTuruAdi = document.getElementById("islemTuruAdi").value;
+
+                        this.yukleniyorObjesi.islemTuruEkle = true;
+                        axios.post("/islemTuruEkle", {
+                            islemTuru: {
+                                islemTuruAdi,
+                            },
+                        })
+                        .then(response => {
+                            this.yukleniyorObjesi.islemTuruEkle = false;
+                            if (!response.data.durum) {
+                                return this.uyariAc({
+                                    baslik: 'Hata',
+                                    mesaj: response.data.mesaj,
+                                    tur: "error"
+                                });
+                            }
+
+                            this.uyariAc({
+                                baslik: 'Başarılı',
+                                mesaj: response.data.mesaj,
+                                tur: "success",
+                                ozellikler: {
+                                    icon: 'success',
+                                    showConfirmButton: false,
+                                    timer: 2000
+                                }
+                            });
+
+                            this.islemTurleriGetir().then(() => {
+                                if (!this.aktifSiparis.islemler[islemIndex].yapilacakIslem) {
+                                    this.aktifSiparis.islemler[islemIndex].yapilacakIslem = response.data.islemTuru;
+
+                                    this.aktifSiparis = _.cloneDeep(this.aktifSiparis);
+                                }
+                            });
+                        })
+                        .catch(error => {
+                            this.yukleniyorObjesi.islemTuruEkle = false;
+                            this.uyariAc({
+                                baslik: 'Hata',
+                                mesaj: error.response.data.mesaj + " - Hata Kodu: " + error.response.data.hataKodu,
+                                tur: "error"
+                            });
                             console.log(error);
                         });
                     } else if (result.isDenied) {}

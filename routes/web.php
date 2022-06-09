@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\FirinlarController;
+use App\Http\Controllers\FirmaController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\IsilIslemController;
 use App\Http\Controllers\IslemDurumlariController;
@@ -29,7 +30,6 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/siparisler', [SiparisController::class, 'siparisler'])->name("siparisler");
     Route::get('/numaralariGetir', [SiparisController::class, 'numaralariGetir'])->name("numaralariGetir");
     Route::get('/siparisDurumlariGetir', [SiparisController::class, 'siparisDurumlariGetir'])->name("siparisDurumlariGetir");
-    Route::get('/firmalariGetir', [SiparisController::class, 'firmalariGetir'])->name("firmalariGetir");
     Route::post('/siparisKaydet', [SiparisController::class, 'siparisKaydet'])->name("siparisKaydet");
     Route::post('/siparisDetay', [SiparisController::class, 'siparisDetay'])->name("siparisDetay");
     Route::post('/siparisSil', [SiparisController::class, 'siparisSil'])->name("siparisSil");
@@ -46,12 +46,17 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('/islemTamamlandiGeriAl', [IsilIslemController::class, 'islemTamamlandiGeriAl'])->name("islemTamamlandiGeriAl");
 
     Route::get('/islemTurleriGetir', [IslemTurleriController::class, 'islemTurleriGetir'])->name("islemTurleriGetir");
+    Route::post('/islemTuruEkle', [IslemTurleriController::class, 'islemTuruEkle'])->name("islemTuruEkle");
 
     Route::get('/islemDurumlariGetir', [IslemDurumlariController::class, 'islemDurumlariGetir'])->name("islemDurumlariGetir");
 
     Route::get('/malzemeleriGetir', [MalzemeController::class, 'malzemeleriGetir'])->name("malzemeleriGetir");
+    Route::post('/malzemeEkle', [MalzemeController::class, 'malzemeEkle'])->name("malzemeEkle");
 
     Route::get('/firinlariGetir', [FirinlarController::class, 'firinlariGetir'])->name("firinlariGetir");
+
+    Route::post('/firmaEkle', [FirmaController::class, 'firmaEkle'])->name("firmaEkle");
+    Route::get('/firmalariGetir', [FirmaController::class, 'firmalariGetir'])->name("firmalariGetir");
 });
 
 
