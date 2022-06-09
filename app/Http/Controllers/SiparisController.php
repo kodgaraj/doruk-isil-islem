@@ -70,9 +70,15 @@ class SiparisController extends Controller
                 )
                 ->paginate($sayfalamaSayisi);
 
-                // dd($siparisler->toSql());
+            $siparisler = $siparisler->toArray();
 
-            // dd($siparisler->getPageName());
+            foreach ($siparisler["data"] as &$siparis)
+            {
+                $terminBilgileri = $this->terminHesapla($siparis["tarih"], $siparis["terminSuresi"]);
+
+                $siparis["gecenSure"] = $terminBilgileri["gecenSure"];
+                $siparis["gecenSureRenk"] = $terminBilgileri["gecenSureRenk"];
+            }
 
             return response()->json([
                 'durum' => true,

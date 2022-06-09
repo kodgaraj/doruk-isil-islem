@@ -34,20 +34,20 @@
                                                         <th>Sipariş No</th>
                                                         <th data-priority="2">Firma</th>
                                                         <th data-priority="2">Sipariş</th>
-                                                        <th data-priority="3">İşlem Sayısı</th>
+                                                        <th data-priority="3" class="text-center">İşlem Sayısı</th>
                                                         <th data-priority="1">İrsaliye No</th>
                                                         <th data-priority="4">Tutar</th>
                                                         <th data-priority="5">Sipariş Tarihi</th>
-                                                        <th data-priority="6">İşlemler</th>
+                                                        <th data-priority="6" class="text-center">İşlemler</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
                                                     <tr v-for="(siparis, index) in siparisler.data" :key="index">
-                                                        <td>
+                                                        <td class="kisa-uzunluk">
                                                             <span class="badge badge-pill" :class="`bg-${ siparis.gecenSureRenk }`">@{{ siparis.gecenSure }} Gün</span>
                                                         </td>
-                                                        <td>@{{ siparis.siparisNo }}</td>
-                                                        <td>
+                                                        <td class="kisa-uzunluk">@{{ siparis.siparisNo }}</td>
+                                                        <td class="orta-uzunluk">
                                                             <div class="row">
                                                                 <div class="col-12">
                                                                     @{{ siparis.firmaAdi }}
@@ -57,14 +57,20 @@
                                                                 </div>
                                                             </div>
                                                         </td>
-                                                        <td>@{{ siparis.siparisAdi }}</td>
-                                                        <td>@{{ siparis.islemSayisi }}</td>
-                                                        <td>@{{ siparis.irsaliyeNo }}</td>
-                                                        <td>@{{ siparis.tutar ? siparis.tutar + " ₺" : "-" }}</td>
-                                                        <td>@{{ m(siparis.tarih).format("L") }}</td>
-                                                        <td>
-                                                            <button @click="siparisDuzenle(siparis)" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></button>
-                                                            <button @click="siparisSil(siparis)" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>
+                                                        <td class="uzun-uzunluk">@{{ siparis.siparisAdi }}</td>
+                                                        <td class="kisa-uzunluk text-center">@{{ siparis.islemSayisi }}</td>
+                                                        <td class="kisa-uzunluk">@{{ siparis.irsaliyeNo }}</td>
+                                                        <td class="kisa-uzunluk">@{{ siparis.tutar ? siparis.tutar + "₺" : "-" }}</td>
+                                                        <td class="kisa-uzunluk">@{{ m(siparis.tarih).format("L") }}</td>
+                                                        <td class="uzun-uzunluk text-center">
+                                                            <div class="btn-group row d-inline-flex g-1">
+                                                                <div class="col">
+                                                                    <button @click="siparisDuzenle(siparis)" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></button>
+                                                                </div>
+                                                                <div class="col">
+                                                                    <button @click="siparisSil(siparis)" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>
+                                                                </div>
+                                                            </div>
                                                         </td>
                                                     </tr>
                                                 </tbody>
@@ -137,7 +143,7 @@
                     <div class="row mt-3">
                         <div class="col-12 col-sm-6 col-md-4 mb-2">
                             <div class="form-group">
-                                <label for="tarih">Tarih</label>
+                                <label for="tarih">Tarih *</label>
                                 <input
                                     v-model="aktifSiparis.tarih"
                                     type="date"
@@ -150,7 +156,7 @@
                             </div>
                         </div>
                         <div class="col-12 col-sm-6 col-md-4 mb-2">
-                            <label class="form-label">Sipariş/Sıra No</label>
+                            <label class="form-label">Sipariş/Sıra No *</label>
                             <input
                                 v-model="aktifSiparis.siparisNo"
                                 v-mask="'SPR#######'"
@@ -160,7 +166,7 @@
                             />
                         </div>
                         <div class="col-12 col-sm-6 col-md-4 mb-2">
-                            <label class="form-label">Sipariş Adı</label>
+                            <label class="form-label">Sipariş Adı *</label>
                             <input
                                 v-model="aktifSiparis.siparisAdi"
                                 class="form-control"
@@ -185,7 +191,7 @@
                                 v-model="aktifSiparis.tutar"
                                 class="form-control"
                                 placeholder="Toplam tutarını giriniz..."
-                                type="text"
+                                type="number"
                             />
                         </div>
                         <div class="col-6 col-sm-2 mb-2">
@@ -212,7 +218,7 @@
                             </select>
                         </div>
                         <div class="mb-3 col-12 col-sm-6 col-md-4">
-                            <label class="form-label">Firmalar</label>
+                            <label class="form-label">Firmalar *</label>
                             <select class="form-control select2" v-model="aktifSiparis.firma">
                                 <optgroup label="Firmalar">
                                     <option
@@ -243,91 +249,93 @@
                         </div>
                     </div>
                     <div class="mb-3 row">
-                        <table class="table table-striped table-bordered nowrap" id="urun-detay">
-                            <thead>
-                                <th>Sıra No</th>
-                                <th>Malzeme</th>
-                                <th>Adet</th>
-                                <th>Miktar (KG)</th>
-                                <th>Dara (KG)</th>
-                                <th>Birim Fiyat</th>
-                                <th>Kalite</th>
-                                <th>Yapılacak İşlem</th>
-                                <th>İstenilen Sertlik</th>
-                                <th>İşlem Durumu</th>
-                                <th>İşlemler</th>
-                            </thead>
-                            <tbody id="islem-satir-ekle">
-                                <tr v-for="(islem, index) in aktifSiparis.islemler" :key="index">
-                                    <td># @{{ index + 1 }}</td>
-                                    <td>
-                                        <select class="form-select" aria-label="Malzemeler" v-model="islem.malzeme">
-                                            <option
-                                                v-for="(malzeme, index) in malzemeler"
-                                                :value="malzeme"
-                                                :key="index"
-                                            >
-                                                @{{ malzeme.ad }}
-                                            </option>
-                                        </select>
-                                    </td>
-                                    <td>
-                                        <input class="form-control" type="number" placeholder="Adet" v-model="islem.adet">
-                                    </td>
-                                    <td>
-                                        <input class="form-control" type="number" placeholder="Miktar (KG)" v-model="islem.miktar">
-                                    </td>
-                                    <td>
-                                        <input class="form-control" type="number" placeholder="Dara (KG)" v-model="islem.dara">
-                                    </td>
-                                    <td>
-                                        <input class="form-control" type="text" placeholder="Birim Fiyat" v-model="islem.birimFiyat">
-                                    </td>
-                                    <td>
-                                        <input class="form-control" type="text" placeholder="Kalite" v-model="islem.kalite">
-                                    </td>
-                                    <td>
-                                        <select class="form-select" aria-label="İşlemler" v-model="islem.yapilacakIslem">
-                                            <option
-                                                v-for="(islem, index) in islemTurleri"
-                                                :value="islem"
-                                                :key="index"
-                                            >
-                                                @{{ islem.ad }}
-                                            </option>
-                                        </select>
-                                    </td>
-                                    <td>
-                                        <input class="form-control" type="text" placeholder="İstenilen Sertlik" v-model="islem.istenilenSertlik">
-                                    </td>
-                                    <td>
-                                        <select class="form-select" aria-label="İşlem Durumu" v-model="islem.islemDurumu">
-                                            <option
-                                                v-for="(islemDurumu, index) in islemDurumlari"
-                                                :value="islemDurumu"
-                                                :key="index"
-                                            >
-                                                @{{ islemDurumu.ad }}
-                                            </option>
-                                        </select>
-                                    </td>
-                                    <td>
-                                        <button class="btn btn-danger" @click="islemSil(index)">Sil</button>
-                                    </td>
-                                </tr>
+                        <div class="col-12">
+                            <table class="table table-striped table-bordered nowrap" id="urun-detay">
+                                <thead>
+                                    <th>Sıra No</th>
+                                    <th>Malzeme*</th>
+                                    <th>Adet</th>
+                                    <th>Miktar (KG)</th>
+                                    <th>Dara (KG)</th>
+                                    <th>Birim Fiyat</th>
+                                    <th>Kalite</th>
+                                    <th>Yapılacak İşlem</th>
+                                    <th>İstenilen Sertlik</th>
+                                    <th>İşlem Durumu</th>
+                                    <th>İşlemler</th>
+                                </thead>
+                                <tbody id="islem-satir-ekle">
+                                    <tr v-for="(islem, index) in aktifSiparis.islemler" :key="index">
+                                        <td># @{{ index + 1 }}</td>
+                                        <td class="kisa-uzunluk">
+                                            <select class="form-select" aria-label="Malzemeler" v-model="islem.malzeme">
+                                                <option
+                                                    v-for="(malzeme, index) in malzemeler"
+                                                    :value="malzeme"
+                                                    :key="index"
+                                                >
+                                                    @{{ malzeme.ad }}
+                                                </option>
+                                            </select>
+                                        </td>
+                                        <td class="kisa-uzunluk">
+                                            <input class="form-control" type="number" placeholder="Adet" v-model="islem.adet">
+                                        </td>
+                                        <td class="kisa-uzunluk">
+                                            <input class="form-control" type="number" placeholder="Miktar (KG)" v-model="islem.miktar">
+                                        </td>
+                                        <td class="kisa-uzunluk">
+                                            <input class="form-control" type="number" placeholder="Dara (KG)" v-model="islem.dara">
+                                        </td>
+                                        <td class="kisa-uzunluk">
+                                            <input class="form-control" type="number" placeholder="Birim Fiyat" v-model="islem.birimFiyat">
+                                        </td>
+                                        <td class="kisa-uzunluk">
+                                            <input class="form-control" type="text" placeholder="Kalite" v-model="islem.kalite">
+                                        </td>
+                                        <td class="orta-uzunluk">
+                                            <select class="form-select" aria-label="İşlemler" v-model="islem.yapilacakIslem">
+                                                <option
+                                                    v-for="(islem, index) in islemTurleri"
+                                                    :value="islem"
+                                                    :key="index"
+                                                >
+                                                    @{{ islem.ad }}
+                                                </option>
+                                            </select>
+                                        </td>
+                                        <td class="kisa-uzunluk">
+                                            <input class="form-control" type="text" placeholder="İstenilen Sertlik" v-model="islem.istenilenSertlik">
+                                        </td>
+                                        <td class="orta-uzunluk">
+                                            <select class="form-select" aria-label="İşlem Durumu" v-model="islem.islemDurumu">
+                                                <option
+                                                    v-for="(islemDurumu, index) in islemDurumlari"
+                                                    :value="islemDurumu"
+                                                    :key="index"
+                                                >
+                                                    @{{ islemDurumu.ad }}
+                                                </option>
+                                            </select>
+                                        </td>
+                                        <td class="kisa-uzunluk">
+                                            <button class="btn btn-danger" @click="islemSil(index)">Sil</button>
+                                        </td>
+                                    </tr>
 
-                            </tbody>
-                            <tfoot>
-                                <tr>
-                                    <td colspan="8">
-                                        <button class="btn btn-info btn-sm" @click="islemEkle">
-                                            <i class="fa fa-plus"></i>
-                                            Ekle
-                                        </button>
-                                    </td>
-                                </tr>
-                            </tfoot>
-                        </table>
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="8">
+                                            <button class="btn btn-info btn-sm" @click="islemEkle">
+                                                <i class="fa fa-plus"></i>
+                                                Ekle
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
                     </div>
                 </template>
             </div>
@@ -363,6 +371,21 @@
         mounted() {
             this.siparisleriGetir();
         },
+        watch: {
+            "aktifSiparis.islemler": {
+                handler: function (newValue, oldValue) {
+                    if (!this.aktifSiparis) return;
+
+                    let toplam = 0;
+                    for (let i in this.aktifSiparis.islemler) {
+                        toplam += _.toNumber(this.aktifSiparis.islemler[i].birimFiyat);
+                    }
+
+                    this.aktifSiparis.tutar = toplam;
+                },
+                deep: true
+            },
+        },
         computed: {
             araYukleniyor() {
                 let yukleniyor = false;
@@ -391,20 +414,6 @@
                     }
 
                     this.siparisler = response.data.siparisler;
-
-                    _.forEach(this.siparisler.data, (siparis) => {
-                        const terminBirinciFaz = _.floor(siparis.terminSuresi * 30 / 100);
-                        const terminIkinciFaz = _.floor(siparis.terminSuresi * 60 / 100);
-
-                        const siparisTarihi = this.m(siparis.tarih);
-                        const simdiTarihi = this.m();
-                        siparis.gecenSure = simdiTarihi.diff(siparisTarihi, 'days');
-                        siparis.gecenSureRenk = siparis.gecenSure > terminIkinciFaz
-                            ? "danger"
-                            : siparis.gecenSure > terminBirinciFaz
-                                ? "warning"
-                                : "success";
-                    });
 
                     this.siparisler = _.cloneDeep(this.siparisler);
                 })
