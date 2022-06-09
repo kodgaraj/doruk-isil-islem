@@ -122,14 +122,14 @@
                                     <div class="float-end">
                                         <div class="dropdown d-none d-lg-inline-block ms-1">
                                             <button type="button" class="btn header-item noti-icon waves-effect" data-toggle="fullscreen">
-                                            <i class="mdi mdi-fullscreen"></i>
-                                        </button>
+                                                <i class="mdi mdi-fullscreen"></i>
+                                            </button>
                                         </div>
                                         <div class="dropdown d-inline-block">
                                             <button type="button" class="btn header-item noti-icon waves-effect" id="page-header-notifications-dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                            <i class="mdi mdi-bell-outline"></i>
-                                            <span class="badge rounded-pill bg-danger">1</span>
-                                        </button>
+                                                <i class="mdi mdi-bell-outline"></i>
+                                                <span class="badge rounded-pill bg-danger">1</span>
+                                            </button>
                                             <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end p-0" aria-labelledby="page-header-notifications-dropdown">
                                                 <div class="p-3">
                                                     <div class="row align-items-center">
@@ -163,9 +163,9 @@
                                         </div>
                                         <div class="dropdown d-inline-block">
                                             <button type="button" class="btn header-item waves-effect" id="page-header-user-dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                            <span class="d-none d-xl-inline-block ms-1">Admin</span>
-                                            <i class="mdi mdi-chevron-down d-none d-xl-inline-block"></i>
-                                        </button>
+                                                <span class="ms-1">Admin</span>
+                                                <i class="mdi mdi-chevron-down"></i>
+                                            </button>
                                             <div class="dropdown-menu dropdown-menu-end">
                                                 <a class="dropdown-item d-block" href="#"><i
                                                     class="bx bx-wrench font-size-16 align-middle me-1"></i> Ayarlar</a>
@@ -187,11 +187,11 @@
                 <footer class="footer">
                     <div class="container-fluid">
                         <div class="row">
-                            <div class="col-sm-6">
+                            <div class="col-6">
                                 &copy; @{{ new Date().getFullYear() }}
                             </div>
-                            <div class="col-sm-6">
-                                <div class="text-sm-end d-none d-sm-block">
+                            <div class="col-6">
+                                <div class="text-end">
                                     KodGaraj
                                 </div>
                             </div>
