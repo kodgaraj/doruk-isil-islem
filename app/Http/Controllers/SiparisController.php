@@ -68,6 +68,7 @@ class SiparisController extends Controller
                     $firmaTabloAdi . '.firmaAdi',
                     $firmaTabloAdi . '.sorumluKisi'
                 )
+                ->orderBy($siparisTabloAdi . '.created_at', 'desc')
                 ->paginate($sayfalamaSayisi);
 
             $siparisler = $siparisler->toArray();
