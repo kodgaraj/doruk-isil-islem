@@ -10,4 +10,11 @@ class Siparisler extends Model
     use SoftDeletes;
 
     protected $table = 'siparisler';
+
+    protected $casts = [
+        "id" => "integer",
+        "firmaId" => "integer",
+        "durumId" => "integer",
+        "userId" => "integer",
+    ];
 }

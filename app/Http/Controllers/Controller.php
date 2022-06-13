@@ -83,4 +83,82 @@ class Controller extends BaseController
 
         return true;
     }
+
+    /**
+     * Yıl ve ay klasörleri altında dosya saklar
+     * 
+     * @param string $base64 Dosya içeriği
+     * @return boolean
+     * 
+     * @example $this->base64ResimKaydet($base64, ["dosyaAdi" => "$siparisNo-$islemNo"]);
+     */
+    public function base64ResimKaydet($base64, $parametreler = [])
+    {
+        if ($base64) {
+            $yil = Carbon::now()->year;
+            $ay = Carbon::now()->month;
+            $klasorYolu = "uploads/$yil/$ay/";
+            $dosyaAdi = "";
+
+            if (isset($parametreler["altKlasor"]) && count($parametreler["altKlasor"]) > 0)
+            {
+                $klasorYolu .= implode("/", $parametreler["altKlasor"]) . "/";
+            }
+
+            if (!file_exists($klasorYolu))
+            {
+                mkdir(
+                    directory: $klasorYolu,
+                    recursive: true
+                );
+            }
+
+            if (isset($parametreler["dosyaAdi"]) && $parametreler["dosyaAdi"])
+            {
+                $dosyaAdi = $parametreler["dosyaAdi"];
+            }
+            else
+            {
+                $dosyaAdi = uniqid();
+            }
+
+            $base64Image = explode(";base64,", $base64);
+            $explodeImage = explode("image/", $base64Image[0]);
+            $resimUzanti = $explodeImage[1];
+            $resimBase64 = base64_decode($base64Image[1]);
+            $dosyaYolu = $klasorYolu . $dosyaAdi . '.' . $resimUzanti;
+            $publicDosyaYolu = public_path($dosyaYolu);
+            $appDosyaYolu = app_path($dosyaYolu);
+
+            // dd([
+            //     "dosyaYolu" => $dosyaYolu,
+            //     "publicDosyaYolu" => $publicDosyaYolu,
+            //     "appDosyaYolu" => $appDosyaYolu,
+            // ]);
+
+            return !!file_put_contents($dosyaYolu, $resimBase64)
+                ? $dosyaYolu . '?v=' . time()
+                : false;
+        }
+
+        return false;
+    }
+
+    /**
+     * Dosyayı yoluna göre siler
+     * 
+     * @param string $dosyaYolu Dosya yolu
+     */
+    public function dosyaSil($dosyaYolu)
+    {
+        // versiyon bilgisini siler
+        $dosyaYolu = preg_replace('/\?v=[0-9]+/', '', $dosyaYolu);
+
+        if (file_exists($dosyaYolu))
+        {
+            return unlink($dosyaYolu);
+        }
+
+        return true;
+    }
 }

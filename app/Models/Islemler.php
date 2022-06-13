@@ -10,4 +10,15 @@ class Islemler extends Model
     use SoftDeletes;
 
     protected $table = 'islemler';
+
+    protected $casts = [
+        'id' => 'integer',
+        "siparisId" => "integer",
+        "malzemeId" => "integer",
+        "durumId" => "integer",
+        "formId" => "integer",
+        "firinId" => "integer",
+        "tekrarEdenId" => "integer",
+        "tekrarEdilenId" => "integer",
+    ];
 }

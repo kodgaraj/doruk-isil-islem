@@ -254,6 +254,8 @@ class IsilIslemController extends Controller
 
     public function formKaydet(Request $request)
     {
+        DB::beginTransaction();
+
         try
         {
             $formBilgileri = $request->form;
@@ -261,8 +263,6 @@ class IsilIslemController extends Controller
 
             $islemDurumTabloAdi = (new IslemDurumlari())->getTable();
             $islemTabloAdi = (new Islemler())->getTable();
-
-            DB::beginTransaction();
 
             if (isset($formBilgileri["id"]) && $formBilgileri["id"])
             {
@@ -393,6 +393,8 @@ class IsilIslemController extends Controller
         }
         catch(\Exception $e)
         {
+            DB::rollBack();
+
             return response()->json([
                 'durum' => false,
                 'mesaj' => $e->getMessage(),
@@ -403,6 +405,8 @@ class IsilIslemController extends Controller
 
     public function formSil(Request $request)
     {
+        DB::beginTransaction();
+
         try
         {
             $form = Formlar::find($request->formId);
@@ -418,8 +422,6 @@ class IsilIslemController extends Controller
 
             $islemDurumTabloAdi = (new IslemDurumlari())->getTable();
             $islemTabloAdi = (new Islemler())->getTable();
-
-            DB::beginTransaction();
 
             $baslanmisIslemSayisi = Islemler::join($islemDurumTabloAdi, $islemDurumTabloAdi . ".id", "=", $islemTabloAdi . ".durumId")
                 ->where("formId", $form->id)
@@ -480,6 +482,8 @@ class IsilIslemController extends Controller
         }
         catch(\Exception $e)
         {
+            DB::rollBack();
+
             return response()->json([
                 'durum' => false,
                 'mesaj' => $e->getMessage(),
@@ -561,6 +565,8 @@ class IsilIslemController extends Controller
 
     public function islemDurumuDegistir(Request $request)
     {
+        DB::beginTransaction();
+
         try
         {
             $islemBilgileri = $request->islem;
@@ -586,6 +592,8 @@ class IsilIslemController extends Controller
 
             if (!$islem->save())
             {
+                DB::rollBack();
+
                 return response()->json([
                     'durum' => false,
                     'mesaj' => 'İşlem kaydedilemedi.',
@@ -611,6 +619,8 @@ class IsilIslemController extends Controller
         }
         catch(\Exception $e)
         {
+            DB::rollBack();
+
             return response()->json([
                 'durum' => false,
                 'mesaj' => $e->getMessage(),
@@ -621,11 +631,11 @@ class IsilIslemController extends Controller
 
     public function islemTekrarEt(Request $request)
     {
+        DB::beginTransaction();
+
         try
         {
             $islemBilgileri = $request->islem;
-
-            DB::beginTransaction();
 
             $islem = Islemler::where("id", $islemBilgileri["id"])->first();
 
@@ -710,6 +720,8 @@ class IsilIslemController extends Controller
         }
         catch(\Exception $e)
         {
+            DB::rollBack();
+
             return response()->json([
                 'durum' => false,
                 'mesaj' => $e->getMessage(),
@@ -720,14 +732,14 @@ class IsilIslemController extends Controller
 
     public function islemTamamlandiGeriAl(Request $request)
     {
+        DB::beginTransaction();
+
         try
         {
             $islemBilgileri = $request->islem;
 
             $islemTabloAdi = (new Islemler())->getTable();
             $islemDurumTabloAdi = (new IslemDurumlari())->getTable();
-
-            DB::beginTransaction();
 
             $islem = Islemler::where("id", $islemBilgileri["id"])->first();
 
@@ -810,6 +822,8 @@ class IsilIslemController extends Controller
         }
         catch(\Exception $e)
         {
+            DB::rollBack();
+
             return response()->json([
                 'durum' => false,
                 'mesaj' => $e->getMessage(),

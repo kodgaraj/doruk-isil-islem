@@ -172,13 +172,13 @@ class SiparisController extends Controller
 
     public function siparisKaydet(Request $request)
     {
+        DB::beginTransaction();
+
         try
         {
             $siparisBilgileri = $request->siparis;
             $userId = Auth::user()->id;
             // dd($siparisBilgileri);
-
-            DB::beginTransaction();
 
             if (isset($siparisBilgileri['siparisId']))
             {
@@ -240,6 +240,31 @@ class SiparisController extends Controller
                 $islemModel->istenilenSertlik = $islem['istenilenSertlik'];
                 $islemModel->json = $islem['json'] ?? null;
 
+                if (isset($islem["yeniResimSecildi"], $islem["resim"]) && $islem["yeniResimSecildi"] && $islem["resim"])
+                {
+                    if (isset($islem["resimYolu"]) && $islem["resimYolu"])
+                    {
+                        $this->dosyaSil($islem["resimYolu"]);
+                    }
+
+                    $resimYolu = $this->base64ResimKaydet($islem["resim"], [
+                        "dosyaAdi" => "$siparis->siparisNo-$islemModel->siraNo"
+                    ]);
+
+                    if (!$resimYolu)
+                    {
+                        DB::rollBack();
+
+                        return response()->json([
+                            'durum' => false,
+                            'mesaj' => 'Resim kaydedilirken bir hata oluştu.',
+                            "hataKodu" => "S003"
+                        ], 500);
+                    }
+
+                    $islemModel->resimYolu = $resimYolu;
+                }
+
                 if (!$islemModel->save())
                 {
                     DB::rollBack();
@@ -259,6 +284,23 @@ class SiparisController extends Controller
                 {
                     $islemModel = Islemler::where("id", $islemId)->first();
 
+                    // Eğer resimYolu varsa sil
+                    if ($islemModel->resimYolu)
+                    {
+                        $resimSilmeDurum = $this->dosyaSil($islemModel->resimYolu);
+
+                        if (!$resimSilmeDurum)
+                        {
+                            DB::rollBack();
+
+                            return response()->json([
+                                'durum' => false,
+                                'mesaj' => 'Resim silinirken bir hata oluştu.',
+                                "hataKodu" => "S004"
+                            ], 500);
+                        }
+                    }
+
                     if (!$islemModel->delete())
                     {
                         DB::rollBack();
@@ -267,7 +309,7 @@ class SiparisController extends Controller
                             'durum' => false,
                             'mesaj' => 'İşlem silinirken bir hata oluştu.',
                             'hata' => $islemModel->getErrors(),
-                            "hataKodu" => "S003"
+                            "hataKodu" => "S005"
                         ], 500);
                     }
                 }
@@ -282,6 +324,8 @@ class SiparisController extends Controller
         }
         catch(\Exception $e)
         {
+            DB::rollBack();
+
             return response()->json([
                 'durum' => false,
                 'mesaj' => $e->getMessage(),
@@ -321,16 +365,32 @@ class SiparisController extends Controller
 
     public function siparisSil(Request $request)
     {
+        DB::beginTransaction();
         try
         {
             $siparisId = $request->siparisId;
-
-            DB::beginTransaction();
 
             $islemler = Islemler::where('siparisId', $siparisId)->get();
 
             foreach ($islemler as $islem)
             {
+                // Eğer resimYolu varsa sil
+                if ($islem->resimYolu)
+                {
+                    $resimSilmeDurum = $this->dosyaSil($islem->resimYolu);
+
+                    if (!$resimSilmeDurum)
+                    {
+                        DB::rollBack();
+
+                        return response()->json([
+                            'durum' => false,
+                            'mesaj' => 'Resim silinirken bir hata oluştu.',
+                            "hataKodu" => "S008"
+                        ], 500);
+                    }
+                }
+
                 if (!$islem->delete())
                 {
                     DB::rollBack();
@@ -339,7 +399,7 @@ class SiparisController extends Controller
                         'durum' => false,
                         'mesaj' => 'İşlem silinirken bir hata oluştu.',
                         'hata' => $islem->getErrors(),
-                        "hataKodu" => "S004"
+                        "hataKodu" => "S010"
                     ], 500);
                 }
             }
@@ -352,7 +412,8 @@ class SiparisController extends Controller
 
                 return response()->json([
                     'durum' => false,
-                    'mesaj' => 'Sipariş bulunamadı.'
+                    'mesaj' => 'Sipariş bulunamadı.',
+                    "hataKodu" => "S011"
                 ], 404);
             }
 
@@ -362,7 +423,9 @@ class SiparisController extends Controller
 
                 return response()->json([
                     'durum' => false,
-                    'mesaj' => 'Sipariş silinirken bir hata oluştu.'
+                    'mesaj' => 'Sipariş silinirken bir hata oluştu.',
+                    'hata' => $siparis->getErrors(),
+                    "hataKodu" => "S012"
                 ], 500);
             }
 
@@ -375,9 +438,12 @@ class SiparisController extends Controller
         }
         catch(\Exception $e)
         {
+            DB::rollBack();
+
             return response()->json([
                 'durum' => false,
-                'mesaj' => $e->getMessage()
+                'mesaj' => $e->getMessage(),
+                'satir' => $e->getLine(),
             ], 500);
         }
     }

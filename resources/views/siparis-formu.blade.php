@@ -265,6 +265,7 @@
                             <table class="table table-striped table-bordered nowrap" id="urun-detay">
                                 <thead>
                                     <th>Sıra No</th>
+                                    <th class="text-center">Resim</th>
                                     <th>Malzeme*</th>
                                     <th>Adet</th>
                                     <th>Miktar (KG)</th>
@@ -277,8 +278,23 @@
                                     <th>İşlemler</th>
                                 </thead>
                                 <tbody id="islem-satir-ekle">
-                                    <tr v-for="(islem, index) in aktifSiparis.islemler" :key="index">
+                                    <tr v-for="(islem, index) in aktifSiparis.islemler" :key="index" style="vertical-align: middle;">
                                         <td># @{{ index + 1 }}</td>
+                                        <td class="text-center">
+                                            <img
+                                                v-if="islem.resim || islem.resimYolu"
+                                                :src="islem.resim ? islem.resim : islem.resimYolu"
+                                                class="kg-resim-sec"
+                                                @click="resimSecimAc(index)"
+                                            />
+                                            <button
+                                                v-else
+                                                @click="resimSecimAc(index)"
+                                                class="btn btn-primary"
+                                            >
+                                                <i class="fas fa-plus"></i>
+                                            </button>
+                                        </td>
                                         <td class="uzun-uzunluk">
                                             <div class="row d-flex">
                                                 <div class="col">
@@ -368,7 +384,6 @@
                                             <button class="btn btn-danger" @click="islemSil(index)">Sil</button>
                                         </td>
                                     </tr>
-
                                 </tbody>
                                 <tfoot>
                                     <tr>
@@ -1137,7 +1152,92 @@
                     } else if (result.isDenied) {}
                 });
             },
+            resimSecimAc(islemIndex) {
+                const islem = this.aktifSiparis.islemler[islemIndex];
+                let resimInputEl, onizlemeEl, resim;
+                const swalObjesi = {
+                    html: `
+                        <div class="container">
+                            <div class="row g-3">
+                                <div class="form-group col-12">
+                                    <input type="file" class="form-control" id="resimSecimi" placeholder="Resim Seçimi">
+                                </div>
+                                <!-- previewer -->
+                                <div class="col-12">
+                                    <div class="img-previewer">
+                                        <img
+                                            id="onizleme"
+                                            class="img-fluid"
+                                            src="${
+                                                islem.resim
+                                                    ? islem.resim
+                                                    : islem.resimYolu
+                                                        ? islem.resimYolu
+                                                        : "/img/no-image.png"
+                                            }"
+                                            alt="İşlem resmi"
+                                            width="400"
+                                            height="400"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `,
+                    showCancelButton: true,
+                    confirmButtonText: 'Ekle',
+                    cancelButtonText: 'İptal',
+                    didOpen: (val) => {
+                        resimInputEl = document.getElementById("resimSecimi");
+                        onizlemeEl = document.getElementById("onizleme");
+
+                        resimInputEl.addEventListener("change", () => {
+                            resim = resimInputEl.files[0];
+                            const reader = new FileReader();
+
+                            reader.onload = (e) => {
+                                onizlemeEl.src = e.target.result;
+                            };
+
+                            reader.readAsDataURL(resim);
+                        });
+                    },
+                    preConfirm: () => {
+                        return {
+                            resim: onizlemeEl.src,
+                        };
+                    },
+                };
+
+                // Resim seçme
+                Swal.fire(swalObjesi)
+                .then((result) => {
+                    if (result.isConfirmed && result.value.resim) {
+                        islem.resim = result.value.resim;
+                        islem.yeniResimSecildi = true;
+                        this.aktifSiparis = _.cloneDeep(this.aktifSiparis);
+                    }
+                });
+            },
         }
     };
 </script>
+@endsection
+
+@section('style')
+    <style>
+        .kg-resim-sec {
+            transition: filter .3s;
+            width: 64px;
+            height: 64px;
+            border: 1px solid #666;
+            border-radius: 4px;
+        }
+
+        .kg-resim-sec:hover {
+            position: relative;
+            filter: contrast(30%);
+            cursor: pointer;
+        }
+    </style>
 @endsection
