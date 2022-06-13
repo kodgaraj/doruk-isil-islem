@@ -25,6 +25,10 @@
             min-width: 200px;
         }
 
+        table td.en-uzun-uzunluk {
+            min-width: 275px;
+        }
+
         table td.align-left {
             text-align: left !important;
         }
@@ -225,10 +229,15 @@
     <!-- sweetalert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+    <!-- or point to a specific vue-select release -->
+    <script src="https://unpkg.com/vue-select@3"></script>
+    <link rel="stylesheet" href="https://unpkg.com/vue-select@3/dist/vue-select.css">
+
     <script>
         moment.locale("tr");
 
         Vue.use(VueMask.VueMaskPlugin);
+        Vue.component('v-select', VueSelect.VueSelect);
 
         new Vue({
             mixins: [mixinApp],

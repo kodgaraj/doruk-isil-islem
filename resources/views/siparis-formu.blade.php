@@ -221,24 +221,23 @@
                             <div class="row d-flex align-items-end">
                                 <div class="col">
                                     <label class="form-label">Firmalar *</label>
-                                    <select class="form-control select2" v-model="aktifSiparis.firma">
-                                        <optgroup label="Firmalar">
-                                            <option
-                                                v-for="(firma, index) in firmalar"
-                                                :value="firma"
-                                                :key="index"
-                                            >
-                                                <div class="row">
-                                                    <div class="col-8">
-                                                        @{{ firma.firmaAdi }}
-                                                    </div>
-                                                    <div class="col-4">
-                                                        (@{{ firma.sorumluKisi }})
-                                                    </div>
+                                    <v-select
+                                        v-model="aktifSiparis.firma"
+                                        :options="firmalar"
+                                        label="firmaAdi"
+                                    >
+                                        <template v-slot:option="firma">
+                                            <div class="row">
+                                                <div class="col-12">
+                                                    @{{ firma.firmaAdi }}
                                                 </div>
-                                            </option>
-                                        </optgroup>
-                                    </select>
+                                                <div class="col-12">
+                                                    (@{{ firma.sorumluKisi }})
+                                                </div>
+                                            </div>
+                                        </template>
+                                        <div slot="no-options">Firma bulunamadı!</div>
+                                    </v-select>
                                 </div>
                                 <div class="col-auto p-0">
                                     <button
@@ -295,23 +294,23 @@
                                                 <i class="fas fa-plus"></i>
                                             </button>
                                         </td>
-                                        <td class="uzun-uzunluk">
+                                        <td class="en-uzun-uzunluk">
                                             <div class="row d-flex">
                                                 <div class="col">
-                                                    <select
+                                                    <v-select
                                                         v-model="islem.malzeme"
-                                                        @change="malzemeSecildiginde(index)"
-                                                        class="form-select"
-                                                        aria-label="Malzemeler"
+                                                        :options="malzemeler"
+                                                        label="ad"
                                                     >
-                                                        <option
-                                                            v-for="(malzeme, index) in malzemeler"
-                                                            :value="malzeme"
-                                                            :key="index"
-                                                        >
-                                                            @{{ malzeme.ad }}
-                                                        </option>
-                                                    </select>
+                                                        <template #selected-option="option">
+                                                            <div class="row">
+                                                                <div class="col-12">
+                                                                    @{{ _.truncate(option.ad, { length: 15, omission: "..." }) }}
+                                                                </div>
+                                                            </div>
+                                                        </template>
+                                                        <div slot="no-options">Malzeme bulunamadı!</div>
+                                                    </v-select>
                                                 </div>
                                                 <div class="col-auto ps-0">
                                                     <button
@@ -338,23 +337,23 @@
                                         <td class="kisa-uzunluk">
                                             <input class="form-control" type="text" placeholder="Kalite" v-model="islem.kalite">
                                         </td>
-                                        <td class="uzun-uzunluk">
+                                        <td class="en-uzun-uzunluk">
                                             <div class="row d-flex">
                                                 <div class="col">
-                                                    <select
+                                                    <v-select
                                                         v-model="islem.yapilacakIslem"
-                                                        @change="malzemeSecildiginde(index)"
-                                                        class="form-select"
-                                                        aria-label="İşlemler"
+                                                        :options="islemTurleri"
+                                                        label="ad"
                                                     >
-                                                        <option
-                                                            v-for="(islem, index) in islemTurleri"
-                                                            :value="islem"
-                                                            :key="index"
-                                                        >
-                                                            @{{ islem.ad }}
-                                                        </option>
-                                                    </select>
+                                                        <template #selected-option="option">
+                                                            <div class="row">
+                                                                <div class="col-12">
+                                                                    @{{ _.truncate(option.ad, { length: 15, omission: "..." }) }}
+                                                                </div>
+                                                            </div>
+                                                        </template>
+                                                        <div slot="no-options">İşlem türü bulunamadı!</div>
+                                                    </v-select>
                                                 </div>
                                                 <div class="col-auto ps-0">
                                                     <button
