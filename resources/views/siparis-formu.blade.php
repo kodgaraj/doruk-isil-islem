@@ -304,6 +304,13 @@
                                                         class="form-select"
                                                         aria-label="Malzemeler"
                                                     >
+                                                        <input
+                                                            type="text"
+                                                            class="form-control"
+                                                            placeholder="Malzeme arama"
+                                                            v-model="islem.malzemeArama"
+                                                            @keyup="malzemeArama(index)"
+                                                        />
                                                         <option
                                                             v-for="(malzeme, index) in malzemeler"
                                                             :value="malzeme"
