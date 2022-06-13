@@ -10,6 +10,7 @@ use App\Http\Controllers\MalzemeController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SiparisController;
+use App\Http\Controllers\TumIslemlerController;
 
 /*
 |--------------------------------------------------------------------------
@@ -23,10 +24,13 @@ use App\Http\Controllers\SiparisController;
 */
 
 Route::group(['middleware' => ['auth']], function () {
+    // sayfalar
     Route::get('/', [HomeController::class, "index"])->name("home");
     Route::get('/siparis-formu', [SiparisController::class, 'index'])->name("siparis-formu");
     Route::get('/isil-islemler', [IsilIslemController::class, 'index'])->name("isil-islemler");
+    Route::get('/tum-islemler', [TumIslemlerController::class, 'index'])->name("tum-islemler");
 
+    // apiler
     Route::get('/siparisler', [SiparisController::class, 'siparisler'])->name("siparisler");
     Route::get('/numaralariGetir', [SiparisController::class, 'numaralariGetir'])->name("numaralariGetir");
     Route::get('/siparisDurumlariGetir', [SiparisController::class, 'siparisDurumlariGetir'])->name("siparisDurumlariGetir");
