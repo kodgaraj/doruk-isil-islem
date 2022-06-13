@@ -349,6 +349,7 @@
                                 <i class="fas fa-eye-slash" v-else></i>
                             </button>
                             <button @click="ciktiAl" class="btn btn-primary">
+                                <i class="fas fa-file-export"></i>
                                 ÇIKTI
                             </button>
                             <button
@@ -368,7 +369,7 @@
                                     <table id="formGorunumu" class="table table-striped table-hover">
                                         <thead>
                                             <tr>
-                                                <th>Firma</th>
+                                                <th>Fırın</th>
                                                 <th>Şarj</th>
                                                 <th>Firma</th>
                                                 <th>Malzeme</th>
@@ -550,7 +551,6 @@
 @endsection
 
 @section('script')
-<script src="https://html2canvas.hertzen.com/dist/html2canvas.js"></script>
 <script>
     let mixinApp = {
         data() {

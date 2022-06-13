@@ -12,13 +12,13 @@ class FirmaController extends Controller
         try
         {
             $firmaBilgileri = $request->firma;
-    
+
             $firma = new Firmalar();
-    
-            $firma->firmaAdi = $firmaBilgileri['firmaAdi'];
-            $firma->sorumluKisi = $firmaBilgileri['sorumluKisi'];
+
+            $firma->firmaAdi = $this->buyukHarf($firmaBilgileri['firmaAdi']);
+            $firma->sorumluKisi = $this->buyukHarf($firmaBilgileri['sorumluKisi']) ?: null;
             $firma->telefon = $firmaBilgileri['telefon'];
-    
+
             if (!$firma->save())
             {
                 return response()->json([
@@ -27,7 +27,7 @@ class FirmaController extends Controller
                     "hataKodu" => "F005",
                 ], 500);
             }
-    
+
             return response()->json([
                 'durum' => true,
                 'mesaj' => 'Firma başarılı bir şekilde eklendi.',

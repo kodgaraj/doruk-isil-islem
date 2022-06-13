@@ -12,6 +12,8 @@
     <link href="assets/css/app.min.css" id="app-style" rel="stylesheet" type="text/css" />
     <link href="assets/css/doruk.css" rel="stylesheet" type="text/css" />
 
+    <link rel="stylesheet" href="https://unpkg.com/vue-select@3/dist/vue-select.css">
+
     <style>
         table td.kisa-uzunluk {
             min-width: 100px;
@@ -231,7 +233,8 @@
 
     <!-- or point to a specific vue-select release -->
     <script src="https://unpkg.com/vue-select@3"></script>
-    <link rel="stylesheet" href="https://unpkg.com/vue-select@3/dist/vue-select.css">
+
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.js"></script>
 
     <script>
         moment.locale("tr");

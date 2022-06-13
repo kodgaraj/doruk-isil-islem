@@ -24,9 +24,18 @@ class IslemTurleriController extends Controller
         {
             $islemTuruBilgileri = $request->islemTuru;
 
+            if (!isset($islemTuruBilgileri['islemTuruAdi']) || !$islemTuruBilgileri['islemTuruAdi'])
+            {
+                return response()->json([
+                    'durum' => false,
+                    'mesaj' => 'İşlem türü adı boş olamaz.',
+                    "hataKodu" => "IT001",
+                ], 500);
+            }
+
             $islemTuru = new IslemTurleri();
 
-            $islemTuru->ad = $islemTuruBilgileri['islemTuruAdi'];
+            $islemTuru->ad = $this->buyukHarf($islemTuruBilgileri['islemTuruAdi']);
 
             if (!$islemTuru->save())
             {

@@ -161,4 +161,16 @@ class Controller extends BaseController
 
         return true;
     }
+
+    public function buyukHarf($degisken)
+    {
+        if (!$degisken)
+        {
+            return $degisken;
+        }
+
+        $degisken = str_replace(["i", "ı"], ['İ', "I"], $degisken);
+
+        return mb_strtoupper($degisken);
+    }
 }

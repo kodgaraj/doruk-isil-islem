@@ -24,9 +24,18 @@ class MalzemeController extends Controller
         {
             $malzemeBilgileri = $request->malzeme;
 
+            if (!isset($malzemeBilgileri['malzemeAdi']) || !$malzemeBilgileri['malzemeAdi'])
+            {
+                return response()->json([
+                    'durum' => false,
+                    'mesaj' => 'Malzeme adı boş olamaz.',
+                    "hataKodu" => "M001",
+                ], 500);
+            }
+
             $malzeme = new Malzemeler();
 
-            $malzeme->ad = $malzemeBilgileri['malzemeAdi'];
+            $malzeme->ad = $this->buyukHarf($malzemeBilgileri['malzemeAdi']);
             $malzeme->birimFiyat = $malzemeBilgileri['malzemeBirimFiyat'] ?? 0;
 
             if (!$malzeme->save())
