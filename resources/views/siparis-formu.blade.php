@@ -248,7 +248,10 @@
                                 <template v-if="aktifSiparis.onizlemeModu">
                                     <div class="form-group">
                                         <label for="terminSuresi">Termin</label>
-                                        <h5 id="terminSuresi">@{{ aktifSiparis.terminSuresi }}</h5>
+                                        <h5 id="terminSuresi">
+                                            @{{ aktifSiparis.terminSuresi }}
+                                            <span class="badge badge-pill" :class="`bg-${ aktifSiparis.gecenSureRenk }`">@{{ aktifSiparis.gecenSure }} Gün</span>
+                                        </h5>
                                     </div>
                                 </template>
                                 <template v-else>
