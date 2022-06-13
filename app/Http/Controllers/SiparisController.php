@@ -98,7 +98,7 @@ class SiparisController extends Controller
 
     /**
      * Son sipariş ve irsaliye numarasının bir sonraki numarasını döndürür.
-     * Örnek: SPR000001 -> SPR000002
+     * Örnek: DRK000001 -> DRK000002
      */
     public function numaralariGetir(Request $request)
     {
@@ -108,12 +108,12 @@ class SiparisController extends Controller
 
             if(!$siparisNo)
             {
-                $siparisNo = 'SPR0000001';
+                $siparisNo = 'DRK0000001';
             }
             else
             {
                 $siparisNo = substr($siparisNo, 3);
-                $siparisNo = 'SPR' . sprintf('%07d', $siparisNo + 1);
+                $siparisNo = 'DRK' . sprintf('%07d', $siparisNo + 1);
             }
 
             $irsaliyeNo = Siparisler::max('irsaliyeNo');
@@ -183,10 +183,28 @@ class SiparisController extends Controller
             if (isset($siparisBilgileri['siparisId']))
             {
                 $siparis = Siparisler::find($siparisBilgileri['siparisId']);
+
+                if ($siparis->siparisNo != $siparisBilgileri['siparisNo'] && Siparisler::where('siparisNo', $siparisBilgileri['siparisNo'])->count() > 0)
+                {
+                    return response()->json([
+                        'durum' => false,
+                        'mesaj' => 'Bu sipariş numarası zaten kullanılıyor.',
+                        "hataKodu" => "SK001"
+                    ]);
+                }
             }
             else
             {
                 $siparis = new Siparisler();
+
+                if (Siparisler::where('siparisNo', $siparisBilgileri['siparisNo'])->count() > 0)
+                {
+                    return response()->json([
+                        'durum' => false,
+                        'mesaj' => 'Bu sipariş numarası zaten kullanılıyor.',
+                        "hataKodu" => "SK002"
+                    ]);
+                }
             }
 
             // dd($siparis);

@@ -159,9 +159,9 @@
                             <label class="form-label">Sipariş/Sıra No *</label>
                             <input
                                 v-model="aktifSiparis.siparisNo"
-                                v-mask="'SPR#######'"
+                                v-mask="'DRK#######'"
                                 class="form-control"
-                                placeholder="Sipariş numarası giriniz... (Örn: SPR0000001)"
+                                placeholder="Sipariş numarası giriniz... (Örn: DRK0000001)"
                                 type="text"
                             />
                         </div>
@@ -1172,7 +1172,7 @@
                                                     ? islem.resim
                                                     : islem.resimYolu
                                                         ? islem.resimYolu
-                                                        : "/img/no-image.png"
+                                                        : "/no-image.jpg"
                                             }"
                                             alt="İşlem resmi"
                                             width="400"
