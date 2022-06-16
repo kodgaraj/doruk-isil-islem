@@ -89,7 +89,12 @@
                             </li>
                             <li>
                                 <a href="{{ route("isil-islemler") }}" class=" waves-effect">
-                                    <i class="mdi mdi-stove"></i> Isıl İşlem Formları
+                                    <i class="mdi mdi-calendar-check"></i> Isıl İşlem Formları
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route("tum-islemler") }}" class=" waves-effect">
+                                    <i class="mdi mdi-progress-wrench"></i> Isıl İşlemler
                                 </a>
                             </li>
                             <li>
@@ -105,9 +110,9 @@
                                 </a>
                                 <ul class="sub-menu mm-collapse" aria-expanded="true" id="yonetim-alt-menu">
                                     <li class="waves-effect"><a href="{{ route('kullanicilar') }}">Kullanıcılar</a></li>
-                                    <li><a href="#">Firmalar</a></li>
+                                    {{-- <li><a href="#">Firmalar</a></li>
                                     <li><a href="#">İşlem Türleri</a></li>
-                                    <li><a href="#">Fırınlar</a></li>
+                                    <li><a href="#">Fırınlar</a></li> --}}
                                 </ul>
                             </li>
                         </ul>
@@ -128,16 +133,16 @@
                                         </button>
                                     </div>
                                     <a href="{{ route('home') }}" class="waves-effect">
-                                        <h4 class="page-title mb-0 font-size-18">ISIL İŞLEM TAKİP OTOMASYONU</h4>
+                                        <h4 class="page-title mb-0 px-1 font-size-18">ISIL İŞLEM TAKİP OTOMASYONU</h4>
                                     </a>
                                 </div>
                                 <div class="page-title-right">
                                     <div class="float-end">
-                                        <div class="dropdown d-none d-lg-inline-block ms-1">
+                                        {{-- <div class="d-none d-lg-inline-block ms-1">
                                             <button type="button" class="btn header-item noti-icon waves-effect" data-toggle="fullscreen">
                                                 <i class="mdi mdi-fullscreen"></i>
                                             </button>
-                                        </div>
+                                        </div> --}}
                                         <div class="dropdown d-inline-block">
                                             <button type="button" class="btn header-item noti-icon waves-effect" id="page-header-notifications-dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                                 <i class="mdi mdi-bell-outline"></i>
@@ -176,7 +181,7 @@
                                         </div>
                                         <div class="dropdown d-inline-block">
                                             <button type="button" class="btn header-item waves-effect" id="page-header-user-dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                <span class="ms-1">Admin</span>
+                                                <span class="ms-1">{{ Auth::user()->name }}</span>
                                                 <i class="mdi mdi-chevron-down"></i>
                                             </button>
                                             <div class="dropdown-menu dropdown-menu-end">

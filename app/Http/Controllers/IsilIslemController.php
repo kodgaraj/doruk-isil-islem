@@ -10,6 +10,7 @@ use App\Models\Islemler;
 use App\Models\IslemTurleri;
 use App\Models\Malzemeler;
 use App\Models\Siparisler;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -290,6 +291,32 @@ class IsilIslemController extends Controller
             }
 
             // işlemleri güncelleme
+            $islemBekliyorDurum = IslemDurumlari::where("kod", "ISLEM_BEKLIYOR")->first();
+
+            if (!$islemBekliyorDurum)
+            {
+                DB::rollBack();
+
+                return response()->json([
+                    'durum' => false,
+                    'mesaj' => 'İşlem durumu bulunamadı.',
+                    "hataKodu" => "I002",
+                ], 500);
+            }
+
+            $islemBaslanmadiDurum = IslemDurumlari::where("kod", "BASLANMADI")->first();
+
+            if (!$islemBaslanmadiDurum)
+            {
+                DB::rollBack();
+
+                return response()->json([
+                    'durum' => false,
+                    'mesaj' => 'İşlem durumu bulunamadı.',
+                    "hataKodu" => "I003",
+                ], 500);
+            }
+
             foreach($secilenIslemler as $secilen)
             {
                 $islem = Islemler::find($secilen["id"]);
@@ -305,21 +332,10 @@ class IsilIslemController extends Controller
                     ], 500);
                 }
 
-                $islemBekliyorDurum = IslemDurumlari::where("kod", "ISLEM_BEKLIYOR")->first();
-
-                if (!$islemBekliyorDurum)
-                {
-                    DB::rollBack();
-
-                    return response()->json([
-                        'durum' => false,
-                        'mesaj' => 'İşlem durumu bulunamadı.',
-                        "hataKodu" => "I002",
-                    ], 500);
-                }
-
                 $islem->formId = $form->id;
-                $islem->durumId = $islemBekliyorDurum->id;
+                $islem->durumId = $islem->durumId === $islemBaslanmadiDurum->id
+                    ? $islemBekliyorDurum->id
+                    : $islem->durumId;
                 $islem->firinId = $secilen["firin"]["id"];
                 $islem->sarj = $secilen["sarj"];
                 $islem->kalite = $secilen["kalite"];
@@ -496,6 +512,8 @@ class IsilIslemController extends Controller
     {
         try
         {
+            $filtrelemeler = json_decode($request->filtreleme ?? [], true);
+
             $islemTabloAdi = (new Islemler())->getTable();
             $islemDurumTabloAdi = (new IslemDurumlari())->getTable();
             $firinTabloAdi = (new Firinlar())->getTable();
@@ -519,11 +537,35 @@ class IsilIslemController extends Controller
                 ->join($firinTabloAdi, $firinTabloAdi . ".id", "=", $islemTabloAdi . ".firinId")
                 ->join($siparisTabloAdi, $siparisTabloAdi . ".id", "=", $islemTabloAdi . ".siparisId")
                 ->join($malzemeTabloAdi, $malzemeTabloAdi . ".id", "=", $islemTabloAdi . ".malzemeId")
-                ->whereIn("$islemDurumTabloAdi.kod", ["ISLEM_BEKLIYOR", "ISLEMDE", "TAMAMLANDI"])
-                ->orderBy("$islemDurumTabloAdi.kod", "asc")
-                ->paginate(6);
+                ->where("$islemTabloAdi.tekrarEdilenId", null)
+                ->orderBy("$islemDurumTabloAdi.kod", "asc");
 
-            $islemler = $islemler->toArray();
+            if (isset($filtrelemeler["firin"]) && $filtrelemeler["firin"] && count($filtrelemeler["firin"]) > 0)
+            {
+                $firinIdleri = array_column($filtrelemeler["firin"], "id");
+
+                $islemler = $islemler->whereIn("$islemTabloAdi.firinId", $firinIdleri);
+            }
+
+            if (isset($filtrelemeler["islemDurumu"]) && $filtrelemeler["islemDurumu"] && count($filtrelemeler["islemDurumu"]) > 0)
+            {
+                $islemDurumIdleri = array_column($filtrelemeler["islemDurumu"], "id");
+
+                $islemler = $islemler->whereIn("$islemTabloAdi.durumId", $islemDurumIdleri);
+            }
+            else
+            {
+                $islemler = $islemler->whereIn("$islemDurumTabloAdi.kod", ["ISLEM_BEKLIYOR", "ISLEMDE", "TAMAMLANDI"]);
+            }
+
+            if (isset($filtrelemeler["termin"]) && $filtrelemeler["termin"] > 0)
+            {
+                $tarih = Carbon::now()->subDays($filtrelemeler["termin"])->format('Y-m-d');
+
+                $islemler = $islemler->where("$siparisTabloAdi.tarih", "<=", $tarih);
+            }
+
+            $islemler = $islemler->paginate($filtrelemeler["limit"] ?? 6)->toArray();
 
             foreach ($islemler["data"] as &$islem)
             {
@@ -544,6 +586,59 @@ class IsilIslemController extends Controller
                 {
                     $islem["islemDurumuRenk"] = $islem["islemDurumuJson"]["renk"];
                     $islem["islemDurumuIkon"] = $islem["islemDurumuJson"]["ikon"];
+                }
+
+                if (!isset($islem["tekrarEdenIslemler"]))
+                {
+                    $islem["tekrarEdenIslemler"] = [];
+                }
+
+                $islem["tekrarEdenIslemler"] = Islemler::where("tekrarEdilenId", $islem["id"])
+                    ->select(DB::raw("
+                        $islemTabloAdi.*,
+                        $islemDurumTabloAdi.ad as islemDurumuAdi,
+                        $islemDurumTabloAdi.kod as islemDurumuKodu,
+                        $islemDurumTabloAdi.json as islemDurumuJson,
+                        $firinTabloAdi.ad as firinAdi,
+                        $firinTabloAdi.json as firinJson,
+                        $siparisTabloAdi.siparisNo,
+                        $siparisTabloAdi.ad as siparisAdi,
+                        $siparisTabloAdi.terminSuresi,
+                        $siparisTabloAdi.tarih,
+                        $malzemeTabloAdi.ad as malzemeAdi
+                    "))
+                    ->join($islemDurumTabloAdi, $islemDurumTabloAdi . ".id", "=", $islemTabloAdi . ".durumId")
+                    ->join($firinTabloAdi, $firinTabloAdi . ".id", "=", $islemTabloAdi . ".firinId")
+                    ->join($siparisTabloAdi, $siparisTabloAdi . ".id", "=", $islemTabloAdi . ".siparisId")
+                    ->join($malzemeTabloAdi, $malzemeTabloAdi . ".id", "=", $islemTabloAdi . ".malzemeId")
+                    ->whereIn("$islemDurumTabloAdi.kod", ["ISLEM_BEKLIYOR", "ISLEMDE", "TAMAMLANDI"])
+                    ->orderBy("$islemTabloAdi.created_at", "asc")
+                    ->get()
+                    ->toArray();
+
+                if (count($islem["tekrarEdenIslemler"]) > 0)
+                {
+                    foreach ($islem["tekrarEdenIslemler"] as &$tekrarEdenIslem)
+                    {
+                        $terminBilgileri = $this->terminHesapla($tekrarEdenIslem["tarih"], $tekrarEdenIslem["terminSuresi"] ?? 5);
+                        $tekrarEdenIslem["gecenSure"] = $terminBilgileri["gecenSure"];
+                        $tekrarEdenIslem["gecenSureRenk"] = $terminBilgileri["gecenSureRenk"];
+
+                        $tekrarEdenIslem["firinJson"] = json_decode($tekrarEdenIslem["firinJson"], true);
+
+                        if (isset(($tekrarEdenIslem["firinJson"]["renk"])))
+                        {
+                            $tekrarEdenIslem["firinRenk"] = $tekrarEdenIslem["firinJson"]["renk"];
+                        }
+
+                        $tekrarEdenIslem["islemDurumuJson"] = json_decode($tekrarEdenIslem["islemDurumuJson"], true);
+
+                        if (isset(($tekrarEdenIslem["islemDurumuJson"]["renk"])))
+                        {
+                            $tekrarEdenIslem["islemDurumuRenk"] = $tekrarEdenIslem["islemDurumuJson"]["renk"];
+                            $tekrarEdenIslem["islemDurumuIkon"] = $tekrarEdenIslem["islemDurumuJson"]["ikon"];
+                        }
+                    }
                 }
             }
 
@@ -665,7 +760,7 @@ class IsilIslemController extends Controller
                 ], 500);
             }
 
-            $yeniIslem->tekrarEdilenId = $islem->id;
+            $yeniIslem->tekrarEdilenId = $islem->tekrarEdilenId ?? $islem->id;
             $yeniIslem->durumId = $baslanmadiDurum->id;
             $yeniIslem->formId = null;
             $yeniIslem->firinId = null;

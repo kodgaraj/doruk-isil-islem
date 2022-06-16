@@ -2,10 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Firinlar;
+use App\Models\IslemDurumlari;
+
 class TumIslemlerController extends Controller
 {
     public function index()
     {
-        return view('tum-islemler');
+        $firinlar = Firinlar::all();
+        $islemDurumlari = IslemDurumlari::all();
+
+        return view('tum-islemler', [
+            'firinlar' => $firinlar,
+            'islemDurumlari' => $islemDurumlari,
+        ]);
     }
 }

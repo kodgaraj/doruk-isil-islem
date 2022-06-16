@@ -301,10 +301,10 @@
                     window.location.href = "{{ route('siparis-formu') }}";
                 },
                 kullanicilarSayfasiAc: function () {
-                    console.log('kullanicilarSayfasiAc');
+                    window.location.href = "{{ route('kullanicilar') }}";
                 },
                 isilIslemSayfasiAc: function () {
-                    window.location.href = "{{ route('isil-islemler') }}";
+                    window.location.href = "{{ route('tum-islemler') }}";
                 },
                 isilIslemleriGetir(url = "{{ route('islemler') }}") {
                     this.yukleniyorObjesi.islemler = true;
@@ -438,7 +438,7 @@
 
                     Swal.fire({
                         title: 'İşlem Tekrar Edilsin mi?',
-                        text: "İşlem tekrardan başlatılacaktır. İşlemi tekrar etmek istediğinize emin misiniz?",
+                        text: "İşlem tekrardan başlatılacaktır. Lütfen işlemi tekrar etme sebebini giriniz.",
                         icon: 'warning',
                         input: 'textarea',
                         showCancelButton: true,
