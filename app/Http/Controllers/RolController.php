@@ -24,14 +24,16 @@ class RolController extends Controller
         {
             $roller = Roller::paginate(20);
 
+            // dd($roller->toArray());
+
             foreach ($roller as $rol)
             {
-                $rol->permissions = $rol->permissions->pluck("id")->toArray();
+                $rol->permissions = $rol->permissions->pluck('name')->toArray();
             }
 
             return response()->json([
                 'durum' => true,
-                "mesaj" => "Kullanıcılar başarılı bir şekilde getirildi.",
+                "mesaj" => "Roller başarılı bir şekilde getirildi.",
                 'roller' => $roller,
             ], 200);
         }
@@ -39,7 +41,7 @@ class RolController extends Controller
         {
             return response()->json([
                 "durum" => false,
-                "mesaj" => "Kullanıcılar getirilirken bir hata oluştu.",
+                "mesaj" => "Roller getirilirken bir hata oluştu.",
                 "hata" => $ex->getMessage(),
                 "satir" => $ex->getLine(),
                 "hataKodu" => "500",
