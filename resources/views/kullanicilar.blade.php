@@ -85,7 +85,7 @@
                                             class="page-item"
                                             :class="[kullanicilar.current_page === sayfa ? 'active' : '']"
                                         >
-                                            <button class="page-link" @click='kullanicilariGetir("{{ route("kullanicilar") }}?page=" + sayfa)'>@{{ sayfa }}</button>
+                                            <button class="page-link" @click='kullanicilariGetir("{{ route("kullanicilariGetir") }}?page=" + sayfa)'>@{{ sayfa }}</button>
                                         </li>
                                         <li class="page-item">
                                             <button class="page-link" :disabled="!kullanicilar.next_page_url" @click="kullanicilariGetir(kullanicilar.next_page_url)">Sonraki</button>
@@ -256,9 +256,9 @@
                 this.kullanicilariGetir();
             },
             methods: {
-                kullanicilariGetir() {
+                kullanicilariGetir(url = "{{ route('kullanicilariGetir') }}") {
                     this.yukleniyorObjesi.kullanicilariGetir = true;
-                    axios.get('/kullanicilariGetir')
+                    axios.get(url)
                         .then(response => {
                             this.yukleniyorObjesi.kullanicilariGetir = false;
 
