@@ -41,33 +41,62 @@
                         </div>
                     </template>
                     <template v-else>
-                        <table class="table table-striped table-hover">
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Kullanıcı Adı</th>
-                                    <th>E-Posta</th>
-                                    <th>Rol</th>
-                                    <th class="text-center">İşlemler</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr v-for="(kullanici, index) in kullanicilar.data" :key="index">
-                                    <td># @{{ kullanici.id }}</td>
-                                    <td class="kisa-uzunluk">@{{ kullanici.name }}</td>
-                                    <td class="kisa-uzunluk">@{{ kullanici.email }}</td>
-                                    <td class="kisa-uzunluk">@{{ kullanici.roller }}</td>
-                                    <td class="orta-uzunluk text-center">
-                                        <button class="btn btn-sm btn-primary" @click="kullaniciDuzenle(kullanici)">
-                                            <i class="fa fa-edit"></i>
-                                        </button>
-                                        <button class="btn btn-sm btn-danger" @click="kullaniciSil(kullanici)">
-                                            <i class="fa fa-trash"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                        <div class="table-rep-plugin">
+                            <div class="table-responsive mb-0" data-pattern="priority-columns">
+                                <table class="table table-striped table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Kullanıcı Adı</th>
+                                            <th>E-Posta</th>
+                                            <th>Rol</th>
+                                            <th class="text-center">İşlemler</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="(kullanici, index) in kullanicilar.data" :key="index">
+                                            <td># @{{ kullanici.id }}</td>
+                                            <td class="kisa-uzunluk">@{{ kullanici.name }}</td>
+                                            <td class="kisa-uzunluk">@{{ kullanici.email }}</td>
+                                            <td class="kisa-uzunluk">@{{ kullanici.roller }}</td>
+                                            <td class="orta-uzunluk text-center">
+                                                <button class="btn btn-sm btn-primary" @click="kullaniciDuzenle(kullanici)">
+                                                    <i class="fa fa-edit"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-danger" @click="kullaniciSil(kullanici)">
+                                                    <i class="fa fa-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <div class="row d-flex align-items-center justify-content-between">
+                                <div class="col-auto"></div>
+                                <div class="col">
+                                    <ul class="pagination pagination-rounded justify-content-center mb-0">
+                                        <li class="page-item">
+                                            <button class="page-link" :disabled="!kullanicilar.prev_page_url" @click="kullanicilariGetir(kullanicilar.prev_page_url)">Önceki</button>
+                                        </li>
+                                        <li
+                                            v-for="sayfa in kullanicilar.last_page"
+                                            class="page-item"
+                                            :class="[kullanicilar.current_page === sayfa ? 'active' : '']"
+                                        >
+                                            <button class="page-link" @click='kullanicilariGetir("{{ route("kullanicilar") }}?page=" + sayfa)'>@{{ sayfa }}</button>
+                                        </li>
+                                        <li class="page-item">
+                                            <button class="page-link" :disabled="!kullanicilar.next_page_url" @click="kullanicilariGetir(kullanicilar.next_page_url)">Sonraki</button>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="col-auto">
+                                    <small class="text-muted">Toplam Kayıt: @{{ kullanicilar.total }}</small>
+                                </div>
+                            </div>
+                        </div>
                     </template>
                 </template>
                 <template v-else-if="aktifSayfa.kod === 'YENI_KULLANICI'">
