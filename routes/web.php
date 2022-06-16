@@ -32,6 +32,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/isil-islemler', [IsilIslemController::class, 'index'])->name("isil-islemler");
     Route::get('/tum-islemler', [TumIslemlerController::class, 'index'])->name("tum-islemler");
     Route::get('/kullanicilar', [KullanicilarController::class, 'index'])->name("kullanicilar");
+    Route::get('/roller', [RolController::class, 'index'])->name("roller");
 
     // apiler
     Route::get('/siparisler', [SiparisController::class, 'siparisler'])->name("siparisler");
@@ -70,6 +71,8 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('/kullaniciSil', [KullanicilarController::class, 'kullaniciSil'])->name("kullaniciSil");
 
     Route::post('/rolKaydet', [RolController::class, 'rolKaydet'])->name("rolKaydet");
+    Route::get('/rolleriGetir', [RolController::class, 'rolleriGetir'])->name("rolleriGetir");
+    Route::post('/rolSil', [RolController::class, 'rolSil'])->name("rolSil");
 });
 
 require __DIR__.'/auth.php';

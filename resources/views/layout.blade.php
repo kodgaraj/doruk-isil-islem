@@ -110,6 +110,7 @@
                                 </a>
                                 <ul class="sub-menu mm-collapse" aria-expanded="true" id="yonetim-alt-menu">
                                     <li class="waves-effect"><a href="{{ route('kullanicilar') }}">Kullanıcılar</a></li>
+                                    <li class="waves-effect"><a href="{{ route('roller') }}">Roller</a></li>
                                     {{-- <li><a href="#">Firmalar</a></li>
                                     <li><a href="#">İşlem Türleri</a></li>
                                     <li><a href="#">Fırınlar</a></li> --}}

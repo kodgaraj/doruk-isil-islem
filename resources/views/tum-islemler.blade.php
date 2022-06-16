@@ -150,6 +150,9 @@
                                                     <div class="col-12">
                                                         <span class="badge badge-pill" :class="`bg-${ islem.gecenSureRenk }`">Termin: @{{ islem.gecenSure }} Gün</span>
                                                     </div>
+                                                    <div class="col-12">
+                                                        <small class="text-muted">Firma: @{{ islem.firmaAdi }}</small>
+                                                    </div>
                                                 </div>
                                             </td>
                                             <td>
@@ -278,6 +281,9 @@
                                                         </div>
                                                         <div class="col-12">
                                                             <span class="badge badge-pill" :class="`bg-${ tekrarEdenIslem.gecenSureRenk }`">Termin: @{{ tekrarEdenIslem.gecenSure }} Gün</span>
+                                                        </div>
+                                                        <div class="col-12">
+                                                            <small class="text-muted">Firma: @{{ tekrarEdenIslem.firmaAdi }}</small>
                                                         </div>
                                                     </div>
                                                 </td>

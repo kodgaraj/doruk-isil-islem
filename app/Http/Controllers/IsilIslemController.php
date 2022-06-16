@@ -519,6 +519,7 @@ class IsilIslemController extends Controller
             $firinTabloAdi = (new Firinlar())->getTable();
             $siparisTabloAdi = (new Siparisler())->getTable();
             $malzemeTabloAdi = (new Malzemeler())->getTable();
+            $firmaTabloAdi = (new Firmalar())->getTable();
 
             $islemler = Islemler::select(DB::raw("
                     $islemTabloAdi.*,
@@ -527,16 +528,19 @@ class IsilIslemController extends Controller
                     $islemDurumTabloAdi.json as islemDurumuJson,
                     $firinTabloAdi.ad as firinAdi,
                     $firinTabloAdi.json as firinJson,
+                    $siparisTabloAdi.firmaId,
                     $siparisTabloAdi.siparisNo,
                     $siparisTabloAdi.ad as siparisAdi,
                     $siparisTabloAdi.terminSuresi,
                     $siparisTabloAdi.tarih,
-                    $malzemeTabloAdi.ad as malzemeAdi
+                    $malzemeTabloAdi.ad as malzemeAdi,
+                    $firmaTabloAdi.firmaAdi
                 "))
                 ->join($islemDurumTabloAdi, $islemDurumTabloAdi . ".id", "=", $islemTabloAdi . ".durumId")
                 ->join($firinTabloAdi, $firinTabloAdi . ".id", "=", $islemTabloAdi . ".firinId")
                 ->join($siparisTabloAdi, $siparisTabloAdi . ".id", "=", $islemTabloAdi . ".siparisId")
                 ->join($malzemeTabloAdi, $malzemeTabloAdi . ".id", "=", $islemTabloAdi . ".malzemeId")
+                ->join($firmaTabloAdi, $firmaTabloAdi . ".id", "=", $siparisTabloAdi . ".firmaId")
                 ->where("$islemTabloAdi.tekrarEdilenId", null)
                 ->orderBy("$islemDurumTabloAdi.kod", "asc");
 
@@ -601,16 +605,19 @@ class IsilIslemController extends Controller
                         $islemDurumTabloAdi.json as islemDurumuJson,
                         $firinTabloAdi.ad as firinAdi,
                         $firinTabloAdi.json as firinJson,
+                        $siparisTabloAdi.firmaId,
                         $siparisTabloAdi.siparisNo,
                         $siparisTabloAdi.ad as siparisAdi,
                         $siparisTabloAdi.terminSuresi,
                         $siparisTabloAdi.tarih,
-                        $malzemeTabloAdi.ad as malzemeAdi
+                        $malzemeTabloAdi.ad as malzemeAdi,
+                        $firmaTabloAdi.firmaAdi
                     "))
                     ->join($islemDurumTabloAdi, $islemDurumTabloAdi . ".id", "=", $islemTabloAdi . ".durumId")
                     ->join($firinTabloAdi, $firinTabloAdi . ".id", "=", $islemTabloAdi . ".firinId")
                     ->join($siparisTabloAdi, $siparisTabloAdi . ".id", "=", $islemTabloAdi . ".siparisId")
                     ->join($malzemeTabloAdi, $malzemeTabloAdi . ".id", "=", $islemTabloAdi . ".malzemeId")
+                    ->join($firmaTabloAdi, $firmaTabloAdi . ".id", "=", $siparisTabloAdi . ".firmaId")
                     ->whereIn("$islemDurumTabloAdi.kod", ["ISLEM_BEKLIYOR", "ISLEMDE", "TAMAMLANDI"])
                     ->orderBy("$islemTabloAdi.created_at", "asc")
                     ->get()

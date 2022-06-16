@@ -2,27 +2,37 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Izinler;
 use App\Models\Roller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class RolController extends Controller
 {
-    public function kullanicilariGetir()
+    public function index()
+    {
+        $izinler = Izinler::all();
+
+        return view("roller", [
+            "izinler" => $izinler,
+        ]);
+    }
+
+    public function rolleriGetir()
     {
         try
         {
-            $kullanicilar = User::paginate(10);
+            $roller = Roller::paginate(20);
 
-            foreach ($kullanicilar->items() as &$kullanici)
+            foreach ($roller as $rol)
             {
-                $kullanici->roller = implode(", ", array_values(array_column($kullanici->roles->toArray(), 'name')));
+                $rol->permissions = $rol->permissions->pluck("id")->toArray();
             }
 
             return response()->json([
                 'durum' => true,
                 "mesaj" => "Kullanıcılar başarılı bir şekilde getirildi.",
-                'kullanicilar' => $kullanicilar,
+                'roller' => $roller,
             ], 200);
         }
         catch (\Exception $ex)
@@ -52,7 +62,14 @@ class RolController extends Controller
             //     'guard_name' => 'web',
             // ]);
 
-            $rol = new Roller();
+            if (isset($rolBilgileri["id"]))
+            {
+                $rol = Roller::find($rolBilgileri["id"]);
+            }
+            else
+            {
+                $rol = new Roller();
+            }
 
             $rol->name = $rolBilgileri['name'];
             $rol->slug = $this->buyukHarf($rolBilgileri['slug']);
@@ -89,6 +106,47 @@ class RolController extends Controller
                 "mesaj" => "Rol kaydedilirken bir hata oluştu.",
                 "hata" => $ex->getMessage(),
                 "satir" => $ex->getLine(),
+                "hataKodu" => "500",
+            ], 500);
+        }
+    }
+
+    public function rolSil(Request $request)
+    {
+        DB::beginTransaction();
+
+        try
+        {
+            $rol = Roller::find($request->id);
+
+            if (!$rol->delete())
+            {
+                DB::rollBack();
+
+                return response()->json([
+                    "durum" => false,
+                    "mesaj" => "Rol silinirken bir hata oluştu.",
+                    "hataKodu" => "RS001",
+                ], 500);
+            }
+
+            DB::commit();
+
+            return response()->json([
+                "durum" => true,
+                "mesaj" => "Rol silindi.",
+            ], 200);
+        }
+        catch (\Exception $ex)
+        {
+            DB::rollBack();
+
+            return response()->json([
+                "durum" => false,
+                "mesaj" => "Rol silinirken bir hata oluştu.",
+                "hata" => $ex->getMessage(),
+                "satir" => $ex->getLine(),
+                "hataKodu" => "500",
             ], 500);
         }
     }
