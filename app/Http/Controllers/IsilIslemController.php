@@ -512,7 +512,7 @@ class IsilIslemController extends Controller
     {
         try
         {
-            $filtrelemeler = json_decode($request->filtreleme ?? [], true);
+            $filtrelemeler = json_decode($request->filtreleme ?? "[]", true);
 
             $islemTabloAdi = (new Islemler())->getTable();
             $islemDurumTabloAdi = (new IslemDurumlari())->getTable();
