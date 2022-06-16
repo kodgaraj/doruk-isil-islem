@@ -82,40 +82,56 @@
                                     <i class="mdi mdi-home"></i> Anasayfa
                                 </a>
                             </li>
-                            <li>
-                                <a href="{{ route('siparis-formu') }}" class=" waves-effect">
-                                    <i class="mdi mdi-tag-plus-outline"></i> Sipariş Formu
-                                </a>
-                            </li>
-                            <li>
-                                <a href="{{ route("isil-islemler") }}" class=" waves-effect">
-                                    <i class="mdi mdi-calendar-check"></i> Isıl İşlem Formları
-                                </a>
-                            </li>
-                            <li>
-                                <a href="{{ route("tum-islemler") }}" class=" waves-effect">
-                                    <i class="mdi mdi-progress-wrench"></i> Isıl İşlemler
-                                </a>
-                            </li>
-                            <li>
-                                <a
-                                    href="javascript:
-                                        (document.getElementById('yonetim-ust-menu')).classList.toggle('mm-active');
-                                        (document.getElementById('yonetim-alt-menu')).classList.toggle('mm-show');
-                                    "
-                                    class="has-arrow waves-effect"
-                                    id="yonetim-ust-menu"
-                                >
-                                    <i class="mdi mdi-account-multiple-outline"></i> Yönetim
-                                </a>
-                                <ul class="sub-menu mm-collapse" aria-expanded="true" id="yonetim-alt-menu">
-                                    <li class="waves-effect"><a href="{{ route('kullanicilar') }}">Kullanıcılar</a></li>
-                                    <li class="waves-effect"><a href="{{ route('roller') }}">Roller</a></li>
-                                    {{-- <li><a href="#">Firmalar</a></li>
-                                    <li><a href="#">İşlem Türleri</a></li>
-                                    <li><a href="#">Fırınlar</a></li> --}}
-                                </ul>
-                            </li>
+
+                            @can("siparis_listeleme")
+                                <li>
+                                    <a href="{{ route('siparis-formu') }}" class=" waves-effect">
+                                        <i class="mdi mdi-tag-plus-outline"></i> Sipariş Formu
+                                    </a>
+                                </li>
+                            @endcan
+
+                            @can("isil_islem_formu_listeleme")
+                                <li>
+                                    <a href="{{ route("isil-islemler") }}" class=" waves-effect">
+                                        <i class="mdi mdi-calendar-check"></i> Isıl İşlem Formları
+                                    </a>
+                                </li>
+                            @endcan
+
+                            @can("isil_islem_listeleme")
+                                <li>
+                                    <a href="{{ route("tum-islemler") }}" class=" waves-effect">
+                                        <i class="mdi mdi-progress-wrench"></i> Isıl İşlemler
+                                    </a>
+                                </li>
+                            @endcan
+
+                            @can("yonetim_menusu")
+                                <li>
+                                    <a
+                                        href="javascript:
+                                            (document.getElementById('yonetim-ust-menu')).classList.toggle('mm-active');
+                                            (document.getElementById('yonetim-alt-menu')).classList.toggle('mm-show');
+                                        "
+                                        class="has-arrow waves-effect"
+                                        id="yonetim-ust-menu"
+                                    >
+                                        <i class="mdi mdi-account-multiple-outline"></i> Yönetim
+                                    </a>
+                                    <ul class="sub-menu mm-collapse" aria-expanded="true" id="yonetim-alt-menu">
+                                        @can('kullanici_listeleme')
+                                            <li class="waves-effect"><a href="{{ route('kullanicilar') }}">Kullanıcılar</a></li>
+                                        @endcan
+                                        @can('rol_listeleme')
+                                            <li class="waves-effect"><a href="{{ route('roller') }}">Roller</a></li>
+                                        @endcan
+                                        {{-- <li><a href="#">Firmalar</a></li>
+                                        <li><a href="#">İşlem Türleri</a></li>
+                                        <li><a href="#">Fırınlar</a></li> --}}
+                                    </ul>
+                                </li>
+                            @endcan
                         </ul>
                     </div>
                 </div>

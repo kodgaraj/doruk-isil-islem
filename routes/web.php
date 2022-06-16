@@ -28,11 +28,11 @@ use App\Http\Controllers\TumIslemlerController;
 Route::group(['middleware' => ['auth']], function () {
     // sayfalar
     Route::get('/', [HomeController::class, "index"])->name("home");
-    Route::get('/siparis-formu', [SiparisController::class, 'index'])->name("siparis-formu");
-    Route::get('/isil-islemler', [IsilIslemController::class, 'index'])->name("isil-islemler");
-    Route::get('/tum-islemler', [TumIslemlerController::class, 'index'])->name("tum-islemler");
-    Route::get('/kullanicilar', [KullanicilarController::class, 'index'])->name("kullanicilar");
-    Route::get('/roller', [RolController::class, 'index'])->name("roller");
+    Route::get('/siparis-formu', [SiparisController::class, 'index'])->name("siparis-formu")->middleware(['can:siparis_listeleme']);
+    Route::get('/isil-islemler', [IsilIslemController::class, 'index'])->name("isil-islemler")->middleware(['can:isil_islem_formu_listeleme']);
+    Route::get('/tum-islemler', [TumIslemlerController::class, 'index'])->name("tum-islemler")->middleware(['can:isil_islem_listeleme']);
+    Route::get('/kullanicilar', [KullanicilarController::class, 'index'])->name("kullanicilar")->middleware(['can:kullanici_listeleme']);
+    Route::get('/roller', [RolController::class, 'index'])->name("roller")->middleware(['can:rol_listeleme']);
 
     // apiler
     Route::get('/siparisler', [SiparisController::class, 'siparisler'])->name("siparisler");
