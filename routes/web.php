@@ -6,7 +6,9 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\IsilIslemController;
 use App\Http\Controllers\IslemDurumlariController;
 use App\Http\Controllers\IslemTurleriController;
+use App\Http\Controllers\KullanicilarController;
 use App\Http\Controllers\MalzemeController;
+use App\Http\Controllers\RolController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SiparisController;
@@ -29,6 +31,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/siparis-formu', [SiparisController::class, 'index'])->name("siparis-formu");
     Route::get('/isil-islemler', [IsilIslemController::class, 'index'])->name("isil-islemler");
     Route::get('/tum-islemler', [TumIslemlerController::class, 'index'])->name("tum-islemler");
+    Route::get('/kullanicilar', [KullanicilarController::class, 'index'])->name("kullanicilar");
 
     // apiler
     Route::get('/siparisler', [SiparisController::class, 'siparisler'])->name("siparisler");
@@ -61,8 +64,12 @@ Route::group(['middleware' => ['auth']], function () {
 
     Route::post('/firmaEkle', [FirmaController::class, 'firmaEkle'])->name("firmaEkle");
     Route::get('/firmalariGetir', [FirmaController::class, 'firmalariGetir'])->name("firmalariGetir");
+
+    Route::get('/kullanicilariGetir', [KullanicilarController::class, 'kullanicilariGetir'])->name("kullanicilariGetir");
+    Route::post('/kullaniciKaydet', [KullanicilarController::class, 'kullaniciKaydet'])->name("kullaniciKaydet");
+    Route::post('/kullaniciSil', [KullanicilarController::class, 'kullaniciSil'])->name("kullaniciSil");
+
+    Route::post('/rolKaydet', [RolController::class, 'rolKaydet'])->name("rolKaydet");
 });
-
-
 
 require __DIR__.'/auth.php';

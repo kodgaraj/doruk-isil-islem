@@ -93,14 +93,21 @@
                                 </a>
                             </li>
                             <li>
-                                <a href="javascript: void(0);" class="has-arrow waves-effect">
+                                <a
+                                    href="javascript:
+                                        (document.getElementById('yonetim-ust-menu')).classList.toggle('mm-active');
+                                        (document.getElementById('yonetim-alt-menu')).classList.toggle('mm-show');
+                                    "
+                                    class="has-arrow waves-effect"
+                                    id="yonetim-ust-menu"
+                                >
                                     <i class="mdi mdi-account-multiple-outline"></i> Yönetim
                                 </a>
-                                <ul class="sub-menu" aria-expanded="false">
-                                    <li><a href="#">Fırınlar</a></li>
-                                    <li><a href="#">Sepetler</a></li>
+                                <ul class="sub-menu mm-collapse" aria-expanded="true" id="yonetim-alt-menu">
+                                    <li class="waves-effect"><a href="{{ route('kullanicilar') }}">Kullanıcılar</a></li>
                                     <li><a href="#">Firmalar</a></li>
-                                    <li><a href="#">Kullanıcılar</a></li>
+                                    <li><a href="#">İşlem Türleri</a></li>
+                                    <li><a href="#">Fırınlar</a></li>
                                 </ul>
                             </li>
                         </ul>
@@ -261,10 +268,25 @@
             },
             methods: {
                 uyariAc(obje) {
+                    if (obje.toast !== undefined) {
+                        const Toast = Swal.mixin({
+                            toast: true,
+                            position: obje.toast.position ? obje.toast.position : 'top-end',
+                            showConfirmButton: false,
+                            timer: 3000,
+                            timerProgressBar: true,
+                        });
+
+                        return Toast.fire({
+                            icon: obje.toast.status ? 'success' : 'error',
+                            title: obje.toast.message ? obje.toast.message : 'İşlem başarılı!'
+                        });
+                    }
+
                     Swal.fire({
                         title: obje.baslik,
                         text: obje.mesaj,
-                        type: obje.tur,
+                        icon: obje.tur,
                         ...obje.ozellikler
                     });
                 },

@@ -42,7 +42,7 @@
                                 <form class="form-horizontal"  method="POST" action="{{ route('login') }}">
                                     @csrf
                                     <div class="mb-3">
-                                        <input type="email" class="form-control input-radius" name="email" id="email" placeholder="E-MAIL">
+                                        <input type="text" class="form-control input-radius" name="email" id="email" placeholder="E-MAIL">
                                     </div>
                                     <div class="mb-3">
                                         <input type="password" class="form-control input-radius" name="password" id="sifre" placeholder="ŞİFRE">
