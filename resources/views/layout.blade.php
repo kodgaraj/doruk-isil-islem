@@ -163,7 +163,7 @@
                                         </button>
                                     </div>
                                     <a href="{{ route('home') }}" class="waves-effect">
-                                        <h4 class="page-title mb-0 px-1 font-size-18">ISIL İŞLEM TAKİP OTOMASYONU</h4>
+                                        <h4 class="page-title mb-0 px-1 font-size-18 text-nowrap d-none d-sm-block">ISIL İŞLEM TAKİP OTOMASYONU</h4>
                                     </a>
                                 </div>
                                 <div>
@@ -173,7 +173,7 @@
                                                 <i class="mdi mdi-fullscreen"></i>
                                             </button>
                                         </div> --}}
-                                        <div class="dropdown d-inline-block">
+                                        {{-- <div class="dropdown d-inline-block">
                                             <button type="button" class="btn header-item noti-icon waves-effect" id="page-header-notifications-dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                                 <i class="mdi mdi-bell-outline"></i>
                                                 <span class="badge rounded-pill bg-danger">1</span>
@@ -208,7 +208,7 @@
                                                     </a>
                                                 </div>
                                             </div>
-                                        </div>
+                                        </div> --}}
                                         <div class="dropdown d-inline-block">
                                             <button type="button" class="btn header-item waves-effect" id="page-header-user-dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                                 <span class="ms-1">{{ Auth::user()->name }}</span>
