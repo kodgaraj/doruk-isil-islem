@@ -166,7 +166,7 @@
                                         <h4 class="page-title mb-0 px-1 font-size-18">ISIL İŞLEM TAKİP OTOMASYONU</h4>
                                     </a>
                                 </div>
-                                <div class="page-title-right">
+                                <div>
                                     <div class="float-end">
                                         {{-- <div class="d-none d-lg-inline-block ms-1">
                                             <button type="button" class="btn header-item noti-icon waves-effect" data-toggle="fullscreen">
