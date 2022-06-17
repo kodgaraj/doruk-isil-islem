@@ -42,6 +42,19 @@
         table td.align-center {
             text-align: center !important;
         }
+        .kg-resim-sec {
+            transition: filter .3s;
+            width: 64px;
+            height: 64px;
+            border: 1px solid #666;
+            border-radius: 4px;
+        }
+
+        .kg-resim-sec:hover {
+            position: relative;
+            filter: contrast(30%);
+            cursor: pointer;
+        }
     </style>
     @yield('style')
 </head>
@@ -277,6 +290,7 @@
             data: {
                 yukleniyor: false,
                 sidebarButonDurum: false,
+                varsayilanResimYolu: "/no-image.jpg",
             },
             computed: {
                 m() {
@@ -325,6 +339,21 @@
                             document.body.classList.remove('sidebar-enable');
                         }
                     }
+                },
+                resimOnizlemeAc(resimYolu) {
+                    if (!resimYolu) {
+                        resimYolu = this.varsayilanResimYolu;
+                    }
+
+                    Swal.fire({
+                        imageUrl: resimYolu,
+                        imageWidth: '100%',
+                        imageHeight: '100%',
+                        imageAlt: 'Resim',
+                        animation: false,
+                        showConfirmButton: true,
+                        confirmButtonText: 'Kapat',
+                    });
                 },
             },
         });

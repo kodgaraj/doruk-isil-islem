@@ -537,7 +537,6 @@
                     firmaSorumlusu: '',
                     telefon: '',
                 },
-                varsayilanResimYolu: "/no-image.jpg",
             }
         },
         mounted() {
@@ -1369,18 +1368,5 @@
 
 @section('style')
     <style>
-        .kg-resim-sec {
-            transition: filter .3s;
-            width: 64px;
-            height: 64px;
-            border: 1px solid #666;
-            border-radius: 4px;
-        }
-
-        .kg-resim-sec:hover {
-            position: relative;
-            filter: contrast(30%);
-            cursor: pointer;
-        }
     </style>
 @endsection

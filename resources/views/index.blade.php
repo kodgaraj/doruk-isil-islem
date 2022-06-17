@@ -108,6 +108,7 @@
                         <thead>
                             <tr>
                                 <th>İşlem ID</th>
+                                <th>Resim</th>
                                 <th>Malzeme</th>
                                 <th>İşlem</th>
                                 <th>Fırın/Şarj</th>
@@ -165,6 +166,13 @@
                                                     <small class="text-muted">Firma: @{{ islem.firmaAdi }}</small>
                                                 </div>
                                             </div>
+                                        </td>
+                                        <td class="text-center">
+                                            <img
+                                                :src="islem.resimYolu ? islem.resimYolu : varsayilanResimYolu"
+                                                class="kg-resim-sec"
+                                                @click.stop="resimOnizlemeAc(islem.resimYolu)"
+                                            />
                                         </td>
                                         <td>
                                             <div class="row">
@@ -297,6 +305,13 @@
                                                         <small class="text-muted">Firma: @{{ tekrarEdenIslem.firmaAdi }}</small>
                                                     </div>
                                                 </div>
+                                            </td>
+                                            <td class="text-center">
+                                                <img
+                                                    :src="tekrarEdenIslem.resimYolu ? tekrarEdenIslem.resimYolu : varsayilanResimYolu"
+                                                    class="kg-resim-sec"
+                                                    @click.stop="resimOnizlemeAc(tekrarEdenIslem.resimYolu)"
+                                                />
                                             </td>
                                             <td>
                                                 <div class="row">
