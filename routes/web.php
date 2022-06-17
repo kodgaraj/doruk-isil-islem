@@ -13,6 +13,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SiparisController;
 use App\Http\Controllers\TumIslemlerController;
+use Database\Seeders\RolesAndPermissionsSeeder;
 
 /*
 |--------------------------------------------------------------------------
@@ -25,6 +26,22 @@ use App\Http\Controllers\TumIslemlerController;
 |
 */
 
+// seeder
+Route::get('/seed/{sifre}', function ($sifre) {
+    if (!$sifre)
+    {
+        return '!';
+    }
+
+    if ($sifre === 'K@22')
+    {
+        $seeder = new RolesAndPermissionsSeeder();
+        $seeder->run();
+        return 'seeder basarili';
+    }
+
+    return '!!';
+});
 Route::group(['middleware' => ['auth']], function () {
     // sayfalar
     Route::get('/', [HomeController::class, "index"])->name("home");
