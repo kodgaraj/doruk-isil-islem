@@ -254,7 +254,7 @@
                                             <tr :key="'tekrarEdenler' + iIndex" style="background-color: #F8747450; border: 1px solid #F87474;">
                                                 <td colspan="100%" class="p-0">
                                                     <div class="d-grid">
-                                                        <button class="btn btn-sm btn-danger btn-block rounded-0 m-0 p-0" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+                                                        <button class="btn btn-sm btn-danger btn-block rounded-0 m-0 p-0" type="button" data-bs-toggle="collapse" :data-bs-target="'#collapseExample' + iIndex" aria-expanded="false" :aria-controls="'collapseExample' + iIndex">
                                                             Tekrar Eden İşlemler <i class="mdi mdi-chevron-down"></i>
                                                         </button>
                                                     </div>
@@ -263,7 +263,7 @@
                                             <tr
                                                 v-for="(tekrarEdenIslem, tiIndex) in islem.tekrarEdenIslemler"
                                                 class="collapse"
-                                                id="collapseExample"
+                                                :id="'collapseExample' + iIndex"
                                                 style="background-color: #F8747425; border-right: 1px solid #F87474; border-left: 1px solid #F87474;"
                                                 :style="tiIndex === (_.size(islem.tekrarEdenIslemler) - 1) ? 'border-bottom: 1px solid #F87474;' : ''"
                                                 :key="tiIndex + '_' + islem.id"
