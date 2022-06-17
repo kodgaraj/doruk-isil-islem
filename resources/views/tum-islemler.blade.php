@@ -1,7 +1,7 @@
 @extends('layout') 
 @section('content')
 <div class="row doruk-content">
-    <h4 style="color:#999"><i class="fa fa-home"></i> ANASAYFA</h4>
+    <h4 style="color:#999"><i class="mdi mdi-progress-wrench"></i> ISIL İŞLEMLER</h4>
     <div class="col-12">
         <div class="card">
             <div class="card-header">
