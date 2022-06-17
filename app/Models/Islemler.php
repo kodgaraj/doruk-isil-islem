@@ -18,6 +18,7 @@ class Islemler extends Model
         "durumId" => "integer",
         "formId" => "integer",
         "firinId" => "integer",
+        "islemTuruId" => "integer",
         "tekrarEdenId" => "integer",
         "tekrarEdilenId" => "integer",
     ];
