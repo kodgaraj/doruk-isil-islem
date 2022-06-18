@@ -98,6 +98,19 @@
                                                     ></v-select>
                                                 </div>
                                             </div>
+                                            <div class="col-12 m-0">
+                                                <div class="form-check">
+                                                    <input
+                                                        class="form-check-input"
+                                                        type="checkbox"
+                                                        id="tekrarEdenleriGoster"
+                                                        v-model="filtrelemeObjesi.tekrarEdenleriGoster"
+                                                    />
+                                                    <label class="form-check-label" for="tekrarEdenleriGoster">
+                                                        Tekrar edenleri göster
+                                                    </label>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                     <div class="modal-footer">
@@ -507,6 +520,7 @@
                         termin: 0,
                         firin: null,
                         islemDurumu: null,
+                        tekrarEdenleriGoster: false,
                         limit: 10,
                     },
                     firinlar: @json($firinlar),

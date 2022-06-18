@@ -582,6 +582,11 @@ class IsilIslemController extends Controller
                 });
             }
 
+            if (isset($filtrelemeler["tekrarEdenleriGoster"]) && $filtrelemeler["tekrarEdenleriGoster"])
+            {
+                $islemler = $islemler->where("$islemTabloAdi.tekrarEdenId", "!=", null);
+            }
+
             $islemler = $islemler->paginate($filtrelemeler["limit"] ?? 6)->toArray();
 
             foreach ($islemler["data"] as &$islem)
