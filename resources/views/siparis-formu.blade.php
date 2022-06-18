@@ -11,7 +11,9 @@
                             <h4 class="card-title">SİPARİŞLER</h4>
                         </div>
                         <div class="col-4 text-end">
-                            <button @click="siparisEklemeAc" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> SİPARİŞ EKLE</button>
+                            @can("siparis_kaydetme")
+                                <button @click="siparisEklemeAc" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> SİPARİŞ EKLE</button>
+                            @endcan
                         </div>
                     </div>
                     <div class="row">
@@ -36,7 +38,9 @@
                                                         <th data-priority="2">Sipariş</th>
                                                         <th data-priority="3" class="text-center">İşlem Sayısı</th>
                                                         <th data-priority="1">İrsaliye No</th>
-                                                        <th data-priority="4">Tutar</th>
+                                                        @can("siparis_ucreti_goruntuleme")
+                                                            <th data-priority="4">Tutar</th>
+                                                        @endcan
                                                         <th data-priority="5">Sipariş Tarihi</th>
                                                         <th data-priority="6" class="text-center">İşlemler</th>
                                                     </tr>
@@ -60,19 +64,27 @@
                                                         <td class="uzun-uzunluk">@{{ siparis.siparisAdi }}</td>
                                                         <td class="kisa-uzunluk text-center">@{{ siparis.islemSayisi }}</td>
                                                         <td class="kisa-uzunluk">@{{ siparis.irsaliyeNo }}</td>
-                                                        <td class="kisa-uzunluk">@{{ siparis.tutar ? siparis.tutar + "₺" : "-" }}</td>
+                                                        @can("siparis_ucreti_goruntuleme")
+                                                            <td class="kisa-uzunluk">@{{ siparis.tutar ? siparis.tutar + "₺" : "-" }}</td>
+                                                        @endcan
                                                         <td class="kisa-uzunluk">@{{ m(siparis.tarih).format("L") }}</td>
                                                         <td class="uzun-uzunluk text-center">
                                                             <div class="btn-group row d-inline-flex g-1">
                                                                 <div class="col">
                                                                     <button @click="siparisDetayAc(siparis)" class="btn btn-primary btn-sm"><i class="fas fa-eye"></i></button>
                                                                 </div>
-                                                                <div class="col">
-                                                                    <button @click="siparisDuzenle(siparis)" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></button>
-                                                                </div>
-                                                                <div class="col">
-                                                                    <button @click="siparisSil(siparis)" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>
-                                                                </div>
+
+                                                                @can("siparis_duzenleme")
+                                                                    <div class="col">
+                                                                        <button @click="siparisDuzenle(siparis)" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></button>
+                                                                    </div>
+                                                                @endcan
+
+                                                                @can("siparis_silme")
+                                                                    <div class="col">
+                                                                        <button @click="siparisSil(siparis)" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>
+                                                                    </div>
+                                                                @endcan
                                                             </div>
                                                         </td>
                                                     </tr>
@@ -80,25 +92,36 @@
                                                 <tfoot>
                                                     <tr>
                                                         <td colspan="100%">
-                                                            <ul class="pagination pagination-rounded justify-content-center mb-0">
-                                                                <li class="page-item">
-                                                                    <button class="page-link" :disabled="!siparisler.prev_page_url" @click="siparisleriGetir(siparisler.prev_page_url)">Önceki</button>
-                                                                </li>
-                                                                <li
-                                                                    v-for="sayfa in siparisler.last_page"
-                                                                    class="page-item"
-                                                                    :class="[siparisler.current_page === sayfa ? 'active' : '']"
-                                                                >
-                                                                    <button class="page-link" @click="siparisleriGetir('/siparisler?page=' + sayfa)">@{{ sayfa }}</button>
-                                                                </li>
-                                                                <li class="page-item">
-                                                                    <button class="page-link" :disabled="!siparisler.next_page_url" @click="siparisleriGetir(siparisler.next_page_url)">Sonraki</button>
-                                                                </li>
-                                                            </ul>
+                                                            
                                                         </td>
                                                     </tr>
                                                 </tfoot>
                                             </table>
+                                        </div>
+                                        <div class="card-footer">
+                                            <div class="row d-flex align-items-center justify-content-between">
+                                                <div class="col-auto"></div>
+                                                <div class="col">
+                                                    <ul class="pagination pagination-rounded justify-content-center mb-0">
+                                                        <li class="page-item">
+                                                            <button class="page-link" :disabled="!islemler.prev_page_url" @click="isilIslemleriGetir(islemler.prev_page_url)">Önceki</button>
+                                                        </li>
+                                                        <li
+                                                            v-for="sayfa in islemler.last_page"
+                                                            class="page-item"
+                                                            :class="[islemler.current_page === sayfa ? 'active' : '']"
+                                                        >
+                                                            <button class="page-link" @click='isilIslemleriGetir("{{ route("islemler") }}?page=" + sayfa)'>@{{ sayfa }}</button>
+                                                        </li>
+                                                        <li class="page-item">
+                                                            <button class="page-link" :disabled="!islemler.next_page_url" @click="isilIslemleriGetir(islemler.next_page_url)">Sonraki</button>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                                <div class="col-auto">
+                                                    <small class="text-muted">Toplam Kayıt: @{{ islemler.total }}</small>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </template>
@@ -133,21 +156,25 @@
                             </div>
                         </div>
                         <div class="col-4 text-end">
-                            <button @click="moduDegistir" class="btn btn-outline-info">
-                                <i class="fas fa-eye" v-if="!aktifSiparis.onizlemeModu"></i>
-                                <i class="fas fa-eye-slash" v-else></i>
-                            </button>
+                            @can("siparis_duzenleme")
+                                <button @click="moduDegistir" class="btn btn-outline-info">
+                                    <i class="fas fa-eye" v-if="!aktifSiparis.onizlemeModu"></i>
+                                    <i class="fas fa-eye-slash" v-else></i>
+                                </button>
+                            @endcan
                             <button v-if="aktifSiparis.onizlemeModu" @click="ciktiAl" class="btn btn-primary">
                                 <i class="fas fa-file-export"></i>
                                 ÇIKTI
                             </button>
-                            <button
-                                @click="siparisKaydet"
-                                class="btn btn-success"
-                                :disabled="_.size(aktifSiparis.islemler) === 0"
-                            >
-                                <i class="fas fa-save"></i> KAYDET
-                            </button>
+                            @canany(["siparis_duzenleme", "siparis_kaydetme"])
+                                <button
+                                    @click="siparisKaydet"
+                                    class="btn btn-success"
+                                    :disabled="_.size(aktifSiparis.islemler) === 0"
+                                >
+                                    <i class="fas fa-save"></i> KAYDET
+                                </button>
+                            @endcan
                         </div>
                     </div>
 
@@ -315,17 +342,31 @@
                                                 <div slot="no-options">Firma bulunamadı!</div>
                                             </v-select>
                                         </div>
-                                        <div class="col-auto p-0">
-                                            <button
-                                                class="btn btn-primary"
-                                                @click="firmaEkleAc()"
-                                            >
-                                                <i class="fas fa-plus"></i>
-                                            </button>
-                                        </div>
+                                        @can("firma_kaydetme")
+                                            <div class="col-auto p-0">
+                                                <button
+                                                    class="btn btn-primary"
+                                                    @click="firmaEkleAc()"
+                                                >
+                                                    <i class="fas fa-plus"></i>
+                                                </button>
+                                            </div>
+                                        @endcan
                                     </div>
                                 </template>
                             </div>
+                            @canany(["siparis_kaydetme", "siparis_duzenleme"])
+                                @can("siparis_ucreti_goruntuleme")
+                                    <div class="mb-3 col-12 col-sm-6 col-md-4 d-flex align-items-center">
+                                        <div class="form-check form-switch h5">
+                                            <input class="form-check-input" type="checkbox" value="" id="miktarFiyatCarp" v-model="aktifSiparis.miktarFiyatCarp">
+                                            <label class="form-check-label" for="miktarFiyatCarp">
+                                                Miktar x Fiyat
+                                            </label>
+                                        </div>
+                                    </div>
+                                @endcan
+                            @endcan
                             <div class="form-group col-12 mb-2">
                                 <template v-if="aktifSiparis.onizlemeModu">
                                     <label for="aciklama">Açıklama</label>
@@ -352,7 +393,9 @@
                                         <th>Adet</th>
                                         <th>Miktar (KG)</th>
                                         <th>Dara (KG)</th>
-                                        <th>Tutar</th>
+                                        @can("siparis_ucreti_goruntuleme")
+                                            <th>Tutar</th>
+                                        @endcan
                                         <th>Kalite</th>
                                         <th>Yapılacak İşlem</th>
                                         <th>İstenilen Sertlik</th>
@@ -373,7 +416,9 @@
                                                 <td>@{{ islem.adet ? islem.adet : "0" }}</td>
                                                 <td>@{{ islem.miktar ? islem.miktar : "0" }}</td>
                                                 <td>@{{ islem.dara ? islem.dara : "0" }}</td>
-                                                <td>@{{ islem.birimFiyat }} ₺</td>
+                                                @can("siparis_ucreti_goruntuleme")
+                                                    <td>@{{ islem.birimFiyat }} ₺</td>
+                                                @endcan
                                                 <td>@{{ islem.kalite ? islem.kalite : "-" }}</td>
                                                 <td>@{{ islem.yapilacakIslem ? islem.yapilacakIslem.ad : "-" }}</td>
                                                 <td>@{{ islem.istenilenSertlik ? islem.istenilenSertlik : "-" }}</td>
@@ -416,14 +461,16 @@
                                                                 <div slot="no-options">Malzeme bulunamadı!</div>
                                                             </v-select>
                                                         </div>
-                                                        <div class="col-auto ps-0" v-if="!aktifSiparis.onizlemeModu">
-                                                            <button
-                                                                class="btn btn-primary"
-                                                                @click="malzemeEkleAc(index)"
-                                                            >
-                                                                <i class="fas fa-plus"></i>
-                                                            </button>
-                                                        </div>
+                                                        @can("malzeme_kaydetme")
+                                                            <div class="col-auto ps-0" v-if="!aktifSiparis.onizlemeModu">
+                                                                <button
+                                                                    class="btn btn-primary"
+                                                                    @click="malzemeEkleAc(index)"
+                                                                >
+                                                                    <i class="fas fa-plus"></i>
+                                                                </button>
+                                                            </div>
+                                                        @endcan
                                                     </div>
                                                 </td>
                                                 <td class="kisa-uzunluk">
@@ -435,9 +482,11 @@
                                                 <td class="kisa-uzunluk">
                                                     <input class="form-control" type="number" placeholder="Dara (KG)" v-model="islem.dara">
                                                 </td>
-                                                <td class="kisa-uzunluk">
-                                                    <input class="form-control" type="number" placeholder="Birim Fiyat" v-model="islem.birimFiyat">
-                                                </td>
+                                                @can("siparis_ucreti_goruntuleme")
+                                                    <td class="kisa-uzunluk">
+                                                        <input class="form-control" type="number" placeholder="Birim Fiyat" v-model="islem.birimFiyat">
+                                                    </td>
+                                                @endcan
                                                 <td class="kisa-uzunluk">
                                                     <input class="form-control" type="text" placeholder="Kalite" v-model="islem.kalite">
                                                 </td>
@@ -459,14 +508,16 @@
                                                                 <div slot="no-options">İşlem türü bulunamadı!</div>
                                                             </v-select>
                                                         </div>
-                                                        <div class="col-auto ps-0" v-if="!aktifSiparis.onizlemeModu">
-                                                            <button
-                                                                class="btn btn-primary"
-                                                                @click="islemTuruEklemeAc(index)"
-                                                            >
-                                                                <i class="fas fa-plus"></i>
-                                                            </button>
-                                                        </div>
+                                                        @can("islem_turu_kaydetme")
+                                                            <div class="col-auto ps-0" v-if="!aktifSiparis.onizlemeModu">
+                                                                <button
+                                                                    class="btn btn-primary"
+                                                                    @click="islemTuruEklemeAc(index)"
+                                                                >
+                                                                    <i class="fas fa-plus"></i>
+                                                                </button>
+                                                            </div>
+                                                        @endcan
                                                     </div>
                                                 </td>
                                                 <td class="kisa-uzunluk">
@@ -491,11 +542,13 @@
                                     </tbody>
                                     <tfoot v-if="!aktifSiparis.onizlemeModu">
                                         <tr>
-                                            <td colspan="8">
-                                                <button class="btn btn-info btn-sm" @click="islemEkle">
-                                                    <i class="fa fa-plus"></i>
-                                                    Ekle
-                                                </button>
+                                            <td colspan="100%">
+                                                <div class="d-grid">
+                                                    <button class="btn btn-info btn-sm p-0" @click="islemEkle">
+                                                        <i class="fa fa-plus"></i>
+                                                        Ekle
+                                                    </button>
+                                                </div>
                                             </td>
                                         </tr>
                                     </tfoot>
@@ -549,10 +602,20 @@
 
                     let toplam = 0;
                     for (let i in this.aktifSiparis.islemler) {
-                        toplam += _.toNumber(this.aktifSiparis.islemler[i].birimFiyat);
+                        const islem = this.aktifSiparis.islemler[i];
+                        const birimFiyat = (this.aktifSiparis.miktarFiyatCarp ? _.toNumber(islem.miktar) : 1) * _.toNumber(islem.birimFiyat);
+                        toplam += _.toNumber(birimFiyat);
                     }
 
                     this.aktifSiparis.tutar = toplam;
+                },
+                deep: true
+            },
+            "aktifSiparis.miktarFiyatCarp": {
+                handler: function (newValue, oldValue) {
+                    if (!this.aktifSiparis) return;
+
+                    this.aktifSiparis.islemler = _.cloneDeep(this.aktifSiparis.islemler);
                 },
                 deep: true
             },
@@ -602,6 +665,7 @@
                     islemler: [],
                     firma: null,
                     onizlemeModu: false,
+                    miktarFiyatCarp: true,
                 };
 
                 this.numaralariGetir();
