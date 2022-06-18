@@ -6,14 +6,146 @@
         <div class="card">
             <div class="card-body">
                 <template v-if="aktifSiparis === null">
-                    <div class="row">
-                        <div class="col-8">
+                    <div class="row d-flex align-items-center">
+                        <div class="col">
                             <h4 class="card-title">SİPARİŞLER</h4>
                         </div>
-                        <div class="col-4 text-end">
-                            @can("siparis_kaydetme")
-                                <button @click="siparisEklemeAc" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> SİPARİŞ EKLE</button>
-                            @endcan
+                        <div class="col-auto">
+                            <div class="row d-flex align-items-center">
+                                <div class="col">
+                                    <div class="input-group">
+                                        <input
+                                            v-model="filtrelemeObjesi.arama"
+                                            type="text"
+                                            class="form-control"
+                                            placeholder="Arama"
+                                            aria-label="Arama"
+                                            aria-describedby="arama"
+                                            @keyup.enter="filtrele()"
+                                        />
+                                        <span @click="filtrele()" class="input-group-text waves-effect" id="arama">
+                                            <i class="mdi mdi-magnify"></i>
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div class="col-auto">
+                                    <!-- Filtreleme butonu -->
+                                    <button class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#filtrelemeModal">
+                                        <i class="fa fa-filter"></i>
+                                    </button>
+                                </div>
+
+                                <div class="col-auto">
+                                    @can("siparis_kaydetme")
+                                        <button @click="siparisEklemeAc" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> SİPARİŞ EKLE</button>
+                                    @endcan
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12">
+                                    <small class="text-muted">
+                                        Sipariş no, firma, irsaliye no...
+                                    </small>
+                                </div>
+                            </div>
+
+                            <div class="modal fade" id="filtrelemeModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="exampleModalLabel">Filtreleme</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="row gap-3">
+                                                <div class="col-12 m-0">
+                                                    <div class="form-group">
+                                                        <label for="terminFiltre">Termin Süresi</label>
+                                                        <div class="input-group">
+                                                            <span class="input-group-text">Minimum</span>
+                                                            <input
+                                                                v-model.number="filtrelemeObjesi.termin"
+                                                                id="terminFiltre"
+                                                                type="number"
+                                                                class="form-control"
+                                                                aria-label="Termin günü"
+                                                                placeholder="Termin günü"
+                                                            />
+                                                            <span class="input-group-text">Gün</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-12 m-0">
+                                                    <div class="form-group">
+                                                        <label for="firmaFiltre">Firma</label>
+                                                        <v-select
+                                                            v-model="filtrelemeObjesi.firma"
+                                                            :options="firmalar"
+                                                            label="firmaAdi"
+                                                            multiple
+                                                            id="firmaFiltre"
+                                                        ></v-select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-12 m-0">
+                                                    <div class="form-group">
+                                                        <div class="row d-flex align-items-center justify-space-between">
+                                                            <div class="col">
+                                                                <label for="tarihFiltre">Tarih</label>
+                                                            </div>
+                                                            <div class="col-auto">
+                                                                <button
+                                                                    v-if="filtrelemeObjesi.baslangicTarihi || filtrelemeObjesi.bitisTarihi"
+                                                                    @click="filtrelemeTarihTemizle()"
+                                                                    class="btn btn-sm btn-outline-danger p-0 m-0"
+                                                                    type="button"
+                                                                    aria-label="Tarih temizle"
+                                                                >
+                                                                    <span class="px-1">
+                                                                        Tarihleri Temizle
+                                                                        <i class="fa fa-times"></i>
+                                                                    </span>
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                        <div class="input-group mb-3">
+                                                            <span class="input-group-text">Başlangıç</span>
+                                                            <input
+                                                                v-model="filtrelemeObjesi.baslangicTarihi"
+                                                                type="date"
+                                                                class="form-control"
+                                                                placeholder="Başlangıç"
+                                                                data-date-container='#datepicker2'
+                                                                data-provide="datepicker"
+                                                                data-date-autoclose="true"
+                                                                id="tarih"
+                                                                aria-label="Başlangıç"
+                                                            />
+                                                            <span class="input-group-text">Bitiş</span>
+                                                            <input
+                                                                v-model="filtrelemeObjesi.bitisTarihi"
+                                                                type="date"
+                                                                class="form-control"
+                                                                placeholder="Bitiş"
+                                                                data-date-container='#datepicker2'
+                                                                data-provide="datepicker"
+                                                                data-date-autoclose="true"
+                                                                id="tarih"
+                                                                aria-label="Bitiş"
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">VAZGEÇ</button>
+                                            <button type="button" class="btn btn-primary" data-bs-dismiss="modal" @click="filtrele()">ARA</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="row">
@@ -583,10 +715,19 @@
                     firmaSorumlusu: '',
                     telefon: '',
                 },
+                filtrelemeObjesi: {
+                    arama: "",
+                    termin: 0,
+                    firma: null,
+                    baslangicTarihi: null,
+                    bitisTarihi: null,
+                    limit: 10,
+                },
             }
         },
         mounted() {
             this.siparisleriGetir();
+            this.firmalariGetir();
         },
         watch: {
             "aktifSiparis.islemler": {
@@ -628,7 +769,11 @@
         methods: {
             siparisleriGetir(url = "/siparisler") {
                 this.yukleniyorDurum(true);
-                axios.get(url)
+                axios.get(url, {
+                    params: {
+                        filtreleme: this.filtrelemeObjesi,
+                    }
+                })
                 .then(response => {
                     this.yukleniyorDurum(false);
 
@@ -663,7 +808,10 @@
 
                 this.numaralariGetir();
                 this.siparisDurumlariGetir();
-                this.firmalariGetir();
+
+                if (!_.size(this.firmalar)) {
+                    this.firmalariGetir();
+                }
             },
             geri() {
                 this.aktifSiparis = null;
@@ -1425,6 +1573,13 @@
                 this.aktifSiparis.onizlemeModu = !this.aktifSiparis.onizlemeModu;
 
                 this.aktifSiparis = _.cloneDeep(this.aktifSiparis);
+            },
+            filtrele() {
+                this.siparisleriGetir();
+            },
+            filtrelemeTarihTemizle() {
+                this.filtrelemeObjesi.baslangicTarihi = null;
+                this.filtrelemeObjesi.bitisTarihi = null;
             },
         }
     };

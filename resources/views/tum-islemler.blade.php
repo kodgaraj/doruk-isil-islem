@@ -18,9 +18,6 @@
                         <div class="row d-flex align-items-center">
                             <div class="col">
                                 <div class="input-group">
-                                    <span @click="filtrele()" class="input-group-text waves-effect" id="arama">
-                                        <i class="mdi mdi-magnify"></i>
-                                    </span>
                                     <input
                                         v-model="filtrelemeObjesi.arama"
                                         type="text"
@@ -30,12 +27,15 @@
                                         aria-describedby="arama"
                                         @keyup.enter="filtrele()"
                                     />
+                                    <span @click="filtrele()" class="input-group-text waves-effect" id="arama">
+                                        <i class="mdi mdi-magnify"></i>
+                                    </span>
                                 </div>
                             </div>
 
                             <div class="col-auto">
                                 <!-- Filtreleme butonu -->
-                                <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#filtrelemeModal">
+                                <button class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#filtrelemeModal">
                                     <i class="fa fa-filter"></i>
                                 </button>
                             </div>
