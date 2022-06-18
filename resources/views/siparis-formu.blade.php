@@ -29,7 +29,7 @@
                                     </div>
                                 </div>
 
-                                <div class="col-auto">
+                                <div class="col-auto ps-0">
                                     <!-- Filtreleme butonu -->
                                     <button class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#filtrelemeModal">
                                         <i class="fa fa-filter"></i>
