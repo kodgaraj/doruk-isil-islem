@@ -89,13 +89,6 @@
                                                         </td>
                                                     </tr>
                                                 </tbody>
-                                                <tfoot>
-                                                    <tr>
-                                                        <td colspan="100%">
-                                                            
-                                                        </td>
-                                                    </tr>
-                                                </tfoot>
                                             </table>
                                         </div>
                                         <div class="card-footer">
@@ -104,22 +97,22 @@
                                                 <div class="col">
                                                     <ul class="pagination pagination-rounded justify-content-center mb-0">
                                                         <li class="page-item">
-                                                            <button class="page-link" :disabled="!islemler.prev_page_url" @click="isilIslemleriGetir(islemler.prev_page_url)">Önceki</button>
+                                                            <button class="page-link" :disabled="!siparisler.prev_page_url" @click="siparisleriGetir(siparisler.prev_page_url)">Önceki</button>
                                                         </li>
                                                         <li
-                                                            v-for="sayfa in islemler.last_page"
+                                                            v-for="sayfa in siparisler.last_page"
                                                             class="page-item"
-                                                            :class="[islemler.current_page === sayfa ? 'active' : '']"
+                                                            :class="[siparisler.current_page === sayfa ? 'active' : '']"
                                                         >
-                                                            <button class="page-link" @click='isilIslemleriGetir("{{ route("islemler") }}?page=" + sayfa)'>@{{ sayfa }}</button>
+                                                            <button class="page-link" @click="siparisleriGetir('/siparisler?page=' + sayfa)">@{{ sayfa }}</button>
                                                         </li>
                                                         <li class="page-item">
-                                                            <button class="page-link" :disabled="!islemler.next_page_url" @click="isilIslemleriGetir(islemler.next_page_url)">Sonraki</button>
+                                                            <button class="page-link" :disabled="!siparisler.next_page_url" @click="siparisleriGetir(siparisler.next_page_url)">Sonraki</button>
                                                         </li>
                                                     </ul>
                                                 </div>
                                                 <div class="col-auto">
-                                                    <small class="text-muted">Toplam Kayıt: @{{ islemler.total }}</small>
+                                                    <small class="text-muted">Toplam Kayıt: @{{ siparisler.total }}</small>
                                                 </div>
                                             </div>
                                         </div>
