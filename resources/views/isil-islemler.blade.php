@@ -99,28 +99,32 @@
                                                         </td>
                                                     </tr>
                                                 </tbody>
-                                                <tfoot>
-                                                    <tr>
-                                                        <td colspan="100%">
-                                                            <ul class="pagination pagination-rounded justify-content-center mb-0">
-                                                                <li class="page-item">
-                                                                    <button class="page-link" :disabled="!formlar.prev_page_url" @click="formlariGetir(formlar.prev_page_url)">Önceki</button>
-                                                                </li>
-                                                                <li
-                                                                    v-for="sayfa in formlar.last_page"
-                                                                    class="page-item"
-                                                                    :class="[formlar.current_page === sayfa ? 'active' : '']"
-                                                                >
-                                                                    <button class="page-link" @click="formlariGetir('/formlar?page=' + sayfa)">@{{ sayfa }}</button>
-                                                                </li>
-                                                                <li class="page-item">
-                                                                    <button class="page-link" :disabled="!formlar.next_page_url" @click="formlariGetir(formlar.next_page_url)">Sonraki</button>
-                                                                </li>
-                                                            </ul>
-                                                        </td>
-                                                    </tr>
-                                                </tfoot>
                                             </table>
+                                        </div>
+                                    </div>
+                                    <div class="card-footer">
+                                        <div class="row d-flex align-items-center justify-content-between">
+                                            <div class="col-auto"></div>
+                                            <div class="col">
+                                                <ul class="pagination pagination-rounded justify-content-center mb-0">
+                                                    <li class="page-item">
+                                                        <button class="page-link" :disabled="!formlar.prev_page_url" @click="formlariGetir(formlar.prev_page_url)">Önceki</button>
+                                                    </li>
+                                                    <li
+                                                        v-for="sayfa in formlar.last_page"
+                                                        class="page-item"
+                                                        :class="[formlar.current_page === sayfa ? 'active' : '']"
+                                                    >
+                                                        <button class="page-link" @click="formlariGetir('/formlar?page=' + sayfa)">@{{ sayfa }}</button>
+                                                    </li>
+                                                    <li class="page-item">
+                                                        <button class="page-link" :disabled="!formlar.next_page_url" @click="formlariGetir(formlar.next_page_url)">Sonraki</button>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                            <div class="col-auto">
+                                                <small class="text-muted">Toplam Kayıt: @{{ formlar.total }}</small>
+                                            </div>
                                         </div>
                                     </div>
                                 </template>
