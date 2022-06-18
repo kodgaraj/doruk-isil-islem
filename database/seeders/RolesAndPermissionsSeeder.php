@@ -20,7 +20,6 @@ class RolesAndPermissionsSeeder extends Seeder
 
     // İZİNLER
     // siparis_ucreti_goruntuleme	web	Ücret görüntüleme
-    // isil_islem_durumu_guncelleme	web	Isıl işlem durumu güncelleme
     // siparis_kaydetme	web	Sipariş kaydetme
     // siparis_duzenleme	web	Sipariş düzenleme
     // siparis_silme	web	Sipariş silme
@@ -76,11 +75,6 @@ class RolesAndPermissionsSeeder extends Seeder
                 'name' => 'siparis_ucreti_goruntuleme',
                 'guard_name' => 'web',
                 'slug' => 'Ücret görüntüleme'
-            ]);
-            Permission::create([
-                'name' => 'isil_islem_durumu_guncelleme',
-                'guard_name' => 'web',
-                'slug' => 'Isıl işlem durumu güncelleme'
             ]);
             Permission::create([
                 'name' => 'siparis_kaydetme',
@@ -290,7 +284,6 @@ class RolesAndPermissionsSeeder extends Seeder
                 'islem_turu_kaydetme',
                 'islem_turu_duzenleme',
                 'islem_turu_listeleme',
-                'isil_islem_durumu_guncelleme',
             ]);
 
             // Mühendis rolü
@@ -330,7 +323,6 @@ class RolesAndPermissionsSeeder extends Seeder
                 'islem_turu_duzenleme',
                 'islem_turu_silme',
                 'islem_turu_listeleme',
-                'isil_islem_durumu_guncelleme',
             ]);
 
             // Usta başı rolü
@@ -362,7 +354,6 @@ class RolesAndPermissionsSeeder extends Seeder
                 'islem_turu_kaydetme',
                 'islem_turu_duzenleme',
                 'islem_turu_listeleme',
-                'isil_islem_durumu_guncelleme',
             ]);
 
             // Saha elemanı rolü
@@ -394,7 +385,6 @@ class RolesAndPermissionsSeeder extends Seeder
                 'islem_turu_kaydetme',
                 'islem_turu_duzenleme',
                 'islem_turu_listeleme',
-                'isil_islem_durumu_guncelleme',
             ]);
 
             // Muhasebeci rolü

@@ -350,11 +350,11 @@
                             </div>
                             @canany(["siparis_kaydetme", "siparis_duzenleme"])
                                 @can("siparis_ucreti_goruntuleme")
-                                    <div class="mb-3 col-12 col-sm-6 col-md-4 d-flex align-items-center">
+                                    <div class="mb-3 col-12 col-sm-6 col-md-4 d-flex align-items-center" v-if="!aktifSiparis.onizlemeModu">
                                         <div class="form-check form-switch h5">
                                             <input class="form-check-input" type="checkbox" value="" id="miktarFiyatCarp" v-model="aktifSiparis.miktarFiyatCarp">
                                             <label class="form-check-label" for="miktarFiyatCarp">
-                                                Miktar x Fiyat
+                                                Miktar x Tutar
                                             </label>
                                         </div>
                                     </div>
@@ -1414,6 +1414,14 @@
                 });
             },
             moduDegistir() {
+                if (!this.aktifSiparis.firma || !this.aktifSiparis.firma.id) {
+                    return this.uyariAc({
+                        baslik: 'Hata',
+                        mesaj: "Firma seçmeden siparişi önizleyemezsiniz.",
+                        tur: "error"
+                    });
+                }
+
                 this.aktifSiparis.onizlemeModu = !this.aktifSiparis.onizlemeModu;
 
                 this.aktifSiparis = _.cloneDeep(this.aktifSiparis);
