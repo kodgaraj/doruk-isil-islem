@@ -15,13 +15,17 @@
                         </h4>
                     </div>
                     <div class="col-auto">
-                        <button v-if="aktifSayfa.kod === 'ANASAYFA'" class="btn btn-sm btn-primary" @click="rolEkleAc()">
-                            <i class="fa fa-plus"></i> ROL EKLE
-                        </button>
-                        <!-- ROL KAYDET BUTONU -->
-                        <button v-if="aktifSayfa.kod === 'YENI_ROL'" class="btn btn-primary" @click="rolKaydet()">
-                            <i class="fa fa-save"></i> ROL KAYDET
-                        </button>
+                        @can("rol_kaydetme")
+                            <button v-if="aktifSayfa.kod === 'ANASAYFA'" class="btn btn-sm btn-primary" @click="rolEkleAc()">
+                                <i class="fa fa-plus"></i> ROL EKLE
+                            </button>
+                        @endcan
+                        @canany(["rol_kaydetme", "rol_duzenleme"])
+                            <!-- ROL KAYDET BUTONU -->
+                            <button v-if="aktifSayfa.kod === 'YENI_ROL'" class="btn btn-primary" @click="rolKaydet()">
+                                <i class="fa fa-save"></i> ROL KAYDET
+                            </button>
+                        @endcan
                     </div>
                 </div>
             </div>
@@ -54,12 +58,17 @@
                                             <td class="kisa-uzunluk">@{{ rol.slug }}</td>
                                             <td class="kisa-uzunluk">@{{ rol.name }}</td>
                                             <td class="orta-uzunluk text-center">
+                                                @can("rol_duzenleme")
                                                 <button class="btn btn-sm btn-primary" @click="rolDuzenle(rol)">
                                                     <i class="fa fa-edit"></i>
                                                 </button>
-                                                <button class="btn btn-sm btn-danger" @click="rolSil(rol)">
-                                                    <i class="fa fa-trash"></i>
-                                                </button>
+                                                @endcan
+
+                                                @can("rol_silme")
+                                                    <button class="btn btn-sm btn-danger" @click="rolSil(rol)">
+                                                        <i class="fa fa-trash"></i>
+                                                    </button>
+                                                @endcan
                                             </td>
                                         </tr>
                                     </tbody>
