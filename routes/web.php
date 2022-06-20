@@ -42,6 +42,9 @@ Route::get('/seed/{sifre}', function ($sifre) {
 
     return '!!';
 });
+Route::get('/info', function () {
+    return phpinfo();
+});
 Route::group(['middleware' => ['auth']], function () {
     // sayfalar
     Route::get('/', [HomeController::class, "index"])->name("home");
