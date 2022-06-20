@@ -21,9 +21,11 @@
                         <div class="col-8">
                             <h4 class="card-title">FORMLAR</h4>
                         </div>
-                        <div class="col-4 text-end">
-                            <button @click="formEkleAc" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> FORM EKLE</button>
-                        </div>
+                        @can("isil_islem_formu_kaydetme")
+                            <div class="col-4 text-end">
+                                <button @click="formEkleAc" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> FORM EKLE</button>
+                            </div>
+                        @endcan
                     </div>
                     <div class="row">
                         <div class="col-12 mt-3">
@@ -77,42 +79,52 @@
                                                                         <i class="fas fa-eye"></i>
                                                                     </button>
                                                                 </div>
-                                                                <div class="col">
-                                                                    <button @click="formDuzenle(form)" class="btn btn-warning btn-sm">
-                                                                        <i class="fas fa-edit"></i>
-                                                                    </button>
-                                                                </div>
-                                                                <div class="col">
-                                                                    <button @click="formSil(form)" class="btn btn-danger btn-sm">
-                                                                        <i class="fas fa-trash"></i>
-                                                                    </button>
-                                                                </div>
+
+                                                                @can("isil_islem_formu_duzenleme")
+                                                                    <div class="col">
+                                                                        <button @click="formDuzenle(form)" class="btn btn-warning btn-sm">
+                                                                            <i class="fas fa-edit"></i>
+                                                                        </button>
+                                                                    </div>
+                                                                @endcan
+
+                                                                @can("isil_islem_formu_silme")
+                                                                    <div class="col">
+                                                                        <button @click="formSil(form)" class="btn btn-danger btn-sm">
+                                                                            <i class="fas fa-trash"></i>
+                                                                        </button>
+                                                                    </div>
+                                                                @endcan
                                                             </div>
                                                         </td>
                                                     </tr>
                                                 </tbody>
-                                                <tfoot>
-                                                    <tr>
-                                                        <td colspan="100%">
-                                                            <ul class="pagination pagination-rounded justify-content-center mb-0">
-                                                                <li class="page-item">
-                                                                    <button class="page-link" :disabled="!formlar.prev_page_url" @click="formlariGetir(formlar.prev_page_url)">Önceki</button>
-                                                                </li>
-                                                                <li
-                                                                    v-for="sayfa in formlar.last_page"
-                                                                    class="page-item"
-                                                                    :class="[formlar.current_page === sayfa ? 'active' : '']"
-                                                                >
-                                                                    <button class="page-link" @click="formlariGetir('/formlar?page=' + sayfa)">@{{ sayfa }}</button>
-                                                                </li>
-                                                                <li class="page-item">
-                                                                    <button class="page-link" :disabled="!formlar.next_page_url" @click="formlariGetir(formlar.next_page_url)">Sonraki</button>
-                                                                </li>
-                                                            </ul>
-                                                        </td>
-                                                    </tr>
-                                                </tfoot>
                                             </table>
+                                        </div>
+                                    </div>
+                                    <div class="card-footer">
+                                        <div class="row d-flex align-items-center justify-content-between">
+                                            <div class="col-auto"></div>
+                                            <div class="col">
+                                                <ul class="pagination pagination-rounded justify-content-center mb-0">
+                                                    <li class="page-item">
+                                                        <button class="page-link" :disabled="!formlar.prev_page_url" @click="formlariGetir(formlar.prev_page_url)">Önceki</button>
+                                                    </li>
+                                                    <li
+                                                        v-for="sayfa in formlar.last_page"
+                                                        class="page-item"
+                                                        :class="[formlar.current_page === sayfa ? 'active' : '']"
+                                                    >
+                                                        <button class="page-link" @click="formlariGetir('/formlar?page=' + sayfa)">@{{ sayfa }}</button>
+                                                    </li>
+                                                    <li class="page-item">
+                                                        <button class="page-link" :disabled="!formlar.next_page_url" @click="formlariGetir(formlar.next_page_url)">Sonraki</button>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                            <div class="col-auto">
+                                                <small class="text-muted">Toplam Kayıt: @{{ formlar.total }}</small>
+                                            </div>
                                         </div>
                                     </div>
                                 </template>
@@ -344,22 +356,26 @@
                             </div>
                         </div>
                         <div class="col-4 text-end">
-                            <button @click="moduDegistir" class="btn btn-outline-info">
-                                <i class="fas fa-eye" v-if="!aktifForm.onizlemeModu"></i>
-                                <i class="fas fa-eye-slash" v-else></i>
-                            </button>
+                            @can("isil_islem_formu_duzenleme")
+                                <button @click="moduDegistir" class="btn btn-outline-info">
+                                    <i class="fas fa-eye" v-if="!aktifForm.onizlemeModu"></i>
+                                    <i class="fas fa-eye-slash" v-else></i>
+                                </button>
+                            @endcan
                             <button @click="ciktiAl" class="btn btn-primary">
                                 <i class="fas fa-file-export"></i>
                                 ÇIKTI
                             </button>
-                            <button
-                                @click="formKaydet"
-                                class="btn btn-success"
-                                {{-- v-if="!aktifForm.detayGoruntule" --}}
-                            >
-                                <i class="fas fa-save"></i>
-                                KAYDET
-                            </button>
+                            @canany(["isil_islem_formu_duzenleme", "isil_islem_formu_kaydetme"])
+                                <button
+                                    @click="formKaydet"
+                                    class="btn btn-success"
+                                    {{-- v-if="!aktifForm.detayGoruntule" --}}
+                                >
+                                    <i class="fas fa-save"></i>
+                                    KAYDET
+                                </button>
+                            @endcan
                         </div>
                     </div>
                     <div class="row mt-3">

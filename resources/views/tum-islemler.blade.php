@@ -15,10 +15,38 @@
                         </h4>
                     </div>
                     <div class="col-auto">
-                        <!-- Filtreleme butonu -->
-                        <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#filtrelemeModal">
-                            <i class="fa fa-filter"></i>
-                        </button>
+                        <div class="row d-flex align-items-center">
+                            <div class="col">
+                                <div class="input-group">
+                                    <input
+                                        v-model="filtrelemeObjesi.arama"
+                                        type="text"
+                                        class="form-control"
+                                        placeholder="Arama"
+                                        aria-label="Arama"
+                                        aria-describedby="arama"
+                                        @keyup.enter="filtrele()"
+                                    />
+                                    <span @click="filtrele()" class="input-group-text waves-effect" id="arama">
+                                        <i class="mdi mdi-magnify"></i>
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="col-auto">
+                                <!-- Filtreleme butonu -->
+                                <button class="btn btn-sm btn-info ps-0" data-bs-toggle="modal" data-bs-target="#filtrelemeModal">
+                                    <i class="fa fa-filter"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12">
+                                <small class="text-muted">
+                                    Sipariş no, firma, fırın, malzeme, durum...
+                                </small>
+                            </div>
+                        </div>
 
                         <div class="modal fade" id="filtrelemeModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                             <div class="modal-dialog">
@@ -70,6 +98,19 @@
                                                     ></v-select>
                                                 </div>
                                             </div>
+                                            <div class="col-12 m-0">
+                                                <div class="form-check">
+                                                    <input
+                                                        class="form-check-input"
+                                                        type="checkbox"
+                                                        id="tekrarEdenleriGoster"
+                                                        v-model="filtrelemeObjesi.tekrarEdenleriGoster"
+                                                    />
+                                                    <label class="form-check-label" for="tekrarEdenleriGoster">
+                                                        Tekrar edenleri göster
+                                                    </label>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                     <div class="modal-footer">
@@ -79,14 +120,6 @@
                                 </div>
                             </div>
                         </div>
-                        <!-- KAYDET BUTONU -->
-                        {{-- <button v-if="aktifSayfa.kod === 'YENI_KULLANICI'" class="btn btn-primary" @click="kullaniciKaydet()">
-                            <i class="fa fa-save"></i> KAYDET
-                        </button>
-                        <!-- ROL KAYDET BUTONU -->
-                        <button v-if="aktifSayfa.kod === 'YENI_ROL'" class="btn btn-primary" @click="rolKaydet()">
-                            <i class="fa fa-save"></i> ROL KAYDET
-                        </button> --}}
                     </div>
                 </div>
             </div>
@@ -215,45 +248,51 @@
                                                     </div>
                                                     <hr class="m-2" />
                                                     <div class="col-12">
-                                                        <button
-                                                            class="btn btn-primary btn-sm"
-                                                            @click.stop="islemBaslat(islem)"
-                                                            v-if="islem.islemDurumuKodu === 'ISLEM_BEKLIYOR'"
-                                                        >
-                                                            <i class="mdi mdi-play"></i>
-                                                        </button>
-                                                        <button
-                                                            v-else-if="islem.islemDurumuKodu === 'ISLEMDE'"
-                                                            class="btn btn-success btn-sm"
-                                                            @click.stop="islemTamamla(islem)"
-                                                        >
-                                                            <i class="mdi mdi-check"></i>
-                                                        </button>
+                                                        @can("isil_islem_duzenleme")
+                                                            <button
+                                                                class="btn btn-primary btn-sm"
+                                                                @click.stop="islemBaslat(islem)"
+                                                                v-if="islem.islemDurumuKodu === 'ISLEM_BEKLIYOR'"
+                                                            >
+                                                                <i class="mdi mdi-play"></i>
+                                                            </button>
+                                                            <button
+                                                                v-else-if="islem.islemDurumuKodu === 'ISLEMDE'"
+                                                                class="btn btn-success btn-sm"
+                                                                @click.stop="islemTamamla(islem)"
+                                                            >
+                                                                <i class="mdi mdi-check"></i>
+                                                            </button>
+                                                        @endcan
                                                         <template v-if="islem.islemDurumuKodu === 'TAMAMLANDI'">
-                                                            <button
-                                                                v-if="islem.bildirim !== 1"
-                                                                class="btn btn-info btn-sm"
-                                                                @click.stop="islemBildirimAt(islem)"
-                                                            >
-                                                                <i class="mdi mdi-bell"></i>
-                                                            </button>
-                                                            <button
-                                                                class="btn btn-danger btn-sm"
-                                                                @click.stop="islemTamamlandiGeriAl(islem)"
-                                                            >
-                                                                <i class="mdi mdi-close"></i>
-                                                            </button>
+                                                            @can("isil_islem_duzenleme")
+                                                                <button
+                                                                    v-if="islem.bildirim !== 1"
+                                                                    class="btn btn-info btn-sm"
+                                                                    @click.stop="islemBildirimAt(islem)"
+                                                                >
+                                                                    <i class="mdi mdi-bell"></i>
+                                                                </button>
+                                                                <button
+                                                                    class="btn btn-danger btn-sm"
+                                                                    @click.stop="islemTamamlandiGeriAl(islem)"
+                                                                >
+                                                                    <i class="mdi mdi-close"></i>
+                                                                </button>
+                                                            @endcan
                                                             <div v-if="islem.tekrarEdenId" class="col-12">
                                                                 <span class="badge rounded-pill bg-danger">Tekrar Eden İşlem ID: @{{ islem.tekrarEdenId }}</span>
                                                             </div>
                                                         </template>
-                                                        <button
-                                                            v-if="islem.islemDurumuKodu === 'ISLEMDE'"
-                                                            class="btn btn-warning btn-sm"
-                                                            @click.stop="islemTekrar(islem)"
-                                                        >
-                                                            <i class="mdi mdi-replay"></i>
-                                                        </button>
+                                                        @can("isil_islem_duzenleme")
+                                                            <button
+                                                                v-if="islem.islemDurumuKodu === 'ISLEMDE'"
+                                                                class="btn btn-warning btn-sm"
+                                                                @click.stop="islemTekrar(islem)"
+                                                            >
+                                                                <i class="mdi mdi-replay"></i>
+                                                            </button>
+                                                        @endcan
                                                     </div>
                                                 </div>
                                             </td>
@@ -268,135 +307,152 @@
                                                     </div>
                                                 </td>
                                             </tr>
-                                            <tr
-                                                v-for="(tekrarEdenIslem, tiIndex) in islem.tekrarEdenIslemler"
-                                                class="collapse"
-                                                :id="'collapseExample' + iIndex"
-                                                style="background-color: #F8747425; border-right: 1px solid #F87474; border-left: 1px solid #F87474;"
-                                                :style="tiIndex === (_.size(islem.tekrarEdenIslemler) - 1) ? 'border-bottom: 1px solid #F87474;' : ''"
-                                                :key="tiIndex + '_' + islem.id"
-                                            >
-                                                <td>
-                                                    <div class="row">
-                                                        <div class="col-12 d-inline-flex">
-                                                            <span># @{{ tekrarEdenIslem.id }}</span>
-                                                            <div v-if="tekrarEdenIslem.tekrarEdilenId" class="ms-1">
-                                                                <span class="badge rounded-pill bg-danger">Tekrar Edilen İşlem ID: @{{ tekrarEdenIslem.tekrarEdilenId }}</span>
+                                            <template v-for="(tekrarEdenIslem, tiIndex) in islem.tekrarEdenIslemler">
+                                                <tr
+                                                    class="collapse"
+                                                    :id="'collapseExample' + iIndex"
+                                                    style="background-color: #F8747425; border-right: 1px solid #F87474; border-left: 1px solid #F87474;"
+                                                    :style="tiIndex === (_.size(islem.tekrarEdenIslemler) - 1) ? 'border-bottom: 1px solid #F87474;' : ''"
+                                                    :key="tiIndex + '_' + islem.id"
+                                                >
+                                                    <td>
+                                                        <div class="row">
+                                                            <div class="col-12 d-inline-flex">
+                                                                <span># @{{ tekrarEdenIslem.id }}</span>
+                                                                <div v-if="tekrarEdenIslem.tekrarEdilenId" class="ms-1">
+                                                                    <span class="badge rounded-pill bg-danger">Tekrar Edilen İşlem ID: @{{ tekrarEdenIslem.tekrarEdilenId }}</span>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-12">
+                                                                <span class="badge badge-pill bg-primary">Sipariş No: @{{ tekrarEdenIslem.siparisNo }}</span>
+                                                            </div>
+                                                            <div class="col-12">
+                                                                <span class="badge badge-pill" :class="`bg-${ tekrarEdenIslem.gecenSureRenk }`">Termin: @{{ tekrarEdenIslem.gecenSure }} Gün</span>
+                                                            </div>
+                                                            <div class="col-12">
+                                                                <small class="text-muted">Firma: @{{ tekrarEdenIslem.firmaAdi }}</small>
                                                             </div>
                                                         </div>
-                                                        <div class="col-12">
-                                                            <span class="badge badge-pill bg-primary">Sipariş No: @{{ tekrarEdenIslem.siparisNo }}</span>
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <img
+                                                            :src="tekrarEdenIslem.resimYolu ? tekrarEdenIslem.resimYolu : varsayilanResimYolu"
+                                                            class="kg-resim-sec"
+                                                            @click.stop="resimOnizlemeAc(tekrarEdenIslem.resimYolu)"
+                                                        />
+                                                    </td>
+                                                    <td>
+                                                        <div class="row">
+                                                            <div class="col-12">
+                                                                @{{ tekrarEdenIslem.malzemeAdi }}
+                                                            </div>
+                                                            <div class="col-12">
+                                                                <small class="text-muted">Adet: @{{ tekrarEdenIslem.adet }} adet</small>
+                                                            </div>
+                                                            <div class="col-12">
+                                                                <small class="text-muted">Miktar: @{{ tekrarEdenIslem.miktar }} kg</small>
+                                                            </div>
+                                                            <div class="col-12">
+                                                                <small class="text-muted">Dara: @{{ tekrarEdenIslem.dara }} kg</small>
+                                                            </div>
                                                         </div>
-                                                        <div class="col-12">
-                                                            <span class="badge badge-pill" :class="`bg-${ tekrarEdenIslem.gecenSureRenk }`">Termin: @{{ tekrarEdenIslem.gecenSure }} Gün</span>
+                                                    </td>
+                                                    <td>
+                                                        <div class="row">
+                                                            <div class="col-12">
+                                                                <small class="text-muted">Türü: @{{ tekrarEdenIslem.islemTuruAdi ? tekrarEdenIslem.islemTuruAdi : "-" }}</small>
+                                                            </div>
+                                                            <div class="col-12">
+                                                                <small class="text-muted">İ. Sertlik: @{{ tekrarEdenIslem.istenilenSertlik ? tekrarEdenIslem.istenilenSertlik : "-" }}</small>
+                                                            </div>
+                                                            <div class="col-12">
+                                                                <small class="text-muted">Kalite: @{{ tekrarEdenIslem.kalite ? tekrarEdenIslem.kalite : "-" }}</small>
+                                                            </div>
                                                         </div>
-                                                        <div class="col-12">
-                                                            <small class="text-muted">Firma: @{{ tekrarEdenIslem.firmaAdi }}</small>
+                                                    </td>
+                                                    <td>
+                                                        <div class="row">
+                                                            <div class="col-12">
+                                                                <span class="badge badge-pill" :class="`bg-${ tekrarEdenIslem.firinRenk }`">@{{ tekrarEdenIslem.firinAdi }}</span>
+                                                            </div>
+                                                            <div class="col-12">
+                                                                <span class="badge badge-pill bg-secondary">@{{ tekrarEdenIslem.sarj }}. ŞARJ</span>
+                                                            </div>
                                                         </div>
-                                                    </div>
-                                                </td>
-                                                <td class="text-center">
-                                                    <img
-                                                        :src="tekrarEdenIslem.resimYolu ? tekrarEdenIslem.resimYolu : varsayilanResimYolu"
-                                                        class="kg-resim-sec"
-                                                        @click.stop="resimOnizlemeAc(tekrarEdenIslem.resimYolu)"
-                                                    />
-                                                </td>
-                                                <td>
-                                                    <div class="row">
-                                                        <div class="col-12">
-                                                            @{{ tekrarEdenIslem.malzemeAdi }}
+                                                    </td>
+                                                    <td class="uzun-uzunluk text-center align-center">
+                                                        <div class="btn-group row">
+                                                            <div class="col-12">
+                                                                <b :class="tekrarEdenIslem.islemDurumuRenk">
+                                                                    @{{ tekrarEdenIslem.islemDurumuAdi }}
+                                                                    <i
+                                                                        class="ml-2"
+                                                                        :class="tekrarEdenIslem.islemDurumuIkon"
+                                                                    ></i>
+                                                                </b>
+                                                            </div>
+                                                            <hr class="m-2" />
+                                                            <div class="col-12">
+                                                                @can("isil_islem_duzenleme")
+                                                                    <button
+                                                                        class="btn btn-primary btn-sm"
+                                                                        @click.stop="islemBaslat(tekrarEdenIslem)"
+                                                                        v-if="tekrarEdenIslem.islemDurumuKodu === 'ISLEM_BEKLIYOR'"
+                                                                    >
+                                                                        <i class="mdi mdi-play"></i>
+                                                                    </button>
+                                                                    <button
+                                                                        v-else-if="tekrarEdenIslem.islemDurumuKodu === 'ISLEMDE'"
+                                                                        class="btn btn-success btn-sm"
+                                                                        @click.stop="islemTamamla(tekrarEdenIslem)"
+                                                                    >
+                                                                        <i class="mdi mdi-check"></i>
+                                                                    </button>
+                                                                @endcan
+                                                                <template v-if="tekrarEdenIslem.islemDurumuKodu === 'TAMAMLANDI'">
+                                                                    @can("isil_islem_duzenleme")
+                                                                        <button
+                                                                            v-if="tekrarEdenIslem.bildirim !== 1"
+                                                                            class="btn btn-info btn-sm"
+                                                                            @click.stop="islemBildirimAt(tekrarEdenIslem)"
+                                                                        >
+                                                                            <i class="mdi mdi-bell"></i>
+                                                                        </button>
+                                                                        <button
+                                                                            class="btn btn-danger btn-sm"
+                                                                            @click.stop="islemTamamlandiGeriAl(tekrarEdenIslem)"
+                                                                        >
+                                                                            <i class="mdi mdi-close"></i>
+                                                                        </button>
+                                                                    @endcan
+                                                                    <div v-if="tekrarEdenIslem.tekrarEdenId" class="col-12">
+                                                                        <span class="badge rounded-pill bg-danger">Tekrar Eden İşlem ID: @{{ tekrarEdenIslem.tekrarEdenId }}</span>
+                                                                    </div>
+                                                                </template>
+                                                                @can("isil_islem_duzenleme")
+                                                                    <button
+                                                                        v-if="tekrarEdenIslem.islemDurumuKodu === 'ISLEMDE'"
+                                                                        class="btn btn-warning btn-sm"
+                                                                        @click.stop="islemTekrar(tekrarEdenIslem)"
+                                                                    >
+                                                                        <i class="mdi mdi-replay"></i>
+                                                                    </button>
+                                                                @endcan
+                                                            </div>
                                                         </div>
-                                                        <div class="col-12">
-                                                            <small class="text-muted">Adet: @{{ tekrarEdenIslem.adet }} adet</small>
-                                                        </div>
-                                                        <div class="col-12">
-                                                            <small class="text-muted">Miktar: @{{ tekrarEdenIslem.miktar }} kg</small>
-                                                        </div>
-                                                        <div class="col-12">
-                                                            <small class="text-muted">Dara: @{{ tekrarEdenIslem.dara }} kg</small>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td>
-                                                    <div class="row">
-                                                        <div class="col-12">
-                                                            <small class="text-muted">Türü: @{{ tekrarEdenIslem.islemTuruAdi ? tekrarEdenIslem.islemTuruAdi : "-" }}</small>
-                                                        </div>
-                                                        <div class="col-12">
-                                                            <small class="text-muted">İ. Sertlik: @{{ tekrarEdenIslem.istenilenSertlik ? tekrarEdenIslem.istenilenSertlik : "-" }}</small>
-                                                        </div>
-                                                        <div class="col-12">
-                                                            <small class="text-muted">Kalite: @{{ tekrarEdenIslem.kalite ? tekrarEdenIslem.kalite : "-" }}</small>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td>
-                                                    <div class="row">
-                                                        <div class="col-12">
-                                                            <span class="badge badge-pill" :class="`bg-${ tekrarEdenIslem.firinRenk }`">@{{ tekrarEdenIslem.firinAdi }}</span>
-                                                        </div>
-                                                        <div class="col-12">
-                                                            <span class="badge badge-pill bg-secondary">@{{ tekrarEdenIslem.sarj }}. ŞARJ</span>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td class="uzun-uzunluk text-center align-center">
-                                                    <div class="btn-group row">
-                                                        <div class="col-12">
-                                                            <b :class="tekrarEdenIslem.islemDurumuRenk">
-                                                                @{{ tekrarEdenIslem.islemDurumuAdi }}
-                                                                <i
-                                                                    class="ml-2"
-                                                                    :class="tekrarEdenIslem.islemDurumuIkon"
-                                                                ></i>
-                                                            </b>
-                                                        </div>
-                                                        <hr class="m-2" />
-                                                        <div class="col-12">
-                                                            <button
-                                                                class="btn btn-primary btn-sm"
-                                                                @click.stop="islemBaslat(tekrarEdenIslem)"
-                                                                v-if="tekrarEdenIslem.islemDurumuKodu === 'ISLEM_BEKLIYOR'"
-                                                            >
-                                                                <i class="mdi mdi-play"></i>
-                                                            </button>
-                                                            <button
-                                                                v-else-if="tekrarEdenIslem.islemDurumuKodu === 'ISLEMDE'"
-                                                                class="btn btn-success btn-sm"
-                                                                @click.stop="islemTamamla(tekrarEdenIslem)"
-                                                            >
-                                                                <i class="mdi mdi-check"></i>
-                                                            </button>
-                                                            <template v-if="tekrarEdenIslem.islemDurumuKodu === 'TAMAMLANDI'">
-                                                                <button
-                                                                    v-if="tekrarEdenIslem.bildirim !== 1"
-                                                                    class="btn btn-info btn-sm"
-                                                                    @click.stop="islemBildirimAt(tekrarEdenIslem)"
-                                                                >
-                                                                    <i class="mdi mdi-bell"></i>
-                                                                </button>
-                                                                <button
-                                                                    class="btn btn-danger btn-sm"
-                                                                    @click.stop="islemTamamlandiGeriAl(tekrarEdenIslem)"
-                                                                >
-                                                                    <i class="mdi mdi-close"></i>
-                                                                </button>
-                                                                <div v-if="tekrarEdenIslem.tekrarEdenId" class="col-12">
-                                                                    <span class="badge rounded-pill bg-danger">Tekrar Eden İşlem ID: @{{ tekrarEdenIslem.tekrarEdenId }}</span>
-                                                                </div>
-                                                            </template>
-                                                            <button
-                                                                v-if="tekrarEdenIslem.islemDurumuKodu === 'ISLEMDE'"
-                                                                class="btn btn-warning btn-sm"
-                                                                @click.stop="islemTekrar(tekrarEdenIslem)"
-                                                            >
-                                                                <i class="mdi mdi-replay"></i>
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                            </tr>
+                                                    </td>
+                                                </tr>
+                                                <tr
+                                                    v-if="tiIndex === (_.size(islem.tekrarEdenIslemler) - 1)"
+                                                    class="collapse"
+                                                    :id="'collapseExample' + iIndex"
+                                                    :key="'d' + tiIndex + '_' + islem.id"
+                                                >
+                                                    <td colspan="100%">
+                                                        <hr class="m-0 bg-danger" />
+                                                    </td>
+                                                </tr>
+                                            </template>
                                         </template>
                                     </template>
                                 </template>
@@ -460,9 +516,11 @@
                         islemler: false,
                     },
                     filtrelemeObjesi: {
+                        arama: "",
                         termin: 0,
                         firin: null,
                         islemDurumu: null,
+                        tekrarEdenleriGoster: false,
                         limit: 10,
                     },
                     firinlar: @json($firinlar),

@@ -8,6 +8,7 @@ use App\Models\IslemTurleri;
 use App\Models\Malzemeler;
 use App\Models\SiparisDurumlari;
 use App\Models\Siparisler;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -28,6 +29,8 @@ class SiparisController extends Controller
     {
         try
         {
+            $filtrelemeler = json_decode($request->filtreleme ?? "[]", true);
+
             $sayfalamaSayisi = $request->sayfalamaSayisi ?? 10;
             $firmaTabloAdi = (new Firmalar())->getTable();
             $siparisDurumTabloAdi = (new SiparisDurumlari())->getTable();
@@ -68,10 +71,43 @@ class SiparisController extends Controller
                     $firmaTabloAdi . '.firmaAdi',
                     $firmaTabloAdi . '.sorumluKisi'
                 )
-                ->orderBy($siparisTabloAdi . '.created_at', 'desc')
-                ->paginate($sayfalamaSayisi);
+                ->orderBy($siparisTabloAdi . '.created_at', 'desc');
 
-            $siparisler = $siparisler->toArray();
+            if (isset($filtrelemeler["termin"]) && $filtrelemeler["termin"] > 0)
+            {
+                $tarih = Carbon::now()->subDays($filtrelemeler["termin"])->format('Y-m-d');
+
+                $siparisler = $siparisler->where("$siparisTabloAdi.tarih", "<=", $tarih);
+            }
+
+            if (isset($filtrelemeler["arama"]) && $filtrelemeler["arama"] != "")
+            {
+                // Sipariş no, firma adı, irsaliye no
+                $siparisler = $siparisler->where(function ($query) use ($filtrelemeler, $siparisTabloAdi, $firmaTabloAdi) {
+                    $query->where($siparisTabloAdi . '.siparisNo', 'like', '%' . $filtrelemeler["arama"] . '%')
+                        ->orWhere($firmaTabloAdi . '.firmaAdi', 'like', '%' . $filtrelemeler["arama"] . '%')
+                        ->orWhere($siparisTabloAdi . '.irsaliyeNo', 'like', '%' . $filtrelemeler["arama"] . '%');
+                });
+            }
+
+            if (isset($filtrelemeler["firma"]) && $filtrelemeler["firma"] && count($filtrelemeler["firma"]) > 0)
+            {
+                $firmaIdleri = array_column($filtrelemeler["firma"], "id");
+
+                $siparisler = $siparisler->whereIn("$firmaTabloAdi.id", $firmaIdleri);
+            }
+
+            if (isset($filtrelemeler["baslangicTarihi"]) && $filtrelemeler["baslangicTarihi"] != "")
+            {
+                $siparisler = $siparisler->where("$siparisTabloAdi.tarih", ">=", $filtrelemeler["baslangicTarihi"]);
+            }
+
+            if (isset($filtrelemeler["bitisTarihi"]) && $filtrelemeler["bitisTarihi"] != "")
+            {
+                $siparisler = $siparisler->where("$siparisTabloAdi.tarih", "<=", $filtrelemeler["bitisTarihi"]);
+            }
+
+            $siparisler = $siparisler->paginate($sayfalamaSayisi)->toArray();
 
             foreach ($siparisler["data"] as &$siparis)
             {

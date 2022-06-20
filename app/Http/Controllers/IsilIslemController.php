@@ -569,6 +569,24 @@ class IsilIslemController extends Controller
                 $islemler = $islemler->where("$siparisTabloAdi.tarih", "<=", $tarih);
             }
 
+            if (isset($filtrelemeler["arama"]) && $filtrelemeler["arama"] != "")
+            {
+                // Sipariş no, firin adı, malzeme adı, firma adı, islem durumu adı
+                $islemler = $islemler->where(function ($query) use ($filtrelemeler, $firinTabloAdi, $siparisTabloAdi, $malzemeTabloAdi, $firmaTabloAdi, $islemDurumTabloAdi)
+                {
+                    $query->where("$siparisTabloAdi.siparisNo", "like", "%" . $filtrelemeler["arama"] . "%")
+                        ->orWhere("$firinTabloAdi.ad", "like", "%" . $filtrelemeler["arama"] . "%")
+                        ->orWhere("$malzemeTabloAdi.ad", "like", "%" . $filtrelemeler["arama"] . "%")
+                        ->orWhere("$firmaTabloAdi.firmaAdi", "like", "%" . $filtrelemeler["arama"] . "%")
+                        ->orWhere("$islemDurumTabloAdi.ad", "like", "%" . $filtrelemeler["arama"] . "%");
+                });
+            }
+
+            if (isset($filtrelemeler["tekrarEdenleriGoster"]) && $filtrelemeler["tekrarEdenleriGoster"])
+            {
+                $islemler = $islemler->where("$islemTabloAdi.tekrarEdenId", "!=", null);
+            }
+
             $islemler = $islemler->paginate($filtrelemeler["limit"] ?? 6)->toArray();
 
             foreach ($islemler["data"] as &$islem)

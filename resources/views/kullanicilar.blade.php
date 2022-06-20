@@ -15,17 +15,23 @@
                         </h4>
                     </div>
                     <div class="col-auto">
-                        <button v-if="aktifSayfa.kod === 'ANASAYFA'" class="btn btn-sm btn-primary" @click="yeniKullaniciEkleAc('YENI_KULLANICI')">
-                            <i class="fa fa-plus"></i> KULLANICI EKLE
-                        </button>
-                        <!-- KAYDET BUTONU -->
-                        <button v-if="aktifSayfa.kod === 'YENI_KULLANICI'" class="btn btn-primary" @click="kullaniciKaydet()">
-                            <i class="fa fa-save"></i> KAYDET
-                        </button>
-                        <!-- ROL KAYDET BUTONU -->
-                        <button v-if="aktifSayfa.kod === 'YENI_ROL'" class="btn btn-primary" @click="rolKaydet()">
-                            <i class="fa fa-save"></i> ROL KAYDET
-                        </button>
+                        @can("kullanici_kaydetme")
+                            <button v-if="aktifSayfa.kod === 'ANASAYFA'" class="btn btn-sm btn-primary" @click="yeniKullaniciEkleAc('YENI_KULLANICI')">
+                                <i class="fa fa-plus"></i> KULLANICI EKLE
+                            </button>
+                        @endcan
+                        @canany(["kullanici_duzenleme", "kullanici_kaydetme"])
+                            <!-- KAYDET BUTONU -->
+                            <button v-if="aktifSayfa.kod === 'YENI_KULLANICI'" class="btn btn-primary" @click="kullaniciKaydet()">
+                                <i class="fa fa-save"></i> KAYDET
+                            </button>
+                        @endcan
+                        @can("rol_kaydetme")
+                            <!-- ROL KAYDET BUTONU -->
+                            <button v-if="aktifSayfa.kod === 'YENI_ROL'" class="btn btn-primary" @click="rolKaydet()">
+                                <i class="fa fa-save"></i> ROL KAYDET
+                            </button>
+                        @endcan
                     </div>
                 </div>
             </div>
@@ -60,12 +66,17 @@
                                             <td class="kisa-uzunluk">@{{ kullanici.email }}</td>
                                             <td class="kisa-uzunluk">@{{ kullanici.roller }}</td>
                                             <td class="orta-uzunluk text-center">
-                                                <button class="btn btn-sm btn-primary" @click="kullaniciDuzenle(kullanici)">
-                                                    <i class="fa fa-edit"></i>
-                                                </button>
-                                                <button class="btn btn-sm btn-danger" @click="kullaniciSil(kullanici)">
-                                                    <i class="fa fa-trash"></i>
-                                                </button>
+                                                @can("kullanici_duzenleme")
+                                                    <button class="btn btn-sm btn-primary" @click="kullaniciDuzenle(kullanici)">
+                                                        <i class="fa fa-edit"></i>
+                                                    </button>
+                                                @endcan
+
+                                                @can("kullanici_silme")
+                                                    <button class="btn btn-sm btn-danger" @click="kullaniciSil(kullanici)">
+                                                        <i class="fa fa-trash"></i>
+                                                    </button>
+                                                @endcan
                                             </td>
                                         </tr>
                                     </tbody>
@@ -125,11 +136,13 @@
                                         <div slot="no-options">Rol bulunamadı!</div>
                                     </v-select>
                                 </div>
-                                <div class="col-auto ps-0">
-                                    <button class="btn btn-sm btn-primary" @click="rolEkleAc(true)">
-                                        <i class="fa fa-plus"></i>
-                                    </button>
-                                </div>
+                                @can("rol_kaydetme")
+                                    <div class="col-auto ps-0">
+                                        <button class="btn btn-sm btn-primary" @click="rolEkleAc(true)">
+                                            <i class="fa fa-plus"></i>
+                                        </button>
+                                    </div>
+                                @endcan
                             </div>
                         </div>
                         <div class="col-12 col-sm-6 col-md-4">
