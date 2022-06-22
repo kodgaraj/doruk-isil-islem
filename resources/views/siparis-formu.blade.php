@@ -486,7 +486,7 @@
                                         <div class="form-check form-switch h5">
                                             <input class="form-check-input" type="checkbox" value="" id="miktarFiyatCarp" v-model="aktifSiparis.miktarFiyatCarp">
                                             <label class="form-check-label" for="miktarFiyatCarp">
-                                                Miktar x Tutar
+                                                Net x Tutar
                                             </label>
                                         </div>
                                     </div>
@@ -518,6 +518,7 @@
                                         <th>Adet</th>
                                         <th>Miktar (KG)</th>
                                         <th>Dara (KG)</th>
+                                        <th class="text-center">Net (KG)</th>
                                         @can("siparis_ucreti_goruntuleme")
                                             <th>Tutar</th>
                                         @endcan
@@ -606,6 +607,9 @@
                                                 </td>
                                                 <td class="kisa-uzunluk">
                                                     <input class="form-control" type="number" placeholder="Dara (KG)" v-model="islem.dara">
+                                                </td>
+                                                <td class="kisa-uzunluk text-center">
+                                                    <b><h5>@{{ islem.net ? islem.net : "0" }}</h5></b>
                                                 </td>
                                                 @can("siparis_ucreti_goruntuleme")
                                                     <td class="kisa-uzunluk">
@@ -737,7 +741,10 @@
                     let toplam = 0;
                     for (let i in this.aktifSiparis.islemler) {
                         const islem = this.aktifSiparis.islemler[i];
-                        const birimFiyat = (this.aktifSiparis.miktarFiyatCarp ? _.toNumber(islem.miktar) : 1) * _.toNumber(islem.birimFiyat);
+
+                        islem.net = _.toNumber(islem.miktar) - _.toNumber(islem.dara);
+
+                        const birimFiyat = (this.aktifSiparis.miktarFiyatCarp ? islem.net : 1) * _.toNumber(islem.birimFiyat);
                         toplam += _.toNumber(birimFiyat);
                     }
 
@@ -1139,6 +1146,7 @@
                     const aktifSiparis = {
                         ...siparis,
                         islemler: response.data.veriler.islemler,
+                        miktarFiyatCarp: true,
                     };
 
                     const firma = _.find(this.firmalar, {
