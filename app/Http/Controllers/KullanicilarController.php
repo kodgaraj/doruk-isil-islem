@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Izinler;
 use App\Models\Roller;
 use App\Models\User;
+use Firebase\JWT\JWT;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -77,6 +78,11 @@ class KullanicilarController extends Controller
             $kullanici->password = isset($kullaniciBilgileri["password"]) && $kullaniciBilgileri["password"]
                 ? bcrypt($kullaniciBilgileri["password"])
                 : $kullanici->password;
+
+            if (!isset($kullaniciBilgileri["id"]))
+            {
+                $kullanici->jwt = JWT::encode([], config('app.jwt.secret'), 'HS256');
+            }
 
             if (!$kullanici->save())
             {

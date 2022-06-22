@@ -13,7 +13,10 @@ use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SiparisController;
 use App\Http\Controllers\TumIslemlerController;
+use App\Models\User;
+use Database\Seeders\DatabaseSeeder;
 use Database\Seeders\RolesAndPermissionsSeeder;
+use Firebase\JWT\JWT;
 
 /*
 |--------------------------------------------------------------------------
@@ -42,9 +45,36 @@ Route::get('/seed/{sifre}', function ($sifre) {
 
     return '!!';
 });
-Route::get('/info', function () {
-    return phpinfo();
+
+Route::get('/update/{sifre}', function ($sifre) {
+    $sonuc = [];
+    if (!$sifre)
+    {
+        return '!';
+    }
+
+    if ($sifre === 'K@22')
+    {
+        $seeder = new DatabaseSeeder();
+        $seeder->run();
+        $sonuc[] = 'Database güncellendi';
+
+        $kullanicilar = User::all();
+        foreach ($kullanicilar as $kullanici)
+        {
+            $kullanici->jwt = JWT::encode([
+                ...$kullanici->toArray(),
+                'exp' => time() + (60 * 60 * 24 * 30),
+                'iat' => time()
+            ], config('app.jwt.secret'), 'HS256');
+            $kullanici->save();
+        }
+        $sonuc[] = 'JWT güncellendi';
+    }
+
+    return implode("<br /> <br />", $sonuc) ?? '!!';
 });
+
 Route::group(['middleware' => ['auth']], function () {
     // sayfalar
     Route::get('/', [HomeController::class, "index"])->name("home");
