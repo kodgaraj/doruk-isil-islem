@@ -516,7 +516,7 @@
                                         <th class="text-center">Resim</th>
                                         <th>Malzeme*</th>
                                         <th>Adet</th>
-                                        <th>Miktar (KG)</th>
+                                        <th class="text-center">Miktar (KG)</th>
                                         <th>Dara (KG)</th>
                                         <th class="text-center">Net (KG)</th>
                                         @can("siparis_ucreti_goruntuleme")
@@ -602,7 +602,7 @@
                                                 <td class="kisa-uzunluk">
                                                     <input class="form-control" type="number" placeholder="Adet" v-model="islem.adet">
                                                 </td>
-                                                <td class="kisa-uzunluk">
+                                                <td class="orta-uzunluk text-center">
                                                     <input class="form-control" type="number" placeholder="Miktar (KG)" v-model="islem.miktar">
                                                 </td>
                                                 <td class="kisa-uzunluk">
