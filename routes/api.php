@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ApiController;
+use App\Http\Middleware\JwtVerify;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -21,11 +22,16 @@ Route::post("/giris", [ApiController::class, "giris"]);
 //     return $request->user();
 // });
 
-Route::middleware([])->group(function () {
+Route::middleware([JwtVerify::class])->group(function () {
     // Route::any('/{controller}/{action}', function ($controller, $action, Closure $next) {
     //     return new (lcfirst($controller) . Controller::class)->{$action}();
     // });
-    Route::get('/', function () {
+    Route::post('/', function (Request $request) {
+        return response()->json([
+            'status' => true,
+            'message' => 'API başarılı',
+            'data' => $request->decoded,
+        ]);
         // Uses first & second middleware...
     });
 
