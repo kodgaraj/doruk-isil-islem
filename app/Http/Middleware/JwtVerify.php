@@ -47,7 +47,7 @@ class JwtVerify
         {
             return response()->json([
                 'durum' => false,
-                'message' => 'Süresi dolmuş token!',
+                'mesaj' => 'Süresi dolmuş token!',
                 'hataKodu' => 'JWT_EXPIRED',
             ], 400);
         }
@@ -55,7 +55,7 @@ class JwtVerify
         {
             return response()->json([
                 'durum' => false,
-                'message' => 'Geçersiz Kullanıcı!',
+                'mesaj' => 'Geçersiz Kullanıcı!',
                 'hata' => $e->getMessage(),
                 'hataKodu' => 'JWT_EXCEPTION',
                 'hataSatiri' => $e->getLine(),
