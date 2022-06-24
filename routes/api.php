@@ -33,7 +33,7 @@ Route::middleware([JwtVerify::class])->group(function () {
     });
 
     Route::any('/{controller}/{action}', function ($controller, $action, Request $request) {
-        $controllerClass = "App\\Http\\Controllers\\" . lcfirst($controller) . "Controller";
+        $controllerClass = "App\\Http\\Controllers\\" . ucfirst($controller) . "Controller";
         return (new $controllerClass)->{$action}($request);
     });
 });
