@@ -23,19 +23,17 @@ Route::post("/giris", [ApiController::class, "giris"]);
 // });
 
 Route::middleware([JwtVerify::class])->group(function () {
-    // Route::any('/{controller}/{action}', function ($controller, $action, Closure $next) {
-    //     return new (lcfirst($controller) . Controller::class)->{$action}();
-    // });
+
     Route::post('/', function (Request $request) {
         return response()->json([
             'status' => true,
             'message' => 'API başarılı',
             'data' => $request->decoded,
         ]);
-        // Uses first & second middleware...
     });
 
-    // Route::get('/user/profile', function () {
-    //     // Uses first & second middleware...
-    // });
+    Route::any('/{controller}/{action}', function ($controller, $action, Request $request) {
+        $controllerClass = "App\\Http\\Controllers\\" . lcfirst($controller) . "Controller";
+        return (new $controllerClass)->{$action}($request);
+    });
 });
