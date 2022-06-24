@@ -40,7 +40,7 @@ class JwtVerify
                 unset($decoded->jwt);
             }
 
-            $request->merge(['decoded' => $decoded, 'jwt' => $jwt]);
+            // $request->merge(['decoded' => $decoded, 'jwt' => $jwt]);
             return $next($request);
         }
         catch (ExpiredException $e)
