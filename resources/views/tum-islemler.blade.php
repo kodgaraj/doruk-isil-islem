@@ -33,9 +33,9 @@
                                 </div>
                             </div>
 
-                            <div class="col-auto">
+                            <div class="col-auto ps-0">
                                 <!-- Filtreleme butonu -->
-                                <button class="btn btn-sm btn-info ps-0" data-bs-toggle="modal" data-bs-target="#filtrelemeModal">
+                                <button class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#filtrelemeModal">
                                     <i class="fa fa-filter"></i>
                                 </button>
                             </div>
@@ -232,6 +232,9 @@
                                                     </div>
                                                     <div class="col-12">
                                                         <span class="badge badge-pill bg-secondary">@{{ islem.sarj }}. ŞARJ</span>
+                                                    </div>
+                                                    <div class="col-12">
+                                                        <span class="badge badge-pill bg-warning">Form ID: @{{ islem.formId }}</span>
                                                     </div>
                                                 </div>
                                             </td>

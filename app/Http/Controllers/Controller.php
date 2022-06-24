@@ -52,36 +52,49 @@ class Controller extends BaseController
      */
     public function islemBitisTarihleriAyarla($islemId)
     {
-        $islemTabloAdi = (new Islemler())->getTable();
-        $formTabloAdi = (new Formlar())->getTable();
-        $islemDurumTabloAdi = (new IslemDurumlari())->getTable();
-        $siparisTabloAdi = (new Siparisler())->getTable();
-
-        $form = Formlar::join($islemTabloAdi, $formTabloAdi . '.id', '=', $islemTabloAdi . '.formId')
-            ->where("$islemTabloAdi.id", $islemId)
-            ->first();
-
-        if (!$form)
+        try
         {
-            return false;
-        }
+            $islemTabloAdi = (new Islemler())->getTable();
+            $formTabloAdi = (new Formlar())->getTable();
+            $islemDurumTabloAdi = (new IslemDurumlari())->getTable();
+            $siparisTabloAdi = (new Siparisler())->getTable();
 
-        $tamamlanmamisFormIslemler = Islemler::join($islemDurumTabloAdi, $islemDurumTabloAdi . '.id', '=', $islemTabloAdi . '.durumId')
-            ->where("$islemTabloAdi.formId", $form->id)
-            ->where("$islemDurumTabloAdi.kod", "<>", "TAMAMLANDI")
-            ->count();
+            // Formun bitiş tarihini ayarlama
+            $form = Formlar::join($islemTabloAdi, $formTabloAdi . '.id', '=', $islemTabloAdi . '.formId')
+                ->where("$islemTabloAdi.id", $islemId)
+                ->first();
 
-        if ($tamamlanmamisFormIslemler === 0)
-        {
-            $form->bitisTarihi = Carbon::now();
-
-            if (!$form->save())
+            if (!$form)
             {
                 return false;
             }
-        }
 
-        return true;
+            $tamamlanmamisFormIslemler = Islemler::join($islemDurumTabloAdi, $islemDurumTabloAdi . '.id', '=', $islemTabloAdi . '.durumId')
+                ->where("$islemTabloAdi.formId", $form->formId)
+                ->where("$islemDurumTabloAdi.kod", "<>", "TAMAMLANDI")
+                ->count();
+
+            $guncellenecekForm = Formlar::find($form->formId);
+            if ($tamamlanmamisFormIslemler === 0)
+            {
+                $guncellenecekForm->bitisTarihi = Carbon::now();
+            }
+            else
+            {
+                $guncellenecekForm->bitisTarihi = null;
+            }
+
+            if (!$guncellenecekForm->save())
+            {
+                return false;
+            }
+
+            return true;
+        }
+        catch (\Exception $e)
+        {
+            return false;
+        }
     }
 
     /**
