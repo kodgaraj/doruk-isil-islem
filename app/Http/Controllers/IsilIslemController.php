@@ -951,4 +951,27 @@ class IsilIslemController extends Controller
             ], 500);
         }
     }
+
+    public function toplamIslem()
+    {
+        try
+        {
+            $toplamIslem = Islemler::count();
+
+            return response()->json([
+                "durum" => true,
+                "mesaj" => "Toplam işlem sayısı başarılı bir şekilde getirildi.",
+                "toplamIslem" => $toplamIslem,
+            ], 200);
+        }
+        catch (\Exception $ex)
+        {
+            return response()->json([
+                "durum" => false,
+                "mesaj" => "Toplam işlem sayısı getirilirken bir hata oluştu.",
+                "hata" => $ex->getMessage(),
+                "satir" => $ex->getLine(),
+            ], 500);
+        }
+    }
 }

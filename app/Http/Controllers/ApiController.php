@@ -22,22 +22,22 @@ class ApiController
 
         if (!$kullanici) {
             return response()->json([
-                'status' => false,
-                'message' => 'Kullanıcı bulunamadı',
+                'durum' => false,
+                'mesaj' => 'Kullanıcı bulunamadı',
             ]);
         }
 
         if (!Hash::check($sifre, $kullanici->password)) {
             return response()->json([
-                'status' => false,
-                'message' => 'Şifre yanlış',
+                'durum' => false,
+                'mesaj' => 'Şifre yanlış',
             ]);
         }
 
         return response()->json([
-            'status' => true,
-            'message' => 'Giriş başarılı',
-            'data' => $kullanici,
+            'durum' => true,
+            'mesaj' => 'Giriş başarılı',
+            'kullanici' => $kullanici,
         ]);
     }
 }

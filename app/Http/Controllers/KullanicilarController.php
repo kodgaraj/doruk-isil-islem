@@ -161,4 +161,27 @@ class KullanicilarController extends Controller
             ], 500);
         }
     }
+
+    public function toplamKullanici()
+    {
+        try
+        {
+            $toplamKullanici = User::count();
+
+            return response()->json([
+                "durum" => true,
+                "mesaj" => "Toplam kullanıcı sayısı başarılı bir şekilde getirildi.",
+                "toplamKullanici" => $toplamKullanici,
+            ], 200);
+        }
+        catch (\Exception $ex)
+        {
+            return response()->json([
+                "durum" => false,
+                "mesaj" => "Toplam kullanıcı sayısı getirilirken bir hata oluştu.",
+                "hata" => $ex->getMessage(),
+                "satir" => $ex->getLine(),
+            ], 500);
+        }
+    }
 }
