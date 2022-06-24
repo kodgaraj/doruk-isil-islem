@@ -24,9 +24,9 @@ class JwtVerify
 
         if(!$head || !$jwt){
             return response()->json([
-                'status' => false,
-                'reply' => 'Geçersiz kullanıcı!',
-                'errorCode' => 'JWT_INVALID_HEADER',
+                'durum' => false,
+                'mesaj' => 'Geçersiz kullanıcı!',
+                'hataKodu' => 'JWT_INVALID_HEADER',
             ]);
         }
 
@@ -46,19 +46,19 @@ class JwtVerify
         catch (ExpiredException $e)
         {
             return response()->json([
-                'status' => false,
+                'durum' => false,
                 'message' => 'Süresi dolmuş token!',
-                'errorCode' => 'JWT_EXPIRED',
+                'hataKodu' => 'JWT_EXPIRED',
             ], 400);
         }
         catch (\Exception $e)
         {
             return response()->json([
-                'status' => false,
+                'durum' => false,
                 'message' => 'Geçersiz Kullanıcı!',
-                'error' => $e->getMessage(),
-                'errorCode' => 'JWT_EXCEPTION',
-                'errorLine' => $e->getLine(),
+                'hata' => $e->getMessage(),
+                'hataKodu' => 'JWT_EXCEPTION',
+                'hataSatiri' => $e->getLine(),
             ], 400);
         }
     }
