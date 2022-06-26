@@ -140,10 +140,20 @@
                                     </a>
                                     <ul class="sub-menu mm-collapse" aria-expanded="true" id="yonetim-alt-menu">
                                         @can('kullanici_listeleme')
-                                            <li class="waves-effect"><a href="{{ route('kullanicilar') }}">Kullanıcılar</a></li>
+                                            <li class="waves-effect">
+                                                <a href="{{ route('kullanicilar') }}">
+                                                    <i class="fa fa-users"></i>
+                                                    Kullanıcılar
+                                                </a>
+                                            </li>
                                         @endcan
                                         @can('rol_listeleme')
-                                            <li class="waves-effect"><a href="{{ route('roller') }}">Roller</a></li>
+                                            <li class="waves-effect">
+                                                <a href="{{ route('roller') }}">
+                                                    <i class="fa fa-user-tag"></i>
+                                                    Roller
+                                                </a>
+                                            </li>
                                         @endcan
                                         {{-- <li><a href="#">Firmalar</a></li>
                                         <li><a href="#">İşlem Türleri</a></li>
