@@ -2,55 +2,57 @@
 @section('content')
 <div class="row doruk-content">
     <h4 style="color:#999"><i class="fa fa-chart-line"></i> RAPORLAMA</h4>
-    <div class="col-12 col-md-6">
-        <div class="card">
-            <div class="card-header">
-                <h4>YILLIK CİRO</h4>
+    @can("siparis_ucreti_goruntuleme")
+        <div class="col-12 col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h4>YILLIK CİRO</h4>
+                </div>
+                <div class="card-body">
+                    <!-- yükleniyor -->
+                    <div v-if="yukleniyorObjesi.yillikCiro">
+                        <div class="text-center">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="sr-only">Yükleniyor...</span>
+                            </div>
+                        </div>
+                    </div>
+                    <apexchart v-else type="bar" :options="yillikCiro.chartOptions" :series="yillikCiro.series"></apexchart>
+                </div>
             </div>
-            <div class="card-body">
-                <!-- yükleniyor -->
-                <div v-if="yukleniyorObjesi.yillikCiro">
-                    <div class="text-center">
-                        <div class="spinner-border text-primary" role="status">
-                            <span class="sr-only">Yükleniyor...</span>
+        </div>
+        <div class="col-12 col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <div class="row">
+                        <div class="col">
+                            <h4>AYLIK CİRO</h4>
+                        </div>
+                        <div class="col-auto">
+                            <v-select
+                                style="min-width: 111px"
+                                v-model="aylikCiro.aktifYil"
+                                :options="yillar"
+                                id="aylikCiro"
+                                @input="aylikCiroGetir"
+                            ></v-select>
                         </div>
                     </div>
                 </div>
-                <apexchart v-else type="bar" :options="yillikCiro.chartOptions" :series="yillikCiro.series"></apexchart>
-            </div>
-        </div>
-    </div>
-    <div class="col-12 col-md-6">
-        <div class="card">
-            <div class="card-header">
-                <div class="row">
-                    <div class="col">
-                        <h4>AYLIK CİRO</h4>
-                    </div>
-                    <div class="col-auto">
-                        <v-select
-                            style="min-width: 111px"
-                            v-model="aylikCiro.aktifYil"
-                            :options="yillar"
-                            id="aylikCiro"
-                            @input="aylikCiroGetir"
-                        ></v-select>
-                    </div>
-                </div>
-            </div>
-            <div class="card-body">
-                <!-- yükleniyor -->
-                <div v-if="yukleniyorObjesi.aylikCiro">
-                    <div class="text-center">
-                        <div class="spinner-border text-primary" role="status">
-                            <span class="sr-only">Yükleniyor...</span>
+                <div class="card-body">
+                    <!-- yükleniyor -->
+                    <div v-if="yukleniyorObjesi.aylikCiro">
+                        <div class="text-center">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="sr-only">Yükleniyor...</span>
+                            </div>
                         </div>
                     </div>
+                    <apexchart v-else type="bar" :options="aylikCiro.chartOptions" :series="aylikCiro.series"></apexchart>
                 </div>
-                <apexchart v-else type="bar" :options="aylikCiro.chartOptions" :series="aylikCiro.series"></apexchart>
             </div>
         </div>
-    </div>
+    @endcan
 
     <!-- FIRIN BAZLI TONAJ/FİYAT -->
     <div class="col-12">
@@ -60,7 +62,7 @@
                     <div class="col">
                         <div class="row">
                             <div class="col-12">
-                                <h4 class="m-0">FIRIN BAZLI TONAJ/TUTAR</h4>
+                                <h4 class="m-0">FIRIN BAZLI TONAJ @can("siparis_ucreti_goruntuleme") /TUTAR @endcan</h4>
                             </div>
                             <div class="col-12">
                                 <div class="btn-group mr-2" role="group" aria-label="First group">
@@ -77,19 +79,21 @@
                                         Tonaj
                                         <i v-if="firinBazliTonaj.orderTuru === 'tonaj'" class="mdi mdi-arrow-down"></i>
                                     </button>
-                                    <button
-                                        type="button"
-                                        class="btn"
-                                        :class="{
-                                            'btn-primary': firinBazliTonaj.orderTuru === 'tutar',
-                                            'btn-secondary': firinBazliTonaj.orderTuru !== 'tutar'
-                                        }"
-                                        @click="orderTuruAyarla('FIRIN', 'tutar')"
-                                        key="ordered-tutar"
-                                    >
-                                        Tutar
-                                        <i v-if="firinBazliTonaj.orderTuru === 'tutar'" class="mdi mdi-arrow-down"></i>
-                                    </button>
+                                    @can("siparis_ucreti_goruntuleme")
+                                        <button
+                                            type="button"
+                                            class="btn"
+                                            :class="{
+                                                'btn-primary': firinBazliTonaj.orderTuru === 'tutar',
+                                                'btn-secondary': firinBazliTonaj.orderTuru !== 'tutar'
+                                            }"
+                                            @click="orderTuruAyarla('FIRIN', 'tutar')"
+                                            key="ordered-tutar"
+                                        >
+                                            Tutar
+                                            <i v-if="firinBazliTonaj.orderTuru === 'tutar'" class="mdi mdi-arrow-down"></i>
+                                        </button>
+                                    @endcan
                                 </div>
                             </div>
                         </div>
@@ -155,19 +159,21 @@
                             <div class="card-body">
                                 <h3>@{{ tonaCevir(firin.tonaj) }} Ton</h3>
                                 <h5>@{{ firin.tonaj }} KG</h5>
-                                <hr />
-                                <h5>
-                                    Kazanılan Tutar: @{{ ins1000Sep(
-                                        formatNum(firin.tutar)
-                                    ) }} ₺
-                                </h5>
-                                <h6>
-                                    KG Başı Tutar: @{{ ins1000Sep(
-                                        formatNum(
-                                            birimBasiTutar(firin.tonaj, firin.tutar)
-                                        )
-                                    )}} ₺
-                                </h6>
+                                @can("siparis_ucreti_goruntuleme")
+                                    <hr />
+                                    <h5>
+                                        Kazanılan Tutar: @{{ ins1000Sep(
+                                            formatNum(firin.tutar)
+                                        ) }} ₺
+                                    </h5>
+                                    <h6>
+                                        KG Başı Tutar: @{{ ins1000Sep(
+                                            formatNum(
+                                                birimBasiTutar(firin.tonaj, firin.tutar)
+                                            )
+                                        )}} ₺
+                                    </h6>
+                                @endcan
                             </div>
                             <hr />
                             <div v-if="firinBazliIslemTuru.hazirlananChartBilgileri[firin.id]" class="card-body">
@@ -205,7 +211,7 @@
             <div class="card-header">
                 <div class="row d-flex align-items-center justify-content-between">
                     <div class="col-12">
-                        <h4>FİRMA BAZLI TONAJ/TUTAR</h4>
+                        <h4>FİRMA BAZLI TONAJ @can("siparis_ucreti_goruntuleme") /TUTAR @endcan</h4>
                     </div>
                     <div class="col-12 col-md-auto">
                         <div class="row d-flex align-items-center">
@@ -305,23 +311,25 @@
                                         Tonaj
                                     </span>
                                 </th>
-                                <th>
-                                    <span
-                                        v-if="firmaBazliBilgiler.orderTuru === 'tutar'"
-                                        class="bg-primary text-white p-1 rounded"
-                                    >
-                                        Tutar
-                                        <i class="mdi mdi-arrow-down"></i>
-                                    </span>
-                                    <span
-                                        v-else
-                                        @click="orderTuruAyarla('FIRMA', 'tutar')"
-                                        class="waves-effect"
-                                        style="cursor: pointer;"
-                                    >
-                                        Tutar
-                                    </span>
-                                </th>
+                                @can("siparis_ucreti_goruntuleme")
+                                    <th>
+                                        <span
+                                            v-if="firmaBazliBilgiler.orderTuru === 'tutar'"
+                                            class="bg-primary text-white p-1 rounded"
+                                        >
+                                            Tutar
+                                            <i class="mdi mdi-arrow-down"></i>
+                                        </span>
+                                        <span
+                                            v-else
+                                            @click="orderTuruAyarla('FIRMA', 'tutar')"
+                                            class="waves-effect"
+                                            style="cursor: pointer;"
+                                        >
+                                            Tutar
+                                        </span>
+                                    </th>
+                                @endcan
                             </tr>
                         </thead>
                         <tbody>
@@ -358,11 +366,13 @@
                                             </div>
                                         </div>
                                     </td>
-                                    <td class="kisa-uzunluk">
-                                        <b>
-                                            @{{ ins1000Sep(formatNum(firma.tutar ? firma.tutar : 0)) }} ₺
-                                        </b>
-                                    </td>
+                                    @can("siparis_ucreti_goruntuleme")
+                                        <td class="kisa-uzunluk">
+                                            <b>
+                                                @{{ ins1000Sep(formatNum(firma.tutar ? firma.tutar : 0)) }} ₺
+                                            </b>
+                                        </td>
+                                    @endcan
                                 </tr>
                             </template>
                             <template v-else>
