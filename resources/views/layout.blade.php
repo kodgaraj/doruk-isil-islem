@@ -120,6 +120,12 @@
                                 </li>
                             @endcan
 
+                            <li>
+                                <a href="{{ route("raporlama") }}" class=" waves-effect">
+                                    <i class="fas fa-chart-line"></i> Raporlama
+                                </a>
+                            </li>
+
                             @can("yonetim_menusu")
                                 <li>
                                     <a
