@@ -2,13 +2,10 @@
 
 namespace Database\Seeders;
 
-use AddBatchUuidColumnToActivityLogTable;
-use AddEventColumnToActivityLogTable;
 use App\Models\Firmalar;
 use App\Models\IslemTurleri;
 use App\Models\Malzemeler;
 use App\Models\User;
-use CreateActivityLogTable;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Schema;
@@ -61,9 +58,24 @@ class DatabaseSeeder extends Seeder
         }
 
         if (!Schema::hasTable(config('activitylog.table_name'))) {
-            $this->call(CreateActivityLogTable::class);
-            $this->call(AddEventColumnToActivityLogTable::class);
-            $this->call(AddBatchUuidColumnToActivityLogTable::class);
+            $baglantiBilgisi = config('activitylog.database_connection') ?? null;
+            $tabloAdi = config('activitylog.table_name');
+            Schema::connection($baglantiBilgisi)->create($tabloAdi, function (Blueprint $table) {
+                $table->bigIncrements('id');
+                $table->string('log_name')->nullable();
+                $table->text('description');
+                $table->nullableMorphs('subject', 'subject');
+                $table->nullableMorphs('causer', 'causer');
+                $table->json('properties')->nullable();
+                $table->timestamps();
+                $table->index('log_name');
+            });
+            Schema::connection($baglantiBilgisi)->table($tabloAdi, function (Blueprint $table) {
+                $table->string('event')->nullable()->after('subject_type');
+            });
+            Schema::connection($baglantiBilgisi)->table($tabloAdi, function (Blueprint $table) {
+                $table->uuid('batch_uuid')->nullable()->after('properties');
+            });
 
             $mesajlar[] = 'Activity Log tablosu oluşturuldu > ' . date('Y-m-d H:i:s');
         }
