@@ -31,8 +31,7 @@ class UpdateController extends Controller
 
         // Veritabanı güncelleme
         $seeder = new DatabaseSeeder();
-        $seeder->run();
-        $sonuc[] = 'Database güncellendi > ' . date('Y-m-d H:i:s');
+        $sonuc[] = $seeder->run();
 
         // Kullanıcıları JWT güncelleme
         $kullanicilar = User::all();
