@@ -14,10 +14,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SiparisController;
 use App\Http\Controllers\TumIslemlerController;
-use App\Models\User;
-use Database\Seeders\DatabaseSeeder;
-use Database\Seeders\RolesAndPermissionsSeeder;
-use Firebase\JWT\JWT;
+use App\Http\Controllers\UpdateController;
 
 /*
 |--------------------------------------------------------------------------
@@ -30,51 +27,7 @@ use Firebase\JWT\JWT;
 |
 */
 
-// seeder
-Route::get('/seed/{sifre}', function ($sifre) {
-    if (!$sifre)
-    {
-        return '!';
-    }
-
-    if ($sifre === 'K@22')
-    {
-        $seeder = new RolesAndPermissionsSeeder();
-        $seeder->run();
-        return 'seeder basarili';
-    }
-
-    return '!!';
-});
-
-Route::get('/update/{sifre}', function ($sifre) {
-    $sonuc = [];
-    if (!$sifre)
-    {
-        return '!';
-    }
-
-    if ($sifre === 'K@22')
-    {
-        $seeder = new DatabaseSeeder();
-        $seeder->run();
-        $sonuc[] = 'Database güncellendi';
-
-        $kullanicilar = User::all();
-        foreach ($kullanicilar as $kullanici)
-        {
-            $kullanici->jwt = JWT::encode([
-                ...$kullanici->toArray(),
-                'exp' => time() + (60 * 60 * 24 * 30),
-                'iat' => time()
-            ], config('app.jwt.secret'), 'HS256');
-            $kullanici->save();
-        }
-        $sonuc[] = 'JWT güncellendi';
-    }
-
-    return implode("<br /> <br />", $sonuc) ?? '!!';
-});
+Route::get('/update/{sifre}', [UpdateController::class, 'index']);
 
 Route::group(['middleware' => ['auth']], function () {
     // sayfalar
