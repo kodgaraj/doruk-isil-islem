@@ -24,14 +24,17 @@ class UpdateController extends Controller
 
         $sonuc = [];
 
+        // Rolleri güncelleme
         $seeder = new RolesAndPermissionsSeeder();
         $seeder->run();
         $sonuc[] = 'Roller ve izinler güncellendi > ' . date('Y-m-d H:i:s');
 
+        // Veritabanı güncelleme
         $seeder = new DatabaseSeeder();
         $seeder->run();
         $sonuc[] = 'Database güncellendi > ' . date('Y-m-d H:i:s');
 
+        // Kullanıcıları JWT güncelleme
         $kullanicilar = User::all();
         foreach ($kullanicilar as $kullanici)
         {

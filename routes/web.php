@@ -7,6 +7,7 @@ use App\Http\Controllers\IsilIslemController;
 use App\Http\Controllers\IslemDurumlariController;
 use App\Http\Controllers\IslemTurleriController;
 use App\Http\Controllers\KullanicilarController;
+use App\Http\Controllers\LogKayitlariController;
 use App\Http\Controllers\MalzemeController;
 use App\Http\Controllers\RaporlamaController;
 use App\Http\Controllers\RolController;
@@ -38,6 +39,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/kullanicilar', [KullanicilarController::class, 'index'])->name("kullanicilar")->middleware(['can:kullanici_listeleme']);
     Route::get('/roller', [RolController::class, 'index'])->name("roller")->middleware(['can:rol_listeleme']);
     Route::get('/raporlama', [RaporlamaController::class, 'index'])->name("raporlama")->middleware(['can:rapor_listeleme']);
+    Route::get('/log-kayitlari', [LogKayitlariController::class, 'index'])->name("log-kayitlari")->middleware(['can:log_listeleme']);
 
     // apiler
     Route::get('/siparisler', [SiparisController::class, 'siparisler'])->name("siparisler");
@@ -84,6 +86,8 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/firinBazliTonaj', [RaporlamaController::class, 'firinBazliTonaj'])->name("firinBazliTonaj");
     Route::get('/firmaBazliBilgileriGetir', [RaporlamaController::class, 'firmaBazliBilgileriGetir'])->name("firmaBazliBilgileriGetir");
     Route::get('/firinBazliIslemTurleriGetir', [RaporlamaController::class, 'firinBazliIslemTurleriGetir'])->name("firinBazliIslemTurleriGetir");
+
+    Route::get('/logKayitlariGetir', [LogKayitlariController::class, 'logKayitlariGetir'])->name("logKayitlariGetir");
 });
 
 require __DIR__.'/auth.php';

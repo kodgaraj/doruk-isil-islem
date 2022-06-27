@@ -72,8 +72,6 @@
                                             </td>
                                         </tr>
                                     </tbody>
-                                    <tfoot>
-
                                 </table>
                             </div>
                         </div>

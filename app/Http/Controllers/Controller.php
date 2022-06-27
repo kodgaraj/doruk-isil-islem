@@ -186,4 +186,16 @@ class Controller extends BaseController
 
         return mb_strtoupper($degisken);
     }
+
+    public function kucukHarf($degisken)
+    {
+        if (!$degisken)
+        {
+            return $degisken;
+        }
+
+        $degisken = str_replace(["I", "İ"], ['i', "ı"], $degisken);
+
+        return mb_strtolower($degisken);
+    }
 }

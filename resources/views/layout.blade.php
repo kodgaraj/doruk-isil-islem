@@ -157,6 +157,14 @@
                                                 </a>
                                             </li>
                                         @endcan
+                                        @can('log_listeleme')
+                                            <li class="waves-effect">
+                                                <a href="{{ route('log-kayitlari') }}">
+                                                    <i class="fa fa-clipboard-list"></i>
+                                                    Log Kayıtları
+                                                </a>
+                                            </li>
+                                        @endcan
                                         {{-- <li><a href="#">Firmalar</a></li>
                                         <li><a href="#">İşlem Türleri</a></li>
                                         <li><a href="#">Fırınlar</a></li> --}}

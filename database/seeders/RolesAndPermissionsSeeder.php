@@ -240,6 +240,11 @@ class RolesAndPermissionsSeeder extends Seeder
                     'name' => 'rapor_listeleme',
                     'guard_name' => 'web',
                     'slug' => 'Rapor listeleme'
+                ],
+                [
+                    'name' => 'log_listeleme',
+                    'guard_name' => 'web',
+                    'slug' => 'Log kayıtları listeleme'
                 ]
             ];
 
