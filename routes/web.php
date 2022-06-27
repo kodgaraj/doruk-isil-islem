@@ -37,7 +37,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/tum-islemler', [TumIslemlerController::class, 'index'])->name("tum-islemler")->middleware(['can:isil_islem_listeleme']);
     Route::get('/kullanicilar', [KullanicilarController::class, 'index'])->name("kullanicilar")->middleware(['can:kullanici_listeleme']);
     Route::get('/roller', [RolController::class, 'index'])->name("roller")->middleware(['can:rol_listeleme']);
-    Route::get('/raporlama', [RaporlamaController::class, 'index'])->name("raporlama");
+    Route::get('/raporlama', [RaporlamaController::class, 'index'])->name("raporlama")->middleware(['can:rapor_listeleme']);
 
     // apiler
     Route::get('/siparisler', [SiparisController::class, 'siparisler'])->name("siparisler");
