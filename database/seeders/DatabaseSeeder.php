@@ -7,6 +7,7 @@ use App\Models\IslemTurleri;
 use App\Models\Malzemeler;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Schema;
 
