@@ -165,6 +165,22 @@
                                                 </a>
                                             </li>
                                         @endcan
+                                        @can('firin_listeleme')
+                                            <li class="waves-effect">
+                                                <a href="{{ route('firinlar') }}">
+                                                    <i class="fa fa-spinner"></i>
+                                                    Fırınlar
+                                                </a>
+                                            </li>
+                                        @endcan
+                                        @can('firma_listeleme')
+                                            <li class="waves-effect">
+                                                <a href="{{ route('firmalar') }}">
+                                                    <i class="fas fa-globe"></i>
+                                                    Firmalar
+                                                </a>
+                                            </li>
+                                        @endcan
                                         {{-- <li><a href="#">Firmalar</a></li>
                                         <li><a href="#">İşlem Türleri</a></li>
                                         <li><a href="#">Fırınlar</a></li> --}}

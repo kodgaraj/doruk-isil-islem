@@ -245,7 +245,27 @@ class RolesAndPermissionsSeeder extends Seeder
                     'name' => 'log_listeleme',
                     'guard_name' => 'web',
                     'slug' => 'Log kayıtları listeleme'
-                ]
+                ],
+                [
+                    'name' => 'firin_kaydetme',
+                    'guard_name' => 'web',
+                    'slug' => 'Fırın kaydetme'
+                ],
+                [
+                    'name' => 'firin_duzenleme',
+                    'guard_name' => 'web',
+                    'slug' => 'Fırın düzenleme'
+                ],
+                [
+                    'name' => 'firin_silme',
+                    'guard_name' => 'web',
+                    'slug' => 'Fırın silme'
+                ],
+                [
+                    'name' => 'firin_listeleme',
+                    'guard_name' => 'web',
+                    'slug' => 'Fırın listeleme'
+                ],
             ];
 
             foreach ($izinler as $izin)
