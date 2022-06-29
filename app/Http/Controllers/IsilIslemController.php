@@ -179,6 +179,7 @@ class IsilIslemController extends Controller
                     $islemTabloAdi.sonSertlik,
                     $islemTabloAdi.tekrarEdenId,
                     $islemTabloAdi.tekrarEdilenId,
+                    $islemTabloAdi.resimYolu,
                     $islemTabloAdi.aciklama as islemAciklama,
                     $siparisTabloAdi.firmaId,
                     $siparisTabloAdi.durumId as siparisDurumId,
