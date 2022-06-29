@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\BildirimlerController;
 use App\Http\Controllers\FirinlarController;
 use App\Http\Controllers\FirmaController;
 use App\Http\Controllers\HomeController;
@@ -40,6 +41,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/roller', [RolController::class, 'index'])->name("roller")->middleware(['can:rol_listeleme']);
     Route::get('/raporlama', [RaporlamaController::class, 'index'])->name("raporlama")->middleware(['can:rapor_listeleme']);
     Route::get('/log-kayitlari', [LogKayitlariController::class, 'index'])->name("log-kayitlari")->middleware(['can:log_listeleme']);
+    Route::get('/bildirimler', [BildirimlerController::class, 'index'])->name("bildirimler");
 
     // apiler
     Route::get('/siparisler', [SiparisController::class, 'siparisler'])->name("siparisler");
@@ -88,6 +90,10 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/firinBazliIslemTurleriGetir', [RaporlamaController::class, 'firinBazliIslemTurleriGetir'])->name("firinBazliIslemTurleriGetir");
 
     Route::get('/logKayitlariGetir', [LogKayitlariController::class, 'logKayitlariGetir'])->name("logKayitlariGetir");
+
+    Route::get('/bildirimleriGetir', [BildirimlerController::class, 'bildirimleriGetir'])->name("bildirimleriGetir");
+    Route::get('/okunmamisBildirimSayisiGetir', [BildirimlerController::class, 'okunmamisBildirimSayisiGetir'])->name("okunmamisBildirimSayisiGetir");
+    Route::get('/miniBildirimleriGetir', [BildirimlerController::class, 'miniBildirimleriGetir'])->name("miniBildirimleriGetir");
 });
 
 require __DIR__.'/auth.php';

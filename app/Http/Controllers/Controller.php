@@ -2,15 +2,21 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Bildirimler;
+use App\Models\BildirimTurleri;
 use App\Models\Formlar;
 use App\Models\IslemDurumlari;
 use App\Models\Islemler;
+use App\Models\OkunmamisBildirimler;
 use App\Models\Siparisler;
+use App\Models\User;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Routing\Controller as BaseController;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class Controller extends BaseController
 {
@@ -78,6 +84,13 @@ class Controller extends BaseController
             if ($tamamlanmamisFormIslemler === 0)
             {
                 $guncellenecekForm->bitisTarihi = Carbon::now();
+
+                $this->bildirimAt(auth()->user()->id, [
+                    "baslik" => "Isıl İşlem Formu Tamamlandı",
+                    "icerik" => "<b>$form->formId</b> numaralı idye ait ısıl işlem formu tamamlandı.",
+                    "link" => "/isil-islemler/$form->formId",
+                    "kod" => "FORM_BILDIRIMI",
+                ]);
             }
             else
             {
@@ -99,10 +112,10 @@ class Controller extends BaseController
 
     /**
      * Yıl ve ay klasörleri altında dosya saklar
-     * 
+     *
      * @param string $base64 Dosya içeriği
      * @return boolean
-     * 
+     *
      * @example $this->base64ResimKaydet($base64, ["dosyaAdi" => "$siparisNo-$islemNo"]);
      */
     public function base64ResimKaydet($base64, $parametreler = [])
@@ -159,7 +172,7 @@ class Controller extends BaseController
 
     /**
      * Dosyayı yoluna göre siler
-     * 
+     *
      * @param string $dosyaYolu Dosya yolu
      */
     public function dosyaSil($dosyaYolu)
@@ -197,5 +210,169 @@ class Controller extends BaseController
         $degisken = str_replace(["I", "İ"], ['i', "ı"], $degisken);
 
         return mb_strtolower($degisken);
+    }
+
+    public function bildirimAt($kullaniciId, $veriler)
+    {
+        try
+        {
+            $btid = BildirimTurleri::where("kod", $veriler["kod"])->first()->id;
+            $kullaniciId = $kullaniciId ?? Auth::user()->id;
+            $baslik = $veriler["baslik"];
+            $icerik = $veriler["icerik"];
+            $link = $veriler["link"];
+
+            $bildirim = new Bildirimler();
+            $bildirim->btId = $btid;
+            $bildirim->kullaniciId = $kullaniciId;
+            $bildirim->baslik = $baslik;
+            $bildirim->icerik = $icerik;
+            $bildirim->json = json_encode(["link" => $link]);
+
+            if (!$bildirim->save())
+            {
+                return [
+                    "durum" => false,
+                    "mesaj" => "Bildirim kaydedilemedi."
+                ];
+            }
+
+            $kullanicilar = User::where("id", "<>", $kullaniciId)->get();
+
+            foreach ($kullanicilar as $kullanici)
+            {
+                $bildirimKullanicilar = new OkunmamisBildirimler();
+                $bildirimKullanicilar->bildirimId = $bildirim->id;
+                $bildirimKullanicilar->kullaniciId = $kullanici->id;
+
+                if (!$bildirimKullanicilar->save())
+                {
+                    return [
+                        "durum" => false,
+                        "mesaj" => "Okunmamış bildirim kaydedilemedi.",
+                    ];
+                }
+            }
+
+            return true;
+        }
+        catch (\Exception $e)
+        {
+            return [
+                "durum" => false,
+                "mesaj" => $e->getMessage(),
+            ];
+        }
+    }
+
+    public function bildirimOku($bildirimIdleri, $kullaniciId = null)
+    {
+        try
+        {
+            $kullaniciId = $kullaniciId ?: Auth::user()->id;
+
+            $bildirimIdleri = is_array($bildirimIdleri) ? $bildirimIdleri : [$bildirimIdleri];
+            $bildirimIdleri = array_filter($bildirimIdleri);
+            $bildirimIdleri = array_unique($bildirimIdleri);
+            $bildirimIdleri = array_values($bildirimIdleri);
+
+            $bildirimKullanicilar = OkunmamisBildirimler::whereIn("bildirimId", $bildirimIdleri)
+                ->where("kullaniciId", $kullaniciId)
+                ->get();
+
+            foreach ($bildirimKullanicilar as $bildirimKullanici)
+            {
+                $bildirimKullanici->delete();
+            }
+
+            return true;
+        }
+        catch (\Exception $e)
+        {
+            throw new \Exception($e->getMessage());
+            return false;
+        }
+    }
+
+    public function bildirimGetir($kullaniciId = null, $veriler = [])
+    {
+        try
+        {
+            $limit = $veriler["sayfalama"] ?? 20;
+            $okuma = $veriler["okuma"] ?? false;
+            $kullaniciId = $kullaniciId ?: Auth::user()->id;
+            $filtreleme = $veriler["filtreleme"] ?? [];
+
+            $okunmamisBildirimTabloAdi = (new OkunmamisBildirimler())->getTable();
+            $bildirimTabloAdi = (new Bildirimler())->getTable();
+            $bildirimTuruTabloAdi = (new BildirimTurleri())->getTable();
+
+            $bildirimler = Bildirimler::selectRaw("
+                $bildirimTabloAdi.*,
+                $bildirimTuruTabloAdi.ad as bildirimTuruAdi,
+                $bildirimTuruTabloAdi.kod as bildirimTuruKodu,
+                $bildirimTuruTabloAdi.json as bildirimTuruJson,
+                IF($okunmamisBildirimTabloAdi.bildirimId IS NULL, 1, 0) as okundu
+            ")
+            ->leftJoin($okunmamisBildirimTabloAdi, function ($join) use ($kullaniciId, $bildirimTabloAdi, $okunmamisBildirimTabloAdi) {
+                $join->on($okunmamisBildirimTabloAdi . ".bildirimId", "=", $bildirimTabloAdi . ".id");
+                $join->on($okunmamisBildirimTabloAdi . ".kullaniciId", "=", DB::raw($kullaniciId));
+            })
+            ->join($bildirimTuruTabloAdi, "$bildirimTuruTabloAdi.id", "=", $bildirimTabloAdi . ".btid")
+            ->orderBy("id", "desc");
+
+            if (isset($filtreleme["arama"]) && $filtreleme["arama"] != "")
+            {
+                $bildirimler->where("$bildirimTabloAdi.baslik", "like", "%" . $filtreleme["arama"] . "%")
+                    ->orWhere("$bildirimTabloAdi.icerik", "like", "%" . $filtreleme["arama"] . "%")
+                    ->orWhere("$bildirimTuruTabloAdi.ad", "like", "%" . $filtreleme["arama"] . "%");
+            }
+
+            $bildirimler = $bildirimler->paginate($limit)->toArray();
+
+            foreach ($bildirimler["data"] as &$bildirim)
+            {
+                $bildirim["json"] = json_decode($bildirim["json"]);
+                $bildirim["bildirimTuruJson"] = json_decode($bildirim["bildirimTuruJson"]);
+                $bildirim["okundu"] = $bildirim["okundu"] == 1;
+            }
+
+            // Eğer "okuma" gönderilmediyse dönecek bildirimleri okundu olarak işaretler
+            if (!$okuma)
+            {
+                $bildirimIdleri = array_column($bildirimler["data"], "id");
+
+                if (!$this->bildirimOku($bildirimIdleri, $kullaniciId))
+                {
+                    return [
+                        "durum" => false,
+                        "mesaj" => "Bildirimler okunamadı.",
+                    ];
+                }
+            }
+
+            // Toplam okunmamış bildirim sayısını bulur
+            $toplamOkunmamisSayisi = $this->toplamOkunmamisBildirimSayisi($kullaniciId);
+
+            return [
+                "veriler" => $bildirimler,
+                "toplamOkunmamisSayisi" => $toplamOkunmamisSayisi,
+                "durum" => true,
+            ];
+        }
+        catch (\Exception $e)
+        {
+            return [
+                "durum" => false,
+                "mesaj" => $e->getMessage(),
+                "satir" => $e->getLine(),
+            ];
+        }
+    }
+
+    public function toplamOkunmamisBildirimSayisi($kullaniciId = null)
+    {
+        $kullaniciId = $kullaniciId ?: Auth::user()->id;
+        return OkunmamisBildirimler::where("kullaniciId", $kullaniciId)->count();
     }
 }

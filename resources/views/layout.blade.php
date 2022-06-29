@@ -128,6 +128,17 @@
                                 </li>
                             @endcan
 
+                            <li>
+                                <a href="{{ route("bildirimler") }}" class=" waves-effect">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span>
+                                            <i class="fas fa-bell"></i> Bildirimler
+                                        </span>
+                                        <span class="badge bg-danger badge-pill" v-if="miniBildirimlerObjesi.okunmamisBildirimSayisi > 0">@{{ miniBildirimlerObjesi.okunmamisBildirimSayisi }}</span>
+                                    </div>
+                                </a>
+                            </li>
+
                             @can("yonetim_menusu")
                                 <li>
                                     <a
@@ -199,10 +210,12 @@
                                                 <i class="mdi mdi-fullscreen"></i>
                                             </button>
                                         </div> --}}
-                                        {{-- <div class="dropdown d-inline-block">
-                                            <button type="button" class="btn header-item noti-icon waves-effect" id="page-header-notifications-dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <div class="dropdown d-inline-block">
+                                            <button @click="miniBildirimleriGetir" type="button" class="btn header-item noti-icon waves-effect" id="page-header-notifications-dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                                 <i class="mdi mdi-bell-outline"></i>
-                                                <span class="badge rounded-pill bg-danger">1</span>
+                                                <span class="badge rounded-pill bg-danger" v-if="miniBildirimlerObjesi.okunmamisBildirimSayisi > 0">
+                                                    @{{ miniBildirimlerObjesi.okunmamisBildirimSayisi }}
+                                                </span>
                                             </button>
                                             <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end p-0" aria-labelledby="page-header-notifications-dropdown">
                                                 <div class="p-3">
@@ -211,30 +224,46 @@
                                                             <h6 class="m-0"> Bildirimler </h6>
                                                         </div>
                                                         <div class="col-auto">
-                                                            <a href="#!" class="small"> Tümünü gör</a>
+                                                            <a href="{{ route('bildirimler') }}" class="small"> Tümünü gör</a>
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div data-simplebar style="max-height: 230px;">
-                                                    <a href="" class="text-reset notification-item">
-                                                        <div class="d-flex align-items-start">
-                                                            <div class="avatar-xs me-3">
-                                                                <span class="avatar-title bg-primary rounded-circle font-size-16">
-                                                                <i class="bx bx-badge-check"></i>
-                                                            </span>
-                                                            </div>
-                                                            <div class="flex-1">
-                                                                <h6 class="mt-0 mb-1">Bildirim başlığı</h6>
-                                                                <div class="font-size-12 text-muted">
-                                                                    <p class="mb-1">Bildirim açıklaması</p>
-                                                                    <p class="mb-0"><i class="mdi mdi-clock-outline"></i> 12.05.2022 15.18.55</p>
-                                                                </div>
+                                                <hr class="m-0" />
+                                                <div style="max-height: 230px;" class="overflow-auto">
+                                                    <!-- yükleniyor -->
+                                                    <div class="col-12" v-if="miniBildirimlerObjesi.yukleniyor">
+                                                        <div class="text-center py-4">
+                                                            <div class="spinner-grow spinner-grow-sm text-primary" role="status">
+                                                                <span class="sr-only">Yükleniyor...</span>
                                                             </div>
                                                         </div>
-                                                    </a>
+                                                    </div>
+                                                    <template v-else-if="miniBildirimlerObjesi.veriler && _.size(miniBildirimlerObjesi.veriler.data)">
+                                                        <a
+                                                            v-for="(bildirim, index) in miniBildirimlerObjesi.veriler.data"
+                                                            href="#"
+                                                            class="text-reset notification-item"
+                                                            :key="index"
+                                                        >
+                                                            <div class="d-flex align-items-start" :style="{ backgroundColor: !bildirim.okundu ? '#54BAB933' : '' }">
+                                                                <div class="flex-1">
+                                                                    <h6 class="mt-0 mb-1">@{{ bildirim.baslik }}</h6>
+                                                                    <div class="font-size-12 text-muted">
+                                                                        <p class="mb-1" v-html="bildirim.icerik"></p>
+                                                                        <p class="mb-0"><i class="mdi mdi-clock-outline"></i> @{{ m(bildirim.created_at).format("L LTS") }}</p>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </a>
+                                                    </template>
+                                                    <template v-else>
+                                                        <div class="text-center py-4">
+                                                            <small class="text-muted">Bildirim yok</small>
+                                                        </div>
+                                                    </template>
                                                 </div>
                                             </div>
-                                        </div> --}}
+                                        </div>
                                         <div class="dropdown d-inline-block">
                                             <button type="button" class="btn header-item waves-effect" id="page-header-user-dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                                 <span class="ms-1">{{ Auth::user()->name }}</span>
@@ -317,6 +346,11 @@
                 yukleniyor: false,
                 sidebarButonDurum: false,
                 varsayilanResimYolu: "/no-image.jpg",
+                miniBildirimlerObjesi: {
+                    yukleniyor: false,
+                    okunmamisBildirimSayisi: 0,
+                    veriler: []
+                },
             },
             computed: {
                 m() {
@@ -327,6 +361,7 @@
                 this.$nextTick(() => {
                     this.sidebarButonDurum = window.innerWidth < 992;
                 });
+                this.okunmamisBildirimSayisiGetir();
             },
             methods: {
                 uyariAc(obje) {
@@ -379,6 +414,39 @@
                         animation: false,
                         showConfirmButton: true,
                         confirmButtonText: 'Kapat',
+                    });
+                },
+                miniBildirimleriGetir() {
+                    this.miniBildirimlerObjesi.yukleniyor = true;
+                    axios.get("{{ route('bildirimleriGetir') }}", {
+                        params: {
+                            sayfalama: 6,
+                        }
+                    })
+                    .then(response => {
+                        this.miniBildirimlerObjesi.yukleniyor = false;
+                        if (response.data.durum) {
+                            this.miniBildirimlerObjesi = {
+                                ...this.miniBildirimlerObjesi,
+                                ...response.data.bildirimler
+                            };
+
+                            this.miniBildirimlerObjesi = _.cloneDeep(this.miniBildirimlerObjesi);
+                        }
+                    })
+                    .catch(error => {
+                        this.miniBildirimlerObjesi.yukleniyor = false;
+                    });
+                },
+                okunmamisBildirimSayisiGetir() {
+                    axios.get("{{ route('okunmamisBildirimSayisiGetir') }}")
+                    .then(response => {
+                        if (response.data.durum) {
+                            this.miniBildirimlerObjesi.okunmamisBildirimSayisi = response.data.okunmamisBildirimSayisi;
+                        }
+                    })
+                    .catch(error => {
+                        this.miniBildirimlerObjesi.okunmamisBildirimSayisi = 0;
                     });
                 },
             },
