@@ -470,6 +470,14 @@
                                 },
                                 categories: []
                             },
+                            yaxis: {
+                                labels: {
+                                    formatter: function (val) {
+                                        return ins1000Sep(formatNum(val));
+                                    }
+                                }
+                            },
+
                             dataLabels: {
                                 formatter: function (val) {
                                     return ins1000Sep(formatNum(val)) + " ₺";
@@ -509,6 +517,13 @@
                                     rotate: -45
                                 },
                                 categories: []
+                            },
+                            yaxis: {
+                                labels: {
+                                    formatter: function (val) {
+                                        return ins1000Sep(formatNum(val));
+                                    }
+                                }
                             },
                             dataLabels: {
                                 formatter: function (val) {
