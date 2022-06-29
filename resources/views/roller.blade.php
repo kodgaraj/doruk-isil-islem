@@ -1,7 +1,7 @@
 @extends('layout') 
 @section('content')
 <div class="row doruk-content">
-    <h4 style="color:#999"><i class="fa fa-home"></i> ROLLER</h4>
+    <h4 style="color:#999"><i class="fa fa-user-tag"></i> ROLLER</h4>
     <div class="col-12">
         <div class="card" key="ANASAYFA">
             <div class="card-header">
@@ -72,8 +72,6 @@
                                             </td>
                                         </tr>
                                     </tbody>
-                                    <tfoot>
-
                                 </table>
                             </div>
                         </div>

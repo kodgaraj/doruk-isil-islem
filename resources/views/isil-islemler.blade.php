@@ -224,6 +224,7 @@
                                                 <tr>
                                                     <th>İşlem ID</th>
                                                     <th class="text-center">Termin</th>
+                                                    <th class="text-center">Resim</th>
                                                     <th>Malzeme</th>
                                                     <th>İşlem</th>
                                                     <th>İstenilen Sertlik</th>
@@ -259,6 +260,13 @@
                                                     </td>
                                                     <td class="kisa-uzunluk text-center">
                                                         <span class="badge badge-pill" :class="`bg-${ islem.gecenSureRenk }`">@{{ islem.gecenSure }} Gün</span>
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <img
+                                                            :src="islem.resimYolu ? islem.resimYolu : varsayilanResimYolu"
+                                                            class="kg-resim-sec"
+                                                            @click.stop="resimOnizlemeAc(islem.resimYolu)"
+                                                        />
                                                     </td>
                                                     <td class="orta-uzunluk">
                                                         <div class="row">

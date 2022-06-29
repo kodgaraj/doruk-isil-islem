@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Izinler;
 use App\Models\Roller;
 use App\Models\User;
+use Firebase\JWT\JWT;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -78,6 +79,11 @@ class KullanicilarController extends Controller
                 ? bcrypt($kullaniciBilgileri["password"])
                 : $kullanici->password;
 
+            if (!isset($kullaniciBilgileri["id"]))
+            {
+                $kullanici->jwt = JWT::encode([], config('app.jwt.secret'), 'HS256');
+            }
+
             if (!$kullanici->save())
             {
                 DB::rollBack();
@@ -150,6 +156,29 @@ class KullanicilarController extends Controller
             return response()->json([
                 "durum" => false,
                 "mesaj" => "Kullanıcı silinirken bir hata oluştu.",
+                "hata" => $ex->getMessage(),
+                "satir" => $ex->getLine(),
+            ], 500);
+        }
+    }
+
+    public function toplamKullanici()
+    {
+        try
+        {
+            $toplamKullanici = User::count();
+
+            return response()->json([
+                "durum" => true,
+                "mesaj" => "Toplam kullanıcı sayısı başarılı bir şekilde getirildi.",
+                "toplamKullanici" => $toplamKullanici,
+            ], 200);
+        }
+        catch (\Exception $ex)
+        {
+            return response()->json([
+                "durum" => false,
+                "mesaj" => "Toplam kullanıcı sayısı getirilirken bir hata oluştu.",
                 "hata" => $ex->getMessage(),
                 "satir" => $ex->getLine(),
             ], 500);

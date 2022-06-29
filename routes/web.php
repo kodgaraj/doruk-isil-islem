@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\BildirimlerController;
 use App\Http\Controllers\FirinlarController;
 use App\Http\Controllers\FirmaController;
 use App\Http\Controllers\HomeController;
@@ -7,13 +8,15 @@ use App\Http\Controllers\IsilIslemController;
 use App\Http\Controllers\IslemDurumlariController;
 use App\Http\Controllers\IslemTurleriController;
 use App\Http\Controllers\KullanicilarController;
+use App\Http\Controllers\LogKayitlariController;
 use App\Http\Controllers\MalzemeController;
+use App\Http\Controllers\RaporlamaController;
 use App\Http\Controllers\RolController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SiparisController;
 use App\Http\Controllers\TumIslemlerController;
-use Database\Seeders\RolesAndPermissionsSeeder;
+use App\Http\Controllers\UpdateController;
 
 /*
 |--------------------------------------------------------------------------
@@ -26,22 +29,8 @@ use Database\Seeders\RolesAndPermissionsSeeder;
 |
 */
 
-// seeder
-Route::get('/seed/{sifre}', function ($sifre) {
-    if (!$sifre)
-    {
-        return '!';
-    }
+Route::get('/update/{sifre}', [UpdateController::class, 'index']);
 
-    if ($sifre === 'K@22')
-    {
-        $seeder = new RolesAndPermissionsSeeder();
-        $seeder->run();
-        return 'seeder basarili';
-    }
-
-    return '!!';
-});
 Route::group(['middleware' => ['auth']], function () {
     // sayfalar
     Route::get('/', [HomeController::class, "index"])->name("home");
@@ -50,6 +39,9 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/tum-islemler', [TumIslemlerController::class, 'index'])->name("tum-islemler")->middleware(['can:isil_islem_listeleme']);
     Route::get('/kullanicilar', [KullanicilarController::class, 'index'])->name("kullanicilar")->middleware(['can:kullanici_listeleme']);
     Route::get('/roller', [RolController::class, 'index'])->name("roller")->middleware(['can:rol_listeleme']);
+    Route::get('/raporlama', [RaporlamaController::class, 'index'])->name("raporlama")->middleware(['can:rapor_listeleme']);
+    Route::get('/log-kayitlari', [LogKayitlariController::class, 'index'])->name("log-kayitlari")->middleware(['can:log_listeleme']);
+    Route::get('/bildirimler', [BildirimlerController::class, 'index'])->name("bildirimler");
 
     // apiler
     Route::get('/siparisler', [SiparisController::class, 'siparisler'])->name("siparisler");
@@ -90,6 +82,18 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('/rolKaydet', [RolController::class, 'rolKaydet'])->name("rolKaydet");
     Route::get('/rolleriGetir', [RolController::class, 'rolleriGetir'])->name("rolleriGetir");
     Route::post('/rolSil', [RolController::class, 'rolSil'])->name("rolSil");
+
+    Route::get('/yillikCiroGetir', [RaporlamaController::class, 'yillikCiroGetir'])->name("yillikCiroGetir");
+    Route::get('/aylikCiroGetir', [RaporlamaController::class, 'aylikCiroGetir'])->name("aylikCiroGetir");
+    Route::get('/firinBazliTonaj', [RaporlamaController::class, 'firinBazliTonaj'])->name("firinBazliTonaj");
+    Route::get('/firmaBazliBilgileriGetir', [RaporlamaController::class, 'firmaBazliBilgileriGetir'])->name("firmaBazliBilgileriGetir");
+    Route::get('/firinBazliIslemTurleriGetir', [RaporlamaController::class, 'firinBazliIslemTurleriGetir'])->name("firinBazliIslemTurleriGetir");
+
+    Route::get('/logKayitlariGetir', [LogKayitlariController::class, 'logKayitlariGetir'])->name("logKayitlariGetir");
+
+    Route::get('/bildirimleriGetir', [BildirimlerController::class, 'bildirimleriGetir'])->name("bildirimleriGetir");
+    Route::get('/okunmamisBildirimSayisiGetir', [BildirimlerController::class, 'okunmamisBildirimSayisiGetir'])->name("okunmamisBildirimSayisiGetir");
+    Route::get('/miniBildirimleriGetir', [BildirimlerController::class, 'miniBildirimleriGetir'])->name("miniBildirimleriGetir");
 });
 
 require __DIR__.'/auth.php';

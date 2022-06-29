@@ -212,4 +212,10 @@ return [
         // 'ExampleClass' => App\Example\ExampleClass::class,
     ])->toArray(),
 
+    'jwt' => [
+        'secret' => env('JWT_SECRET', 'KodGaraj @ 2022 - Siz hayal edin biz kodlayalım :)'),
+        'ttl' => env('JWT_TTL', 60),
+        'refresh_ttl' => env('JWT_REFRESH_TTL', 20160),
+        'user' => App\Models\User::class,
+    ],
 ];

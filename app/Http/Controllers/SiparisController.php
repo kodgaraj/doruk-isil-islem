@@ -501,4 +501,27 @@ class SiparisController extends Controller
             ], 500);
         }
     }
+
+    public function toplamSiparis()
+    {
+        try
+        {
+            $toplamSiparis = Siparisler::count();
+
+            return response()->json([
+                "durum" => true,
+                "mesaj" => "Toplam sipariş sayısı bulundu.",
+                "toplamSiparis" => $toplamSiparis,
+            ], 200);
+        }
+        catch (\Exception $ex)
+        {
+            return response()->json([
+                "durum" => false,
+                "mesaj" => "Toplam sipariş sayısı bulunurken bir hata oluştu.",
+                "hata" => $ex->getMessage(),
+                "satir" => $ex->getLine(),
+            ], 500);
+        }
+    }
 }
