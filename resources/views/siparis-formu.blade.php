@@ -542,6 +542,9 @@
                                                 <td>@{{ islem.adet ? islem.adet : "0" }}</td>
                                                 <td>@{{ islem.miktar ? islem.miktar : "0" }}</td>
                                                 <td>@{{ islem.dara ? islem.dara : "0" }}</td>
+                                                <td class="kisa-uzunluk text-center">
+                                                    <b><h5>@{{ islem.net ? islem.net : "0" }}</h5></b>
+                                                </td>
                                                 @can("siparis_ucreti_goruntuleme")
                                                     <td>@{{ islem.birimFiyat }} ₺</td>
                                                 @endcan
