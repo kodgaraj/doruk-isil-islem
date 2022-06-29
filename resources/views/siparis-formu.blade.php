@@ -1044,7 +1044,7 @@
                 if (!this.aktifSiparis.firma) {
                     return this.uyariAc({
                         baslik: 'Uyarı',
-                        mesaj: "Firma seçilmedi!",
+                        mesaj: "Lütfen firma seçiniz!",
                         tur: "warning"
                     });
                 }
