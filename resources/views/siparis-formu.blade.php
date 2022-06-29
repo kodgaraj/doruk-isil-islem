@@ -1041,6 +1041,14 @@
                 this.aktifSiparis.islemler.splice(index, 1);
             },
             siparisKaydet() {
+                if (!this.aktifSiparis.firma) {
+                    return this.uyariAc({
+                        baslik: 'Uyarı',
+                        mesaj: "Firma seçilmedi!",
+                        tur: "warning"
+                    });
+                }
+
                 const islem = () => {
                     this.yukleniyorObjesi.kaydet = true;
                     axios.post("/siparisKaydet", {
