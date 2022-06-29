@@ -40,8 +40,10 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/roller', [RolController::class, 'index'])->name("roller")->middleware(['can:rol_listeleme']);
     Route::get('/raporlama', [RaporlamaController::class, 'index'])->name("raporlama")->middleware(['can:rapor_listeleme']);
     Route::get('/log-kayitlari', [LogKayitlariController::class, 'index'])->name("log-kayitlari")->middleware(['can:log_listeleme']);
+    Route::get('/firinlar', [FirinlarController::class, 'index'])->name("firinlar")->middleware(['can:firin_listeleme']);
+    Route::get('/firmalar', [FirmaController::class, 'index'])->name("firmalar")->middleware(['can:firma_listeleme']);
 
-    // apiler
+    // apiler 
     Route::get('/siparisler', [SiparisController::class, 'siparisler'])->name("siparisler");
     Route::get('/numaralariGetir', [SiparisController::class, 'numaralariGetir'])->name("numaralariGetir");
     Route::get('/siparisDurumlariGetir', [SiparisController::class, 'siparisDurumlariGetir'])->name("siparisDurumlariGetir");
@@ -69,9 +71,12 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('/malzemeEkle', [MalzemeController::class, 'malzemeEkle'])->name("malzemeEkle");
 
     Route::get('/firinlariGetir', [FirinlarController::class, 'firinlariGetir'])->name("firinlariGetir");
-
+    Route::post('/firmaSil', [FirmaController::class, 'firmaSil'])->name("firmaSil");
     Route::post('/firmaEkle', [FirmaController::class, 'firmaEkle'])->name("firmaEkle");
+
     Route::get('/firmalariGetir', [FirmaController::class, 'firmalariGetir'])->name("firmalariGetir");
+    Route::post('/firinKaydet', [FirinlarController::class, 'firinKaydet'])->name("firinKaydet");
+    Route::post('/firinSil', [FirinlarController::class, 'firinSil'])->name("firinSil");
 
     Route::get('/kullanicilariGetir', [KullanicilarController::class, 'kullanicilariGetir'])->name("kullanicilariGetir");
     Route::post('/kullaniciKaydet', [KullanicilarController::class, 'kullaniciKaydet'])->name("kullaniciKaydet");
