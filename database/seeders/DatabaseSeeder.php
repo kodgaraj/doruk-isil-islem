@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\BildirimTurleri;
 use App\Models\Firmalar;
 use App\Models\IslemTurleri;
 use App\Models\Malzemeler;
@@ -80,6 +81,99 @@ class DatabaseSeeder extends Seeder
 
             $mesajlar[] = 'Activity Log tablosu oluşturuldu > ' . date('Y-m-d H:i:s');
         }
+
+        // Bildirim tablosu oluşturulması
+        if (!Schema::hasTable("bildirimler")) {
+            Schema::create("bildirimler", function (Blueprint $table) {
+                $table->bigIncrements('id')->comment("Bildirimlerin tutulduğu tablo");
+                $table->integer('btid')->comment("Bildirim türü idsi (bildirim_turleri tablosundan)");
+                $table->integer('kullaniciId')->comment("Bildirimin alındığı kullanıcı idsi (users tablosundan)");
+                $table->string('baslik', 100)->comment("Bildirimin başlığı");
+                $table->text('icerik')->comment("Bildirimin içeriği");
+                $table->text('json')->nullable()->comment("Bildirimin ekstra verileri (Örn: Bildirime tıklandığında gösterilecek veriler)");
+                $table->timestamps();
+            });
+
+            $mesajlar[] = 'Bildirimler tablosu oluşturuldu > ' . date('Y-m-d H:i:s');
+        }
+
+        // Bildirim türleri tablosu oluşturulması
+        if (!Schema::hasTable("bildirim_turleri")) {
+            Schema::create("bildirim_turleri", function (Blueprint $table) {
+                $table->increments('id')->comment("Bildirim türlerin tutulduğu tablo");
+                $table->string('ad', 100)->comment("Bildirim türünün adı");
+                $table->string('kod', 100)->nullable()->comment("Bildirim türünün kodu");
+                $table->text('json')->nullable()->comment("Bildirim türünün ekstra verileri");
+                $table->timestamps();
+                $table->softDeletes();
+            });
+
+            $bildirimTurleri = [
+                [
+                    // Sipariş tamamlandı, başlandı vs.
+                    "ad" => "Sipariş Bildirimi",
+                    "kod" => "SIPARIS_BILDIRIMI",
+                    "json" => json_encode([
+                        "renk" => "primary",
+                    ]),
+                ],
+                [
+                    // Form tamamlandı, başlandı vs.
+                    "ad" => "Form Bildirimi",
+                    "kod" => "FORM_BILDIRIMI",
+                    "json" => json_encode([
+                        "renk" => "warning",
+                    ]),
+                ],
+                [
+                    // İşlem tekrarı vs.
+                    "ad" => "İşlem Bildirimi",
+                    "kod" => "ISLEM_BILDIRIMI",
+                    "json" => json_encode([
+                        "renk" => "info",
+                    ]),
+                ],
+                [
+                    // İşlem durumu değiştiğinde bilgilendirme
+                    "ad" => "İşlem Durumu Bildirimi",
+                    "kod" => "ISLEM_DURUMU_BILDIRIMI",
+                    "json" => json_encode([
+                        "renk" => "danger",
+                    ]),
+                ],
+                [
+                    // Genel bildirimler
+                    "ad" => "Genel Bildirim",
+                    "kod" => "GENEL_BILDIRIM",
+                    "json" => json_encode([
+                        "renk" => "secondary",
+                    ]),
+                ],
+            ];
+
+            foreach ($bildirimTurleri as $bildirimTur)
+            {
+                $bildirim = new BildirimTurleri();
+                $bildirim->ad = $bildirimTur['ad'];
+                $bildirim->kod = $bildirimTur['kod'];
+                $bildirim->json = $bildirimTur['json'];
+                $bildirim->save();
+            }
+
+            $mesajlar[] = 'Bildirim türleri tablosu oluşturuldu > ' . date('Y-m-d H:i:s');
+        }
+
+        // Okunmamış bildirimler tablosu oluşturulması
+        if (!Schema::hasTable("okunmamis_bildirimler")) {
+            Schema::create("okunmamis_bildirimler", function (Blueprint $table) {
+                $table->bigIncrements('id')->comment("Okunmamış bildirimlerin tutulduğu tablo (kolay silebilmek için eklendi)");
+                $table->bigInteger('bildirimId')->comment("Okunmamış bildirimlerin idsi (bildirimler tablosundan)");
+                $table->integer('kullaniciId')->comment("Okunmamış bildirimlerin alındığı kullanıcı idsi (users tablosundan)");
+            });
+
+            $mesajlar[] = 'Okunmamış bildirimler tablosu oluşturuldu > ' . date('Y-m-d H:i:s');
+        }
+
 
         $mesajlar[] = 'Veritabanı güncellendi > ' . date('Y-m-d H:i:s');
 

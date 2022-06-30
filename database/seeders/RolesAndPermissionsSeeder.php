@@ -5,55 +5,12 @@ namespace Database\Seeders;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 
 class RolesAndPermissionsSeeder extends Seeder
 {
-    // ROLLER
-    // admin - web - ADMİN
-    // personel - web - PERSONEL
-    // muhendis - web - MÜHENDİS
-    // usta-basi - web - USTA BAŞI
-    // saha-elemani - web - SAHA ELEMANI
-    // muhasebeci - web - MUHASEBECİ
-
-    // İZİNLER
-    // siparis_ucreti_goruntuleme	web	Ücret görüntüleme
-    // siparis_kaydetme	web	Sipariş kaydetme
-    // siparis_duzenleme	web	Sipariş düzenleme
-    // siparis_silme	web	Sipariş silme
-    // siparis_listeleme	web	Sipariş listeleme
-    // isil_islem_formu_kaydetme	web	Isıl işlem formu kaydetme
-    // isil_islem_formu_duzenleme	web	Isıl işlem formu düzenleme
-    // isil_islem_formu_silme	web	Isıl işlem formu silme
-    // isil_islem_formu_listeleme	web	Isıl işlem formu listeleme
-    // yonetim_menusu	web	Yönetim menüsü görme
-    // kullanici_kaydetme	web	Kullanıcı kaydetme
-    // kullanici_duzenleme	web	Kullanıcı düzenleme
-    // kullanici_silme	web	Kullanıcı silme
-    // kullanici_listeleme	web	Kullanıcı listeleme
-    // rol_kaydetme	web	Rol kaydetme
-    // rol_duzenleme	web	Rol düzenleme
-    // rol_silme	web	Rol silme
-    // rol_listeleme	web	Rol listeleme
-    // isil_islem_kaydetme	web	Isıl işlem kaydetme
-    // isil_islem_duzenleme	web	Isıl işlem düzenleme
-    // isil_islem_silme	web	Isıl işlem silme
-    // isil_islem_listeleme	web	Isıl işlem listeleme
-    // firma_kaydetme	web	Firma kaydetme
-    // firma_duzenleme	web	Firma düzenleme
-    // firma_silme	web	Firma silme
-    // firma_listeleme	web	Firma listeleme
-    // malzeme_kaydetme	web	Malzeme kaydetme
-    // malzeme_duzenleme	web	Malzeme düzenleme
-    // malzeme_silme	web	Malzeme silme
-    // malzeme_listeleme	web	Malzeme listeleme
-    // islem_turu_kaydetme	web	İşlem türü kaydetme
-    // islem_turu_duzenleme	web	İşlem türü düzenleme
-    // islem_turu_silme	web	İşlem türü silme
-    // islem_turu_listeleme	web	İşlem türü listeleme
-
     /**
      * Run the database seeds.
      *
@@ -451,6 +408,15 @@ class RolesAndPermissionsSeeder extends Seeder
 
         // admin kullanıcısına rol atama
         $user = User::where('email', 'admin')->first();
-        $user->assignRole('admin');
+        if (!$user)
+        {
+            $user = User::create([
+                'name' => 'Admin',
+                'email' => 'admin',
+                'password' => Hash::make('12345'),
+            ]);
+
+            $user->assignRole('admin');
+        }
     }
 }

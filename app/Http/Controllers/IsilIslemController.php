@@ -10,6 +10,7 @@ use App\Models\Islemler;
 use App\Models\IslemTurleri;
 use App\Models\Malzemeler;
 use App\Models\Siparisler;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -178,6 +179,7 @@ class IsilIslemController extends Controller
                     $islemTabloAdi.sonSertlik,
                     $islemTabloAdi.tekrarEdenId,
                     $islemTabloAdi.tekrarEdilenId,
+                    $islemTabloAdi.resimYolu,
                     $islemTabloAdi.aciklama as islemAciklama,
                     $siparisTabloAdi.firmaId,
                     $siparisTabloAdi.durumId as siparisDurumId,
@@ -689,6 +691,8 @@ class IsilIslemController extends Controller
 
         try
         {
+            $kullaniciId = $request->kullaniciId ?? auth()->user()->id;
+            $kullaniciAdi = User::find($kullaniciId)->name;
             $islemBilgileri = $request->islem;
             $islemDurumuKodu = $request->islemDurumuKodu;
 
@@ -720,6 +724,25 @@ class IsilIslemController extends Controller
                     "hataKodu" => "F006",
                 ], 500);
             }
+
+            // Bildirim atılıyor
+            $bildirimDurum = $this->bildirimAt($kullaniciId, [
+                "baslik" => "İşlem Durumu Değiştirildi",
+                "icerik" => "'$islem->id' numaralı idye ait işlem durumu, '$islemDurum->ad' olarak değiştirildi.",
+                "link" => "/islemler/$islem->id",
+                "kod" => "ISLEM_DURUMU_BILDIRIMI",
+            ]);
+
+            // if (!$bildirimDurum)
+            // {
+            //     DB::rollBack();
+
+            //     return response()->json([
+            //         'durum' => false,
+            //         'mesaj' => 'İşlem bildirim atılamadı.',
+            //         "hataKodu" => "F009",
+            //     ], 500);
+            // }
 
             if (!$this->islemBitisTarihleriAyarla($islem->id))
             {
@@ -757,7 +780,12 @@ class IsilIslemController extends Controller
 
         try
         {
+            $kullaniciId = $request->kullaniciId ?? auth()->user()->id;
+            $kullaniciAdi = User::find($kullaniciId)->name;
             $islemBilgileri = $request->islem;
+
+            $islemTabloAdi = (new Islemler())->getTable();
+            $siparisTabloAdi = (new Siparisler())->getTable();
 
             $islem = Islemler::where("id", $islemBilgileri["id"])->first();
 
@@ -832,6 +860,36 @@ class IsilIslemController extends Controller
                     "hataKodu" => "F007",
                 ], 500);
             }
+
+            // Bildirim atılıyor
+            $islemBilgi = Islemler::selectRaw("$islemTabloAdi.*, $siparisTabloAdi.tarih, $siparisTabloAdi.terminSuresi")
+                ->join($siparisTabloAdi, "$siparisTabloAdi.id", "=", "$islemTabloAdi.siparisId")
+                ->where("$islemTabloAdi.id", $islemBilgileri["id"])
+                ->first();
+
+            $terminBilgileri = $this->terminHesapla($islemBilgi->tarih, $islemBilgi->terminSuresi);
+            $gecenSure = $terminBilgileri["gecenSure"];
+
+            $bildirimDurum = $this->bildirimAt($kullaniciId, [
+                "baslik" => "İşlem Tekrar Edildi",
+                "icerik" => "$islemBilgi->id numaralı idye ait işlem,
+                    $kullaniciAdi adlı kullanıcı tarafından tekrar edildi.
+                    Termin: $gecenSure Gün
+                ",
+                "link" => "/islemler/$islem->id",
+                "kod" => "ISLEM_DURUMU_BILDIRIMI",
+            ]);
+
+            // if (!$bildirimDurum)
+            // {
+            //     DB::rollBack();
+
+            //     return response()->json([
+            //         'durum' => false,
+            //         'mesaj' => 'İşlem bildirim atılamadı.',
+            //         "hataKodu" => "F009",
+            //     ], 500);
+            // }
 
             DB::commit();
 

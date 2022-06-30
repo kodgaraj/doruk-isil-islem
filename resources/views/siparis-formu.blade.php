@@ -542,6 +542,9 @@
                                                 <td>@{{ islem.adet ? islem.adet : "0" }}</td>
                                                 <td>@{{ islem.miktar ? islem.miktar : "0" }}</td>
                                                 <td>@{{ islem.dara ? islem.dara : "0" }}</td>
+                                                <td class="kisa-uzunluk text-center">
+                                                    <b><h5>@{{ islem.net ? islem.net : "0" }}</h5></b>
+                                                </td>
                                                 @can("siparis_ucreti_goruntuleme")
                                                     <td>@{{ islem.birimFiyat }} ₺</td>
                                                 @endcan
@@ -1038,6 +1041,14 @@
                 this.aktifSiparis.islemler.splice(index, 1);
             },
             siparisKaydet() {
+                if (!this.aktifSiparis.firma) {
+                    return this.uyariAc({
+                        baslik: 'Uyarı',
+                        mesaj: "Lütfen firma seçiniz!",
+                        tur: "warning"
+                    });
+                }
+
                 const islem = () => {
                     this.yukleniyorObjesi.kaydet = true;
                     axios.post("/siparisKaydet", {
@@ -1528,13 +1539,12 @@
 
                         resimInputEl.addEventListener("change", () => {
                             resim = resimInputEl.files[0];
-                            const reader = new FileReader();
 
-                            reader.onload = (e) => {
-                                onizlemeEl.src = e.target.result;
+                            const image = new Image();
+                            image.onload = () => {
+                                onizlemeEl.src = this.resmiOlceklendir(image, 0.6, 0.6);
                             };
-
-                            reader.readAsDataURL(resim);
+                            image.src = URL.createObjectURL(resim);
                         });
                     },
                     preConfirm: () => {
@@ -1553,6 +1563,31 @@
                         this.aktifSiparis = _.cloneDeep(this.aktifSiparis);
                     }
                 });
+            },
+            resmiOlceklendir(imgToCompress, resizingFactor, quality) {
+                // showing the compressed image
+                const canvas = document.createElement("canvas");
+                const context = canvas.getContext("2d");
+
+                const originalWidth = imgToCompress.width;
+                const originalHeight = imgToCompress.height;
+
+                const canvasWidth = originalWidth * resizingFactor;
+                const canvasHeight = originalHeight * resizingFactor;
+
+                canvas.width = canvasWidth;
+                canvas.height = canvasHeight;
+
+                context.drawImage(
+                    imgToCompress,
+                    0,
+                    0,
+                    originalWidth * resizingFactor,
+                    originalHeight * resizingFactor
+                );
+
+                // reducing the quality of the image
+                return canvas.toDataURL("image/jpeg", quality);
             },
             ciktiAl() {
                 const baslangicDurum = !!this.aktifSiparis.onizlemeModu;
