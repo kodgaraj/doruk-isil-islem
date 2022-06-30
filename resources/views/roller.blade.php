@@ -133,10 +133,11 @@
                             <label for="izinler">İzinler *</label>
                             <v-select
                                 v-model="yeniRol.permissions"
-                                :options="izinler"
+                                :options="filtrelenenIzinler"
                                 label="slug"
                                 id="izinler"
                                 multiple
+                                :close-on-select="sidebarButonDurum"
                             >
                                 <div slot="no-options">İzin bulunamadı!</div>
                             </v-select>
@@ -201,6 +202,11 @@
                     this.yeniRol.name = _.replace(slug, /[^a-zA-Z]+/g, "-");
 
                     return this.yeniRol.name;
+                },
+                filtrelenenIzinler() {
+                    return _.filter(this.izinler, izin => {
+                        return !_.find(this.yeniRol.permissions, { name: izin.name });
+                    });
                 },
             },
             mounted() {
