@@ -52,6 +52,14 @@ class ApiController
         ]);
     }
 
+    public function oturumKontrol()
+    {
+        return response()->json([
+            'durum' => true,
+            'mesaj' => 'Oturum başarılı',
+        ]);
+    }
+
     public function jwtUret($kullanici)
     {
         $jwt = JWT::encode([
