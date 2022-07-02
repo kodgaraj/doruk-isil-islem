@@ -47,7 +47,7 @@ class JwtVerify
         {
             return response()->json([
                 'durum' => false,
-                'mesaj' => 'Süresi dolmuş token!',
+                'mesaj' => 'Oturum süreniz doldu! Lütfen tekrar giriş yapın.',
                 'hataKodu' => 'JWT_EXPIRED',
             ], 400);
         }
