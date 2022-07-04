@@ -1146,7 +1146,7 @@ class IsilIslemController extends Controller
             return response()->json([
                 "durum" => true,
                 "mesaj" => "İşlemler başarılı bir şekilde getirildi.",
-                "firinSarjGrupluIslemler" => $islemler,
+                "firinSarjGrupluIslemler" => array_values($islemler),
             ], 200);
         }
         catch (\Exception $ex)
