@@ -1045,4 +1045,118 @@ class IsilIslemController extends Controller
             ], 500);
         }
     }
+
+    public function firinSarjGrupluIslemleriGetir(Request $request)
+    {
+        try
+        {
+            $formId = $request->formId;
+
+            $siparisTabloAdi = (new Siparisler())->getTable();
+            $islemTabloAdi = (new Islemler())->getTable();
+            $firmaTabloAdi = (new Firmalar())->getTable();
+            $islemDurumTabloAdi = (new IslemDurumlari())->getTable();
+            $malzemeTabloAdi = (new Malzemeler())->getTable();
+            $islemTuruTabloAdi = (new IslemTurleri())->getTable();
+            $firinTabloAdi = (new Firinlar())->getTable();
+
+            $firinSarjGrupluIslemler = Islemler::selectRaw("
+                $islemTabloAdi.id,
+                $islemTabloAdi.siparisId,
+                $islemTabloAdi.malzemeId,
+                $islemTabloAdi.firinId,
+                $islemTabloAdi.sarj,
+                $islemTabloAdi.islemTuruId,
+                $islemTabloAdi.durumId as islemDurumId,
+                $islemTabloAdi.adet,
+                $islemTabloAdi.miktar,
+                $islemTabloAdi.dara,
+                $islemTabloAdi.kalite,
+                $islemTabloAdi.istenilenSertlik,
+                $islemTabloAdi.sicaklik,
+                $islemTabloAdi.carbon,
+                $islemTabloAdi.beklenenSure,
+                $islemTabloAdi.cikisSertligi,
+                $islemTabloAdi.menevisSicakligi,
+                $islemTabloAdi.cikisSuresi,
+                $islemTabloAdi.sonSertlik,
+                $islemTabloAdi.tekrarEdenId,
+                $islemTabloAdi.tekrarEdilenId,
+                $islemTabloAdi.resimYolu,
+                $islemTabloAdi.aciklama as islemAciklama,
+                $siparisTabloAdi.firmaId,
+                $siparisTabloAdi.durumId as siparisDurumId,
+                $siparisTabloAdi.ad as siparisAdi,
+                $siparisTabloAdi.siparisNo,
+                $siparisTabloAdi.aciklama,
+                $siparisTabloAdi.terminSuresi,
+                $siparisTabloAdi.tarih as siparisTarihi,
+                $firmaTabloAdi.firmaAdi,
+                $firmaTabloAdi.sorumluKisi,
+                $islemDurumTabloAdi.ad as islemDurumAdi,
+                $malzemeTabloAdi.ad as malzemeAdi,
+                $islemTuruTabloAdi.ad as islemTuruAdi,
+                $firinTabloAdi.ad as firinAdi,
+                $firinTabloAdi.kod as firinKodu,
+                $firinTabloAdi.json as firinJson
+            ")
+            ->join($siparisTabloAdi, $siparisTabloAdi . '.id', '=', $islemTabloAdi . '.siparisId')
+            ->join($firmaTabloAdi, $firmaTabloAdi . '.id', '=', $siparisTabloAdi . '.firmaId')
+            ->join($islemDurumTabloAdi, $islemDurumTabloAdi . '.id', '=', $islemTabloAdi . '.durumId')
+            ->join($malzemeTabloAdi, $malzemeTabloAdi . '.id', '=', $islemTabloAdi . '.malzemeId')
+            ->join($firinTabloAdi, $firinTabloAdi . '.id', '=', $islemTabloAdi . '.firinId')
+            ->leftJoin($islemTuruTabloAdi, $islemTuruTabloAdi . '.id', '=', $islemTabloAdi . '.islemTuruId')
+            ->where($islemTabloAdi . '.formId', $formId)
+            ->get()
+            ->toArray();
+
+            $islemler = [];
+            foreach ($firinSarjGrupluIslemler as $islem)
+            {
+                $islem["firinJson"] = json_decode($islem["firinJson"], true);
+
+                $terminDizisi = $this->terminHesapla($islem["siparisTarihi"], $islem["terminSuresi"] ?? 5);
+                $islem["gecenSure"] = $terminDizisi["gecenSure"];
+                $islem["gecenSureRenk"] = $terminDizisi["gecenSureRenk"];
+
+                $islem["sarj"] = $islem["sarj"] ?? 1;
+
+                if (!isset($islemler[$islem["firinId"]]))
+                {
+                    $islemler[$islem["firinId"]] = [
+                        "firinId" => $islem["firinId"],
+                        "firinAdi" => $islem["firinAdi"],
+                        "firinKodu" => $islem["firinKodu"],
+                        "firinJson" => $islem["firinJson"],
+                        "sarjlar" => [],
+                    ];
+                }
+
+                if (!isset($islemler[$islem["firinId"]]["sarjlar"][$islem["sarj"]]))
+                {
+                    $islemler[$islem["firinId"]]["sarjlar"][$islem["sarj"]] = [
+                        "sarj" => $islem["sarj"],
+                        "islemler" => [],
+                    ];
+                }
+
+                $islemler[$islem["firinId"]]["sarjlar"][$islem["sarj"]]["islemler"][] = $islem;
+            }
+
+            return response()->json([
+                "durum" => true,
+                "mesaj" => "İşlemler başarılı bir şekilde getirildi.",
+                "firinSarjGrupluIslemler" => $islemler,
+            ], 200);
+        }
+        catch (\Exception $ex)
+        {
+            return response()->json([
+                "durum" => false,
+                "mesaj" => "İşlemler getirilirken bir hata oluştu.",
+                "hata" => $ex->getMessage(),
+                "satir" => $ex->getLine(),
+            ], 500);
+        }
+    }
 }
