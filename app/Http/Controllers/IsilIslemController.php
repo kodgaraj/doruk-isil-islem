@@ -209,7 +209,7 @@ class IsilIslemController extends Controller
                 $firmaGrupluIslemler = $firmaGrupluIslemler->orWhere($islemTabloAdi . '.formId', $request->formId);
             }
 
-            $islemler = $firmaGrupluIslemler->paginate(50);
+            $islemler = $firmaGrupluIslemler->paginate(25);
 
             // dd($islemler->toArray());
             $islemler = $islemler->toArray();
