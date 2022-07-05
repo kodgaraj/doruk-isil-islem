@@ -393,19 +393,33 @@ class SiparisController extends Controller
         try
         {
             $siparisId = $request->siparisId;
-
-            $malzemeTabloAdi = (new Malzemeler())->getTable();
-            $islemTuruTabloAdi = (new IslemTurleri())->getTable();
-            $islemTabloAdi = (new Islemler())->getTable();
+            $siparisDetaylariGetir = $request->detaylariGetir;
 
             $islemler = Islemler::where('siparisId', $siparisId)->get();
+
+            $donecekVeriler = [
+                "islemler" => $islemler,
+            ];
+
+            if ($siparisDetaylariGetir)
+            {
+                $firmaTabloAdi = (new Firmalar())->getTable();
+                $siparisDurumTabloAdi = (new SiparisDurumlari())->getTable();
+                $siparisTabloAdi = (new Siparisler())->getTable();
+
+                $siparisDetaylari = Siparisler::select("$siparisTabloAdi.*", $firmaTabloAdi . ".firmaAdi", $siparisDurumTabloAdi . ".ad as siparisDurumAdi")
+                    ->join($firmaTabloAdi, $firmaTabloAdi . ".id", "=", "$siparisTabloAdi.firmaId")
+                    ->join($siparisDurumTabloAdi, $siparisDurumTabloAdi . ".id", "=", "$siparisTabloAdi.durumId")
+                    ->where("$siparisTabloAdi.id", $siparisId)
+                    ->first();
+
+                $donecekVeriler["siparisDetaylari"] = $siparisDetaylari;
+            }
 
             return response()->json([
                 'durum' => true,
                 'mesaj' => 'Sipariş başarıyla getirildi.',
-                'veriler' => [
-                    "islemler" => $islemler,
-                ],
+                'veriler' => $donecekVeriler,
             ]);
         }
         catch(\Exception $e)
