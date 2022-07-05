@@ -407,11 +407,17 @@ class SiparisController extends Controller
                 $siparisDurumTabloAdi = (new SiparisDurumlari())->getTable();
                 $siparisTabloAdi = (new Siparisler())->getTable();
 
-                $siparisDetaylari = Siparisler::select("$siparisTabloAdi.*", $firmaTabloAdi . ".firmaAdi", $siparisDurumTabloAdi . ".ad as siparisDurumAdi")
+                $siparisDetaylari = Siparisler::select("$siparisTabloAdi.*", $firmaTabloAdi . ".firmaAdi", "$firmaTabloAdi.sorumluKisi", $siparisDurumTabloAdi . ".ad as siparisDurumAdi")
                     ->join($firmaTabloAdi, $firmaTabloAdi . ".id", "=", "$siparisTabloAdi.firmaId")
                     ->join($siparisDurumTabloAdi, $siparisDurumTabloAdi . ".id", "=", "$siparisTabloAdi.durumId")
                     ->where("$siparisTabloAdi.id", $siparisId)
-                    ->first();
+                    ->first()
+                    ->toArray();
+
+                    $terminBilgileri = $this->terminHesapla($siparisDetaylari["tarih"], $siparisDetaylari["terminSuresi"]);
+
+                    $siparisDetaylari["gecenSure"] = $terminBilgileri["gecenSure"];
+                    $siparisDetaylari["gecenSureRenk"] = $terminBilgileri["gecenSureRenk"];
 
                 $donecekVeriler["siparisDetaylari"] = $siparisDetaylari;
             }
