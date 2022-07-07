@@ -223,13 +223,17 @@ class Controller extends BaseController
             $baslik = $veriler["baslik"];
             $icerik = $veriler["icerik"];
             $link = $veriler["link"];
+            $kod = $veriler["kod"];
 
             $bildirim = new Bildirimler();
             $bildirim->btId = $btid;
             $bildirim->kullaniciId = $kullaniciId;
             $bildirim->baslik = $baslik;
             $bildirim->icerik = $icerik;
-            $bildirim->json = json_encode(["link" => $link]);
+            $bildirim->json = json_encode([
+                "link" => $link,
+                "kod" => $kod
+            ]);
 
             if (!$bildirim->save())
             {
@@ -245,6 +249,7 @@ class Controller extends BaseController
                     "body" => $icerik,
                     "data" => [
                         "link" => $link,
+                        "kod" => $kod,
                         "bildirimId" => $bildirim->id,
                     ],
                 ])
