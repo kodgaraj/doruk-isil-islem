@@ -18,6 +18,7 @@ class ApiController
     {
         $eposta = $request->email;
         $sifre = $request->password;
+        $pushToken = $request->pushToken;
 
         $kullanici = User::where('email', $eposta)->first();
 
@@ -36,6 +37,7 @@ class ApiController
         }
 
         $kullanici->jwt = $this->jwtUret($kullanici);
+        $kullanici->pushToken = $pushToken;
 
         if (!$kullanici->save()) {
             return response()->json([
@@ -57,6 +59,34 @@ class ApiController
         return response()->json([
             'durum' => true,
             'mesaj' => 'Oturum başarılı',
+        ]);
+    }
+
+    public function cikis(Request $request)
+    {
+        $kullanici = User::find($request->kullaniciId);
+
+        if (!$kullanici) {
+            return response()->json([
+                'durum' => false,
+                'mesaj' => 'Kullanıcı bulunamadı',
+            ]);
+        }
+
+        $kullanici->jwt = null;
+        $kullanici->pushToken = null;
+
+        if (!$kullanici->save()) {
+            return response()->json([
+                'durum' => false,
+                'mesaj' => 'Çıkış yaparken bir hata oluştu',
+                "hataKodu" => "KULLANICI_CIKIS",
+            ]);
+        }
+
+        return response()->json([
+            'durum' => true,
+            'mesaj' => 'Çıkış başarılı',
         ]);
     }
 

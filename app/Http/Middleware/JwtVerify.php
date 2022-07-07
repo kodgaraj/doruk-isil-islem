@@ -2,9 +2,11 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\User;
 use Closure;
 use Illuminate\Http\Request;
-use \Firebase\JWT\JWT;
+use Firebase\JWT\ExpiredException;
+use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 
 class JwtVerify
@@ -45,6 +47,26 @@ class JwtVerify
         }
         catch (ExpiredException $e)
         {
+            $kullanici = User::find($decoded->id);
+
+            if (!$kullanici) {
+                return response()->json([
+                    'durum' => false,
+                    'mesaj' => 'Kullanıcı bulunamadı',
+                ]);
+            }
+
+            $kullanici->jwt = null;
+            $kullanici->pushToken = null;
+
+            if (!$kullanici->save()) {
+                return response()->json([
+                    'durum' => false,
+                    'mesaj' => 'Giriş yaparken bir hata oluştu',
+                    "hataKodu" => "KULLANICI_TEMIZLEME",
+                ]);
+            }
+
             return response()->json([
                 'durum' => false,
                 'mesaj' => 'Oturum süreniz doldu! Lütfen tekrar giriş yapın.',

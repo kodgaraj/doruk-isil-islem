@@ -174,6 +174,14 @@ class DatabaseSeeder extends Seeder
             $mesajlar[] = 'Okunmamış bildirimler tablosu oluşturuldu > ' . date('Y-m-d H:i:s');
         }
 
+        // Kullanıcılar tablosuna pushToken alanı eklenmesi
+        if (!Schema::hasColumn("users", "pushToken")) {
+            Schema::table("users", function (Blueprint $table) {
+                $table->string('pushToken')->nullable()->after('password');
+            });
+
+            $mesajlar[] = 'Kullanıcılar tablosuna pushToken alanı eklendi > ' . date('Y-m-d H:i:s');
+        }
 
         $mesajlar[] = 'Veritabanı güncellendi > ' . date('Y-m-d H:i:s');
 
