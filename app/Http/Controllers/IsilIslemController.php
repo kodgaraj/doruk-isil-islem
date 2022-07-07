@@ -873,10 +873,7 @@ class IsilIslemController extends Controller
 
             $bildirimDurum = $this->bildirimAt($kullaniciId, [
                 "baslik" => "İşlem Tekrar Edildi",
-                "icerik" => "$islemBilgi->id numaralı idye ait işlem,
-                    $kullaniciAdi adlı kullanıcı tarafından tekrar edildi.
-                    Termin: $gecenSure Gün
-                ",
+                "icerik" => "$islemBilgi->id numaralı idye ait işlem, $kullaniciAdi adlı kullanıcı tarafından tekrar edildi. Termin: $gecenSure Gün",
                 "link" => "/islemler/$islem->id",
                 "kod" => "ISLEM_DURUMU_BILDIRIMI",
                 "actionId" => $islem->id,
