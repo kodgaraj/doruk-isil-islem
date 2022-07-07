@@ -42,7 +42,8 @@ class JwtVerify
                 unset($decoded->jwt);
             }
 
-            // $request->merge(['decoded' => $decoded, 'jwt' => $jwt]);
+            auth()->login(User::find($decoded->id));
+
             return $next($request);
         }
         catch (ExpiredException $e)
