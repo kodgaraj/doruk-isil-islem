@@ -245,6 +245,7 @@ class Controller extends BaseController
                     "body" => $icerik,
                     "data" => [
                         "link" => $link,
+                        "bildirimId" => $bildirim->id,
                     ],
                 ])
             ];
