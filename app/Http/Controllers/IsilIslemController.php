@@ -731,6 +731,7 @@ class IsilIslemController extends Controller
                 "icerik" => "'$islem->id' numaralı idye ait işlem durumu, '$islemDurum->ad' olarak değiştirildi.",
                 "link" => "/islemler/$islem->id",
                 "kod" => "ISLEM_DURUMU_BILDIRIMI",
+                "actionId" => $islem->id,
             ]);
 
             // if (!$bildirimDurum)
@@ -878,6 +879,7 @@ class IsilIslemController extends Controller
                 ",
                 "link" => "/islemler/$islem->id",
                 "kod" => "ISLEM_DURUMU_BILDIRIMI",
+                "actionId" => $islem->id,
             ]);
 
             // if (!$bildirimDurum)

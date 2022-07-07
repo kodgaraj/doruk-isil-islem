@@ -92,6 +92,7 @@ class Controller extends BaseController
                     "icerik" => "$form->formId numaralı idye ait ısıl işlem formu tamamlandı.",
                     "link" => "/isil-islemler/$form->formId",
                     "kod" => "FORM_BILDIRIMI",
+                    "actionId" => $form->formId,
                 ]);
             }
             else
@@ -224,6 +225,7 @@ class Controller extends BaseController
             $icerik = $veriler["icerik"];
             $link = $veriler["link"];
             $kod = $veriler["kod"];
+            $actionId = $veriler["actionId"] ?? null;
 
             $bildirim = new Bildirimler();
             $bildirim->btId = $btid;
@@ -232,7 +234,8 @@ class Controller extends BaseController
             $bildirim->icerik = $icerik;
             $bildirim->json = json_encode([
                 "link" => $link,
-                "kod" => $kod
+                "kod" => $kod,
+                "actionId" => $actionId
             ]);
 
             if (!$bildirim->save())
@@ -250,6 +253,7 @@ class Controller extends BaseController
                     "data" => [
                         "link" => $link,
                         "kod" => $kod,
+                        "actionId" => $actionId,
                         "bildirimId" => $bildirim->id,
                     ],
                 ])
