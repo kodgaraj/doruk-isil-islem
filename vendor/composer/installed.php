@@ -5,7 +5,7 @@
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
-        'reference' => 'f01fa3b0972c7d4b8f096b77ebb29c39e981b1c9',
+        'reference' => 'a4d02c1f310e7b9ffaa02675424c90725b731b07',
         'name' => 'laravel/laravel',
         'dev' => true,
     ),
@@ -24,6 +24,15 @@
             'replaced' => array(
                 0 => '*',
             ),
+        ),
+        'ctwillie/expo-server-sdk-php' => array(
+            'pretty_version' => 'v2.0',
+            'version' => '2.0.0.0',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../ctwillie/expo-server-sdk-php',
+            'aliases' => array(),
+            'reference' => '040f5d0709779b006c1f2838d175e5447444518a',
+            'dev_requirement' => false,
         ),
         'davedevelopment/hamcrest-php' => array(
             'dev_requirement' => true,
@@ -397,7 +406,7 @@
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
-            'reference' => 'f01fa3b0972c7d4b8f096b77ebb29c39e981b1c9',
+            'reference' => 'a4d02c1f310e7b9ffaa02675424c90725b731b07',
             'dev_requirement' => false,
         ),
         'laravel/sail' => array(

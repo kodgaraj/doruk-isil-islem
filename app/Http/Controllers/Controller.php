@@ -15,6 +15,8 @@ use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Routing\Controller as BaseController;
 use Carbon\Carbon;
+use ExpoSDK\Expo;
+use ExpoSDK\ExpoMessage;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -87,7 +89,7 @@ class Controller extends BaseController
 
                 $this->bildirimAt(auth()->user()->id, [
                     "baslik" => "Isıl İşlem Formu Tamamlandı",
-                    "icerik" => "<b>$form->formId</b> numaralı idye ait ısıl işlem formu tamamlandı.",
+                    "icerik" => "$form->formId numaralı idye ait ısıl işlem formu tamamlandı.",
                     "link" => "/isil-islemler/$form->formId",
                     "kod" => "FORM_BILDIRIMI",
                 ]);
@@ -237,6 +239,18 @@ class Controller extends BaseController
                 ];
             }
 
+            $mesajlar = [
+                new ExpoMessage([
+                    "title" => $baslik,
+                    "body" => $icerik,
+                    "data" => [
+                        "link" => $link,
+                    ],
+                ])
+            ];
+
+            $pushTokens = [];
+
             $kullanicilar = User::where("id", "<>", $kullaniciId)->get();
 
             foreach ($kullanicilar as $kullanici)
@@ -252,7 +266,11 @@ class Controller extends BaseController
                         "mesaj" => "Okunmamış bildirim kaydedilemedi.",
                     ];
                 }
+
+                $pushTokens[] = $kullanici->pushToken;
             }
+
+            (new Expo())->send($mesajlar)->to($pushTokens)->push();
 
             return true;
         }

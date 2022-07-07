@@ -17,8 +17,8 @@ class ComposerStaticInit63bb90614ff55ac7e629b5cd06157caa
         '667aeda72477189d0494fecd327c3641' => __DIR__ . '/..' . '/symfony/var-dumper/Resources/functions/dump.php',
         '7b11c4dc42b3b3023073cb14e519683c' => __DIR__ . '/..' . '/ralouphie/getallheaders/src/getallheaders.php',
         'c964ee0ededf28c96ebd9db5099ef910' => __DIR__ . '/..' . '/guzzlehttp/promises/src/functions_include.php',
-        'a4a119a56e50fbb293281d9a48007e0e' => __DIR__ . '/..' . '/symfony/polyfill-php80/bootstrap.php',
         '37a3dc5111fe8f707ab4c132ef1dbc62' => __DIR__ . '/..' . '/guzzlehttp/guzzle/src/functions_include.php',
+        'a4a119a56e50fbb293281d9a48007e0e' => __DIR__ . '/..' . '/symfony/polyfill-php80/bootstrap.php',
         'decc78cc4436b1292c6c0d151b19445c' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/bootstrap.php',
         '801c31d8ed748cfa537fa45402288c95' => __DIR__ . '/..' . '/psy/psysh/src/functions.php',
         '23c18046f52bef3eea034657bafda50f' => __DIR__ . '/..' . '/symfony/polyfill-php81/bootstrap.php',
@@ -32,9 +32,9 @@ class ComposerStaticInit63bb90614ff55ac7e629b5cd06157caa
         '58571171fd5812e6e447dce228f52f4d' => __DIR__ . '/..' . '/laravel/framework/src/Illuminate/Support/helpers.php',
         '6124b4c8570aa390c21fafd04a26c69f' => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy/deep_copy.php',
         'b6b991a57620e2fb6b2f66f03fe9ddc2' => __DIR__ . '/..' . '/symfony/string/Resources/functions.php',
+        '72b1e3f4a2af9b30b3f137b3ec2057fc' => __DIR__ . '/..' . '/spatie/laravel-activitylog/src/helpers.php',
         '320163ac6b93aebe3dc25b60a0533d56' => __DIR__ . '/..' . '/spatie/laravel-ignition/src/helpers.php',
         '377b22b161c09ed6e5152de788ca020a' => __DIR__ . '/..' . '/spatie/laravel-permission/src/helpers.php',
-        '72b1e3f4a2af9b30b3f137b3ec2057fc' => __DIR__ . '/..' . '/spatie/laravel-activitylog/src/helpers.php',
     );
 
     public static $prefixLengthsPsr4 = array (
@@ -152,6 +152,7 @@ class ComposerStaticInit63bb90614ff55ac7e629b5cd06157caa
         ),
         'E' => 
         array (
+            'ExpoSDK\\' => 8,
             'Egulias\\EmailValidator\\' => 23,
         ),
         'D' => 
@@ -478,6 +479,10 @@ class ComposerStaticInit63bb90614ff55ac7e629b5cd06157caa
         array (
             0 => __DIR__ . '/..' . '/facade/ignition-contracts/src',
         ),
+        'ExpoSDK\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/ctwillie/expo-server-sdk-php/src',
+        ),
         'Egulias\\EmailValidator\\' => 
         array (
             0 => __DIR__ . '/..' . '/egulias/email-validator/src',
@@ -554,6 +559,7 @@ class ComposerStaticInit63bb90614ff55ac7e629b5cd06157caa
         'App\\Http\\Controllers\\Auth\\PasswordResetLinkController' => __DIR__ . '/../..' . '/app/Http/Controllers/Auth/PasswordResetLinkController.php',
         'App\\Http\\Controllers\\Auth\\RegisteredUserController' => __DIR__ . '/../..' . '/app/Http/Controllers/Auth/RegisteredUserController.php',
         'App\\Http\\Controllers\\Auth\\VerifyEmailController' => __DIR__ . '/../..' . '/app/Http/Controllers/Auth/VerifyEmailController.php',
+        'App\\Http\\Controllers\\BildirimlerController' => __DIR__ . '/../..' . '/app/Http/Controllers/BildirimlerController.php',
         'App\\Http\\Controllers\\Controller' => __DIR__ . '/../..' . '/app/Http/Controllers/Controller.php',
         'App\\Http\\Controllers\\FirinlarController' => __DIR__ . '/../..' . '/app/Http/Controllers/FirinlarController.php',
         'App\\Http\\Controllers\\FirmaController' => __DIR__ . '/../..' . '/app/Http/Controllers/FirmaController.php',
@@ -562,6 +568,7 @@ class ComposerStaticInit63bb90614ff55ac7e629b5cd06157caa
         'App\\Http\\Controllers\\IslemDurumlariController' => __DIR__ . '/../..' . '/app/Http/Controllers/IslemDurumlariController.php',
         'App\\Http\\Controllers\\IslemTurleriController' => __DIR__ . '/../..' . '/app/Http/Controllers/IslemTurleriController.php',
         'App\\Http\\Controllers\\KullanicilarController' => __DIR__ . '/../..' . '/app/Http/Controllers/KullanicilarController.php',
+        'App\\Http\\Controllers\\LogKayitlariController' => __DIR__ . '/../..' . '/app/Http/Controllers/LogKayitlariController.php',
         'App\\Http\\Controllers\\MalzemeController' => __DIR__ . '/../..' . '/app/Http/Controllers/MalzemeController.php',
         'App\\Http\\Controllers\\RaporlamaController' => __DIR__ . '/../..' . '/app/Http/Controllers/RaporlamaController.php',
         'App\\Http\\Controllers\\RolController' => __DIR__ . '/../..' . '/app/Http/Controllers/RolController.php',
@@ -579,6 +586,8 @@ class ComposerStaticInit63bb90614ff55ac7e629b5cd06157caa
         'App\\Http\\Middleware\\TrustProxies' => __DIR__ . '/../..' . '/app/Http/Middleware/TrustProxies.php',
         'App\\Http\\Middleware\\VerifyCsrfToken' => __DIR__ . '/../..' . '/app/Http/Middleware/VerifyCsrfToken.php',
         'App\\Http\\Requests\\Auth\\LoginRequest' => __DIR__ . '/../..' . '/app/Http/Requests/Auth/LoginRequest.php',
+        'App\\Models\\BildirimTurleri' => __DIR__ . '/../..' . '/app/Models/BildirimTurleri.php',
+        'App\\Models\\Bildirimler' => __DIR__ . '/../..' . '/app/Models/Bildirimler.php',
         'App\\Models\\Firinlar' => __DIR__ . '/../..' . '/app/Models/Firinlar.php',
         'App\\Models\\Firmalar' => __DIR__ . '/../..' . '/app/Models/Firmalar.php',
         'App\\Models\\Formlar' => __DIR__ . '/../..' . '/app/Models/Formlar.php',
@@ -587,6 +596,7 @@ class ComposerStaticInit63bb90614ff55ac7e629b5cd06157caa
         'App\\Models\\Islemler' => __DIR__ . '/../..' . '/app/Models/Islemler.php',
         'App\\Models\\Izinler' => __DIR__ . '/../..' . '/app/Models/Izinler.php',
         'App\\Models\\Malzemeler' => __DIR__ . '/../..' . '/app/Models/Malzemeler.php',
+        'App\\Models\\OkunmamisBildirimler' => __DIR__ . '/../..' . '/app/Models/OkunmamisBildirimler.php',
         'App\\Models\\Roller' => __DIR__ . '/../..' . '/app/Models/Roller.php',
         'App\\Models\\SiparisDurumlari' => __DIR__ . '/../..' . '/app/Models/SiparisDurumlari.php',
         'App\\Models\\Siparisler' => __DIR__ . '/../..' . '/app/Models/Siparisler.php',
@@ -909,6 +919,26 @@ class ComposerStaticInit63bb90614ff55ac7e629b5cd06157caa
         'Egulias\\EmailValidator\\Warning\\QuotedString' => __DIR__ . '/..' . '/egulias/email-validator/src/Warning/QuotedString.php',
         'Egulias\\EmailValidator\\Warning\\TLD' => __DIR__ . '/..' . '/egulias/email-validator/src/Warning/TLD.php',
         'Egulias\\EmailValidator\\Warning\\Warning' => __DIR__ . '/..' . '/egulias/email-validator/src/Warning/Warning.php',
+        'ExpoSDK\\DriverManager' => __DIR__ . '/..' . '/ctwillie/expo-server-sdk-php/src/DriverManager.php',
+        'ExpoSDK\\Drivers\\Driver' => __DIR__ . '/..' . '/ctwillie/expo-server-sdk-php/src/Drivers/Driver.php',
+        'ExpoSDK\\Drivers\\FileDriver' => __DIR__ . '/..' . '/ctwillie/expo-server-sdk-php/src/Drivers/FileDriver.php',
+        'ExpoSDK\\Exceptions\\BadMethodCallException' => __DIR__ . '/..' . '/ctwillie/expo-server-sdk-php/src/Exceptions/BadMethodCallException.php',
+        'ExpoSDK\\Exceptions\\ExpoException' => __DIR__ . '/..' . '/ctwillie/expo-server-sdk-php/src/Exceptions/ExpoException.php',
+        'ExpoSDK\\Exceptions\\ExpoMessageException' => __DIR__ . '/..' . '/ctwillie/expo-server-sdk-php/src/Exceptions/ExpoMessageException.php',
+        'ExpoSDK\\Exceptions\\FileDoesntExistException' => __DIR__ . '/..' . '/ctwillie/expo-server-sdk-php/src/Exceptions/FileDoesntExistException.php',
+        'ExpoSDK\\Exceptions\\InvalidFileException' => __DIR__ . '/..' . '/ctwillie/expo-server-sdk-php/src/Exceptions/InvalidFileException.php',
+        'ExpoSDK\\Exceptions\\InvalidTokensException' => __DIR__ . '/..' . '/ctwillie/expo-server-sdk-php/src/Exceptions/InvalidTokensException.php',
+        'ExpoSDK\\Exceptions\\UnableToReadFileException' => __DIR__ . '/..' . '/ctwillie/expo-server-sdk-php/src/Exceptions/UnableToReadFileException.php',
+        'ExpoSDK\\Exceptions\\UnableToWriteFileException' => __DIR__ . '/..' . '/ctwillie/expo-server-sdk-php/src/Exceptions/UnableToWriteFileException.php',
+        'ExpoSDK\\Exceptions\\UnsupportedDriverException' => __DIR__ . '/..' . '/ctwillie/expo-server-sdk-php/src/Exceptions/UnsupportedDriverException.php',
+        'ExpoSDK\\Expo' => __DIR__ . '/..' . '/ctwillie/expo-server-sdk-php/src/Expo.php',
+        'ExpoSDK\\ExpoClient' => __DIR__ . '/..' . '/ctwillie/expo-server-sdk-php/src/ExpoClient.php',
+        'ExpoSDK\\ExpoErrorManager' => __DIR__ . '/..' . '/ctwillie/expo-server-sdk-php/src/ExpoErrorManager.php',
+        'ExpoSDK\\ExpoMessage' => __DIR__ . '/..' . '/ctwillie/expo-server-sdk-php/src/ExpoMessage.php',
+        'ExpoSDK\\ExpoResponse' => __DIR__ . '/..' . '/ctwillie/expo-server-sdk-php/src/ExpoResponse.php',
+        'ExpoSDK\\File' => __DIR__ . '/..' . '/ctwillie/expo-server-sdk-php/src/File.php',
+        'ExpoSDK\\Traits\\Macroable' => __DIR__ . '/..' . '/ctwillie/expo-server-sdk-php/src/Traits/Macroable.php',
+        'ExpoSDK\\Utils' => __DIR__ . '/..' . '/ctwillie/expo-server-sdk-php/src/Utils.php',
         'Facade\\IgnitionContracts\\BaseSolution' => __DIR__ . '/..' . '/facade/ignition-contracts/src/BaseSolution.php',
         'Facade\\IgnitionContracts\\HasSolutionsForThrowable' => __DIR__ . '/..' . '/facade/ignition-contracts/src/HasSolutionsForThrowable.php',
         'Facade\\IgnitionContracts\\ProvidesSolution' => __DIR__ . '/..' . '/facade/ignition-contracts/src/ProvidesSolution.php',
