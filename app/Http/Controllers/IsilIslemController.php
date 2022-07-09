@@ -1158,4 +1158,69 @@ class IsilIslemController extends Controller
             ], 500);
         }
     }
+
+    public function islemDetay(Request $request)
+    {
+        try
+        {
+            $islemId = $request->islemId;
+
+            $islemTabloAdi = (new Islemler())->getTable();
+            $siparisTabloAdi = (new Siparisler())->getTable();
+            $firmaTabloAdi = (new Firmalar())->getTable();
+            $islemDurumTabloAdi = (new IslemDurumlari())->getTable();
+            $malzemeTabloAdi = (new Malzemeler())->getTable();
+            $islemTuruTabloAdi = (new IslemTurleri())->getTable();
+            $firinTabloAdi = (new Firinlar())->getTable();
+
+            $islem = Islemler::selectRaw("
+                $islemTabloAdi.*,
+                $siparisTabloAdi.firmaId,
+                $siparisTabloAdi.durumId,
+                $siparisTabloAdi.ad as siparisAdi,
+                $siparisTabloAdi.siparisNo,
+                $siparisTabloAdi.aciklama,
+                $siparisTabloAdi.terminSuresi,
+                $siparisTabloAdi.tarih as siparisTarihi,
+                $firmaTabloAdi.firmaAdi,
+                $firmaTabloAdi.sorumluKisi,
+                $islemDurumTabloAdi.ad as islemDurumAdi,
+                $malzemeTabloAdi.ad as malzemeAdi,
+                $islemTuruTabloAdi.ad as islemTuruAdi,
+                $firinTabloAdi.ad as firinAdi,
+                $firinTabloAdi.kod as firinKodu,
+                $firinTabloAdi.json as firinJson
+            ")
+            ->join($siparisTabloAdi, $siparisTabloAdi . '.id', '=', $islemTabloAdi . '.siparisId')
+            ->join($firmaTabloAdi, $firmaTabloAdi . '.id', '=', $siparisTabloAdi . '.firmaId')
+            ->join($islemDurumTabloAdi, $islemDurumTabloAdi . '.id', '=', $islemTabloAdi . '.durumId')
+            ->join($malzemeTabloAdi, $malzemeTabloAdi . '.id', '=', $islemTabloAdi . '.malzemeId')
+            ->join($firinTabloAdi, $firinTabloAdi . '.id', '=', $islemTabloAdi . '.firinId')
+            ->leftJoin($islemTuruTabloAdi, $islemTuruTabloAdi . '.id', '=', $islemTabloAdi . '.islemTuruId')
+            ->where($islemTabloAdi . '.id', $islemId)
+            ->first()
+            ->toArray();
+
+            $islem["firinJson"] = json_decode($islem["firinJson"], true);
+
+            $terminDizisi = $this->terminHesapla($islem["siparisTarihi"], $islem["terminSuresi"] ?? 5);
+            $islem["gecenSure"] = $terminDizisi["gecenSure"];
+            $islem["gecenSureRenk"] = $terminDizisi["gecenSureRenk"];
+
+            return response()->json([
+                "durum" => true,
+                "mesaj" => "İşlem detayı başarılı bir şekilde getirildi.",
+                "islem" => $islem,
+            ], 200);
+        }
+        catch (\Exception $ex)
+        {
+            return response()->json([
+                "durum" => false,
+                "mesaj" => "İşlem detayı getirilirken bir hata oluştu.",
+                "hata" => $ex->getMessage(),
+                "satir" => $ex->getLine(),
+            ], 500);
+        }
+    }
 }
