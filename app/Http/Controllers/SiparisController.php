@@ -51,7 +51,9 @@ class SiparisController extends Controller
                     $siparisDurumTabloAdi.ad as siparisDurumAdi,
                     $firmaTabloAdi.firmaAdi,
                     $firmaTabloAdi.sorumluKisi,
-                    COUNT(IF($islemTabloAdi.deleted_at IS NULL, $islemTabloAdi.id, NULL)) as islemSayisi
+                    COUNT(IF($islemTabloAdi.deleted_at IS NULL, $islemTabloAdi.id, NULL)) as islemSayisi,
+                    SUM($islemTabloAdi.miktar - $islemTabloAdi.dara) as net,
+                    GROUP_CONCAT($islemTabloAdi.resimYolu SEPARATOR '|') as resimler
                 "))
                 ->join($firmaTabloAdi, $firmaTabloAdi . '.id', '=', $siparisTabloAdi . '.firmaId')
                 ->join($siparisDurumTabloAdi, $siparisDurumTabloAdi . '.id', '=', $siparisTabloAdi . '.durumId')
@@ -115,6 +117,8 @@ class SiparisController extends Controller
 
                 $siparis["gecenSure"] = $terminBilgileri["gecenSure"];
                 $siparis["gecenSureRenk"] = $terminBilgileri["gecenSureRenk"];
+
+                $siparis["resimler"] = explode("|", $siparis["resimler"]);
             }
 
             return response()->json([
@@ -290,6 +294,7 @@ class SiparisController extends Controller
                 $islemModel->miktar = $islem['miktar'];
                 $islemModel->dara = $islem['dara'];
                 $islemModel->birimFiyat = $islem['birimFiyat'];
+                $islemModel->miktarFiyatCarp = $islem['miktarFiyatCarp'] ?? 1;
                 $islemModel->kalite = $islem['kalite'];
                 $islemModel->istenilenSertlik = $islem['istenilenSertlik'];
                 $islemModel->json = $islem['json'] ?? null;

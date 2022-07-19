@@ -183,6 +183,17 @@ class DatabaseSeeder extends Seeder
             $mesajlar[] = 'Kullanıcılar tablosuna pushToken alanı eklendi > ' . date('Y-m-d H:i:s');
         }
 
+        // İşlemler tablosuna miktarFiyatCarp alanı eklenmesi
+        if (!Schema::hasColumn("islemler", "miktarFiyatCarp")) {
+            Schema::table("islemler", function (Blueprint $table) {
+                $table->tinyInteger('miktarFiyatCarp')
+                    ->default(1)
+                    ->after('birimFiyat');
+            });
+
+            $mesajlar[] = 'İşlemler tablosuna miktarFiyatCarp alanı eklendi > ' . date('Y-m-d H:i:s');
+        }
+
         $mesajlar[] = 'Veritabanı güncellendi > ' . date('Y-m-d H:i:s');
 
         return implode("<br />", $mesajlar);

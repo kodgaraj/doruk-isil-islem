@@ -76,7 +76,7 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div class="col-12 m-0">
+                                                <div class="col m-0">
                                                     <div class="form-group">
                                                         <label for="firmaFiltre">Firma</label>
                                                         <v-select
@@ -85,6 +85,16 @@
                                                             label="firmaAdi"
                                                             multiple
                                                             id="firmaFiltre"
+                                                        ></v-select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-auto m-0">
+                                                    <div class="form-group">
+                                                        <label for="sayfalamaSayisi">Sayfalama</label>
+                                                        <v-select
+                                                            v-model="sayfalamaSayisi"
+                                                            :options="sayfalamaSayilari"
+                                                            id="sayfalamaSayisi"
                                                         ></v-select>
                                                     </div>
                                                 </div>
@@ -165,11 +175,9 @@
                                                 <thead>
                                                     <tr>
                                                         <th>Termin</th>
-                                                        <th>Sipariş No</th>
                                                         <th data-priority="2">Firma</th>
-                                                        <th data-priority="2">Sipariş</th>
                                                         <th data-priority="3" class="text-center">İşlem Sayısı</th>
-                                                        <th data-priority="1">İrsaliye No</th>
+                                                        <th data-priority="2">Miktar (Net)</th>
                                                         @can("siparis_ucreti_goruntuleme")
                                                             <th data-priority="4">Tutar</th>
                                                         @endcan
@@ -180,9 +188,15 @@
                                                 <tbody>
                                                     <tr v-for="(siparis, index) in siparisler.data" :key="index">
                                                         <td class="kisa-uzunluk">
-                                                            <span class="badge badge-pill" :class="`bg-${ siparis.gecenSureRenk }`">@{{ siparis.gecenSure }} Gün</span>
+                                                            <div class="row">
+                                                                <div class="col-12">
+                                                                    <span class="badge badge-pill" :class="`bg-${ siparis.gecenSureRenk }`">@{{ siparis.gecenSure }} Gün</span>
+                                                                </div>
+                                                                <div class="col-12">
+                                                                    <span class="badge badge-pill bg-primary">@{{ siparis.siparisNo }}</span>
+                                                                </div>
+                                                            </div>
                                                         </td>
-                                                        <td class="kisa-uzunluk">@{{ siparis.siparisNo }}</td>
                                                         <td class="orta-uzunluk">
                                                             <div class="row">
                                                                 <div class="col-12">
@@ -193,9 +207,8 @@
                                                                 </div>
                                                             </div>
                                                         </td>
-                                                        <td class="uzun-uzunluk">@{{ siparis.siparisAdi }}</td>
                                                         <td class="kisa-uzunluk text-center">@{{ siparis.islemSayisi }}</td>
-                                                        <td class="kisa-uzunluk">@{{ siparis.irsaliyeNo }}</td>
+                                                        <td class="kisa-uzunluk">@{{ siparis.net }} KG</td>
                                                         @can("siparis_ucreti_goruntuleme")
                                                             <td class="kisa-uzunluk">@{{ siparis.tutar ? siparis.tutar + "₺" : "-" }}</td>
                                                         @endcan
@@ -459,9 +472,6 @@
                                                         <div class="col-12">
                                                             @{{ firma.firmaAdi }}
                                                         </div>
-                                                        <div class="col-12">
-                                                            (@{{ firma.sorumluKisi }})
-                                                        </div>
                                                     </div>
                                                 </template>
                                                 <div slot="no-options">Firma bulunamadı!</div>
@@ -480,18 +490,6 @@
                                     </div>
                                 </template>
                             </div>
-                            @canany(["siparis_kaydetme", "siparis_duzenleme"])
-                                @can("siparis_ucreti_goruntuleme")
-                                    <div class="mb-3 col-12 col-sm-6 col-md-4 d-flex align-items-center" v-if="!aktifSiparis.onizlemeModu">
-                                        <div class="form-check form-switch h5">
-                                            <input class="form-check-input" type="checkbox" value="" id="miktarFiyatCarp" v-model="aktifSiparis.miktarFiyatCarp">
-                                            <label class="form-check-label" for="miktarFiyatCarp">
-                                                Net x Tutar
-                                            </label>
-                                        </div>
-                                    </div>
-                                @endcan
-                            @endcan
                             <div class="form-group col-12 mb-2">
                                 <template v-if="aktifSiparis.onizlemeModu">
                                     <label for="aciklama">Açıklama</label>
@@ -615,8 +613,14 @@
                                                     <b><h5>@{{ islem.net ? islem.net : "0" }}</h5></b>
                                                 </td>
                                                 @can("siparis_ucreti_goruntuleme")
-                                                    <td class="kisa-uzunluk">
+                                                    <td class="orta-uzunluk">
                                                         <input class="form-control" type="number" placeholder="Birim Fiyat" v-model="islem.birimFiyat">
+                                                        <div class="form-check form-switch">
+                                                            <input class="form-check-input" type="checkbox" value="" id="miktarFiyatCarp" v-model="islem.miktarFiyatCarp">
+                                                            <label class="form-check-label" for="miktarFiyatCarp">
+                                                                <small>Net x Tutar</small>
+                                                            </label>
+                                                        </div>
                                                     </td>
                                                 @endcan
                                                 <td class="kisa-uzunluk">
@@ -730,6 +734,8 @@
                     bitisTarihi: null,
                     limit: 10,
                 },
+                sayfalamaSayilari: [10, 25, 50, 100],
+                sayfalamaSayisi: 10,
             }
         },
         mounted() {
@@ -747,19 +753,11 @@
 
                         islem.net = _.toNumber(islem.miktar) - _.toNumber(islem.dara);
 
-                        const birimFiyat = (this.aktifSiparis.miktarFiyatCarp ? islem.net : 1) * _.toNumber(islem.birimFiyat);
+                        const birimFiyat = (islem.miktarFiyatCarp ? islem.net : 1) * _.toNumber(islem.birimFiyat);
                         toplam += _.toNumber(birimFiyat);
                     }
 
                     this.aktifSiparis.tutar = toplam;
-                },
-                deep: true
-            },
-            "aktifSiparis.miktarFiyatCarp": {
-                handler: function (newValue, oldValue) {
-                    if (!this.aktifSiparis) return;
-
-                    this.aktifSiparis.islemler = _.cloneDeep(this.aktifSiparis.islemler);
                 },
                 deep: true
             },
@@ -782,6 +780,7 @@
                 axios.get(url, {
                     params: {
                         filtreleme: this.filtrelemeObjesi,
+                        sayfalamaSayisi: this.sayfalamaSayisi,
                     }
                 })
                 .then(response => {
@@ -813,7 +812,6 @@
                     islemler: [],
                     firma: null,
                     onizlemeModu: false,
-                    miktarFiyatCarp: true,
                 };
 
                 this.numaralariGetir();
@@ -1008,6 +1006,7 @@
                     yapilacakIslem: null,
                     istenilenSertlik: "",
                     islemDurumu: null,
+                    miktarFiyatCarp: true,
                 };
 
                 if (!this.malzemeler.length && !this.yukleniyorObjesi.malzemeler) {
@@ -1157,7 +1156,6 @@
                     const aktifSiparis = {
                         ...siparis,
                         islemler: response.data.veriler.islemler,
-                        miktarFiyatCarp: true,
                     };
 
                     const firma = _.find(this.firmalar, {
