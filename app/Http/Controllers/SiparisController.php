@@ -22,7 +22,9 @@ class SiparisController extends Controller
      */
     public function index()
     {
-        return view('siparis-formu');
+        return view('siparis-formu', [
+            "paraBirimleri" => array_values($this->paraBirimleri),
+        ]);
     }
 
     public function siparisler(Request $request)
@@ -53,7 +55,28 @@ class SiparisController extends Controller
                     $firmaTabloAdi.sorumluKisi,
                     COUNT(IF($islemTabloAdi.deleted_at IS NULL, $islemTabloAdi.id, NULL)) as islemSayisi,
                     SUM($islemTabloAdi.miktar - $islemTabloAdi.dara) as net,
-                    GROUP_CONCAT($islemTabloAdi.resimYolu SEPARATOR '|') as resimler
+                    SUM(
+                        IF(
+                            $islemTabloAdi.paraBirimi = 'TL',
+                            IF (
+                                $islemTabloAdi.miktarFiyatCarp,
+                                $islemTabloAdi.birimFiyat * ($islemTabloAdi.miktar - $islemTabloAdi.dara),
+                                $islemTabloAdi.birimFiyat
+                            ),
+                            0
+                        )
+                    ) as tutarTL,
+                    SUM(
+                        IF(
+                            $islemTabloAdi.paraBirimi = 'USD',
+                            IF (
+                                $islemTabloAdi.miktarFiyatCarp,
+                                $islemTabloAdi.birimFiyat * ($islemTabloAdi.miktar - $islemTabloAdi.dara),
+                                $islemTabloAdi.birimFiyat
+                            ),
+                            0
+                        )
+                    ) as tutarUSD
                 "))
                 ->join($firmaTabloAdi, $firmaTabloAdi . '.id', '=', $siparisTabloAdi . '.firmaId')
                 ->join($siparisDurumTabloAdi, $siparisDurumTabloAdi . '.id', '=', $siparisTabloAdi . '.durumId')
@@ -118,7 +141,13 @@ class SiparisController extends Controller
                 $siparis["gecenSure"] = $terminBilgileri["gecenSure"];
                 $siparis["gecenSureRenk"] = $terminBilgileri["gecenSureRenk"];
 
-                $siparis["resimler"] = explode("|", $siparis["resimler"]);
+                $siparis["tutarTLYazi"] = $this->yaziyaDonustur($siparis["tutarTL"], [
+                    "paraBirimi" => $this->paraBirimleri["TL"],
+                ]);
+                $siparis["tutarUSDYazi"] = $this->yaziyaDonustur($siparis["tutarUSD"], [
+                    "paraBirimi" => $this->paraBirimleri["USD"],
+                ]);
+                $siparis["netYazi"] = $this->yaziyaDonustur($siparis["net"], ["kg" => true]);
             }
 
             return response()->json([
@@ -294,6 +323,7 @@ class SiparisController extends Controller
                 $islemModel->miktar = $islem['miktar'];
                 $islemModel->dara = $islem['dara'];
                 $islemModel->birimFiyat = $islem['birimFiyat'];
+                $islemModel->paraBirimi = $islem['paraBirimi']["kod"] ?? "TL";
                 $islemModel->miktarFiyatCarp = $islem['miktarFiyatCarp'] ?? 1;
                 $islemModel->kalite = $islem['kalite'];
                 $islemModel->istenilenSertlik = $islem['istenilenSertlik'];
@@ -425,6 +455,17 @@ class SiparisController extends Controller
                     $siparisDetaylari["gecenSureRenk"] = $terminBilgileri["gecenSureRenk"];
 
                 $donecekVeriler["siparisDetaylari"] = $siparisDetaylari;
+            }
+
+            foreach ($donecekVeriler["islemler"] as &$islem)
+            {
+                $paraBirimi = $this->paraBirimleri[$islem["paraBirimi"]];
+                $islem["miktarYazi"] = $this->yaziyaDonustur($islem["miktar"], ["kg" => true]);
+                $islem["daraYazi"] = $this->yaziyaDonustur($islem["dara"], ["kg" => true]);
+                $islem["birimFiyatYazi"] = $this->yaziyaDonustur($islem["birimFiyat"], [
+                    "paraBirimi" => $paraBirimi
+                ]);
+                $islem["paraBirimi"] = $paraBirimi;
             }
 
             return response()->json([

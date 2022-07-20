@@ -337,6 +337,8 @@
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <!-- v-mask -->
     <script src="https://cdn.jsdelivr.net/npm/v-mask/dist/v-mask.min.js"></script>
+    <!-- v-money -->
+    <script src="https://cdn.jsdelivr.net/npm/v-money@0.8.1/dist/v-money.min.js"></script>
     <!-- lodash -->
     <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
     <!-- momentjs -->
@@ -352,6 +354,7 @@
     <script>
         moment.locale("tr");
 
+        Vue.use(VMoney, { precision: 2 });
         Vue.use(VueMask.VueMaskPlugin);
         Vue.component('v-select', VueSelect.VueSelect);
 
