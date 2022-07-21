@@ -213,9 +213,9 @@
                             ></textarea>
                         </div>
                         <div class="row mt-3">
-                            <div class="col-12" v-for="(firma, fIndex) in aktifForm.firmaGrupluIslemler.data" :key="fIndex">
+                            <div class="col-12 mt-2" v-for="(firma, fIndex) in aktifForm.firmaGrupluIslemler.data" :key="fIndex">
                                 <div class="row">
-                                    <h5>@{{ firma.firmaAdi }} (@{{ firma.sorumluKisi }})</h5>
+                                    <h5>@{{ firma.firmaAdi }}</h5>
                                 </div>
                                 <div class="table-rep-plugin">
                                     <div class="table-responsive mb-0" data-pattern="priority-columns">
@@ -268,7 +268,7 @@
                                                             @click.stop="resimOnizlemeAc(islem.resimYolu)"
                                                         />
                                                     </td>
-                                                    <td class="orta-uzunluk">
+                                                    <td class="uzun-uzunluk">
                                                         <div class="row">
                                                             <div class="col-12">
                                                                 @{{ islem.malzemeAdi }}
@@ -281,6 +281,9 @@
                                                             </div>
                                                             <div class="col-12">
                                                                 <small class="text-muted">Dara: @{{ islem.dara }} kg</small>
+                                                            </div>
+                                                            <div class="col-12">
+                                                                <small class="text-muted"><b>Net: @{{ islem.net }} kg</b></small>
                                                             </div>
                                                         </div>
                                                     </td>
@@ -395,6 +398,7 @@
                                             <tr>
                                                 <th>Fırın</th>
                                                 <th>Şarj</th>
+                                                <th class="text-center">Resim</th>
                                                 <th>Firma</th>
                                                 <th>Malzeme</th>
                                                 <th>İst. Sertlik</th>
@@ -426,6 +430,13 @@
                                                                 v-if="islemIndex === 0"
                                                             >
                                                                 <span>@{{ sarj.sarj }}. Şarj</span>
+                                                            </td>
+                                                            <td class="kisa-uzunluk text-center">
+                                                                <img
+                                                                    :src="islem.resimYolu ? islem.resimYolu : varsayilanResimYolu"
+                                                                    class="kg-resim-sec"
+                                                                    @click.stop="resimOnizlemeAc(islem.resimYolu)"
+                                                                />
                                                             </td>
                                                             <td class="orta-uzunluk align-left">@{{ islem.firmaAdi }}</td>
                                                             <td class="kisa-uzunluk align-left">@{{ islem.malzemeAdi }}</td>

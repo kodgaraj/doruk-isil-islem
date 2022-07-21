@@ -168,6 +168,7 @@ class IsilIslemController extends Controller
                     $islemTabloAdi.adet,
                     $islemTabloAdi.miktar,
                     $islemTabloAdi.dara,
+                    ($islemTabloAdi.miktar - $islemTabloAdi.dara) as net,
                     $islemTabloAdi.kalite,
                     $islemTabloAdi.istenilenSertlik,
                     $islemTabloAdi.sicaklik,
