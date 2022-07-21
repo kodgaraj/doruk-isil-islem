@@ -43,8 +43,7 @@
                                             <table id="tech-companies-1" class="table table-striped table-hover">
                                                 <thead>
                                                     <tr>
-                                                        <th class="text-center">Form ID</th>
-                                                        <th>Takip No</th>
+                                                        <th>ID/Takip No</th>
                                                         <th>Form Adı</th>
                                                         <th class="text-center">İşlem Sayısı</th>
                                                         <th>Baslangıç/Bitiş Tarihi</th>
@@ -53,21 +52,30 @@
                                                 </thead>
                                                 <tbody>
                                                     <tr v-for="(form, index) in formlar.data" :key="index">
-                                                        <td class="kisa-uzunluk text-center"># @{{ form.id }}</td>
-                                                        <td class="kisa-uzunluk">@{{ form.takipNo }}</td>
+                                                        <td class="kisa-uzunluk">
+                                                            <div class="row">
+                                                                <div class="col-12">
+                                                                    <span># @{{ form.id }}</span>
+                                                                    <i v-if="form.bitisTarihi" class="fas fa-check text-success"></i>
+                                                                </div>
+                                                                <div class="col-12">
+                                                                    <span class="badge badge-pill bg-primary">@{{ form.takipNo }}</span>
+                                                                </div>
+                                                            </div>
+                                                        </td>
                                                         <td class="uzun-uzunluk">@{{ form.formAdi }}</td>
                                                         <td class="text-center kisa-uzunluk">@{{ form.islemSayisi }}</td>
                                                         <td class="kisa-uzunluk">
                                                             <div class="row">
                                                                 <div class="col-12">
-                                                                    <span>@{{ form.baslangicTarihi }}</span>
+                                                                    <span>@{{ m(form.baslangicTarihi).format("L") }}</span>
                                                                 </div>
                                                                 <div class="col-12">
                                                                     <span v-if="form.bitisTarihi">
-                                                                        @{{ form.bitisTarihi }}
+                                                                        @{{ m(form.bitisTarihi).format("L") }}
                                                                     </span>
                                                                     <small v-else class="text-muted">
-                                                                        Form henüz tamamlanmadı
+                                                                        <i>(Form henüz tamamlanmadı)</i>
                                                                     </small>
                                                                 </div>
                                                             </div>
@@ -95,6 +103,9 @@
                                                                         </button>
                                                                     </div>
                                                                 @endcan
+                                                                <div class="col-12">
+                                                                    <span class="badge badge-pill bg-success">Son Düzenleyen: @{{ form.duzenleyen }}</span>
+                                                                </div>
                                                             </div>
                                                         </td>
                                                     </tr>
@@ -140,11 +151,14 @@
                 </template>
                 <template v-else-if="aktifSayfa.kod === 'YENI_FORM'">
                     <div class="row">
-                        <div class="col-8">
+                        <div class="col-12 col-sm-8">
                             <div class="d-flex flex-row align-items-center">
                                 <button @click="geriAnasayfa" class="btn btn-warning"><i class="fas fa-arrow-left"></i> GERİ</button>
-                                <h4 class="card-title m-0 ms-2">
+                                <h4 class="card-title m-0 ms-2 text-nowrap text-truncate">
                                     ISIL İŞLEM FORMU EKLEME
+                                    <div class="col-12" v-if="aktifForm.duzenleyen">
+                                        <span class="badge badge-pill bg-success">Son Düzenleyen: @{{ aktifForm.duzenleyen }}</span>
+                                    </div>
                                     <div class="d-inline-flex" v-if="araYukleniyor">
                                         <div class="spinner-grow text-primary m-1 spinner-grow-sm" role="status">
                                             <span class="sr-only">Yükleniyor...</span>
@@ -153,7 +167,7 @@
                                 </h4>
                             </div>
                         </div>
-                        <div class="col-4 text-end">
+                        <div class="col-12 col-sm-4 text-end">
                             <button
                                 @click="formHazirla()"
                                 class="btn btn-primary"
@@ -353,11 +367,14 @@
                 </template>
                 <template v-else-if="aktifSayfa.kod === 'FORM_GORUNUMU'">
                     <div class="row">
-                        <div class="col-8">
+                        <div class="col-12 col-sm-8">
                             <div class="d-flex flex-row align-items-center">
                                 <button @click="geriYeniForm" class="btn btn-warning"><i class="fas fa-arrow-left"></i> GERİ</button>
-                                <h4 class="card-title m-0 ms-2">
+                                <h4 class="card-title m-0 ms-2 text-nowrap text-truncate">
                                     @{{ aktifForm.formAdi }}
+                                    <div class="col-12" v-if="aktifForm.duzenleyen">
+                                        <span class="badge badge-pill bg-success">Son Düzenleyen: @{{ aktifForm.duzenleyen }}</span>
+                                    </div>
                                     <div class="d-inline-flex" v-if="araYukleniyor">
                                         <div class="spinner-grow text-primary m-1 spinner-grow-sm" role="status">
                                             <span class="sr-only">Yükleniyor...</span>
@@ -366,7 +383,7 @@
                                 </h4>
                             </div>
                         </div>
-                        <div class="col-4 text-end">
+                        <div class="col-12 col-sm-4 text-end">
                             @can("isil_islem_formu_duzenleme")
                                 <button @click="moduDegistir" class="btn btn-outline-info">
                                     <i class="fas fa-eye" v-if="!aktifForm.onizlemeModu"></i>

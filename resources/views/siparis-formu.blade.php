@@ -239,6 +239,9 @@
                                                                         <button @click="siparisSil(siparis)" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>
                                                                     </div>
                                                                 @endcan
+                                                                <div class="col-12">
+                                                                    <span class="badge badge-pill bg-success">Son Düzenleyen: @{{ siparis.duzenleyen }}</span>
+                                                                </div>
                                                             </div>
                                                         </td>
                                                     </tr>
@@ -290,6 +293,9 @@
                                 <h4 class="card-title m-0 ms-2">
                                     <template v-if="aktifSiparis.siparisId">
                                         @{{ aktifSiparis.siparisAdi }}
+                                        <div class="col-12" v-if="aktifSiparis.duzenleyen">
+                                            <span class="badge badge-pill bg-success">Son Düzenleyen: @{{ aktifSiparis.duzenleyen }}</span>
+                                        </div>
                                     </template>
                                     <template v-else>
                                         SİPARİŞ EKLEME

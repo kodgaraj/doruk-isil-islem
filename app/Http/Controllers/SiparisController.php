@@ -8,6 +8,7 @@ use App\Models\IslemTurleri;
 use App\Models\Malzemeler;
 use App\Models\SiparisDurumlari;
 use App\Models\Siparisler;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -38,6 +39,7 @@ class SiparisController extends Controller
             $siparisDurumTabloAdi = (new SiparisDurumlari())->getTable();
             $siparisTabloAdi = (new Siparisler())->getTable();
             $islemTabloAdi = (new Islemler())->getTable();
+            $kullaniciTabloAdi = (new User())->getTable();
 
             $siparisler = Siparisler::select(DB::raw("
                     $siparisTabloAdi.id as siparisId,
@@ -53,6 +55,7 @@ class SiparisController extends Controller
                     $siparisDurumTabloAdi.ad as siparisDurumAdi,
                     $firmaTabloAdi.firmaAdi,
                     $firmaTabloAdi.sorumluKisi,
+                    $kullaniciTabloAdi.name as duzenleyen,
                     COUNT(IF($islemTabloAdi.deleted_at IS NULL, $islemTabloAdi.id, NULL)) as islemSayisi,
                     SUM($islemTabloAdi.miktar - $islemTabloAdi.dara) as net,
                     SUM(
@@ -81,6 +84,7 @@ class SiparisController extends Controller
                 ->join($firmaTabloAdi, $firmaTabloAdi . '.id', '=', $siparisTabloAdi . '.firmaId')
                 ->join($siparisDurumTabloAdi, $siparisDurumTabloAdi . '.id', '=', $siparisTabloAdi . '.durumId')
                 ->leftJoin($islemTabloAdi, $islemTabloAdi . '.siparisId', '=', $siparisTabloAdi . '.id')
+                ->leftJoin($kullaniciTabloAdi, $kullaniciTabloAdi . '.id', '=', $siparisTabloAdi . '.userId')
                 ->groupBy(
                     $siparisTabloAdi . '.id',
                     $siparisTabloAdi . '.ad',
@@ -94,7 +98,8 @@ class SiparisController extends Controller
                     $siparisTabloAdi . '.aciklama',
                     $siparisDurumTabloAdi . '.ad',
                     $firmaTabloAdi . '.firmaAdi',
-                    $firmaTabloAdi . '.sorumluKisi'
+                    $firmaTabloAdi . '.sorumluKisi',
+                    $kullaniciTabloAdi . '.name',
                 )
                 ->orderBy($siparisTabloAdi . '.created_at', 'desc');
 

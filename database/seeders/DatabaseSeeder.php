@@ -235,6 +235,18 @@ class DatabaseSeeder extends Seeder
             $mesajlar[] = 'İşlemler tablosuna paraBirimi alanı eklendi > ' . date('Y-m-d H:i:s');
         }
 
+        // Formlar tablosuna userId alanı eklenmesi
+        if (!Schema::hasColumn("formlar", "userId")) {
+            Schema::table("formlar", function (Blueprint $table) {
+                $table->integer('userId')
+                    ->nullable()
+                    ->after('id')
+                    ->comment("Formu oluşturan kullanıcı idsi (users tablosundan)");
+            });
+
+            $mesajlar[] = 'Formlar tablosuna userId alanı eklendi > ' . date('Y-m-d H:i:s');
+        }
+
         $mesajlar[] = 'Veritabanı güncellendi > ' . date('Y-m-d H:i:s');
 
         return implode("<br />", $mesajlar);

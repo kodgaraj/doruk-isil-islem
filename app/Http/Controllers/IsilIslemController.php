@@ -28,6 +28,7 @@ class IsilIslemController extends Controller
         {
             $formTabloAdi = (new Formlar())->getTable();
             $islemTabloAdi = (new Islemler())->getTable();
+            $kullaniciTabloAdi = (new User())->getTable();
 
             $formlar = Formlar::select(DB::raw("
                     $formTabloAdi.id as id,
@@ -35,15 +36,18 @@ class IsilIslemController extends Controller
                     $formTabloAdi.takipNo,
                     $formTabloAdi.baslangicTarihi,
                     $formTabloAdi.bitisTarihi,
+                    $kullaniciTabloAdi.name as duzenleyen,
                     COUNT(IF($islemTabloAdi.deleted_at IS NULL, $islemTabloAdi.id, NULL)) as islemSayisi
                 "))
                 ->join($islemTabloAdi, $formTabloAdi . '.id', '=', $islemTabloAdi . '.formId')
+                ->leftJoin($kullaniciTabloAdi, $formTabloAdi . '.userId', '=', $kullaniciTabloAdi . '.id')
                 ->groupBy(
                     $formTabloAdi . '.id',
                     $formTabloAdi . '.formAdi',
                     $formTabloAdi . '.takipNo',
                     $formTabloAdi . '.baslangicTarihi',
-                    $formTabloAdi . '.bitisTarihi'
+                    $formTabloAdi . '.bitisTarihi',
+                    $kullaniciTabloAdi . '.name'
                 )
                 ->orderBy($formTabloAdi . '.id', 'desc')
                 ->paginate(10);
@@ -277,6 +281,7 @@ class IsilIslemController extends Controller
                 $form = new Formlar();
             }
 
+            $form->userId = auth()->user()->id;
             $form->takipNo = $formBilgileri["takipNo"];
             $form->formAdi = $formBilgileri["formAdi"];
             $form->baslangicTarihi = $formBilgileri["baslangicTarihi"];
