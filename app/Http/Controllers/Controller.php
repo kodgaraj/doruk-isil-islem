@@ -25,6 +25,21 @@ class Controller extends BaseController
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
 
+    protected $paraBirimleri = [
+        "TL" => [
+            "kod" => "TL",
+            "sembol" => "₺",
+            "ad" => "TL (₺)",
+            "maske" => "tl",
+        ],
+        "USD" => [
+            "kod" => "USD",
+            "sembol" => "$",
+            "ad" => "USD ($)",
+            "maske" => "usd",
+        ],
+    ];
+
     public function terminHesapla($tarih, $terminSuresi = 5)
     {
         $birinciFaz = floor($terminSuresi * 30 / 100);
@@ -408,5 +423,49 @@ class Controller extends BaseController
     {
         $kullaniciId = $kullaniciId ?: Auth::user()->id;
         return OkunmamisBildirimler::where("kullaniciId", $kullaniciId)->count();
+    }
+
+    public function floatDonustur($deger, $parametreler = [])
+    {
+        $arr = explode(".", $deger);
+        $binliksizPara = implode("", $arr);
+        $sayi = str_replace(",", ".", $binliksizPara);
+
+        if (isset($parametreler["paraBirimi"]))
+        {
+            $sayi = str_replace($parametreler["paraBirimi"]["sembol"], "", $sayi);
+        }
+        else if (isset($parametreler["kg"]))
+        {
+            $sayi = str_replace("kg", "", $sayi);
+        }
+
+        return round($sayi, 2);
+    }
+
+    public function yaziyaDonustur($deger, $parametreler = [])
+    {
+        $stringDeger = (string) $deger;
+        $arr = explode(".", $stringDeger);
+        $sayi = $arr[0];
+        if (isset($arr[1]) && $arr[1])
+        {
+            $sayi .= "," . str_pad($arr[1], 2, "0");
+        }
+        else
+        {
+            $sayi .= ",00";
+        }
+
+        if (isset($parametreler["paraBirimi"]))
+        {
+            $sayi = $sayi . " " . $parametreler["paraBirimi"]["sembol"];
+        }
+        else if (isset($parametreler["kg"]))
+        {
+            $sayi = $sayi . " kg";
+        }
+
+        return $sayi;
     }
 }

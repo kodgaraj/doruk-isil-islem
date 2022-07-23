@@ -208,9 +208,18 @@
                                                             </div>
                                                         </td>
                                                         <td class="kisa-uzunluk text-center">@{{ siparis.islemSayisi }}</td>
-                                                        <td class="kisa-uzunluk">@{{ siparis.net }} KG</td>
+                                                        <td class="kisa-uzunluk">@{{ siparis.netYazi }}</td>
                                                         @can("siparis_ucreti_goruntuleme")
-                                                            <td class="kisa-uzunluk">@{{ siparis.tutar ? siparis.tutar + "₺" : "-" }}</td>
+                                                            <td class="kisa-uzunluk">
+                                                                <div class="row">
+                                                                    <div class="col-12">
+                                                                        @{{ siparis.tutarTLYazi ? siparis.tutarTLYazi : "-" }}
+                                                                    </div>
+                                                                    <div class="col-12" v-if="siparis.tutarUSD">
+                                                                        @{{ siparis.tutarUSDYazi }}
+                                                                    </div>
+                                                                </div>
+                                                            </td>
                                                         @endcan
                                                         <td class="kisa-uzunluk">@{{ m(siparis.tarih).format("L") }}</td>
                                                         <td class="uzun-uzunluk text-center">
@@ -230,6 +239,9 @@
                                                                         <button @click="siparisSil(siparis)" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>
                                                                     </div>
                                                                 @endcan
+                                                                <div class="col-12">
+                                                                    <span class="badge badge-pill bg-success">Son Düzenleyen: @{{ siparis.duzenleyen }}</span>
+                                                                </div>
                                                             </div>
                                                         </td>
                                                     </tr>
@@ -281,6 +293,9 @@
                                 <h4 class="card-title m-0 ms-2">
                                     <template v-if="aktifSiparis.siparisId">
                                         @{{ aktifSiparis.siparisAdi }}
+                                        <div class="col-12" v-if="aktifSiparis.duzenleyen">
+                                            <span class="badge badge-pill bg-success">Son Düzenleyen: @{{ aktifSiparis.duzenleyen }}</span>
+                                        </div>
                                     </template>
                                     <template v-else>
                                         SİPARİŞ EKLEME
@@ -356,7 +371,7 @@
                                     />
                                 </template>
                             </div>
-                            <div class="col-12 col-sm-6 col-md-4 mb-2">
+                            {{-- <div class="col-12 col-sm-6 col-md-4 mb-2">
                                 <template v-if="aktifSiparis.onizlemeModu">
                                     <div class="form-group">
                                         <label for="siparisAdi">Sipariş Adı</label>
@@ -373,7 +388,7 @@
                                     />
                                     <small class="text-muted">Siparişe özel bir isim girebilirsiniz</small>
                                 </template>
-                            </div>
+                            </div> --}}
                             <div class="col-12 col-sm-6 col-md-4 mb-2">
                                 <template v-if="aktifSiparis.onizlemeModu">
                                     <div class="form-group">
@@ -392,24 +407,43 @@
                                     />
                                 </template>
                             </div>
-                            <div class="col-6 col-sm-2 mb-2">
+                            <div class="col-6 col-sm-6 col-md-4 mb-2">
                                 <template v-if="aktifSiparis.onizlemeModu">
                                     <div class="form-group">
-                                        <label for="toplamTutar">Toplam Tutar</label>
-                                        <h5 id="toplamTutar">@{{ aktifSiparis.tutar }} ₺</h5>
+                                        <label for="toplamTutar">Toplam TL (₺)</label>
+                                        <h5 id="toplamTutar">@{{ aktifSiparis.tutarTLYazi }} ₺</h5>
                                     </div>
                                 </template>
                                 <template v-else>
-                                    <label class="form-label">Toplam Tutar</label>
+                                    <label class="form-label">Toplam TL (₺)</label>
                                     <input
-                                        v-model="aktifSiparis.tutar"
+                                        v-model.lazy="aktifSiparis.tutarTLYazi"
+                                        v-money="maskeler.tl"
                                         class="form-control"
                                         placeholder="Toplam tutarını giriniz..."
-                                        type="number"
+                                        disabled
                                     />
                                 </template>
                             </div>
-                            <div class="col-6 col-sm-2 mb-2">
+                            <div class="col-6 col-sm-6 col-md-4 mb-2">
+                                <template v-if="aktifSiparis.onizlemeModu">
+                                    <div class="form-group">
+                                        <label for="toplamTutar">Toplam USD ($)</label>
+                                        <h5 id="toplamTutar">@{{ aktifSiparis.tutarUSDYazi }} ₺</h5>
+                                    </div>
+                                </template>
+                                <template v-else>
+                                    <label class="form-label">Toplam USD ($)</label>
+                                    <input
+                                        v-model.lazy="aktifSiparis.tutarUSDYazi"
+                                        v-money="maskeler.usd"
+                                        class="form-control"
+                                        placeholder="Toplam tutarını giriniz..."
+                                        disabled
+                                    />
+                                </template>
+                            </div>
+                            <div class="col-6 col-sm-6 col-md-4 mb-2">
                                 <template v-if="aktifSiparis.onizlemeModu">
                                     <div class="form-group">
                                         <label for="terminSuresi">Termin</label>
@@ -519,6 +553,7 @@
                                         <th class="text-center">Net (KG)</th>
                                         @can("siparis_ucreti_goruntuleme")
                                             <th>Tutar</th>
+                                            <th v-if="!aktifSiparis.onizlemeModu">Para Birimi</th>
                                         @endcan
                                         <th>Kalite</th>
                                         <th>Yapılacak İşlem</th>
@@ -536,15 +571,15 @@
                                                         class="kg-resim-sec"
                                                     />
                                                 </td>
-                                                <td>@{{ islem.malzeme.ad }}</td>
+                                                <td>@{{ islem.malzeme ? islem.malzeme.ad : "-" }}</td>
                                                 <td>@{{ islem.adet ? islem.adet : "0" }}</td>
-                                                <td>@{{ islem.miktar ? islem.miktar : "0" }}</td>
-                                                <td>@{{ islem.dara ? islem.dara : "0" }}</td>
+                                                <td>@{{ islem.miktarYazi ? islem.miktarYazi : "0" }}</td>
+                                                <td>@{{ islem.daraYazi ? islem.daraYazi : "0" }}</td>
                                                 <td class="kisa-uzunluk text-center">
-                                                    <b><h5>@{{ islem.net ? islem.net : "0" }}</h5></b>
+                                                    <b><h5>@{{ islem.netYazi ? islem.netYazi : "0" }}</h5></b>
                                                 </td>
                                                 @can("siparis_ucreti_goruntuleme")
-                                                    <td>@{{ islem.birimFiyat }} ₺</td>
+                                                    <td>@{{ islem.birimFiyatYazi }}</td>
                                                 @endcan
                                                 <td>@{{ islem.kalite ? islem.kalite : "-" }}</td>
                                                 <td>@{{ islem.yapilacakIslem ? islem.yapilacakIslem.ad : "-" }}</td>
@@ -604,23 +639,46 @@
                                                     <input class="form-control" type="number" placeholder="Adet" v-model="islem.adet">
                                                 </td>
                                                 <td class="orta-uzunluk text-center">
-                                                    <input class="form-control" type="number" placeholder="Miktar (KG)" v-model="islem.miktar">
+                                                    <input
+                                                        class="form-control"
+                                                        v-money="maskeler.kg"
+                                                        placeholder="Miktar (KG)"
+                                                        v-model="islem.miktarYazi"
+                                                    />
                                                 </td>
-                                                <td class="kisa-uzunluk">
-                                                    <input class="form-control" type="number" placeholder="Dara (KG)" v-model="islem.dara">
+                                                <td class="orta-uzunluk text-center">
+                                                    <input
+                                                        class="form-control"
+                                                        placeholder="Dara (KG)"
+                                                        v-model="islem.daraYazi"
+                                                        v-money="maskeler.kg"
+                                                    />
                                                 </td>
                                                 <td class="kisa-uzunluk text-center">
-                                                    <b><h5>@{{ islem.net ? islem.net : "0" }}</h5></b>
+                                                    <b><h5>@{{ islem.netYazi ? islem.netYazi : "0" }}</h5></b>
                                                 </td>
                                                 @can("siparis_ucreti_goruntuleme")
-                                                    <td class="orta-uzunluk">
-                                                        <input class="form-control" type="number" placeholder="Birim Fiyat" v-model="islem.birimFiyat">
+                                                    <td class="orta-uzunluk pe-0">
+                                                        <input
+                                                            v-model="islem.birimFiyatYazi"
+                                                            v-money="maskeler[islem.paraBirimi.maske]"
+                                                            class="form-control"
+                                                            placeholder="Birim Fiyat"
+                                                        />
                                                         <div class="form-check form-switch">
                                                             <input class="form-check-input" type="checkbox" value="" id="miktarFiyatCarp" v-model="islem.miktarFiyatCarp">
                                                             <label class="form-check-label" for="miktarFiyatCarp">
                                                                 <small>Net x Tutar</small>
                                                             </label>
                                                         </div>
+                                                    </td>
+                                                    <td class="orta-uzunluk ps-0">
+                                                        <v-select
+                                                            v-model="islem.paraBirimi"
+                                                            :options="paraBirimleri"
+                                                            label="ad"
+                                                            class="mb-4"
+                                                        ></v-select>
                                                     </td>
                                                 @endcan
                                                 <td class="kisa-uzunluk">
@@ -736,6 +794,30 @@
                 },
                 sayfalamaSayilari: [10, 25, 50, 100],
                 sayfalamaSayisi: 10,
+                maskeler: {
+                    tl: {
+                        prefix: "",
+                        thousands: ".",
+                        decimal: ",",
+                        suffix: " ₺",
+                        precision: 2,
+                    },
+                    usd: {
+                        prefix: "",
+                        thousands: ".",
+                        decimal: ",",
+                        suffix: " $",
+                        precision: 2,
+                    },
+                    kg: {
+                        prefix: "",
+                        thousands: ".",
+                        decimal: ",",
+                        suffix: " kg",
+                        precision: 2,
+                    },
+                },
+                paraBirimleri: @json($paraBirimleri),
             }
         },
         mounted() {
@@ -747,17 +829,31 @@
                 handler: function (newValue, oldValue) {
                     if (!this.aktifSiparis) return;
 
-                    let toplam = 0;
+                    let tutarTL = 0, tutarUSD = 0;
                     for (let i in this.aktifSiparis.islemler) {
                         const islem = this.aktifSiparis.islemler[i];
 
-                        islem.net = _.toNumber(islem.miktar) - _.toNumber(islem.dara);
+                        islem.birimFiyat = this.floatDonustur(islem.birimFiyatYazi, { paraBirimi: islem.paraBirimi });
+                        islem.miktar = this.floatDonustur(islem.miktarYazi, { kg: true });
+                        islem.dara = this.floatDonustur(islem.daraYazi, { kg: true });
 
-                        const birimFiyat = (islem.miktarFiyatCarp ? islem.net : 1) * _.toNumber(islem.birimFiyat);
-                        toplam += _.toNumber(birimFiyat);
+                        islem.net = _.round(islem.miktar - islem.dara, 2);
+                        islem.netYazi = this.yaziyaDonustur(islem.net, { kg: true });
+
+                        const birimFiyat = _.round((islem.miktarFiyatCarp ? islem.net : 1) * islem.birimFiyat, 2);
+
+                        if (islem.paraBirimi.kod == "USD") {
+                            tutarUSD += birimFiyat;
+                        }
+                        else {
+                            tutarTL += birimFiyat;
+                        }
                     }
 
-                    this.aktifSiparis.tutar = toplam;
+                    this.aktifSiparis.tutarUSD = tutarUSD;
+                    this.aktifSiparis.tutarUSDYazi = this.yaziyaDonustur(tutarUSD);
+                    this.aktifSiparis.tutarTL = tutarTL;
+                    this.aktifSiparis.tutarTLYazi = this.yaziyaDonustur(tutarTL);
                 },
                 deep: true
             },
@@ -999,7 +1095,7 @@
                 const veriler = {
                     malzeme: null,
                     adet: 1,
-                    miktar: 1,
+                    miktar: 0,
                     dara: 0,
                     birimFiyat: 0,
                     kalite: "",
@@ -1007,6 +1103,9 @@
                     istenilenSertlik: "",
                     islemDurumu: null,
                     miktarFiyatCarp: true,
+                    paraBirimi: _.find(this.paraBirimleri, {
+                        kod: "TL"
+                    }),
                 };
 
                 if (!this.malzemeler.length && !this.yukleniyorObjesi.malzemeler) {
@@ -1046,6 +1145,19 @@
                         mesaj: "Lütfen firma seçiniz!",
                         tur: "warning"
                     });
+                }
+
+                if (_.size(this.aktifSiparis.islemler)) {
+                    for (let index in this.aktifSiparis.islemler) {
+                        const islem = this.aktifSiparis.islemler[index];
+                        if (!islem.malzeme) {
+                            return this.uyariAc({
+                                baslik: 'Uyarı',
+                                mesaj: `Lütfen ${_.toInteger(index) + 1} sıra numaralı işlem için malzeme seçiniz!`,
+                                tur: "warning"
+                            });
+                        }
+                    };
                 }
 
                 const islem = () => {
@@ -1621,6 +1733,40 @@
             filtrelemeTarihTemizle() {
                 this.filtrelemeObjesi.baslangicTarihi = null;
                 this.filtrelemeObjesi.bitisTarihi = null;
+            },
+            floatDonustur(deger, obj = {}) {
+                const arr = _.split(deger, ".");
+                const binliksizPara = _.join(arr, "");
+                let sayi = _.replace(binliksizPara, ",", ".");
+
+                if (obj.paraBirimi) {
+                    sayi = _.replace(sayi, obj.paraBirimi.sembol, "");
+                }
+                else if (obj.kg) {
+                    sayi = _.replace(sayi, "kg", "");
+                }
+
+                return _.round(sayi, 2);
+            },
+            yaziyaDonustur(deger, obj = {}) {
+                const yaziDeger = _.toString(deger);
+                const arr = _.split(yaziDeger, ".");
+                let yazi = arr[0];
+                if (arr[1]) {
+                    yazi += "," + _.padEnd(arr[1], 2, "0");
+                }
+                else {
+                    yazi += ",00";
+                }
+
+                if (obj.kg) {
+                    yazi += " kg";
+                }
+                else if (obj.paraBirimi) {
+                    yazi += " " + obj.paraBirimi.sembol;
+                }
+
+                return yazi;
             },
         }
     };
