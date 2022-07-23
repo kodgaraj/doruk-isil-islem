@@ -110,7 +110,7 @@ class Controller extends BaseController
 
                 $this->bildirimAt(auth()->user()->id, [
                     "baslik" => "Isıl İşlem Formu Tamamlandı",
-                    "icerik" => "$form->formId & $form->firmaAdi numaralı idye ait ısıl işlem formu tamamlandı.",
+                    "icerik" => "$form->firmaAdi adlı firmanın $form->formId  numaralı idye ait ısıl işlem formu tamamlandı.",
                     "link" => "/isil-islemler/$form->formId",
                     "kod" => "FORM_BILDIRIMI",
                     "actionId" => $form->formId,
