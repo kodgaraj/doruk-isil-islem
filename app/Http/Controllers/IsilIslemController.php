@@ -24,8 +24,10 @@ class IsilIslemController extends Controller
 
     public function formlar(Request $request)
     {
-        try
-        {
+        try {
+            $filtrelemeler = json_decode($request->filtreleme ?? "[]", true);
+
+            $sayfalamaSayisi = $request->sayfalamaSayisi ?? 10;
             $formTabloAdi = (new Formlar())->getTable();
             $islemTabloAdi = (new Islemler())->getTable();
 
@@ -45,17 +47,34 @@ class IsilIslemController extends Controller
                     $formTabloAdi . '.baslangicTarihi',
                     $formTabloAdi . '.bitisTarihi'
                 )
-                ->orderBy($formTabloAdi . '.id', 'desc')
-                ->paginate(10);
+                ->orderBy($formTabloAdi . '.id', 'desc');
+
+
+            if (isset($filtrelemeler["arama"]) && $filtrelemeler["arama"] != "") {
+                // Sipariş no, firma adı, irsaliye no
+                $formlar = $formlar->where(function ($query) use ($filtrelemeler, $formTabloAdi) {
+                    $query->where($formTabloAdi . '.takipNo', 'like', '%' . $filtrelemeler["arama"] . '%')
+                        ->orWhere($formTabloAdi . '.formAdi', 'like', '%' . $filtrelemeler["arama"] . '%');                                            
+                });
+            }
+
+            if (isset($filtrelemeler["baslangicTarihi"]) && $filtrelemeler["baslangicTarihi"] != "") {
+                $formlar = $formlar->where("$formTabloAdi.baslangicTarihi", ">=", $filtrelemeler["baslangicTarihi"]);
+            }
+
+            if (isset($filtrelemeler["bitisTarihi"]) && $filtrelemeler["bitisTarihi"] != "") {
+                $formlar = $formlar->where("$formTabloAdi.baslangicTarihi", "<=", $filtrelemeler["bitisTarihi"]);
+            }
+
+            $formlar = $formlar->paginate($sayfalamaSayisi)->toArray();
+
 
             return response()->json([
                 'durum' => true,
                 "mesaj" => "Formlar başarıyla getirildi.",
                 'formlar' => $formlar,
             ], 200);
-        }
-        catch (\Exception $ex)
-        {
+        } catch (\Exception $ex) {
             return response()->json([
                 "durum" => false,
                 "mesaj" => "Formlar getirilirken bir hata oluştu.",
@@ -67,8 +86,7 @@ class IsilIslemController extends Controller
 
     public function formDetay(Request $request)
     {
-        try
-        {
+        try {
             $formId = $request->formId;
 
             $formTabloAdi = (new Formlar())->getTable();
@@ -90,9 +108,7 @@ class IsilIslemController extends Controller
                 "mesaj" => "Form detayları başarıyla getirildi.",
                 "secilenIslemler" => $secilenIslemler,
             ], 200);
-        }
-        catch (\Exception $ex)
-        {
+        } catch (\Exception $ex) {
             return response()->json([
                 "durum" => false,
                 "mesaj" => "Form detayları getirilirken bir hata oluştu.",
@@ -110,19 +126,15 @@ class IsilIslemController extends Controller
      */
     public function takipNumarasiGetir()
     {
-        try
-        {
+        try {
             $takipNo = "TKP" . date("Ymd");
             $form = Formlar::where('takipNo', 'like', "$takipNo%")
                 ->orderBy('takipNo', 'desc')
                 ->first();
 
-            if(!$form)
-            {
+            if (!$form) {
                 $takipNo .= '01';
-            }
-            else
-            {
+            } else {
                 $takipNumarasi = substr($form->takipNo, 3);
                 $takipNo = "TKP" . sprintf("%02d", $takipNumarasi + 1);
             }
@@ -132,9 +144,7 @@ class IsilIslemController extends Controller
                 'mesaj' => 'Takip numarası bulundu.',
                 'takipNo' => $takipNo,
             ], 200);
-        }
-        catch(\Exception $e)
-        {
+        } catch (\Exception $e) {
             return response()->json([
                 'durum' => false,
                 'mesaj' => $e->getMessage(),
@@ -148,8 +158,7 @@ class IsilIslemController extends Controller
      */
     public function firmaGrupluIslemleriGetir(Request $request)
     {
-        try
-        {
+        try {
             $siparisTabloAdi = (new Siparisler())->getTable();
             $islemTabloAdi = (new Islemler())->getTable();
             $firmaTabloAdi = (new Firmalar())->getTable();
@@ -204,8 +213,7 @@ class IsilIslemController extends Controller
                 ->orderBy($islemTabloAdi . '.created_at', 'desc')
                 ->orderBy($firmaTabloAdi . '.firmaAdi', 'asc');
 
-            if (isset($request->formId) && $request->formId)
-            {
+            if (isset($request->formId) && $request->formId) {
                 $firmaGrupluIslemler = $firmaGrupluIslemler->orWhere($islemTabloAdi . '.formId', $request->formId);
             }
 
@@ -215,10 +223,8 @@ class IsilIslemController extends Controller
             $islemler = $islemler->toArray();
 
             $hazirlananVeriler = [];
-            foreach($islemler["data"] as $islem)
-            {
-                if (!isset($hazirlananVeriler[$islem["firmaId"]]))
-                {
+            foreach ($islemler["data"] as $islem) {
+                if (!isset($hazirlananVeriler[$islem["firmaId"]])) {
                     $hazirlananVeriler[$islem["firmaId"]] = [
                         "firmaId" => $islem["firmaId"],
                         'firmaAdi' => $islem["firmaAdi"],
@@ -244,9 +250,7 @@ class IsilIslemController extends Controller
                 'mesaj' => 'İşlemler bulundu.',
                 'firmaGrupluIslemler' => $islemler,
             ], 200);
-        }
-        catch(\Exception $e)
-        {
+        } catch (\Exception $e) {
             return response()->json([
                 'durum' => false,
                 'mesaj' => $e->getMessage(),
@@ -259,20 +263,16 @@ class IsilIslemController extends Controller
     {
         DB::beginTransaction();
 
-        try
-        {
+        try {
             $formBilgileri = $request->form;
             $secilenIslemler = $formBilgileri["secilenIslemler"];
 
             $islemDurumTabloAdi = (new IslemDurumlari())->getTable();
             $islemTabloAdi = (new Islemler())->getTable();
 
-            if (isset($formBilgileri["id"]) && $formBilgileri["id"])
-            {
+            if (isset($formBilgileri["id"]) && $formBilgileri["id"]) {
                 $form = Formlar::find($formBilgileri["id"]);
-            }
-            else
-            {
+            } else {
                 $form = new Formlar();
             }
 
@@ -281,8 +281,7 @@ class IsilIslemController extends Controller
             $form->baslangicTarihi = $formBilgileri["baslangicTarihi"];
             $form->aciklama = $formBilgileri["aciklama"] ?? null;
 
-            if (!$form->save())
-            {
+            if (!$form->save()) {
                 DB::rollBack();
 
                 return response()->json([
@@ -295,8 +294,7 @@ class IsilIslemController extends Controller
             // işlemleri güncelleme
             $islemBekliyorDurum = IslemDurumlari::where("kod", "ISLEM_BEKLIYOR")->first();
 
-            if (!$islemBekliyorDurum)
-            {
+            if (!$islemBekliyorDurum) {
                 DB::rollBack();
 
                 return response()->json([
@@ -308,8 +306,7 @@ class IsilIslemController extends Controller
 
             $islemBaslanmadiDurum = IslemDurumlari::where("kod", "BASLANMADI")->first();
 
-            if (!$islemBaslanmadiDurum)
-            {
+            if (!$islemBaslanmadiDurum) {
                 DB::rollBack();
 
                 return response()->json([
@@ -319,12 +316,10 @@ class IsilIslemController extends Controller
                 ], 500);
             }
 
-            foreach($secilenIslemler as $secilen)
-            {
+            foreach ($secilenIslemler as $secilen) {
                 $islem = Islemler::find($secilen["id"]);
 
-                if (!$islem)
-                {
+                if (!$islem) {
                     DB::rollBack();
 
                     return response()->json([
@@ -353,8 +348,7 @@ class IsilIslemController extends Controller
                 $islem->tekrarEdilenId = $secilen["tekrarEdilenId"] ?? null;
                 $islem->aciklama = $secilen["aciklama"] ?? null;
 
-                if (!$islem->save())
-                {
+                if (!$islem->save()) {
                     DB::rollBack();
 
                     return response()->json([
@@ -365,14 +359,11 @@ class IsilIslemController extends Controller
                 }
             }
 
-            if (isset($formBilgileri["silinecekIslemler"]) && $formBilgileri["silinecekIslemler"])
-            {
-                foreach ($formBilgileri["silinecekIslemler"] as $islemId)
-                {
+            if (isset($formBilgileri["silinecekIslemler"]) && $formBilgileri["silinecekIslemler"]) {
+                foreach ($formBilgileri["silinecekIslemler"] as $islemId) {
                     $islem = Islemler::find($islemId);
 
-                    if (!$islem)
-                    {
+                    if (!$islem) {
                         DB::rollBack();
 
                         return response()->json([
@@ -389,8 +380,7 @@ class IsilIslemController extends Controller
                     $islem->sarj = null;
                     $islem->durumId = $islemDurumu->id;
 
-                    if (!$islem->save())
-                    {
+                    if (!$islem->save()) {
                         DB::rollBack();
 
                         return response()->json([
@@ -408,9 +398,7 @@ class IsilIslemController extends Controller
                 'durum' => true,
                 'mesaj' => 'Form kaydedildi.',
             ], 200);
-        }
-        catch(\Exception $e)
-        {
+        } catch (\Exception $e) {
             DB::rollBack();
 
             return response()->json([
@@ -425,12 +413,10 @@ class IsilIslemController extends Controller
     {
         DB::beginTransaction();
 
-        try
-        {
+        try {
             $form = Formlar::find($request->formId);
 
-            if (!$form)
-            {
+            if (!$form) {
                 return response()->json([
                     'durum' => false,
                     'mesaj' => 'Form bulunamadı.',
@@ -446,8 +432,7 @@ class IsilIslemController extends Controller
                 ->whereNotIn($islemDurumTabloAdi . ".kod", ["BASLANMADI", "ISLEM_BEKLIYOR"])
                 ->count();
 
-            if ($baslanmisIslemSayisi > 0)
-            {
+            if ($baslanmisIslemSayisi > 0) {
                 DB::rollBack();
 
                 return response()->json([
@@ -461,15 +446,13 @@ class IsilIslemController extends Controller
 
             $updateIslemler = Islemler::where("formId", $form->id)->get();
 
-            foreach ($updateIslemler as $islem)
-            {
+            foreach ($updateIslemler as $islem) {
                 $islem->formId = null;
                 $islem->firinId = null;
                 $islem->sarj = null;
                 $islem->durumId = $baslanmadiDurum->id;
 
-                if (!$islem->save())
-                {
+                if (!$islem->save()) {
                     DB::rollBack();
 
                     return response()->json([
@@ -480,8 +463,7 @@ class IsilIslemController extends Controller
                 }
             }
 
-            if (!$form->delete())
-            {
+            if (!$form->delete()) {
                 DB::rollBack();
 
                 return response()->json([
@@ -497,9 +479,7 @@ class IsilIslemController extends Controller
                 'durum' => true,
                 'mesaj' => 'Form silindi.',
             ], 200);
-        }
-        catch(\Exception $e)
-        {
+        } catch (\Exception $e) {
             DB::rollBack();
 
             return response()->json([
@@ -512,8 +492,7 @@ class IsilIslemController extends Controller
 
     public function islemler(Request $request)
     {
-        try
-        {
+        try {
             $filtrelemeler = json_decode($request->filtreleme ?? "[]", true);
 
             $islemTabloAdi = (new Islemler())->getTable();
@@ -544,38 +523,32 @@ class IsilIslemController extends Controller
                 ->join($malzemeTabloAdi, $malzemeTabloAdi . ".id", "=", $islemTabloAdi . ".malzemeId")
                 ->join($firmaTabloAdi, $firmaTabloAdi . ".id", "=", $siparisTabloAdi . ".firmaId")
                 ->where("$islemTabloAdi.tekrarEdilenId", null)
-                ->orderBy("$islemDurumTabloAdi.kod", "asc");
+                ->orderBy("$siparisTabloAdi.tarih", "asc");
+                // ->orderBy("$islemDurumTabloAdi.kod", "asc");
 
-            if (isset($filtrelemeler["firin"]) && $filtrelemeler["firin"] && count($filtrelemeler["firin"]) > 0)
-            {
+            if (isset($filtrelemeler["firin"]) && $filtrelemeler["firin"] && count($filtrelemeler["firin"]) > 0) {
                 $firinIdleri = array_column($filtrelemeler["firin"], "id");
 
                 $islemler = $islemler->whereIn("$islemTabloAdi.firinId", $firinIdleri);
             }
 
-            if (isset($filtrelemeler["islemDurumu"]) && $filtrelemeler["islemDurumu"] && count($filtrelemeler["islemDurumu"]) > 0)
-            {
+            if (isset($filtrelemeler["islemDurumu"]) && $filtrelemeler["islemDurumu"] && count($filtrelemeler["islemDurumu"]) > 0) {
                 $islemDurumIdleri = array_column($filtrelemeler["islemDurumu"], "id");
 
                 $islemler = $islemler->whereIn("$islemTabloAdi.durumId", $islemDurumIdleri);
-            }
-            else
-            {
+            } else {
                 $islemler = $islemler->whereIn("$islemDurumTabloAdi.kod", ["ISLEM_BEKLIYOR", "ISLEMDE", "TAMAMLANDI"]);
             }
 
-            if (isset($filtrelemeler["termin"]) && $filtrelemeler["termin"] > 0)
-            {
+            if (isset($filtrelemeler["termin"]) && $filtrelemeler["termin"] > 0) {
                 $tarih = Carbon::now()->subDays($filtrelemeler["termin"])->format('Y-m-d');
 
                 $islemler = $islemler->where("$siparisTabloAdi.tarih", "<=", $tarih);
             }
 
-            if (isset($filtrelemeler["arama"]) && $filtrelemeler["arama"] != "")
-            {
+            if (isset($filtrelemeler["arama"]) && $filtrelemeler["arama"] != "") {
                 // Sipariş no, firin adı, malzeme adı, firma adı, islem durumu adı
-                $islemler = $islemler->where(function ($query) use ($filtrelemeler, $firinTabloAdi, $siparisTabloAdi, $malzemeTabloAdi, $firmaTabloAdi, $islemDurumTabloAdi)
-                {
+                $islemler = $islemler->where(function ($query) use ($filtrelemeler, $firinTabloAdi, $siparisTabloAdi, $malzemeTabloAdi, $firmaTabloAdi, $islemDurumTabloAdi) {
                     $query->where("$siparisTabloAdi.siparisNo", "like", "%" . $filtrelemeler["arama"] . "%")
                         ->orWhere("$firinTabloAdi.ad", "like", "%" . $filtrelemeler["arama"] . "%")
                         ->orWhere("$malzemeTabloAdi.ad", "like", "%" . $filtrelemeler["arama"] . "%")
@@ -584,36 +557,31 @@ class IsilIslemController extends Controller
                 });
             }
 
-            if (isset($filtrelemeler["tekrarEdenleriGoster"]) && $filtrelemeler["tekrarEdenleriGoster"])
-            {
+            if (isset($filtrelemeler["tekrarEdenleriGoster"]) && $filtrelemeler["tekrarEdenleriGoster"]) {
                 $islemler = $islemler->where("$islemTabloAdi.tekrarEdenId", "!=", null);
             }
 
             $islemler = $islemler->paginate($filtrelemeler["limit"] ?? 6)->toArray();
 
-            foreach ($islemler["data"] as &$islem)
-            {
+            foreach ($islemler["data"] as &$islem) {
                 $terminBilgileri = $this->terminHesapla($islem["tarih"], $islem["terminSuresi"] ?? 5);
                 $islem["gecenSure"] = $terminBilgileri["gecenSure"];
                 $islem["gecenSureRenk"] = $terminBilgileri["gecenSureRenk"];
 
                 $islem["firinJson"] = json_decode($islem["firinJson"], true);
 
-                if (isset(($islem["firinJson"]["renk"])))
-                {
+                if (isset(($islem["firinJson"]["renk"]))) {
                     $islem["firinRenk"] = $islem["firinJson"]["renk"];
                 }
 
                 $islem["islemDurumuJson"] = json_decode($islem["islemDurumuJson"], true);
 
-                if (isset(($islem["islemDurumuJson"]["renk"])))
-                {
+                if (isset(($islem["islemDurumuJson"]["renk"]))) {
                     $islem["islemDurumuRenk"] = $islem["islemDurumuJson"]["renk"];
                     $islem["islemDurumuIkon"] = $islem["islemDurumuJson"]["ikon"];
                 }
 
-                if (!isset($islem["tekrarEdenIslemler"]))
-                {
+                if (!isset($islem["tekrarEdenIslemler"])) {
                     $islem["tekrarEdenIslemler"] = [];
                 }
 
@@ -643,25 +611,21 @@ class IsilIslemController extends Controller
                     ->get()
                     ->toArray();
 
-                if (count($islem["tekrarEdenIslemler"]) > 0)
-                {
-                    foreach ($islem["tekrarEdenIslemler"] as &$tekrarEdenIslem)
-                    {
+                if (count($islem["tekrarEdenIslemler"]) > 0) {
+                    foreach ($islem["tekrarEdenIslemler"] as &$tekrarEdenIslem) {
                         $terminBilgileri = $this->terminHesapla($tekrarEdenIslem["tarih"], $tekrarEdenIslem["terminSuresi"] ?? 5);
                         $tekrarEdenIslem["gecenSure"] = $terminBilgileri["gecenSure"];
                         $tekrarEdenIslem["gecenSureRenk"] = $terminBilgileri["gecenSureRenk"];
 
                         $tekrarEdenIslem["firinJson"] = json_decode($tekrarEdenIslem["firinJson"], true);
 
-                        if (isset(($tekrarEdenIslem["firinJson"]["renk"])))
-                        {
+                        if (isset(($tekrarEdenIslem["firinJson"]["renk"]))) {
                             $tekrarEdenIslem["firinRenk"] = $tekrarEdenIslem["firinJson"]["renk"];
                         }
 
                         $tekrarEdenIslem["islemDurumuJson"] = json_decode($tekrarEdenIslem["islemDurumuJson"], true);
 
-                        if (isset(($tekrarEdenIslem["islemDurumuJson"]["renk"])))
-                        {
+                        if (isset(($tekrarEdenIslem["islemDurumuJson"]["renk"]))) {
                             $tekrarEdenIslem["islemDurumuRenk"] = $tekrarEdenIslem["islemDurumuJson"]["renk"];
                             $tekrarEdenIslem["islemDurumuIkon"] = $tekrarEdenIslem["islemDurumuJson"]["ikon"];
                         }
@@ -674,9 +638,7 @@ class IsilIslemController extends Controller
                 'mesaj' => 'İşlemler listelendi.',
                 'islemler' => $islemler,
             ], 200);
-        }
-        catch(\Exception $e)
-        {
+        } catch (\Exception $e) {
             return response()->json([
                 'durum' => false,
                 'mesaj' => $e->getMessage(),
@@ -689,8 +651,7 @@ class IsilIslemController extends Controller
     {
         DB::beginTransaction();
 
-        try
-        {
+        try {
             $kullaniciId = $request->kullaniciId ?? auth()->user()->id;
             $kullaniciAdi = User::find($kullaniciId)->name;
             $islemBilgileri = $request->islem;
@@ -703,8 +664,7 @@ class IsilIslemController extends Controller
 
             $islem = Islemler::where("id", $islemBilgileri["id"])->first();
 
-            if (!$islem)
-            {
+            if (!$islem) {
                 return response()->json([
                     'durum' => false,
                     'mesaj' => 'İşlem bulunamadı.',
@@ -714,8 +674,7 @@ class IsilIslemController extends Controller
 
             $islem->durumId = $islemDurum->id;
 
-            if (!$islem->save())
-            {
+            if (!$islem->save()) {
                 DB::rollBack();
 
                 return response()->json([
@@ -745,8 +704,7 @@ class IsilIslemController extends Controller
             //     ], 500);
             // }
 
-            if (!$this->islemBitisTarihleriAyarla($islem->id))
-            {
+            if (!$this->islemBitisTarihleriAyarla($islem->id)) {
                 DB::rollBack();
 
                 return response()->json([
@@ -762,9 +720,7 @@ class IsilIslemController extends Controller
                 'durum' => true,
                 'mesaj' => 'İşlem durumu \'' . $islemDurum->ad . '\' olarak değiştirildi.',
             ], 200);
-        }
-        catch(\Exception $e)
-        {
+        } catch (\Exception $e) {
             DB::rollBack();
 
             return response()->json([
@@ -779,8 +735,7 @@ class IsilIslemController extends Controller
     {
         DB::beginTransaction();
 
-        try
-        {
+        try {
             $kullaniciId = $request->kullaniciId ?? auth()->user()->id;
             $kullaniciAdi = User::find($kullaniciId)->name;
             $islemBilgileri = $request->islem;
@@ -790,8 +745,7 @@ class IsilIslemController extends Controller
 
             $islem = Islemler::where("id", $islemBilgileri["id"])->first();
 
-            if (!$islem)
-            {
+            if (!$islem) {
                 DB::rollBack();
 
                 return response()->json([
@@ -805,8 +759,7 @@ class IsilIslemController extends Controller
 
             $baslanmadiDurum = IslemDurumlari::where("kod", "BASLANMADI")->first();
 
-            if (!$baslanmadiDurum)
-            {
+            if (!$baslanmadiDurum) {
                 DB::rollBack();
 
                 return response()->json([
@@ -823,8 +776,7 @@ class IsilIslemController extends Controller
             $yeniIslem->sarj = null;
             $yeniIslem->birimFiyat = 0;
 
-            if (!$yeniIslem->save())
-            {
+            if (!$yeniIslem->save()) {
                 DB::rollBack();
 
                 return response()->json([
@@ -836,8 +788,7 @@ class IsilIslemController extends Controller
 
             $tamamlandiDurum = IslemDurumlari::where("kod", "TAMAMLANDI")->first();
 
-            if (!$tamamlandiDurum)
-            {
+            if (!$tamamlandiDurum) {
                 DB::rollBack();
 
                 return response()->json([
@@ -851,8 +802,7 @@ class IsilIslemController extends Controller
             $islem->tekrarEdenId = $yeniIslem->id;
             $islem->aciklama = $islemBilgileri["aciklama"] ?? null;
 
-            if (!$islem->save())
-            {
+            if (!$islem->save()) {
                 DB::rollBack();
 
                 return response()->json([
@@ -896,9 +846,7 @@ class IsilIslemController extends Controller
                 'durum' => true,
                 'mesaj' => 'İşlem tekrar edildi.',
             ], 200);
-        }
-        catch(\Exception $e)
-        {
+        } catch (\Exception $e) {
             DB::rollBack();
 
             return response()->json([
@@ -913,8 +861,7 @@ class IsilIslemController extends Controller
     {
         DB::beginTransaction();
 
-        try
-        {
+        try {
             $islemBilgileri = $request->islem;
 
             $islemTabloAdi = (new Islemler())->getTable();
@@ -922,8 +869,7 @@ class IsilIslemController extends Controller
 
             $islem = Islemler::where("id", $islemBilgileri["id"])->first();
 
-            if (!$islem)
-            {
+            if (!$islem) {
                 DB::rollBack();
 
                 return response()->json([
@@ -934,15 +880,13 @@ class IsilIslemController extends Controller
             }
 
             // İşlem tekrar edilerek tamamlandıysa
-            if ($islem->tekrarEdenId)
-            {
+            if ($islem->tekrarEdenId) {
                 $tekrarEdenIslem = Islemler::select(DB::raw("$islemTabloAdi.*, $islemDurumTabloAdi.ad as islemDurumuAdi, $islemDurumTabloAdi.kod as islemDurumuKodu"))
                     ->join($islemDurumTabloAdi, $islemDurumTabloAdi . ".id", "=", $islemTabloAdi . ".durumId")
                     ->where("$islemTabloAdi.id", $islem->tekrarEdenId)
                     ->first();
 
-                if (in_array($tekrarEdenIslem->islemDurumuKodu, ["ISLEMDE", "TAMAMLANDI"]))
-                {
+                if (in_array($tekrarEdenIslem->islemDurumuKodu, ["ISLEMDE", "TAMAMLANDI"])) {
                     DB::rollBack();
 
                     return response()->json([
@@ -952,8 +896,7 @@ class IsilIslemController extends Controller
                     ], 500);
                 }
 
-                if (!$tekrarEdenIslem->delete())
-                {
+                if (!$tekrarEdenIslem->delete()) {
                     DB::rollBack();
 
                     return response()->json([
@@ -968,8 +911,7 @@ class IsilIslemController extends Controller
 
             $islemdeDurum = IslemDurumlari::where("kod", "ISLEMDE")->first();
 
-            if (!$islemdeDurum)
-            {
+            if (!$islemdeDurum) {
                 DB::rollBack();
 
                 return response()->json([
@@ -981,8 +923,7 @@ class IsilIslemController extends Controller
 
             $islem->durumId = $islemdeDurum->id;
 
-            if (!$islem->save())
-            {
+            if (!$islem->save()) {
                 DB::rollBack();
 
                 return response()->json([
@@ -992,8 +933,7 @@ class IsilIslemController extends Controller
                 ], 500);
             }
 
-            if (!$this->islemBitisTarihleriAyarla($islem->id))
-            {
+            if (!$this->islemBitisTarihleriAyarla($islem->id)) {
                 DB::rollBack();
 
                 return response()->json([
@@ -1009,9 +949,7 @@ class IsilIslemController extends Controller
                 'durum' => true,
                 'mesaj' => 'İşlem geri alındı.',
             ], 200);
-        }
-        catch(\Exception $e)
-        {
+        } catch (\Exception $e) {
             DB::rollBack();
 
             return response()->json([
@@ -1024,8 +962,7 @@ class IsilIslemController extends Controller
 
     public function toplamIslem()
     {
-        try
-        {
+        try {
             $toplamIslem = Islemler::count();
 
             return response()->json([
@@ -1033,9 +970,7 @@ class IsilIslemController extends Controller
                 "mesaj" => "Toplam işlem sayısı başarılı bir şekilde getirildi.",
                 "toplamIslem" => $toplamIslem,
             ], 200);
-        }
-        catch (\Exception $ex)
-        {
+        } catch (\Exception $ex) {
             return response()->json([
                 "durum" => false,
                 "mesaj" => "Toplam işlem sayısı getirilirken bir hata oluştu.",
@@ -1047,8 +982,7 @@ class IsilIslemController extends Controller
 
     public function firinSarjGrupluIslemleriGetir(Request $request)
     {
-        try
-        {
+        try {
             $formId = $request->formId;
 
             $siparisTabloAdi = (new Siparisler())->getTable();
@@ -1099,19 +1033,18 @@ class IsilIslemController extends Controller
                 $firinTabloAdi.kod as firinKodu,
                 $firinTabloAdi.json as firinJson
             ")
-            ->join($siparisTabloAdi, $siparisTabloAdi . '.id', '=', $islemTabloAdi . '.siparisId')
-            ->join($firmaTabloAdi, $firmaTabloAdi . '.id', '=', $siparisTabloAdi . '.firmaId')
-            ->join($islemDurumTabloAdi, $islemDurumTabloAdi . '.id', '=', $islemTabloAdi . '.durumId')
-            ->join($malzemeTabloAdi, $malzemeTabloAdi . '.id', '=', $islemTabloAdi . '.malzemeId')
-            ->join($firinTabloAdi, $firinTabloAdi . '.id', '=', $islemTabloAdi . '.firinId')
-            ->leftJoin($islemTuruTabloAdi, $islemTuruTabloAdi . '.id', '=', $islemTabloAdi . '.islemTuruId')
-            ->where($islemTabloAdi . '.formId', $formId)
-            ->get()
-            ->toArray();
+                ->join($siparisTabloAdi, $siparisTabloAdi . '.id', '=', $islemTabloAdi . '.siparisId')
+                ->join($firmaTabloAdi, $firmaTabloAdi . '.id', '=', $siparisTabloAdi . '.firmaId')
+                ->join($islemDurumTabloAdi, $islemDurumTabloAdi . '.id', '=', $islemTabloAdi . '.durumId')
+                ->join($malzemeTabloAdi, $malzemeTabloAdi . '.id', '=', $islemTabloAdi . '.malzemeId')
+                ->join($firinTabloAdi, $firinTabloAdi . '.id', '=', $islemTabloAdi . '.firinId')
+                ->leftJoin($islemTuruTabloAdi, $islemTuruTabloAdi . '.id', '=', $islemTabloAdi . '.islemTuruId')
+                ->where($islemTabloAdi . '.formId', $formId)
+                ->get()
+                ->toArray();
 
             $islemler = [];
-            foreach ($firinSarjGrupluIslemler as $islem)
-            {
+            foreach ($firinSarjGrupluIslemler as $islem) {
                 $islem["firinJson"] = json_decode($islem["firinJson"], true);
 
                 $terminDizisi = $this->terminHesapla($islem["siparisTarihi"], $islem["terminSuresi"] ?? 5);
@@ -1120,8 +1053,7 @@ class IsilIslemController extends Controller
 
                 $islem["sarj"] = $islem["sarj"] ?? 1;
 
-                if (!isset($islemler[$islem["firinId"]]))
-                {
+                if (!isset($islemler[$islem["firinId"]])) {
                     $islemler[$islem["firinId"]] = [
                         "firinId" => $islem["firinId"],
                         "firinAdi" => $islem["firinAdi"],
@@ -1131,8 +1063,7 @@ class IsilIslemController extends Controller
                     ];
                 }
 
-                if (!isset($islemler[$islem["firinId"]]["sarjlar"][$islem["sarj"]]))
-                {
+                if (!isset($islemler[$islem["firinId"]]["sarjlar"][$islem["sarj"]])) {
                     $islemler[$islem["firinId"]]["sarjlar"][$islem["sarj"]] = [
                         "sarj" => $islem["sarj"],
                         "islemler" => [],
@@ -1147,9 +1078,7 @@ class IsilIslemController extends Controller
                 "mesaj" => "İşlemler başarılı bir şekilde getirildi.",
                 "firinSarjGrupluIslemler" => array_values($islemler),
             ], 200);
-        }
-        catch (\Exception $ex)
-        {
+        } catch (\Exception $ex) {
             return response()->json([
                 "durum" => false,
                 "mesaj" => "İşlemler getirilirken bir hata oluştu.",
@@ -1161,8 +1090,7 @@ class IsilIslemController extends Controller
 
     public function islemDetay(Request $request)
     {
-        try
-        {
+        try {
             $islemId = $request->islemId;
 
             $islemTabloAdi = (new Islemler())->getTable();
@@ -1191,15 +1119,15 @@ class IsilIslemController extends Controller
                 $firinTabloAdi.kod as firinKodu,
                 $firinTabloAdi.json as firinJson
             ")
-            ->join($siparisTabloAdi, $siparisTabloAdi . '.id', '=', $islemTabloAdi . '.siparisId')
-            ->join($firmaTabloAdi, $firmaTabloAdi . '.id', '=', $siparisTabloAdi . '.firmaId')
-            ->join($islemDurumTabloAdi, $islemDurumTabloAdi . '.id', '=', $islemTabloAdi . '.durumId')
-            ->join($malzemeTabloAdi, $malzemeTabloAdi . '.id', '=', $islemTabloAdi . '.malzemeId')
-            ->join($firinTabloAdi, $firinTabloAdi . '.id', '=', $islemTabloAdi . '.firinId')
-            ->leftJoin($islemTuruTabloAdi, $islemTuruTabloAdi . '.id', '=', $islemTabloAdi . '.islemTuruId')
-            ->where($islemTabloAdi . '.id', $islemId)
-            ->first()
-            ->toArray();
+                ->join($siparisTabloAdi, $siparisTabloAdi . '.id', '=', $islemTabloAdi . '.siparisId')
+                ->join($firmaTabloAdi, $firmaTabloAdi . '.id', '=', $siparisTabloAdi . '.firmaId')
+                ->join($islemDurumTabloAdi, $islemDurumTabloAdi . '.id', '=', $islemTabloAdi . '.durumId')
+                ->join($malzemeTabloAdi, $malzemeTabloAdi . '.id', '=', $islemTabloAdi . '.malzemeId')
+                ->join($firinTabloAdi, $firinTabloAdi . '.id', '=', $islemTabloAdi . '.firinId')
+                ->leftJoin($islemTuruTabloAdi, $islemTuruTabloAdi . '.id', '=', $islemTabloAdi . '.islemTuruId')
+                ->where($islemTabloAdi . '.id', $islemId)
+                ->first()
+                ->toArray();
 
             $islem["firinJson"] = json_decode($islem["firinJson"], true);
 
@@ -1212,9 +1140,7 @@ class IsilIslemController extends Controller
                 "mesaj" => "İşlem detayı başarılı bir şekilde getirildi.",
                 "islem" => $islem,
             ], 200);
-        }
-        catch (\Exception $ex)
-        {
+        } catch (\Exception $ex) {
             return response()->json([
                 "durum" => false,
                 "mesaj" => "İşlem detayı getirilirken bir hata oluştu.",
