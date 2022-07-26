@@ -270,13 +270,6 @@
                                                         <template v-if="islem.islemDurumuKodu === 'TAMAMLANDI'">
                                                             @can("isil_islem_duzenleme")
                                                                 <button
-                                                                    v-if="islem.bildirim !== 1"
-                                                                    class="btn btn-info btn-sm"
-                                                                    @click.stop="islemBildirimAt(islem)"
-                                                                >
-                                                                    <i class="mdi mdi-bell"></i>
-                                                                </button>
-                                                                <button
                                                                     class="btn btn-danger btn-sm"
                                                                     @click.stop="islemTamamlandiGeriAl(islem)"
                                                                 >
@@ -414,13 +407,6 @@
                                                                 @endcan
                                                                 <template v-if="tekrarEdenIslem.islemDurumuKodu === 'TAMAMLANDI'">
                                                                     @can("isil_islem_duzenleme")
-                                                                        <button
-                                                                            v-if="tekrarEdenIslem.bildirim !== 1"
-                                                                            class="btn btn-info btn-sm"
-                                                                            @click.stop="islemBildirimAt(tekrarEdenIslem)"
-                                                                        >
-                                                                            <i class="mdi mdi-bell"></i>
-                                                                        </button>
                                                                         <button
                                                                             class="btn btn-danger btn-sm"
                                                                             @click.stop="islemTamamlandiGeriAl(tekrarEdenIslem)"

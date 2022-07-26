@@ -111,8 +111,8 @@
                                 Daha fazla göster
                             </template>
                         </button>
-                        <small class="text-muted">
-                            Tüm bildirimler gösteriliyor.
+                        <small class="text-muted" v-else>
+                            Tüm bildirimler gösteriliyor...
                         </small>
                     </div>
                 </div>
