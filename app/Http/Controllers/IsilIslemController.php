@@ -1333,7 +1333,7 @@ class IsilIslemController extends Controller
 
             $bildirimDurum = $this->bildirimAt($userId, [
                 "baslik" => "Sarj işlemleri başlatıldı",
-                "icerik" => "$firinAdi fırının $sarj. sarj işlemleri başlatıldı.",
+                "icerik" => "$firinAdi'ın $sarj. sarj işlemleri başlatıldı.",
                 "link" => "/isil-islemler?formId=$formId",
                 "kod" => "FORM_BILDIRIMI",
                 "actionId" => $formId,
@@ -1388,7 +1388,7 @@ class IsilIslemController extends Controller
 
             $bildirimDurum = $this->bildirimAt($userId, [
                 "baslik" => "Şarj işlemleri tamamlandı",
-                "icerik" => "$firinAdi fırının $sarj. sarj işlemleri tamamlandı.",
+                "icerik" => "$firinAdi'ın $sarj. sarj işlemleri tamamlandı.",
                 "link" => "/isil-islemler?formId=$formId",
                 "kod" => "FORM_BILDIRIMI",
                 "actionId" => $formId,

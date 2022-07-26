@@ -257,9 +257,10 @@
                                                     <template v-else-if="miniBildirimlerObjesi.veriler && _.size(miniBildirimlerObjesi.veriler.data)">
                                                         <a
                                                             v-for="(bildirim, index) in miniBildirimlerObjesi.veriler.data"
-                                                            href="#"
+                                                            @click="bildirimeGit(bildirim)"
                                                             class="text-reset notification-item"
                                                             :key="index"
+                                                            style="cursor: pointer"
                                                         >
                                                             <div class="d-flex align-items-start" :style="{ backgroundColor: !bildirim.okundu ? '#54BAB933' : '' }">
                                                                 <div class="flex-1">
@@ -286,10 +287,10 @@
                                                 <i class="mdi mdi-chevron-down"></i>
                                             </button>
                                             <div class="dropdown-menu dropdown-menu-end">
-                                                <a class="dropdown-item d-block" href="#"><i
+                                                {{-- <a class="dropdown-item d-block" href="#"><i
                                                     class="bx bx-wrench font-size-16 align-middle me-1"></i> Ayarlar</a>
 
-                                                <div class="dropdown-divider"></div>
+                                                <div class="dropdown-divider"></div> --}}
                                                 <a class="dropdown-item text-danger" href="{{ route('logout') }}"><i
                                                     class="bx bx-power-off font-size-16 align-middle me-1 text-danger"></i> Çıkış</a>
                                             </div>

@@ -87,8 +87,6 @@ class Controller extends BaseController
                 ->where("$islemTabloAdi.id", $islemId)
                 ->first();
 
-            
-
             if (!$form)
             {
                 return false;
