@@ -718,6 +718,32 @@ class IsilIslemController extends Controller
                 ], 500);
             }
 
+            $durumIcinIslemModel = Islemler::select(
+                    "$islemTabloAdi.*", "$islemDurumTabloAdi.ad as islemDurumuAdi",
+                    "$islemDurumTabloAdi.kod as islemDurumuKodu",
+                    "$islemDurumTabloAdi.json as islemDurumuJson"
+                )
+                ->join($islemDurumTabloAdi, $islemDurumTabloAdi . ".id", "=", "$islemTabloAdi.durumId")
+                ->where("$islemTabloAdi.id", $islemBilgileri["id"])
+                ->first()
+                ->toArray();
+
+            // İşlemin önceki durumu BASLANMADI ise baslangicTarihi alanını ayarlıyoruz
+            if ($durumIcinIslemModel["islemDurumuKodu"] === "ISLEM_BEKLIYOR")
+            {
+                $islem->baslangicTarihi = Carbon::now();
+            }
+            // İşlemin önceki durumu TAMAMLANDI ise baslangicTarihi alanını null yapıyoruz
+            else if ($durumIcinIslemModel["islemDurumuKodu"] === "TAMAMLANDI")
+            {
+                $islem->bitisTarihi = null;
+            }
+
+            if ($islemDurumuKodu === "TAMAMLANDI")
+            {
+                $islem->bitisTarihi = Carbon::now();
+            }
+
             $islem->durumId = $islemDurum->id;
 
             if (!$islem->save())
@@ -735,7 +761,7 @@ class IsilIslemController extends Controller
             $bildirimDurum = $this->bildirimAt($kullaniciId, [
                 "baslik" => "İşlem Durumu Değiştirildi",
                 "icerik" => "'$islem->id' numaralı idye ait işlem durumu, '$islemDurum->ad' olarak değiştirildi.",
-                "link" => "/islemler/$islem->id",
+                "link" => "/tum-islemler?islemId=$islem->id",
                 "kod" => "ISLEM_DURUMU_BILDIRIMI",
                 "actionId" => $islem->id,
             ]);
@@ -790,6 +816,7 @@ class IsilIslemController extends Controller
             $kullaniciId = $request->kullaniciId ?? auth()->user()->id;
             $kullaniciAdi = User::find($kullaniciId)->name;
             $islemBilgileri = $request->islem;
+            $formId = $request->formId ?? null;
 
             $islemTabloAdi = (new Islemler())->getTable();
             $siparisTabloAdi = (new Siparisler())->getTable();
@@ -824,9 +851,11 @@ class IsilIslemController extends Controller
 
             $yeniIslem->tekrarEdilenId = $islem->tekrarEdilenId ?? $islem->id;
             $yeniIslem->durumId = $baslanmadiDurum->id;
-            $yeniIslem->formId = null;
+            $yeniIslem->formId = $formId;
             $yeniIslem->firinId = null;
             $yeniIslem->sarj = null;
+            $yeniIslem->baslangicTarihi = null;
+            $yeniIslem->bitisTarihi = null;
             $yeniIslem->birimFiyat = 0;
 
             if (!$yeniIslem->save())
@@ -880,7 +909,7 @@ class IsilIslemController extends Controller
             $bildirimDurum = $this->bildirimAt($kullaniciId, [
                 "baslik" => "İşlem Tekrar Edildi",
                 "icerik" => "$islemBilgi->id numaralı idye ait işlem, $kullaniciAdi adlı kullanıcı tarafından tekrar edildi. Termin: $gecenSure Gün",
-                "link" => "/islemler/$islem->id",
+                "link" => "/tum-islemler?islemId=$islem->id",
                 "kod" => "ISLEM_DURUMU_BILDIRIMI",
                 "actionId" => $islem->id,
             ]);
@@ -986,6 +1015,7 @@ class IsilIslemController extends Controller
             }
 
             $islem->durumId = $islemdeDurum->id;
+            $islem->bitisTarihi = null;
 
             if (!$islem->save())
             {
@@ -1069,6 +1099,7 @@ class IsilIslemController extends Controller
                 $islemTabloAdi.id,
                 $islemTabloAdi.siparisId,
                 $islemTabloAdi.malzemeId,
+                $islemTabloAdi.formId,
                 $islemTabloAdi.firinId,
                 $islemTabloAdi.sarj,
                 $islemTabloAdi.islemTuruId,
@@ -1076,6 +1107,7 @@ class IsilIslemController extends Controller
                 $islemTabloAdi.adet,
                 $islemTabloAdi.miktar,
                 $islemTabloAdi.dara,
+                ($islemTabloAdi.miktar - $islemTabloAdi.dara) as net,
                 $islemTabloAdi.kalite,
                 $islemTabloAdi.istenilenSertlik,
                 $islemTabloAdi.sicaklik,
@@ -1099,6 +1131,7 @@ class IsilIslemController extends Controller
                 $firmaTabloAdi.firmaAdi,
                 $firmaTabloAdi.sorumluKisi,
                 $islemDurumTabloAdi.ad as islemDurumAdi,
+                $islemDurumTabloAdi.kod as islemDurumKodu,
                 $malzemeTabloAdi.ad as malzemeAdi,
                 $islemTuruTabloAdi.ad as islemTuruAdi,
                 $firinTabloAdi.ad as firinAdi,
@@ -1145,7 +1178,117 @@ class IsilIslemController extends Controller
                     ];
                 }
 
+                if (!isset($islem["tekrarEdenIslemler"]))
+                {
+                    $islem["tekrarEdenIslemler"] = [];
+                }
+
+                // Tekrar eden işlemler
+                $islem["tekrarEdenIslemler"] = Islemler::where("tekrarEdilenId", $islem["id"])
+                    ->select(DB::raw("
+                        $islemTabloAdi.*,
+                        $islemDurumTabloAdi.ad as islemDurumuAdi,
+                        $islemDurumTabloAdi.kod as islemDurumuKodu,
+                        $islemDurumTabloAdi.json as islemDurumuJson,
+                        $firinTabloAdi.ad as firinAdi,
+                        $firinTabloAdi.json as firinJson,
+                        $siparisTabloAdi.firmaId,
+                        $siparisTabloAdi.siparisNo,
+                        $siparisTabloAdi.ad as siparisAdi,
+                        $siparisTabloAdi.terminSuresi,
+                        $siparisTabloAdi.tarih,
+                        $malzemeTabloAdi.ad as malzemeAdi,
+                        $firmaTabloAdi.firmaAdi
+                    "))
+                    ->join($islemDurumTabloAdi, $islemDurumTabloAdi . ".id", "=", $islemTabloAdi . ".durumId")
+                    ->join($firinTabloAdi, $firinTabloAdi . ".id", "=", $islemTabloAdi . ".firinId")
+                    ->join($siparisTabloAdi, $siparisTabloAdi . ".id", "=", $islemTabloAdi . ".siparisId")
+                    ->join($malzemeTabloAdi, $malzemeTabloAdi . ".id", "=", $islemTabloAdi . ".malzemeId")
+                    ->join($firmaTabloAdi, $firmaTabloAdi . ".id", "=", $siparisTabloAdi . ".firmaId")
+                    ->whereIn("$islemDurumTabloAdi.kod", ["ISLEM_BEKLIYOR", "ISLEMDE", "TAMAMLANDI"])
+                    ->orderBy("$islemTabloAdi.created_at", "asc")
+                    ->get()
+                    ->toArray();
+
+                if (count($islem["tekrarEdenIslemler"]) > 0)
+                {
+                    foreach ($islem["tekrarEdenIslemler"] as &$tekrarEdenIslem)
+                    {
+                        $terminBilgileri = $this->terminHesapla($tekrarEdenIslem["tarih"], $tekrarEdenIslem["terminSuresi"] ?? 5);
+                        $tekrarEdenIslem["gecenSure"] = $terminBilgileri["gecenSure"];
+                        $tekrarEdenIslem["gecenSureRenk"] = $terminBilgileri["gecenSureRenk"];
+
+                        $tekrarEdenIslem["firinJson"] = json_decode($tekrarEdenIslem["firinJson"], true);
+
+                        if (isset(($tekrarEdenIslem["firinJson"]["renk"])))
+                        {
+                            $tekrarEdenIslem["firinRenk"] = $tekrarEdenIslem["firinJson"]["renk"];
+                        }
+
+                        $tekrarEdenIslem["islemDurumuJson"] = json_decode($tekrarEdenIslem["islemDurumuJson"], true);
+
+                        if (isset(($tekrarEdenIslem["islemDurumuJson"]["renk"])))
+                        {
+                            $tekrarEdenIslem["islemDurumuRenk"] = $tekrarEdenIslem["islemDurumuJson"]["renk"];
+                            $tekrarEdenIslem["islemDurumuIkon"] = $tekrarEdenIslem["islemDurumuJson"]["ikon"];
+                        }
+                    }
+                }
+
                 $islemler[$islem["firinId"]]["sarjlar"][$islem["sarj"]]["islemler"][] = $islem;
+
+                // Şarjın durumu ve fırının durumunu tespit ediyoruz
+                $islemIcinDurumlar = array_count_values(array_column($islemler[$islem["firinId"]]["sarjlar"][$islem["sarj"]]["islemler"], 'islemDurumKodu'));
+
+                $islemler[$islem["firinId"]]["sarjlar"][$islem["sarj"]]["islemdekiIslemSayisi"] = $islemIcinDurumlar["ISLEMDE"] ?? 0;
+                $islemler[$islem["firinId"]]["sarjlar"][$islem["sarj"]]["bekleyenIslemSayisi"] = $islemIcinDurumlar["ISLEM_BEKLIYOR"] ?? 0;
+                $islemler[$islem["firinId"]]["sarjlar"][$islem["sarj"]]["tamamlananIslemSayisi"] = $islemIcinDurumlar["TAMAMLANDI"] ?? 0;
+
+                if ($islemler[$islem["firinId"]]["sarjlar"][$islem["sarj"]]["islemdekiIslemSayisi"] > 0)
+                {
+                    $islemler[$islem["firinId"]]["sarjlar"][$islem["sarj"]]["islemDurumKodu"] = "ISLEMDE";
+                    $islemler[$islem["firinId"]]["sarjlar"][$islem["sarj"]]["islemDurumAdi"] = "İşlemde";
+                }
+                else if ($islemler[$islem["firinId"]]["sarjlar"][$islem["sarj"]]["bekleyenIslemSayisi"] > 0)
+                {
+                    $islemler[$islem["firinId"]]["sarjlar"][$islem["sarj"]]["islemDurumKodu"] = "ISLEM_BEKLIYOR";
+                    $islemler[$islem["firinId"]]["sarjlar"][$islem["sarj"]]["islemDurumAdi"] = "İşlem Bekliyor";
+                }
+                else if ($islemler[$islem["firinId"]]["sarjlar"][$islem["sarj"]]["tamamlananIslemSayisi"] > 0)
+                {
+                    $toplamIslemSayisi = count($islemler[$islem["firinId"]]["sarjlar"][$islem["sarj"]]["islemler"]);
+                    if ($islemler[$islem["firinId"]]["sarjlar"][$islem["sarj"]]["tamamlananIslemSayisi"] === $toplamIslemSayisi)
+                    {
+                        $islemler[$islem["firinId"]]["sarjlar"][$islem["sarj"]]["islemDurumKodu"] = "TAMAMLANDI";
+                        $islemler[$islem["firinId"]]["sarjlar"][$islem["sarj"]]["islemDurumAdi"] = "Tamamlandı";
+                    }
+                }
+
+                $sarjIcinDurumlar = array_count_values(array_column($islemler[$islem["firinId"]]["sarjlar"], 'islemDurumKodu'));
+
+                $islemler[$islem["firinId"]]["islemdekiSarjSayisi"] = $sarjIcinDurumlar["ISLEMDE"] ?? 0;
+                $islemler[$islem["firinId"]]["bekleyenSarjSayisi"] = $sarjIcinDurumlar["ISLEM_BEKLIYOR"] ?? 0;
+                $islemler[$islem["firinId"]]["tamamlananSarjSayisi"] = $sarjIcinDurumlar["TAMAMLANDI"] ?? 0;
+
+                if ($islemler[$islem["firinId"]]["islemdekiSarjSayisi"] > 0)
+                {
+                    $islemler[$islem["firinId"]]["islemDurumKodu"] = "ISLEMDE";
+                    $islemler[$islem["firinId"]]["islemDurumAdi"] = "İşlemde";
+                }
+                else if ($islemler[$islem["firinId"]]["bekleyenSarjSayisi"] > 0)
+                {
+                    $islemler[$islem["firinId"]]["islemDurumKodu"] = "ISLEM_BEKLIYOR";
+                    $islemler[$islem["firinId"]]["islemDurumAdi"] = "İşlem Bekliyor";
+                }
+                else if ($islemler[$islem["firinId"]]["tamamlananSarjSayisi"] > 0)
+                {
+                    $toplamSarjSayisi = count($islemler[$islem["firinId"]]["sarjlar"]);
+                    if ($islemler[$islem["firinId"]]["tamamlananSarjSayisi"] === $toplamSarjSayisi)
+                    {
+                        $islemler[$islem["firinId"]]["islemDurumKodu"] = "TAMAMLANDI";
+                        $islemler[$islem["firinId"]]["islemDurumAdi"] = "Tamamlandı";
+                    }
+                }
             }
 
             return response()->json([
@@ -1224,6 +1367,117 @@ class IsilIslemController extends Controller
             return response()->json([
                 "durum" => false,
                 "mesaj" => "İşlem detayı getirilirken bir hata oluştu.",
+                "hata" => $ex->getMessage(),
+                "satir" => $ex->getLine(),
+            ], 500);
+        }
+    }
+
+    public function sarjIslemleriBaslat(Request $request)
+    {
+        try
+        {
+            $firin = $request->firin;
+            $firinId = $firin["firinId"];
+            $firinAdi = $firin["firinAdi"];
+            $sarj = $request->sarj;
+            $formId = $request->formId;
+            // $islemTabloAdi = (new Islemler())->getTable();
+            $userId = auth()->user()->id;
+
+            $islemdeIslemDurumu = IslemDurumlari::where("kod", "ISLEMDE")->first();
+            $tamamlandiIslemDurumu = IslemDurumlari::where("kod", "TAMAMLANDI")->first();
+
+            $islemUpdateDurum = Islemler::where("firinId", $firinId)
+                ->where("sarj", $sarj)
+                ->where("durumId", "<>", $tamamlandiIslemDurumu->id)
+                ->update([
+                    "durumId" => $islemdeIslemDurumu->id,
+                    "baslangicTarihi" => Carbon::now(),
+                ]);
+
+            if (!$islemUpdateDurum)
+            {
+                return response()->json([
+                    "durum" => false,
+                    "mesaj" => "Sarj işlemleri başlatılırken bir hata oluştu.",
+                    "hata" => "İşlemler güncellenemedi.",
+                ], 500);
+            }
+
+            $bildirimDurum = $this->bildirimAt($userId, [
+                "baslik" => "Sarj işlemleri başlatıldı",
+                "icerik" => "$firinAdi fırının $sarj. sarj işlemleri başlatıldı.",
+                "link" => "/isil-islemler?formId=$formId",
+                "kod" => "FORM_BILDIRIMI",
+                "actionId" => $formId,
+            ]);
+
+            return response()->json([
+                "durum" => true,
+                "mesaj" => "Sarj islemleri başlatıldı.",
+            ], 200);
+        }
+        catch (\Exception $ex)
+        {
+            return response()->json([
+                "durum" => false,
+                "mesaj" => "Sarj islemleri başlatılırken bir hata oluştu.",
+                "hata" => $ex->getMessage(),
+                "satir" => $ex->getLine(),
+            ], 500);
+        }
+    }
+
+    public function sarjIslemleriTamamla(Request $request)
+    {
+        try
+        {
+            $firin = $request->firin;
+            $firinId = $firin["firinId"];
+            $firinAdi = $firin["firinAdi"];
+            $sarj = $request->sarj;
+            $formId = $request->formId;
+            // $islemTabloAdi = (new Islemler())->getTable();
+            $userId = auth()->user()->id;
+
+            $tamamlandiIslemDurumu = IslemDurumlari::where("kod", "TAMAMLANDI")->first();
+
+            $islemUpdateDurum = Islemler::where("firinId", $firinId)
+                ->where("sarj", $sarj)
+                ->where("durumId", "<>", $tamamlandiIslemDurumu->id)
+                ->update([
+                    "durumId" => $tamamlandiIslemDurumu->id,
+                    "bitisTarihi" => Carbon::now(),
+                ]);
+
+            if (!$islemUpdateDurum)
+            {
+                return response()->json([
+                    "durum" => false,
+                    "mesaj" => "Sarj işlemleri tamamlanırken bir hata oluştu.",
+                    "hata" => "İşlemler güncellenemedi.",
+                ], 500);
+            }
+
+            $bildirimDurum = $this->bildirimAt($userId, [
+                "baslik" => "Şarj işlemleri tamamlandı",
+                "icerik" => "$firinAdi fırının $sarj. sarj işlemleri tamamlandı.",
+                "link" => "/isil-islemler?formId=$formId",
+                "kod" => "FORM_BILDIRIMI",
+                "actionId" => $formId,
+            ]);
+
+            return response()->json([
+                "durum" => true,
+                "mesaj" => "Şarj işlemleri tamamlandı.",
+            ], 200);
+        }
+        catch (\Exception $ex)
+        {
+            return response()->json([
+                "durum" => false,
+                "mesaj" => "Sarj islemleri tamamlanırken bir hata oluştu.",
                 "hata" => $ex->getMessage(),
                 "satir" => $ex->getLine(),
             ], 500);

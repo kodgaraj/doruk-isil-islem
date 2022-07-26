@@ -347,7 +347,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <!-- or point to a specific vue-select release -->
-    <script src="https://unpkg.com/vue-select@3"></script>
+    <script src="https://unpkg.com/vue-select@3.20.0/dist/vue-select.js"></script>
 
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.js"></script>
 
@@ -467,6 +467,10 @@
                     .catch(error => {
                         this.miniBildirimlerObjesi.okunmamisBildirimSayisi = 0;
                     });
+                },
+                bildirimeGit(bildirim) {
+                    const { link, kod } = bildirim.json;
+                    window.location.href = link;
                 },
             },
         });

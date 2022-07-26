@@ -53,7 +53,12 @@
                             </thead>
                             <tbody>
                                 <template v-if="bildirimler.veriler && _.size(bildirimler.veriler.data)">
-                                    <tr v-for="(bildirim, index) in bildirimler.veriler.data" :key="index">
+                                    <tr
+                                        v-for="(bildirim, index) in bildirimler.veriler.data"
+                                        :key="index"
+                                        style="cursor: pointer;"
+                                        @click="bildirimeGit(bildirim)"
+                                    >
                                         <td>
                                             <div class="col-12">
                                                 <span class="badge" :class="`bg-${bildirim.bildirimTuruJson.renk}`">

@@ -39,13 +39,13 @@ class Controller extends BaseController
         ],
     ];
 
-    public function terminHesapla($tarih, $terminSuresi = 5)
+    public function terminHesapla($tarih, $terminSuresi = 5, $sonTarih = null)
     {
         $birinciFaz = floor($terminSuresi * 30 / 100);
         $ikinciFaz = floor($terminSuresi * 60 / 100);
 
         $islemTarih = Carbon::parse($tarih);
-        $simdiTarih = Carbon::now();
+        $simdiTarih = $sonTarih ? Carbon::parse($sonTarih) : Carbon::now();
 
         $termin = $islemTarih->diffInDays($simdiTarih);
         $renk = "success";
@@ -54,13 +54,9 @@ class Controller extends BaseController
         {
             $renk = "danger";
         }
-        elseif ($termin > $birinciFaz)
+        else if ($termin > $birinciFaz)
         {
             $renk = "warning";
-        }
-        else
-        {
-            $renk = "success";
         }
 
         return [
@@ -105,7 +101,7 @@ class Controller extends BaseController
                 $this->bildirimAt(auth()->user()->id, [
                     "baslik" => "Isıl İşlem Formu Tamamlandı",
                     "icerik" => "$form->formId numaralı idye ait ısıl işlem formu tamamlandı.",
-                    "link" => "/isil-islemler/$form->formId",
+                    "link" => "/isil-islemler?formId=$form->formId",
                     "kod" => "FORM_BILDIRIMI",
                     "actionId" => $form->formId,
                 ]);
@@ -230,6 +226,20 @@ class Controller extends BaseController
         return mb_strtolower($degisken);
     }
 
+    /**
+     * Bildirim atma
+     * 
+     * @param integer $kullaniciId Kullanıcı id
+     * @param array $veriler Bildirim bilgileri
+     * 
+     * @example $this->bildirimAt(1, [
+     *    "baslik" => "Bildirim Başlığı",
+     *    "icerik" => "Bildirim içeriği",
+     *    "link" => "/link/adresi",
+     *    "kod" => "KOD",
+     *    "actionId" => 1 //?,
+     * ]);
+     */
     public function bildirimAt($kullaniciId, $veriler)
     {
         try

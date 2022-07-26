@@ -63,6 +63,9 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('/islemDurumuDegistir', [IsilIslemController::class, 'islemDurumuDegistir'])->name("islemDurumuDegistir");
     Route::post('/islemTekrarEt', [IsilIslemController::class, 'islemTekrarEt'])->name("islemTekrarEt");
     Route::post('/islemTamamlandiGeriAl', [IsilIslemController::class, 'islemTamamlandiGeriAl'])->name("islemTamamlandiGeriAl");
+    Route::get('/firinSarjGrupluIslemleriGetir', [IsilIslemController::class, 'firinSarjGrupluIslemleriGetir'])->name("firinSarjGrupluIslemleriGetir");
+    Route::post('/sarjIslemleriBaslat', [IsilIslemController::class, 'sarjIslemleriBaslat'])->name("sarjIslemleriBaslat");
+    Route::post('/sarjIslemleriTamamla', [IsilIslemController::class, 'sarjIslemleriTamamla'])->name("sarjIslemleriTamamla");
 
     Route::get('/islemTurleriGetir', [IslemTurleriController::class, 'islemTurleriGetir'])->name("islemTurleriGetir");
     Route::post('/islemTuruEkle', [IslemTurleriController::class, 'islemTuruEkle'])->name("islemTuruEkle");

@@ -674,11 +674,11 @@
                     let url = new URL(window.location.href);
                     this.sorguParametreleri.formId = _.toNumber(url.searchParams.get("formId"));
                     this.sorguParametreleri.islemId = _.toNumber(url.searchParams.get("islemId"));
-                    if (this.sorguParametreleri.formId && this.sorguParametreleri.islemId) {
+                    if (this.sorguParametreleri.formId) {
                         const form = _.find(this.formlar.data, { id: this.sorguParametreleri.formId });
 
                         if (form) {
-                            this.formDuzenle(form);
+                            this.formDetayGoruntule(form);
                         }
                     }
 
