@@ -1,7 +1,15 @@
 @extends('layout') 
 @section('content')
 <div class="row doruk-content">
-    <h4 style="color:#999"><i class="mdi mdi-progress-wrench"></i> ISIL İŞLEMLER</h4>
+    <div class="d-inline-flex">
+        <h4 style="color:#999"><i class="mdi mdi-progress-wrench"></i> ISIL İŞLEMLER</h4>
+        <div class="ms-1">
+            <button @click="sorguParametreleriTemizle" v-if="sorguParametreleri.islemId" class="btn btn-danger btn-sm">
+                <b>İşlem ID: @{{ sorguParametreleri.islemId }}</b>
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </div>
     <div class="col-12">
         <div class="card">
             <div class="card-header">
@@ -514,12 +522,36 @@
                     },
                     firinlar: @json($firinlar),
                     islemDurumlari: @json($islemDurumlari),
+                    sorguParametreleri: {
+                        islemId: null,
+                    },
                 };
             },
             mounted() {
-                this.isilIslemleriGetir();
+                this.onyukleme();
             },
             methods: {
+                onyukleme() {
+                    let url = new URL(window.location.href);
+                    this.sorguParametreleri.islemId = _.toNumber(url.searchParams.get("islemId"));
+
+                    if (this.sorguParametreleri.islemId) {
+                        this.filtrelemeObjesi.islemId = this.sorguParametreleri.islemId;
+                    }
+
+                    this.isilIslemleriGetir();
+                },
+                sorguParametreleriTemizle() {
+                    this.sorguParametreleri = {
+                        islemId: null,
+                    };
+
+                    delete this.filtrelemeObjesi.islemId;
+
+                    window.history.replaceState({}, document.title, (new URL(window.location.href)).pathname)
+
+                    this.isilIslemleriGetir();
+                },
                 isilIslemleriGetir(url = "{{ route('islemler') }}") {
                     this.yukleniyorObjesi.islemler = true;
                     axios.get(url, {

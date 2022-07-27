@@ -53,6 +53,10 @@ class IsilIslemController extends Controller
                 )
                 ->orderBy($formTabloAdi . '.id', 'desc');
 
+            if (isset($filtrelemeler["formId"]) && $filtrelemeler["formId"])
+            {
+                $formlar = $formlar->where($formTabloAdi . '.id', $filtrelemeler["formId"]);
+            }
 
             if (isset($filtrelemeler["arama"]) && $filtrelemeler["arama"] != "") {
                 // Sipariş no, firma adı, irsaliye no
@@ -532,6 +536,11 @@ class IsilIslemController extends Controller
                 ->orderBy("$siparisTabloAdi.tarih", "asc");
                 // ->orderBy("$islemDurumTabloAdi.kod", "asc");
 
+            if (isset($filtrelemeler["islemId"]) && $filtrelemeler["islemId"])
+            {
+                $islemler = $islemler->where("$islemTabloAdi.id", $filtrelemeler["islemId"]);
+            }
+
             if (isset($filtrelemeler["firin"]) && $filtrelemeler["firin"] && count($filtrelemeler["firin"]) > 0) {
                 $firinIdleri = array_column($filtrelemeler["firin"], "id");
 
@@ -542,7 +551,9 @@ class IsilIslemController extends Controller
                 $islemDurumIdleri = array_column($filtrelemeler["islemDurumu"], "id");
 
                 $islemler = $islemler->whereIn("$islemTabloAdi.durumId", $islemDurumIdleri);
-            } else {
+            }
+            else
+            {
                 $islemler = $islemler->whereIn("$islemDurumTabloAdi.kod", ["ISLEM_BEKLIYOR", "ISLEMDE", "TAMAMLANDI"]);
             }
 
@@ -569,7 +580,8 @@ class IsilIslemController extends Controller
 
             $islemler = $islemler->paginate($filtrelemeler["limit"] ?? 6)->toArray();
 
-            foreach ($islemler["data"] as &$islem) {
+            foreach ($islemler["data"] as &$islem)
+            {
                 $terminBilgileri = $this->terminHesapla($islem["tarih"], $islem["terminSuresi"] ?? 5);
                 $islem["gecenSure"] = $terminBilgileri["gecenSure"];
                 $islem["gecenSureRenk"] = $terminBilgileri["gecenSureRenk"];
@@ -1334,7 +1346,7 @@ class IsilIslemController extends Controller
             $bildirimDurum = $this->bildirimAt($userId, [
                 "baslik" => "Sarj işlemleri başlatıldı",
                 "icerik" => "$firinAdi'ın $sarj. sarj işlemleri başlatıldı.",
-                "link" => "/isil-islemler?formId=$formId",
+                "link" => "/isil-islemler?formId=$formId&firinId=$firinId&sarj=$sarj",
                 "kod" => "FORM_BILDIRIMI",
                 "actionId" => $formId,
             ]);
@@ -1389,7 +1401,7 @@ class IsilIslemController extends Controller
             $bildirimDurum = $this->bildirimAt($userId, [
                 "baslik" => "Şarj işlemleri tamamlandı",
                 "icerik" => "$firinAdi'ın $sarj. sarj işlemleri tamamlandı.",
-                "link" => "/isil-islemler?formId=$formId",
+                "link" => "/isil-islemler?formId=$formId&firinId=$firinId&sarj=$sarj",
                 "kod" => "FORM_BILDIRIMI",
                 "actionId" => $formId,
             ]);

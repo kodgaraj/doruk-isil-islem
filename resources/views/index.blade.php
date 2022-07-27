@@ -213,6 +213,7 @@
                                             <tr
                                                 v-if="_.size(form.islemler) && form.islemlerAcik"
                                                 class="bg-primary py-0"
+                                                :key="index + 'formIslemleri'"
                                             >
                                                 <td colspan="100%" class="text-center p-0">
                                                     <div class="col-12 text-center" style="overflow-y: auto; overflow-x: hidden; max-height: 400px; border: 1px solid blue;">

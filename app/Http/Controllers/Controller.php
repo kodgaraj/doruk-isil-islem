@@ -75,15 +75,11 @@ class Controller extends BaseController
         try
         {
             $islemTabloAdi = (new Islemler())->getTable();
-            $firmaTabloAdi = (new Firmalar())->getTable();
             $formTabloAdi = (new Formlar())->getTable();
             $islemDurumTabloAdi = (new IslemDurumlari())->getTable();
-            $siparisTabloAdi = (new Siparisler())->getTable();
 
             // Formun bitiş tarihini ayarlama
             $form = Formlar::join($islemTabloAdi, $formTabloAdi . '.id', '=', $islemTabloAdi . '.formId')
-                ->join($siparisTabloAdi, "$siparisTabloAdi.id", "$islemTabloAdi.siparisId")
-                ->join($firmaTabloAdi, $firmaTabloAdi.'.id', '=', $siparisTabloAdi.'.firmaId')
                 ->where("$islemTabloAdi.id", $islemId)
                 ->first();
 
@@ -104,7 +100,7 @@ class Controller extends BaseController
 
                 $this->bildirimAt(auth()->user()->id, [
                     "baslik" => "Isıl İşlem Formu Tamamlandı",
-                    "icerik" => "$form->firmaAdi adlı firmanın $form->formId  numaralı idye ait ısıl işlem formu tamamlandı.",
+                    "icerik" => "$form->formId numaralı idye ait ısıl işlem formu tamamlandı. (Form Takip No: $form->takipNo)",
                     "link" => "/isil-islemler?formId=$form->formId",
                     "kod" => "FORM_BILDIRIMI",
                     "actionId" => $form->formId,
