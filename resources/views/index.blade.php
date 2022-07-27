@@ -199,7 +199,7 @@
                                                 <td class="text-center orta-uzunluk">
                                                     <div class="row g-1 d-inline-flex">
                                                         <div class="col">
-                                                            <button @click.stop="islemDetayiAc({ formId: form.id })" class="btn btn-info btn-sm">
+                                                            <button @click.stop="formDetayiAc({ formId: form.id })" class="btn btn-info btn-sm">
                                                                 <i class="fas fa-eye"></i>
                                                             </button>
                                                         </div>
@@ -762,8 +762,8 @@
                         }
                     });
                 },
-                islemDetayiAc(islem) {
-                    window.location.href = "{{ route('isil-islemler') }}?islemId=" + islem.id + "&formId=" + islem.formId;
+                formDetayiAc({ formId }) {
+                    window.location.href = "{{ route('isil-islemler') }}?formId=" + formId;
                 },
                 islemTamamlandiGeriAl(islem, formIndex) {
                     this.yukleniyorObjesi.islemler = true;

@@ -1,4 +1,4 @@
-@extends('layout') 
+@extends('layout')
 @section('content')
 <div class="row doruk-content">
     <div class="d-inline-flex">
