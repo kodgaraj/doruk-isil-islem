@@ -263,11 +263,12 @@
                                                             <td
                                                                 colspan="100%"
                                                                 class="text-center p-0"
-                                                                style="overflow-y: auto; overflow-x: hidden; max-height: 400px; border: 1px solid blue;"
+                                                                style="border: 1px solid blue;"
                                                             >
                                                                 <div
-                                                                    class="table-responsive overflow-hidden"
+                                                                    class="table-responsive"
                                                                     :key="index + 'islemler'"
+                                                                    style="max-height: 400px"
                                                                 >
                                                                     <table class="table table-striped table-bordered nowrap" id="urun-detay">
                                                                         <thead>
