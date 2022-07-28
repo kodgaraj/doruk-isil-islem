@@ -150,6 +150,10 @@
                                             </div>
                                         </div>
                                         <div class="modal-footer">
+                                            <button type="button" class="btn btn-success" data-bs-dismiss="modal" @click="excelCikti()">
+                                                <i class="fas fa-file-excel"></i>
+                                                EXCEL
+                                            </button>
                                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">VAZGEÇ</button>
                                             <button type="button" class="btn btn-primary" data-bs-dismiss="modal" @click="filtrele()">ARA</button>
                                         </div>
@@ -174,7 +178,7 @@
                                             <table id="tech-companies-1" class="table table-striped table-hover">
                                                 <thead>
                                                     <tr>
-                                                        <th>Termin</th>
+                                                        <th>ID/Termin</th>
                                                         <th data-priority="2">Firma</th>
                                                         <th data-priority="3" class="text-center">İşlem Sayısı</th>
                                                         <th data-priority="2">Miktar (Net)</th>
@@ -194,6 +198,9 @@
                                                         >
                                                             <td class="kisa-uzunluk">
                                                                 <div class="row">
+                                                                    <div class="col-12">
+                                                                        # @{{ siparis.siparisId }}
+                                                                    </div>
                                                                     <div class="col-12">
                                                                         <span class="badge badge-pill" :class="`bg-${ siparis.gecenSureRenk }`">@{{ siparis.gecenSure }} Gün</span>
                                                                         <div class="d-inline-flex" v-if="siparis.islemYukleniyor">
@@ -962,16 +969,32 @@
             aktifSayfaDegistir(kod) {
                 this.aktifSayfa = _.find(this.sayfalar, { kod });
             },
-            siparisleriGetir(url = "/siparisler") {
+            siparisleriGetir(url = "/siparisler", cikti = false) {
                 this.yukleniyorDurum(true);
                 axios.get(url, {
                     params: {
+                        cikti,
                         filtreleme: this.filtrelemeObjesi,
                         sayfalamaSayisi: this.sayfalamaSayisi,
-                    }
+                    },
+                    responseType: cikti ? 'blob' : 'json',
                 })
                 .then(response => {
                     this.yukleniyorDurum(false);
+
+                    if (cikti) {
+                        // convert blob
+                        const blob = new Blob([response.data]);
+                        const url = window.URL.createObjectURL(blob);
+                        const link = document.createElement('a');
+                        link.href = url;
+                        link.download = 'Sipariş Listesi ' + moment().format('L LTS') + '.xlsx';
+                        link.click();
+
+                        window.URL.revokeObjectURL(url);
+
+                        return;
+                    }
 
                     if (!response.data.durum) {
                         return this.uyariAc({
@@ -980,7 +1003,6 @@
                             tur: "error"
                         });
                     }
-
                     this.siparisler = response.data.siparisler;
 
                     this.siparisler = _.cloneDeep(this.siparisler);
@@ -1880,7 +1902,10 @@
                 this.siparisler.data[index].islemlerAcik = true;
                 this.siparisler.data[index].islemYukleniyor = false;
                 this.siparisler = _.cloneDeep(this.siparisler);
-            }
+            },
+            excelCikti() {
+                this.siparisleriGetir(undefined, true);
+            },
         }
     };
 </script>

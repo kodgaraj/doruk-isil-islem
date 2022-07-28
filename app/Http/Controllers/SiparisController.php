@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\ExcelExporter;
 use App\Models\Firmalar;
 use App\Models\Islemler;
 use App\Models\IslemTurleri;
@@ -34,7 +35,9 @@ class SiparisController extends Controller
         {
             $filtrelemeler = json_decode($request->filtreleme ?? "[]", true);
 
-            $sayfalamaSayisi = $request->sayfalamaSayisi ?? 10;
+            $cikti = isset($request->cikti) && json_decode($request->cikti) === true;
+
+            $sayfalamaSayisi = $cikti ? 9999 : ($request->sayfalamaSayisi ?? 10);
             $firmaTabloAdi = (new Firmalar())->getTable();
             $siparisDurumTabloAdi = (new SiparisDurumlari())->getTable();
             $siparisTabloAdi = (new Siparisler())->getTable();
@@ -153,6 +156,27 @@ class SiparisController extends Controller
                     "paraBirimi" => $this->paraBirimleri["USD"],
                 ]);
                 $siparis["netYazi"] = $this->yaziyaDonustur($siparis["net"], ["kg" => true]);
+            }
+
+            if ($cikti)
+            {
+                return (
+                    new ExcelExporter($siparisler["data"], [
+                        "siparisId" => "Sipariş ID",
+                        "siparisNo" => "Sipariş No",
+                        "gecenSure" => "Termin",
+                        "firmaAdi" => "Firma",
+                        "islemSayisi" => "İşlem Sayısı",
+                        "netYazi" => "Miktar (Net)",
+                        "tutarTLYazi" => "Tutar (TL)",
+                        "tutarUSDYazi" => "Tutar (USD)",
+                        [
+                            "key" => "tarih",
+                            "value" => "Sipariş Tarihi",
+                            "tur" => "TARIH"
+                        ],
+                    ])
+                )->downloadExcel("Sipariş Listesi");
             }
 
             return response()->json([

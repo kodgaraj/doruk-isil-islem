@@ -29,6 +29,7 @@ use App\Http\Controllers\UpdateController;
 |
 */
 
+Route::get('/excelTest', fn() => Excel::download(new Siparisler, 'invoices.xlsx'));
 Route::get('/update/{sifre}', [UpdateController::class, 'index']);
 
 Route::group(['middleware' => ['auth']], function () {
