@@ -36,7 +36,7 @@ class Builder
      *
      * @var int|null
      */
-    public static $defaultStringLength = 125;
+    public static $defaultStringLength = 255;
 
     /**
      * The default relationship morph key type.
