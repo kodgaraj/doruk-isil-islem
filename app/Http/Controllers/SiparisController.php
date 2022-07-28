@@ -348,7 +348,7 @@ class SiparisController extends Controller
                 $islemModel->islemTuruId = $islem['yapilacakIslem']["id"] ?? null;
                 $islemModel->durumId = $islem['islemDurumu']["id"] ?? null;
                 $islemModel->siraNo = $key + 1;
-                $islemModel->adet = $islem['adet'];
+                $islemModel->adet = $islem['adet'] ?? 1;
                 $islemModel->miktar = $islem['miktar'];
                 $islemModel->dara = $islem['dara'];
                 $islemModel->birimFiyat = $islem['birimFiyat'];

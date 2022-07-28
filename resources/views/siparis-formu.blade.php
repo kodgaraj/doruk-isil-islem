@@ -717,7 +717,7 @@
                                                     </div>
                                                 </td>
                                                 <td class="kisa-uzunluk">
-                                                    <input class="form-control" type="number" placeholder="Adet" v-model="islem.adet">
+                                                    <input class="form-control" type="number" placeholder="1" v-model="islem.adet">
                                                 </td>
                                                 <td class="orta-uzunluk text-center">
                                                     <input
@@ -1210,7 +1210,7 @@
             islemEkle() {
                 const veriler = {
                     malzeme: null,
-                    adet: 1,
+                    adet: null,
                     miktar: 0,
                     dara: 0,
                     birimFiyat: 0,
