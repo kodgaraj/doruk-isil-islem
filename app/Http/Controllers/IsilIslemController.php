@@ -9,6 +9,7 @@ use App\Models\IslemDurumlari;
 use App\Models\Islemler;
 use App\Models\IslemTurleri;
 use App\Models\Malzemeler;
+use App\Models\SiparisDurumlari;
 use App\Models\Siparisler;
 use App\Models\User;
 use Carbon\Carbon;
@@ -681,6 +682,7 @@ class IsilIslemController extends Controller
             $islemDurum = IslemDurumlari::where("kod", $islemDurumuKodu)->first();
 
             $islem = Islemler::where("id", $islemBilgileri["id"])->first();
+            $siparis = Siparisler::where("id", $islem->siparisId)->first();
 
             if (!$islem) {
                 return response()->json([
@@ -700,20 +702,29 @@ class IsilIslemController extends Controller
                 ->first()
                 ->toArray();
 
-            // İşlemin önceki durumu BASLANMADI ise baslangicTarihi alanını ayarlıyoruz
+            // İşlemin önceki durumu ISLEM_BEKLIYOR ise baslangicTarihi alanını ayarlıyoruz
             if ($durumIcinIslemModel["islemDurumuKodu"] === "ISLEM_BEKLIYOR")
             {
                 $islem->baslangicTarihi = Carbon::now();
+
+                $siparisIslemdeDurum = SiparisDurumlari::where("kod", "ISLEMDE")->first();
+                $siparis->durumId = $siparisIslemdeDurum->id;
             }
-            // İşlemin önceki durumu TAMAMLANDI ise baslangicTarihi alanını null yapıyoruz
+            // İşlemin önceki durumu TAMAMLANDI ise bitisTarihi alanını null yapıyoruz
             else if ($durumIcinIslemModel["islemDurumuKodu"] === "TAMAMLANDI")
             {
                 $islem->bitisTarihi = null;
+
+                $siparisTamamlandiDurum = SiparisDurumlari::where("kod", "ISLEMDE")->first();
+                $siparis->durumId = $siparisTamamlandiDurum->id;
             }
 
             if ($islemDurumuKodu === "TAMAMLANDI")
             {
                 $islem->bitisTarihi = Carbon::now();
+
+                $siparisTamamlandiDurum = SiparisDurumlari::where("kod", "TAMAMLANDI")->first();
+                $siparis->durumId = $siparisTamamlandiDurum->id;
             }
 
             $islem->durumId = $islemDurum->id;
@@ -725,6 +736,16 @@ class IsilIslemController extends Controller
                     'durum' => false,
                     'mesaj' => 'İşlem kaydedilemedi.',
                     "hataKodu" => "F006",
+                ], 500);
+            }
+
+            if (!$siparis->save()) {
+                DB::rollBack();
+
+                return response()->json([
+                    'durum' => false,
+                    'mesaj' => 'Sipariş kaydedilemedi.',
+                    "hataKodu" => "F007",
                 ], 500);
             }
 
@@ -779,7 +800,8 @@ class IsilIslemController extends Controller
     {
         DB::beginTransaction();
 
-        try {
+        try
+        {
             $kullaniciId = $request->kullaniciId ?? auth()->user()->id;
             $kullaniciAdi = User::find($kullaniciId)->name;
             $islemBilgileri = $request->islem;
@@ -887,13 +909,25 @@ class IsilIslemController extends Controller
             //     ], 500);
             // }
 
+            if (!$this->islemBitisTarihleriAyarla($islem->id)) {
+                DB::rollBack();
+
+                return response()->json([
+                    'durum' => false,
+                    'mesaj' => 'İşlem bitiş tarihleri ayarlanamadı.',
+                    "hataKodu" => "IBT001",
+                ], 500);
+            }
+
             DB::commit();
 
             return response()->json([
                 'durum' => true,
                 'mesaj' => 'İşlem tekrar edildi.',
             ], 200);
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e)
+        {
             DB::rollBack();
 
             return response()->json([
@@ -978,6 +1012,21 @@ class IsilIslemController extends Controller
                     'durum' => false,
                     'mesaj' => 'İşlem kaydedilemedi.',
                     "hataKodu" => "ITG005",
+                ], 500);
+            }
+
+            $siparisTamamlandiDurum = SiparisDurumlari::where("kod", "ISLEMDE")->first();
+
+            $siparis = Siparisler::where("id", $islem->siparisId)->first();
+            $siparis->durumId = $siparisTamamlandiDurum->id;
+
+            if (!$siparis->save()) {
+                DB::rollBack();
+
+                return response()->json([
+                    'durum' => false,
+                    'mesaj' => 'Sipariş durumu güncellenemedi.',
+                    "hataKodu" => "ITG007",
                 ], 500);
             }
 
@@ -1343,6 +1392,8 @@ class IsilIslemController extends Controller
                 ], 500);
             }
 
+            $this->formDurumKontrol($formId);
+
             $bildirimDurum = $this->bildirimAt($userId, [
                 "baslik" => "Sarj işlemleri başlatıldı",
                 "icerik" => "$firinAdi'ın $sarj. sarj işlemleri başlatıldı.",
@@ -1405,6 +1456,8 @@ class IsilIslemController extends Controller
                 "kod" => "FORM_BILDIRIMI",
                 "actionId" => $formId,
             ]);
+
+            $this->formDurumKontrol($formId);
 
             return response()->json([
                 "durum" => true,

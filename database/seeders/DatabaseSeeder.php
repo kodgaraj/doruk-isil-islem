@@ -270,6 +270,18 @@ class DatabaseSeeder extends Seeder
             $mesajlar[] = 'İşlemler tablosuna bitisTarihi alanı eklendi > ' . date('Y-m-d H:i:s');
         }
 
+        // Siparişler tablosuna bitisTarihi alanı eklenmesi
+        if (!Schema::hasColumn("siparisler", "bitisTarihi")) {
+            Schema::table("siparisler", function (Blueprint $table) {
+                $table->dateTime('bitisTarihi')
+                    ->nullable()
+                    ->after('tarih')
+                    ->comment("Siparişin bitiş tarihi");
+            });
+
+            $mesajlar[] = 'Siparişler tablosuna bitisTarihi alanı eklendi > ' . date('Y-m-d H:i:s');
+        }
+
         $mesajlar[] = 'Veritabanı güncellendi > ' . date('Y-m-d H:i:s');
 
         return implode("<br />", $mesajlar);

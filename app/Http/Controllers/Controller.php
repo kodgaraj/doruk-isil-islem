@@ -9,6 +9,7 @@ use App\Models\Formlar;
 use App\Models\IslemDurumlari;
 use App\Models\Islemler;
 use App\Models\OkunmamisBildirimler;
+use App\Models\SiparisDurumlari;
 use App\Models\Siparisler;
 use App\Models\User;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -77,6 +78,8 @@ class Controller extends BaseController
             $islemTabloAdi = (new Islemler())->getTable();
             $formTabloAdi = (new Formlar())->getTable();
             $islemDurumTabloAdi = (new IslemDurumlari())->getTable();
+            $siparisTabloAdi = (new Siparisler())->getTable();
+            $firmaTabloAdi = (new Firmalar())->getTable();
 
             // Formun bitiş tarihini ayarlama
             $form = Formlar::join($islemTabloAdi, $formTabloAdi . '.id', '=', $islemTabloAdi . '.formId')
@@ -114,6 +117,46 @@ class Controller extends BaseController
             if (!$guncellenecekForm->save())
             {
                 return false;
+            }
+
+            $siparis = Siparisler::join($islemTabloAdi, $siparisTabloAdi . '.id', '=', $islemTabloAdi . '.siparisId')
+                ->join($firmaTabloAdi, $firmaTabloAdi . '.id', '=', $siparisTabloAdi . '.firmaId')
+                ->where("$islemTabloAdi.id", $islemId)
+                ->first();
+
+            if (!$siparis)
+            {
+                return false;
+            }
+
+            $tamamlanmamisSiparisIslemler = Islemler::join($islemDurumTabloAdi, $islemDurumTabloAdi . '.id', '=', $islemTabloAdi . '.durumId')
+                ->where("$islemTabloAdi.siparisId", $siparis->siparisId)
+                ->where("$islemDurumTabloAdi.kod", "<>", "TAMAMLANDI")
+                ->count();
+
+            if ($tamamlanmamisSiparisIslemler === 0)
+            {
+                $guncellenecekSiparis = Siparisler::find($siparis->siparisId);
+                // Burada tekrar aynı işlemin yapılmasının sebebi, işlem tekrar ederse tamamlanan sipariş olursa diye.
+                $siparisTamamlandiDurum = SiparisDurumlari::where("kod", "TAMAMLANDI")->first();
+
+                $guncellenecekSiparis->durumId = $siparisTamamlandiDurum->id;
+                $guncellenecekSiparis->bitisTarihi = Carbon::now();
+
+                if (!$guncellenecekSiparis->save())
+                {
+                    return false;
+                }
+
+                $turkceTarih = Carbon::parse($siparis->tarih)->format('d.m.Y');
+
+                $this->bildirimAt(auth()->user()->id, [
+                    "baslik" => "Sipariş Formu Tamamlandı",
+                    "icerik" => "$siparis->firmaAdi firmasının, $turkceTarih tarihli $siparis->siparisId numaralı sipariş formu tamamlandı. (Sipariş No: $siparis->siparisNo)",
+                    "link" => "/siparis-islemler?siparisId=$siparis->siparisId",
+                    "kod" => "SIPARIS_BILDIRIMI",
+                    "actionId" => $siparis->siparisId,
+                ]);
             }
 
             return true;
@@ -471,5 +514,88 @@ class Controller extends BaseController
         }
 
         return $sayi;
+    }
+
+    public function siparisDurumKontrol($siparisId)
+    {
+        try
+        {
+            $islemTabloAdi = (new Islemler())->getTable();
+            $islemDurumTabloAdi = (new IslemDurumlari())->getTable();
+
+            $siparisIslemleri = Islemler::select("$islemTabloAdi.*", "$islemDurumTabloAdi.kod as islemDurumKodu")
+                ->join($islemDurumTabloAdi, "$islemDurumTabloAdi.id", "=", "$islemTabloAdi.durumId")
+                ->where("$islemTabloAdi.siparisId", $siparisId)
+                ->get()
+                ->toArray();
+
+            $siparis = Siparisler::find($siparisId);
+
+            // Sipariş işlemlerinin hepsi tamamlandığında siparişi tamamlandı olarak işaretle
+            $durumlar = array_count_values(array_column($siparisIslemleri, "islemDurumKodu"));
+
+            if (isset($durumlar["TAMAMLANDI"]) && $durumlar["TAMAMLANDI"] === count($siparisIslemleri))
+            {
+                $siparis->durumId = SiparisDurumlari::where("kod", "TAMAMLANDI")->first()->id;
+            }
+            else if (isset($durumlar["ISLEMDE"]) && $durumlar["ISLEMDE"] > 0)
+            {
+                $siparis->durumId = SiparisDurumlari::where("kod", "ISLEMDE")->first()->id;
+            }
+            else
+            {
+                $siparis->durumId = SiparisDurumlari::where("kod", "SIPARIS_ALINDI")->first()->id;
+            }
+
+            $siparis->save();
+
+            return true;
+        }
+        catch (\Exception $e)
+        {
+            return false;
+        }
+    }
+
+    public function formDurumKontrol($formId)
+    {
+        try
+        {
+            $islemTabloAdi = (new Islemler())->getTable();
+            $islemDurumTabloAdi = (new IslemDurumlari())->getTable();
+
+            $formIslemleri = Islemler::select("$islemTabloAdi.*", "$islemDurumTabloAdi.kod as islemDurumKodu")
+                ->join($islemDurumTabloAdi, "$islemDurumTabloAdi.id", "=", "$islemTabloAdi.durumId")
+                ->where("$islemTabloAdi.formId", $formId)
+                ->get()
+                ->toArray();
+
+            $form = Formlar::find($formId);
+
+            // Form işlemlerinin hepsi tamamlandığında formun bitisTarihi'ni ayarlar
+            $durumlar = array_count_values(array_column($formIslemleri, "islemDurumKodu"));
+
+            if (isset($durumlar["TAMAMLANDI"]) && $durumlar["TAMAMLANDI"] === count($formIslemleri))
+            {
+                $form->bitisTarihi = Carbon::now();
+            }
+            else
+            {
+                $form->bitisTarihi = null;
+            }
+
+            $form->save();
+
+            foreach ($formIslemleri as $islem)
+            {
+                $this->siparisDurumKontrol($islem["siparisId"]);
+            }
+
+            return true;
+        }
+        catch (\Exception $e)
+        {
+            return false;
+        }
     }
 }
