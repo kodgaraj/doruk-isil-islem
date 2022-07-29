@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\ExcelExporter;
 use App\Models\Firinlar;
 use App\Models\Firmalar;
 use App\Models\Formlar;
@@ -503,8 +504,13 @@ class IsilIslemController extends Controller
 
     public function islemler(Request $request)
     {
-        try {
+        try
+        {
             $filtrelemeler = json_decode($request->filtreleme ?? "[]", true);
+
+            $cikti = isset($request->cikti) && json_decode($request->cikti) === true;
+
+            $sayfalamaSayisi = $cikti ? 9999 : ($filtrelemeler["limit"] ?? 6);
 
             $islemTabloAdi = (new Islemler())->getTable();
             $islemDurumTabloAdi = (new IslemDurumlari())->getTable();
@@ -515,6 +521,25 @@ class IsilIslemController extends Controller
 
             $islemler = Islemler::select(DB::raw("
                     $islemTabloAdi.*,
+                    IF(
+                        $islemTabloAdi.paraBirimi = 'TL',
+                        IF (
+                            $islemTabloAdi.miktarFiyatCarp,
+                            $islemTabloAdi.birimFiyat * ($islemTabloAdi.miktar - $islemTabloAdi.dara),
+                            $islemTabloAdi.birimFiyat
+                        ),
+                        0
+                    ) as tutarTL,
+                    IF(
+                        $islemTabloAdi.paraBirimi = 'USD',
+                        IF (
+                            $islemTabloAdi.miktarFiyatCarp,
+                            $islemTabloAdi.birimFiyat * ($islemTabloAdi.miktar - $islemTabloAdi.dara),
+                            $islemTabloAdi.birimFiyat
+                        ),
+                        0
+                    ) as tutarUSD,
+                    ($islemTabloAdi.miktar - $islemTabloAdi.dara) as net,
                     $islemDurumTabloAdi.ad as islemDurumuAdi,
                     $islemDurumTabloAdi.kod as islemDurumuKodu,
                     $islemDurumTabloAdi.json as islemDurumuJson,
@@ -579,7 +604,7 @@ class IsilIslemController extends Controller
                 $islemler = $islemler->where("$islemTabloAdi.tekrarEdenId", "!=", null);
             }
 
-            $islemler = $islemler->paginate($filtrelemeler["limit"] ?? 6)->toArray();
+            $islemler = $islemler->paginate($sayfalamaSayisi)->toArray();
 
             foreach ($islemler["data"] as &$islem)
             {
@@ -600,6 +625,14 @@ class IsilIslemController extends Controller
                     $islem["islemDurumuIkon"] = $islem["islemDurumuJson"]["ikon"];
                 }
 
+                $islem["tutarTLYazi"] = $this->yaziyaDonustur($islem["tutarTL"], [
+                    "paraBirimi" => $this->paraBirimleri["TL"],
+                ]);
+                $islem["tutarUSDYazi"] = $this->yaziyaDonustur($islem["tutarUSD"], [
+                    "paraBirimi" => $this->paraBirimleri["USD"],
+                ]);
+                $islem["netYazi"] = $this->yaziyaDonustur($islem["net"], ["kg" => true]);
+
                 if (!isset($islem["tekrarEdenIslemler"])) {
                     $islem["tekrarEdenIslemler"] = [];
                 }
@@ -607,6 +640,25 @@ class IsilIslemController extends Controller
                 $islem["tekrarEdenIslemler"] = Islemler::where("tekrarEdilenId", $islem["id"])
                     ->select(DB::raw("
                         $islemTabloAdi.*,
+                        IF(
+                            $islemTabloAdi.paraBirimi = 'TL',
+                            IF (
+                                $islemTabloAdi.miktarFiyatCarp,
+                                $islemTabloAdi.birimFiyat * ($islemTabloAdi.miktar - $islemTabloAdi.dara),
+                                $islemTabloAdi.birimFiyat
+                            ),
+                            0
+                        ) as tutarTL,
+                        IF(
+                            $islemTabloAdi.paraBirimi = 'USD',
+                            IF (
+                                $islemTabloAdi.miktarFiyatCarp,
+                                $islemTabloAdi.birimFiyat * ($islemTabloAdi.miktar - $islemTabloAdi.dara),
+                                $islemTabloAdi.birimFiyat
+                            ),
+                            0
+                        ) as tutarUSD,
+                        ($islemTabloAdi.miktar - $islemTabloAdi.dara) as net,
                         $islemDurumTabloAdi.ad as islemDurumuAdi,
                         $islemDurumTabloAdi.kod as islemDurumuKodu,
                         $islemDurumTabloAdi.json as islemDurumuJson,
@@ -630,8 +682,10 @@ class IsilIslemController extends Controller
                     ->get()
                     ->toArray();
 
-                if (count($islem["tekrarEdenIslemler"]) > 0) {
-                    foreach ($islem["tekrarEdenIslemler"] as &$tekrarEdenIslem) {
+                if (count($islem["tekrarEdenIslemler"]) > 0)
+                {
+                    foreach ($islem["tekrarEdenIslemler"] as &$tekrarEdenIslem)
+                    {
                         $terminBilgileri = $this->terminHesapla($tekrarEdenIslem["tarih"], $tekrarEdenIslem["terminSuresi"] ?? 5);
                         $tekrarEdenIslem["gecenSure"] = $terminBilgileri["gecenSure"];
                         $tekrarEdenIslem["gecenSureRenk"] = $terminBilgileri["gecenSureRenk"];
@@ -648,8 +702,53 @@ class IsilIslemController extends Controller
                             $tekrarEdenIslem["islemDurumuRenk"] = $tekrarEdenIslem["islemDurumuJson"]["renk"];
                             $tekrarEdenIslem["islemDurumuIkon"] = $tekrarEdenIslem["islemDurumuJson"]["ikon"];
                         }
+
+                        $tekrarEdenIslem["tutarTLYazi"] = $this->yaziyaDonustur($tekrarEdenIslem["tutarTL"], [
+                            "paraBirimi" => $this->paraBirimleri["TL"],
+                        ]);
+                        $tekrarEdenIslem["tutarUSDYazi"] = $this->yaziyaDonustur($tekrarEdenIslem["tutarUSD"], [
+                            "paraBirimi" => $this->paraBirimleri["USD"],
+                        ]);
+                        $tekrarEdenIslem["netYazi"] = $this->yaziyaDonustur($tekrarEdenIslem["net"], ["kg" => true]);
                     }
                 }
+            }
+
+            if ($cikti)
+            {
+                return (
+                    new ExcelExporter($islemler["data"], [
+                        "id" => "İşlem ID",
+                        "siparisNo" => "Sipariş No",
+                        [
+                            "key" => "tarih",
+                            "value" => "Sipariş Tarihi",
+                            "tur" => "TARIH"
+                        ],
+                        "gecenSure" => "Termin",
+                        "firmaAdi" => "Firma",
+                        "formId" => "Form ID",
+                        "firinAdi" => "Fırın",
+                        "sarj" => "Şarj",
+                        "islemDurumuAdi" => "İşlem Durumu",
+                        "adet" => "Adet",
+                        "miktar" => "Miktar",
+                        "dara" => "Dara",
+                        "netYazi" => "Miktar (Net)",
+                        "tutarTLYazi" => "Tutar (TL)",
+                        "tutarUSDYazi" => "Tutar (USD)",
+                        "malzemeAdi" => "Malzeme",
+                        "istenilenSertlik" => "İst. Sertlik",
+                        "kalite" => "Kalite",
+                        "sicaklik" => "Sıcaklık",
+                        "carbon" => "Carbon",
+                        "beklenenSure" => "Süre",
+                        "cikisSertligi" => "Ç. Sertliği",
+                        "menevisSicakligi" => "Men. Sıcaklığı",
+                        "cikisSuresi" => "Süre",
+                        "sonSertlik" => "Son Sertlik",
+                    ])
+                )->downloadExcel("İşlem Listesi");
             }
 
             return response()->json([

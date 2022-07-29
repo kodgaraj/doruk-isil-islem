@@ -122,6 +122,10 @@
                                         </div>
                                     </div>
                                     <div class="modal-footer">
+                                        <button type="button" class="btn btn-success" data-bs-dismiss="modal" @click="excelCikti()">
+                                            <i class="fas fa-file-excel"></i>
+                                            EXCEL
+                                        </button>
                                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">VAZGEÇ</button>
                                         <button type="button" class="btn btn-primary" data-bs-dismiss="modal" @click="filtrele()">ARA</button>
                                     </div>
@@ -552,15 +556,32 @@
 
                     this.isilIslemleriGetir();
                 },
-                isilIslemleriGetir(url = "{{ route('islemler') }}") {
+                isilIslemleriGetir(url = "{{ route('islemler') }}", cikti = false) {
                     this.yukleniyorObjesi.islemler = true;
                     axios.get(url, {
                         params: {
+                            cikti,
                             filtreleme: this.filtrelemeObjesi,
                         },
+                        responseType: cikti ? "blob" : "json",
                     })
                     .then(response => {
                         this.yukleniyorObjesi.islemler = false;
+
+                        if (cikti) {
+                            // convert blob
+                            const blob = new Blob([response.data]);
+                            const url = window.URL.createObjectURL(blob);
+                            const link = document.createElement('a');
+                            link.href = url;
+                            link.download = 'İşlem Listesi ' + moment().format('L LTS') + '.xlsx';
+                            link.click();
+
+                            window.URL.revokeObjectURL(url);
+
+                            return;
+                        }
+
                         if (!response.data.durum) {
                             return this.uyariAc({
                                 baslik: 'Hata',
@@ -739,6 +760,9 @@
                 },
                 filtrele() {
                     this.isilIslemleriGetir();
+                },
+                excelCikti() {
+                    this.isilIslemleriGetir(undefined, true);
                 },
             }
         };
