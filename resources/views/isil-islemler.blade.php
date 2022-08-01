@@ -860,7 +860,7 @@
                         <div class="col-12">
                             <div class="table-rep-plugin">
                                 <div class="table-responsive mb-0" data-pattern="priority-columns">
-                                    <table id="formGorunumu" class="table table-striped table-hover">
+                                    <table id="formGorunumu" ref="formGorunumu" class="table table-striped table-hover">
                                         <thead>
                                             <tr>
                                                 <th>Fırın</th>
@@ -883,7 +883,10 @@
                                             <template v-for="(firin, firinId, firinIndex) in aktifForm.firinSarjGrupluIslemler">
                                                 <template v-for="(sarj, sarjId, sarjIndex) in firin.sarjlar">
                                                     <template v-for="(islem, islemIndex) in sarj.islemler">
-                                                        <tr :key="firinId + '-' + sarjId + '-' + islemIndex">
+                                                        <tr
+                                                            :key="firinId + '-' + sarjId + '-' + islemIndex"
+                                                            :id="firinId"
+                                                        >
                                                             <td
                                                                 class="dikey"
                                                                 :rowspan="firin.toplamIslemSayisi"
@@ -1053,6 +1056,7 @@
 @endsection
 
 @section('script')
+<script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
 <script>
     let mixinApp = {
         data() {
@@ -1416,19 +1420,31 @@
 
                 this.aktifSayfaDegistir("FORM_GORUNUMU");
             },
-            ciktiAl() {
+            ciktiAl(id = "formGorunumu") {
                 const baslangicDurum = !!this.aktifForm.onizlemeModu;
 
                 this.aktifForm.onizlemeModu = true;
                 this.aktifForm = _.cloneDeep(this.aktifForm);
+
+                const exportToExcel = (type = "xlsx") => {
+                    var elt = document.getElementById(id);
+                    elt = this.$refs.formGorunumu;
+                    console.log(elt);
+                    var wb = XLSX.utils.table_to_book(elt);
+                    wb.Sheets["Sheet1"];
+                    return XLSX.writeFile(wb, this.aktifForm.formAdi + '.' + type);
+                }
+
                 this.$nextTick(() => {
-                    html2canvas(document.getElementById("formGorunumu")).then(canvas => {
-                        var a = document.createElement("a");
-                        a.href = canvas.toDataURL("image/png");
-                        a.download = this.aktifForm.formAdi + ".png";
-                        a.click();
-                        this.aktifForm.onizlemeModu = baslangicDurum;
-                    });
+                    exportToExcel();
+                    this.aktifForm.onizlemeModu = baslangicDurum;
+                    // html2canvas(document.getElementById(id)).then(canvas => {
+                    //     var a = document.createElement("a");
+                    //     a.href = canvas.toDataURL("image/png");
+                    //     a.download = this.aktifForm.formAdi + ".png";
+                    //     a.click();
+                    //     this.aktifForm.onizlemeModu = baslangicDurum;
+                    // });
                 });
             },
             moduDegistir() {

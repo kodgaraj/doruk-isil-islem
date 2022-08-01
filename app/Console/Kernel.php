@@ -2,11 +2,21 @@
 
 namespace App\Console;
 
+use App\Console\Commands\IslemTerminBildirim;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
 class Kernel extends ConsoleKernel
 {
+    /**
+     * The Artisan commands provided by your application.
+     *
+     * @var array
+     */
+    protected $commands = [
+        IslemTerminBildirim::class,
+    ];
+
     /**
      * Define the application's command schedule.
      *
@@ -15,7 +25,10 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // $schedule->command('inspire')->hourly();
+        $schedule->command('islem-termin-bildirim:send')
+            ->timezone('Europe/Istanbul')
+            ->sendOutputTo(storage_path('logs/islem-termin-bildirim.log'))
+            ->dailyAt('18:20');
     }
 
     /**

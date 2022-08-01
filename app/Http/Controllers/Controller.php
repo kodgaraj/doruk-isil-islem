@@ -51,19 +51,23 @@ class Controller extends BaseController
 
         $termin = $islemTarih->diffInDays($simdiTarih);
         $renk = "success";
+        $kod = "TEMIZ";
 
         if ($termin > $ikinciFaz)
         {
             $renk = "danger";
+            $kod = "IKINCI_FAZ_GECIKMIS";
         }
         else if ($termin > $birinciFaz)
         {
             $renk = "warning";
+            $kod = "BIRINCI_FAZ_GECIKMIS";
         }
 
         return [
             'gecenSure' => $termin,
             'gecenSureRenk' => $renk,
+            'gecenSureKod' => $kod,
         ];
     }
 
