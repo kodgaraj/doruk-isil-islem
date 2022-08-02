@@ -28,7 +28,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('islem-termin-bildirim:send')
             ->timezone('Europe/Istanbul')
             ->sendOutputTo(storage_path('logs/islem-termin-bildirim.log'))
-            ->dailyAt('08:05');
+            ->everyMinute();
     }
 
     /**
