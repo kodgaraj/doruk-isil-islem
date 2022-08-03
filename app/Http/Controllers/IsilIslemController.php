@@ -582,8 +582,8 @@ class IsilIslemController extends Controller
                 ->join($malzemeTabloAdi, $malzemeTabloAdi . ".id", "=", $islemTabloAdi . ".malzemeId")
                 ->join($firmaTabloAdi, $firmaTabloAdi . ".id", "=", $siparisTabloAdi . ".firmaId")
                 ->where("$islemTabloAdi.tekrarEdilenId", null)
-                ->orderBy("$siparisTabloAdi.tarih", "asc");
-                // ->orderBy("$islemDurumTabloAdi.kod", "asc");
+                ->orderBy("$siparisTabloAdi.tarih", "asc")
+                ->orderBy("$islemTabloAdi.id", "desc");
 
             if (isset($filtrelemeler["islemId"]) && $filtrelemeler["islemId"])
             {
@@ -1221,6 +1221,7 @@ class IsilIslemController extends Controller
                 $islemTabloAdi.sarj,
                 $islemTabloAdi.islemTuruId,
                 $islemTabloAdi.durumId as islemDurumId,
+                $islemTabloAdi.bolunmusId,
                 $islemTabloAdi.adet,
                 $islemTabloAdi.miktar,
                 $islemTabloAdi.dara,

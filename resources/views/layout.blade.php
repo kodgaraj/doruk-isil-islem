@@ -300,7 +300,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row doruk-content mt-5 pt-3">
+                    <div class="row doruk-content pt-3">
                         @yield('content')
                     </div>
                 </div>

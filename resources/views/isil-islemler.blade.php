@@ -304,6 +304,11 @@
                                                                                                                     <div class="col-12">
                                                                                                                         <small class="text-muted">Firma: @{{ islem.firmaAdi }}</small>
                                                                                                                     </div>
+                                                                                                                    <div v-if="islem.bolunmusId" class="col-12">
+                                                                                                                        <span class="badge rounded-pill bg-warning">
+                                                                                                                            Bölünmüş İşlem ID: @{{ islem.bolunmusId }}
+                                                                                                                        </span>
+                                                                                                                    </div>
                                                                                                                 </div>
                                                                                                             </td>
                                                                                                             <td class="text-center">
