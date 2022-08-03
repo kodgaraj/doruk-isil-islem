@@ -26,7 +26,8 @@ class IsilIslemController extends Controller
 
     public function formlar(Request $request)
     {
-        try {
+        try
+        {
             $filtrelemeler = json_decode($request->filtreleme ?? "[]", true);
 
             $sayfalamaSayisi = $request->sayfalamaSayisi ?? 10;
@@ -168,7 +169,12 @@ class IsilIslemController extends Controller
      */
     public function firmaGrupluIslemleriGetir(Request $request)
     {
-        try {
+        try
+        {
+            $formId = $request->formId ?? null;
+            $firmaId = $request->firmaId ?? null;
+            $filtrelemeler = json_decode($request->filtreleme ?? "[]", true);
+
             $siparisTabloAdi = (new Siparisler())->getTable();
             $islemTabloAdi = (new Islemler())->getTable();
             $firmaTabloAdi = (new Firmalar())->getTable();
@@ -184,6 +190,7 @@ class IsilIslemController extends Controller
                     $islemTabloAdi.sarj,
                     $islemTabloAdi.islemTuruId,
                     $islemTabloAdi.durumId as islemDurumId,
+                    $islemTabloAdi.bolunmusId,
                     $islemTabloAdi.adet,
                     $islemTabloAdi.miktar,
                     $islemTabloAdi.dara,
@@ -224,8 +231,24 @@ class IsilIslemController extends Controller
                 ->orderBy($islemTabloAdi . '.created_at', 'desc')
                 ->orderBy($firmaTabloAdi . '.firmaAdi', 'asc');
 
-            if (isset($request->formId) && $request->formId) {
-                $firmaGrupluIslemler = $firmaGrupluIslemler->orWhere($islemTabloAdi . '.formId', $request->formId);
+            if ($formId)
+            {
+                $firmaGrupluIslemler = $firmaGrupluIslemler->orWhere($islemTabloAdi . '.formId', $formId);
+            }
+
+            if ($firmaId)
+            {
+                $firmaGrupluIslemler = $firmaGrupluIslemler->where($siparisTabloAdi . '.firmaId', $firmaId);
+            }
+
+            if (isset($filtrelemeler["arama"]) && $filtrelemeler["arama"] != "")
+            {
+                $firmaGrupluIslemler = $firmaGrupluIslemler->where(function ($query) use ($filtrelemeler, $firmaTabloAdi, $malzemeTabloAdi, $islemTuruTabloAdi) {
+                    $query->where($firmaTabloAdi . '.firmaAdi', 'like', '%' . $filtrelemeler["arama"] . '%')
+                        ->orWhere($firmaTabloAdi . '.sorumluKisi', 'like', '%' . $filtrelemeler["arama"] . '%')
+                        ->orWhere($malzemeTabloAdi . '.ad', 'like', '%' . $filtrelemeler["arama"] . '%')
+                        ->orWhere($islemTuruTabloAdi . '.ad', 'like', '%' . $filtrelemeler["arama"] . '%');
+                });
             }
 
             $islemler = $firmaGrupluIslemler->paginate(25);
@@ -1569,6 +1592,79 @@ class IsilIslemController extends Controller
                 "durum" => false,
                 "mesaj" => "Sarj islemleri tamamlanırken bir hata oluştu.",
                 "hata" => $ex->getMessage(),
+                "satir" => $ex->getLine(),
+            ], 500);
+        }
+    }
+
+    public function islemBol(Request $request)
+    {
+        try
+        {
+            $islem = $request->islem;
+            $bolunmusIslemler = $request->bolunmusIslemler;
+
+            $islemId = $islem["id"];
+
+            $islemBilgisi = Islemler::find($islemId);
+
+            $donecekIslemler = [];
+            foreach ($bolunmusIslemler as $bolunmusIslem)
+            {
+                if (isset($bolunmusIslem["yeniIslem"]) && $bolunmusIslem["yeniIslem"])
+                {
+                    $yeniIslem = $islemBilgisi->replicate();
+                    $yeniIslem->birimFiyat = 0;
+                    $yeniIslem->miktar = $islemBilgisi->miktar * $bolunmusIslem["yuzde"] / 100;
+                    $yeniIslem->dara = $islemBilgisi->dara * $bolunmusIslem["yuzde"] / 100;
+                    $yeniIslem->adet = 0;
+                    $yeniIslem->firinId = null;
+                    $yeniIslem->sarj = null;
+                    $yeniIslem->formId = null;
+                    $yeniIslem->bolunmusId = $islemId;
+
+                    if (!$yeniIslem->save())
+                    {
+                        return response()->json([
+                            "durum" => false,
+                            "mesaj" => "İşlem bölümünde bir hata oluştu.",
+                            "hata" => "İşlem kaydedilemedi.",
+                            "hataKodu" => "ISLEM_BOL_HATA_1",
+                        ], 500);
+                    }
+
+                    $donecekIslemler[] = $yeniIslem;
+                }
+            }
+
+            $islemBilgisi->miktar = $islemBilgisi->miktar * $bolunmusIslem["yuzde"] / 100;
+            $islemBilgisi->dara = $islemBilgisi->dara * $bolunmusIslem["yuzde"] / 100;
+
+            if (!$islemBilgisi->save())
+            {
+                return response()->json([
+                    "durum" => false,
+                    "mesaj" => "İşlem bölümünde bir hata oluştu.",
+                    "hata" => "İşlem güncellenemedi.",
+                    "hataKodu" => "ISLEM_BOL_HATA_2",
+                ], 500);
+            }
+
+            array_unshift($donecekIslemler, $islemBilgisi);
+
+            return response()->json([
+                "durum" => true,
+                "mesaj" => "İşlem bölme işlemi başarılı.",
+                "islemler" => $donecekIslemler,
+            ], 200);
+        }
+        catch (\Exception $ex)
+        {
+            return response()->json([
+                "durum" => false,
+                "mesaj" => "İşlem bölünürken bir hata oluştu.",
+                "hata" => $ex->getMessage(),
+                "hataKodu" => "ISLEM_BOL_HATA_CATCH",
                 "satir" => $ex->getLine(),
             ], 500);
         }

@@ -676,14 +676,68 @@
                                 rows="3"
                             ></textarea>
                         </div>
-                        <div class="row mt-3">
+                        <div class="row mt-3" v-if="yukleniyorObjesi.firmaGrupluIslemler">
+                            <div class="col-12 text-center">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-3" v-else-if="_.size(aktifForm.firmaGrupluIslemler.data) === 0">
+                            <div class="col-12 text-center">
+                                <h4>Forma eklenecek işlem bulunamadı.</h4>
+                            </div>
+                        </div>
+                        <div class="row mt-3" v-else>
+                            <div class="col-12">
+                                <div class="card-header">
+                                    <div class="row d-flex align-items-center">
+                                        <div class="col">
+                                            <h4>İŞLEMLER</h4>
+                                        </div>
+                                        <div class="col-auto">
+                                            <div class="row d-flex align-items-center">
+                                                <div class="col">
+                                                    <div class="input-group">
+                                                        <input
+                                                            v-model="filtrelemeObjesi.firmaArama"
+                                                            type="text"
+                                                            class="form-control"
+                                                            placeholder="Arama"
+                                                            aria-label="Arama"
+                                                            aria-describedby="arama"
+                                                            @keyup.enter="firmaGrupluIslemleriGetir()"
+                                                        />
+                                                        <span @click="firmaGrupluIslemleriGetir()" class="input-group-text waves-effect" id="arama">
+                                                            <i class="mdi mdi-magnify"></i>
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                {{-- <div class="col-auto ps-0">
+                                                    <!-- Filtreleme butonu -->
+                                                    <button class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#firmaFiltrelemeModal">
+                                                        <i class="fa fa-filter"></i>
+                                                    </button>
+                                                </div> --}}
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-12">
+                                                    <small class="text-muted">
+                                                        Firma adı veya sorumlusu, malzeme, işlem...
+                                                    </small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                             <div class="col-12 mt-2" v-for="(firma, fIndex) in aktifForm.firmaGrupluIslemler.data" :key="fIndex">
                                 <div class="row">
                                     <h5>@{{ firma.firmaAdi }}</h5>
                                 </div>
                                 <div class="table-rep-plugin">
                                     <div class="table-responsive mb-0" data-pattern="priority-columns">
-                                        <table id="tech-companies-1" class="table table-striped table-hover">
+                                        <table id="tech-companies-1" class="table table-striped table-hover table-centered">
                                             <thead>
                                                 <tr>
                                                     <th>İşlem ID</th>
@@ -719,6 +773,11 @@
                                                             </div>
                                                             <div v-if="islem.tekrarEdilenId" class="col-12">
                                                                 <span class="badge rounded-pill bg-info">Tekrar Edilen İşlem ID: @{{ islem.tekrarEdilenId }}</span>
+                                                            </div>
+                                                            <div v-if="islem.bolunmusId" class="col-12">
+                                                                <span class="badge rounded-pill bg-warning">
+                                                                    Bölünmüş İşlem ID: @{{ islem.bolunmusId }}
+                                                                </span>
                                                             </div>
                                                         </div>
                                                     </td>
@@ -780,7 +839,7 @@
                                                             />
                                                         </div>
                                                     </td>
-                                                    <td class="kisa-uzunluk text-center">
+                                                    <td class="orta-uzunluk text-center">
                                                         <button
                                                             @click="formaIslemEkleSil(islem)"
                                                             class="btn"
@@ -788,6 +847,111 @@
                                                         >
                                                             <i class="fas" :class="islem.secildi ? 'fa-check' : 'fa-plus'"></i>
                                                         </button>
+                                                        <button
+                                                            @click="islemBolAc(firma, iIndex)"
+                                                            class="btn btn-outline-warning p-1"
+                                                        >
+                                                            <i class="mdi mdi-call-split font-size-20 mx-1"></i>
+                                                        </button>
+
+                                                        <!-- Modal -->
+                                                        <div class="modal fade" id="islemBolModal" tabindex="-1" aria-labelledby="islemBolModal" aria-hidden="true">
+                                                            <div class="modal-dialog">
+                                                                <div class="modal-content" v-if="aktifBolunecekIslem.islem">
+                                                                    <div class="modal-header">
+                                                                        <div class="row text-start">
+                                                                            <div class="col-12">
+                                                                                <h5 class="modal-title" id="exampleModalLabel">
+                                                                                    İşlem Bölme
+                                                                                </h5>
+                                                                            </div>
+                                                                            <div class="col-12">
+                                                                                <small class="text-muted">@{{ aktifBolunecekIslem.islem.malzemeAdi }} (Net: @{{ aktifBolunecekIslem.islem.net }} kg)</small>
+                                                                            </div>
+                                                                        </div>
+                                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                                    </div>
+                                                                    <div class="modal-body text-start">
+                                                                        <div class="row">
+                                                                            <div class="col-12 mb-2" v-for="(bIslem, bIndex) in aktifBolunecekIslem.bolunmusIslemler">
+                                                                                <div class="row align-items-end">
+                                                                                    <div class="col-auto">
+                                                                                        <div class="form-check">
+                                                                                            <input v-model="bIslem.sabit" class="form-check-input" type="checkbox" :id="'flexCheckChecked' + bIndex">
+                                                                                            <label class="form-check-label" :for="'flexCheckChecked' + bIndex">
+                                                                                                Sabitle
+                                                                                            </label>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                    <div class="col">
+                                                                                        <div class="form-group">
+                                                                                            <label for="">@{{ bIndex + 1 }}. Net KG (%@{{ bIslem.yuzde }})</label>
+                                                                                            <input
+                                                                                                v-model="bIslem.net"
+                                                                                                @input="bolunmusIslemNetDegisti(bIslem)"
+                                                                                                type="number"
+                                                                                                class="form-control"
+                                                                                                placeholder="İşlem Adedi"
+                                                                                            />
+                                                                                        </div>
+                                                                                    </div>
+                                                                                    <div class="col-auto">
+                                                                                        <button
+                                                                                            @click="islemBolIslemKaldir(bIndex)"
+                                                                                            class="btn btn-outline-danger"
+                                                                                            v-if="bIslem.yeniIslem"
+                                                                                        >
+                                                                                            <i class="mdi mdi-delete"></i>
+                                                                                        </button>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                            <div class="col-12 mt-1">
+                                                                                <div class="d-grid gap-2">
+                                                                                    <button @click="islemBolIslemEkle()" class="btn btn-sm btn-outline-primary" type="button">
+                                                                                        <i class="fas fa-plus"></i>
+                                                                                        Böl
+                                                                                    </button>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="modal-footer">
+                                                                        <template v-if="_.size(aktifBolunecekIslem.hatalar)">
+                                                                            <div class="col-12 text-start" v-for="(hata, hKey, hIndex) in aktifBolunecekIslem.hatalar" :key="hIndex">
+                                                                                <small class="text-danger">
+                                                                                    <i class="mdi mdi-info-outline text-danger"></i>
+                                                                                    @{{ hIndex + 1 }}) @{{ hata }}
+                                                                                </small>
+                                                                            </div>
+                                                                        </template>
+                                                                        <div class="form-check">
+                                                                            <input v-model="aktifBolunecekIslem.kaydettiktenSonraSec" class="form-check-input" type="checkbox" id="kaydettiktenSonraSec">
+                                                                            <label class="form-check-label" for="kaydettiktenSonraSec">
+                                                                                <small>
+                                                                                    Kaydettikten sonra işlemleri seç
+                                                                                </small>
+                                                                            </label>
+                                                                        </div>
+                                                                        <button
+                                                                            type="button"
+                                                                            class="btn btn-primary"
+                                                                            :disabled="_.size(aktifBolunecekIslem.hatalar) !== 0 || yukleniyorObjesi.islemBol"
+                                                                            @click="islemBolKaydet()"
+                                                                        >
+                                                                            <template v-if="yukleniyorObjesi.islemBol">
+                                                                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                                                                Kaydediliyor...
+                                                                            </template>
+                                                                            <template v-else>
+                                                                                İşlemleri Kaydet
+                                                                            </template>
+                                                                        </button>
+                                                                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Kapat</button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
                                                     </td>
                                                 </tr>
                                             </tbody>
@@ -1086,6 +1250,7 @@
                     firmaGrupluIslemler: false,
                     firinlar: false,
                     form: false,
+                    islemBol: false,
                 },
                 firinlar: [],
                 sorguParametreleri: {
@@ -1101,6 +1266,14 @@
                 },
                 sayfalamaSayilari: [10, 25, 50, 100],
                 sayfalamaSayisi: 10,
+                aktifBolunecekIslem: {
+                    islem: null,
+                    bolunmusIslemler: [],
+                    hatalar: {},
+                    kaydettiktenSonraSec: true,
+                    modal: null,
+                    firma: null,
+                },
             }
         },
         mounted() {
@@ -1302,6 +1475,9 @@
                 return axios.get(url, {
                     params: {
                         formId,
+                        filtreleme: {
+                            arama: this.filtrelemeObjesi.firmaArama,
+                        }
                     }
                 })
                 .then(response => {
@@ -1904,6 +2080,208 @@
                 var top = element.offsetTop;
 
                 container.scrollTo(0, top);
+            },
+            islemBolAc(firma, islemIndex) {
+                const islem = _.cloneDeep(firma.islemler[islemIndex]);
+                this.aktifBolunecekIslem = {
+                    islem: {
+                        ...islem,
+                    },
+                    bolunmusIslemler: [],
+                    hatalar: {},
+                    kaydettiktenSonraSec: true,
+                    modal: new bootstrap.Modal(document.getElementById("islemBolModal")),
+                    firma: _.cloneDeep(firma),
+                };
+
+                this.aktifBolunecekIslem.modal.show();
+
+                this.islemBolIslemEkle(islem);
+            },
+            islemBolIslemEkle(islem = null) {
+                const _islem = { ...(islem || this.aktifBolunecekIslem.islem) };
+
+                if (!islem) {
+                    _islem.net = 0;
+                    _islem.yeniIslem = true;
+                }
+
+                _islem.yuzde = (_islem.net / this.aktifBolunecekIslem.islem.net) * 100;
+
+                this.aktifBolunecekIslem.bolunmusIslemler.push(_islem);
+
+                this.bolunmusIslemNetDegisti(_.cloneDeep(_islem));
+            },
+            islemBolIslemKaldir(index) {
+                const islem = _.cloneDeep(this.aktifBolunecekIslem.bolunmusIslemler[index]);
+                this.aktifBolunecekIslem.bolunmusIslemler.splice(index, 1);
+                this.bolunmusIslemNetDegisti(islem);
+            },
+            bolunmusIslemNetDegisti(islem) {
+                const aktifDegisen = _.find(this.aktifBolunecekIslem.bolunmusIslemler, { aktifDegisen: true });
+                if (aktifDegisen && aktifDegisen.id !== islem.id) {
+                    delete aktifDegisen.aktifDegisen;
+                }
+
+                islem.aktifDegisen = true;
+                islem.sabit = true;
+
+                const [sabitOlanlar, sabitOlmayanlar] = _.partition(this.aktifBolunecekIslem.bolunmusIslemler, {
+                    sabit: true,
+                });
+
+                let toplamNet = this.aktifBolunecekIslem.islem.net;
+                let sabitOlmayanIslemSayisi = _.size(sabitOlmayanlar);
+
+                _.forEach(sabitOlanlar, (sabitOlan) => {
+                    toplamNet -= sabitOlan.net;
+
+                    sabitOlan.yuzde = (sabitOlan.net / this.aktifBolunecekIslem.islem.net) * 100;
+                })
+
+                const net = _.floor(toplamNet / sabitOlmayanIslemSayisi);
+                const kusuratNet = toplamNet - (net * sabitOlmayanIslemSayisi);
+
+                if (net === 0) {
+                    this.aktifBolunecekIslem.hatalar.sayiNegatif = "Bir işlemin toplam net ağırlığı sıfır (0) olamaz.";
+                }
+                else if (net < 0) {
+                    this.aktifBolunecekIslem.hatalar.sayiNegatif = "Toplam net ağırlıktan yüksek değer girdiniz.";
+                }
+                else {
+                    delete this.aktifBolunecekIslem.hatalar.sayiNegatif;
+                }
+
+                _.forEach(sabitOlmayanlar, (sabitOlmayan, index) => {
+                    sabitOlmayan.net = net;
+
+                    if (sabitOlmayanIslemSayisi === (index + 1)) {
+                        sabitOlmayan.net += kusuratNet;
+                    }
+
+                    sabitOlmayan.yuzde = sabitOlmayan.net / this.aktifBolunecekIslem.islem.net * 100;
+                })
+
+                let _toplamNet = 0;
+                let sifirdanKucukKayitVar = false;
+                _.forEach(this.aktifBolunecekIslem.bolunmusIslemler, (bolunmusIslem) => {
+                    _toplamNet += _.toNumber(bolunmusIslem.net);
+
+                    if (bolunmusIslem.net <= 0) {
+                        sifirdanKucukKayitVar = true;
+                    }
+                });
+
+                if (sifirdanKucukKayitVar) {
+                    this.aktifBolunecekIslem.hatalar.sayiNegatifVeyaSifir = "Bir işlemin toplam net ağırlığı sıfır (0) veya sıfırdan küçük olamaz.";
+                }
+                else {
+                    delete this.aktifBolunecekIslem.hatalar.sayiNegatifVeyaSifir;
+                }
+
+                if (_toplamNet !== this.aktifBolunecekIslem.islem.net) {
+                    this.aktifBolunecekIslem.hatalar.toplamNet = `Toplam net ağırlığı eşleşmiyor. 
+                    (Böldüğünüz toplam net ağırlık ${_toplamNet} kg,
+                    olması gereken net ağırlık ${this.aktifBolunecekIslem.islem.net} kg.
+                    ${this.aktifBolunecekIslem.islem.net - _toplamNet > 0 ? 'Eksik' : 'Fazla'}
+                    net ağırlık: ${Math.abs(this.aktifBolunecekIslem.islem.net - _toplamNet)} kg)`;
+                }
+                else {
+                    delete this.aktifBolunecekIslem.hatalar.toplamNet;
+                }
+            },
+            islemBolKaydet() {
+                this.yukleniyorObjesi.islemBol = true;
+                axios.post("{{ route('islemBol') }}", {
+                    ...this.aktifBolunecekIslem,
+                })
+                .then(async response => {
+                    this.yukleniyorObjesi.islemBol = false;
+                    if (!response.data.durum) {
+                        return this.uyariAc({
+                            baslik: 'Hata',
+                            mesaj: response.data.mesaj,
+                            tur: "error"
+                        });
+                    }
+
+                    const index = _.findIndex(this.aktifForm.firmaGrupluIslemler.data, {
+                        firmaId: this.aktifBolunecekIslem.firma.firmaId,
+                    });
+
+                    if (index > -1) {
+                        const duzenlenenIslemler = response.data.islemler;
+                        const islemler = await this.firmaGrupluFirmaIslemleriGetir(this.aktifForm.firmaGrupluIslemler.data[index].firmaId);
+                        if (islemler && _.size(islemler)) {
+                            this.aktifForm.firmaGrupluIslemler.data[index].islemler = islemler;
+
+                            if (this.aktifBolunecekIslem.kaydettiktenSonraSec) {
+                                const secilecekIslemler = _.filter(islemler, islem => _.find(duzenlenenIslemler, { id: islem.id }));
+
+                                _.forEach(secilecekIslemler, islem => {
+                                    this.formaEkle(islem, false);
+                                })
+                            }
+                        }
+                    }
+
+                    this.aktifBolunecekIslem.modal.hide();
+
+                    this.aktifBolunecekIslem = {
+                        islem: null,
+                        bolunmusIslemler: [],
+                        hatalar: {},
+                        modal: null,
+                    };
+
+                    this.uyariAc({
+                        toast: {
+                            status: true,
+                            message: response.data.mesaj,
+                        },
+                    });
+
+                    this.aktifForm = _.cloneDeep(this.aktifForm);
+                })
+                .catch(err => {
+                    this.yukleniyorObjesi.islemBol = false;
+                    this.uyariAc({
+                        baslik: 'Hata',
+                        mesaj: "İşlem bölme işlemi sırasında bir hata oluştu.",
+                        tur: "error"
+                    });
+                    console.log(err);
+                });
+            },
+            firmaGrupluFirmaIslemleriGetir(firmaId) {
+                this.yukleniyorObjesi.firmaGrupluIslemler = true;
+                return axios.get("{{ route('firmaGrupluIslemleriGetir') }}", {
+                    params: {
+                        firmaId,
+                    }
+                })
+                .then(response => {
+                    this.yukleniyorObjesi.firmaGrupluIslemler = false;
+                    if (!response.data.durum) {
+                        return this.uyariAc({
+                            baslik: 'Hata',
+                            mesaj: response.data.mesaj,
+                            tur: "error"
+                        });
+                    }
+
+                    return response.data.firmaGrupluIslemler.data[0].islemler;
+                })
+                .catch(err => {
+                    this.yukleniyorObjesi.firmaGrupluIslemler = false;
+                    this.uyariAc({
+                        baslik: 'Hata',
+                        mesaj: "Firma gruplu işlemleri getirme işlemi sırasında bir hata oluştu.",
+                        tur: "error"
+                    });
+                    console.log(err);
+                    return [];
+                });
             },
         }
     };

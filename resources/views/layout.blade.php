@@ -359,6 +359,9 @@
         Vue.use(VueMask.VueMaskPlugin);
         Vue.component('v-select', VueSelect.VueSelect);
 
+        @if (in_array(request()->getHost(), ['localhost', 'localhost:8000', "dev.doruk.kodgaraj.com"]))
+            let vm = 
+        @endif
         new Vue({
             mixins: [mixinApp],
             el: '#app',

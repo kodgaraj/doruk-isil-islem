@@ -303,6 +303,18 @@ class DatabaseSeeder extends Seeder
             $mesajlar[] = 'İşlemler tablosundan bildirim alanı kaldırıldı > ' . date('Y-m-d H:i:s');
         }
 
+        // İşlemler tablosuna bolunmusId alanı eklenmesi
+        if (!Schema::hasColumn("islemler", "bolunmusId")) {
+            Schema::table("islemler", function (Blueprint $table) {
+                $table->integer('bolunmusId')
+                    ->nullable()
+                    ->after('tekrarEdilenId')
+                    ->comment("İşlemin bölünmüş olduğu işlem idsi (islemler tablosundan)");
+            });
+
+            $mesajlar[] = 'İşlemler tablosuna bolunmusId alanı eklendi > ' . date('Y-m-d H:i:s');
+        }
+
         $mesajlar[] = 'Veritabanı güncellendi > ' . date('Y-m-d H:i:s');
 
         return implode("<br />", $mesajlar);

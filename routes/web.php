@@ -29,7 +29,6 @@ use App\Http\Controllers\UpdateController;
 |
 */
 
-Route::get('/excelTest', fn() => Excel::download(new Siparisler, 'invoices.xlsx'));
 Route::get('/update/{sifre}', [UpdateController::class, 'index']);
 
 Route::group(['middleware' => ['auth']], function () {
@@ -46,7 +45,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/firmalar', [FirmaController::class, 'index'])->name("firmalar")->middleware(['can:firma_listeleme']);
     Route::get('/bildirimler', [BildirimlerController::class, 'index'])->name("bildirimler");
 
-    // apiler 
+    // apiler
     Route::get('/siparisler', [SiparisController::class, 'siparisler'])->name("siparisler");
     Route::get('/numaralariGetir', [SiparisController::class, 'numaralariGetir'])->name("numaralariGetir");
     Route::get('/siparisDurumlariGetir', [SiparisController::class, 'siparisDurumlariGetir'])->name("siparisDurumlariGetir");
@@ -67,6 +66,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/firinSarjGrupluIslemleriGetir', [IsilIslemController::class, 'firinSarjGrupluIslemleriGetir'])->name("firinSarjGrupluIslemleriGetir");
     Route::post('/sarjIslemleriBaslat', [IsilIslemController::class, 'sarjIslemleriBaslat'])->name("sarjIslemleriBaslat");
     Route::post('/sarjIslemleriTamamla', [IsilIslemController::class, 'sarjIslemleriTamamla'])->name("sarjIslemleriTamamla");
+    Route::post('/islemBol', [IsilIslemController::class, 'islemBol'])->name("islemBol");
 
     Route::get('/islemTurleriGetir', [IslemTurleriController::class, 'islemTurleriGetir'])->name("islemTurleriGetir");
     Route::post('/islemTuruEkle', [IslemTurleriController::class, 'islemTuruEkle'])->name("islemTuruEkle");
