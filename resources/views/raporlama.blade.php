@@ -157,25 +157,26 @@
                                 </div>
                             </div>
                             <div class="card-body">
-                                <h3>@{{ tonaCevir(firin.tonaj) }} Ton</h3>
-                                <h5>@{{ firin.tonaj }} KG</h5>
+                                <h3>@{{ ins1000Sep(firin.tonajYazi) }}</h3>
+                                <h5>@{{ tonaCevir(firin.tonaj, true) }} Ton</h5>
                                 @can("siparis_ucreti_goruntuleme")
                                     <hr />
                                     <h5>
-                                        Kazanılan Tutar: @{{ ins1000Sep(
-                                            formatNum(firin.tutar)
-                                        ) }} ₺
+                                        Kazanılan TL Tutar: @{{ ins1000Sep(firin.tutarTLYazi) }}
                                     </h5>
-                                    <h6>
+                                    <h5>
+                                        Kazanılan USD Tutar: @{{ ins1000Sep(firin.tutarUSDYazi) }}
+                                    </h5>
+                                    {{-- <h6>
                                         KG Başı Tutar: @{{ ins1000Sep(
                                             formatNum(
                                                 birimBasiTutar(firin.tonaj, firin.tutar)
                                             )
                                         )}} ₺
-                                    </h6>
+                                    </h6> --}}
                                 @endcan
                             </div>
-                            <hr />
+                            <hr class="m-0" />
                             <div v-if="firinBazliIslemTuru.hazirlananChartBilgileri[firin.id]" class="card-body">
                                 <h5>İşlem Türleri</h5>
                                 <!-- yükleniyor -->
@@ -359,18 +360,27 @@
                                     <td class="kisa-uzunluk">
                                         <div class="row">
                                             <div class="col-12">
-                                                <b>@{{ tonaCevir(firma.tonaj) }} Ton</b>
+                                                <b>
+                                                    @{{ ins1000Sep(firma.tonajYazi) }}
+                                                </b>
                                             </div>
                                             <div class="col-12">
-                                                @{{ firma.tonaj }} KG
+                                                @{{ tonaCevir(firma.tonaj, true) }} Ton
                                             </div>
                                         </div>
                                     </td>
                                     @can("siparis_ucreti_goruntuleme")
                                         <td class="kisa-uzunluk">
-                                            <b>
-                                                @{{ ins1000Sep(formatNum(firma.tutar ? firma.tutar : 0)) }} ₺
-                                            </b>
+                                            <div class="col-12">
+                                                <b>
+                                                    @{{ firma.tutarTLYazi }}
+                                                </b>
+                                            </div>
+                                            <div class="col-12">
+                                                <b>
+                                                    @{{ firma.tutarUSDYazi }}
+                                                </b>
+                                            </div>
                                         </td>
                                     @endcan
                                 </tr>
@@ -479,8 +489,9 @@
                             },
 
                             dataLabels: {
-                                formatter: function (val) {
-                                    return ins1000Sep(formatNum(val)) + " ₺";
+                                formatter: function (val, opts) {
+                                    let paraBirimi = opts.w.config.series[opts.seriesIndex].name === "TL" ? " ₺" : " $";
+                                    return ins1000Sep(formatNum(val)) + paraBirimi;
                                 }
                             },
                             plotOptions: {
@@ -490,10 +501,14 @@
                             },
                             tooltip: {
                                 y: {
-                                    formatter: function (val) {
-                                        return ins1000Sep(formatNum(val)) + " ₺";
+                                    formatter: function (val, opts) {
+                                        let paraBirimi = opts.w.config.series[opts.seriesIndex].name === "TL" ? " ₺" : " $";
+                                        return ins1000Sep(formatNum(val)) + paraBirimi;
                                     }
-                                }
+                                },
+                                enabled: true,
+                                shared: true,
+                                intersect: false,
                             },
                             noData: {
                                 text: "Veri bulunamadı",
@@ -526,8 +541,9 @@
                                 }
                             },
                             dataLabels: {
-                                formatter: function (val) {
-                                    return ins1000Sep(formatNum(val)) + " ₺";
+                                formatter: function (val, opts) {
+                                    let paraBirimi = opts.w.config.series[opts.seriesIndex].name === "TL" ? " ₺" : " $";
+                                    return ins1000Sep(formatNum(val)) + paraBirimi;
                                 }
                             },
                             plotOptions: {
@@ -537,10 +553,14 @@
                             },
                             tooltip: {
                                 y: {
-                                    formatter: function (val) {
-                                        return ins1000Sep(formatNum(val)) + " ₺";
+                                    formatter: function (val, opts) {
+                                        let paraBirimi = opts.w.config.series[opts.seriesIndex].name === "TL" ? " ₺" : " $";
+                                        return ins1000Sep(formatNum(val)) + paraBirimi;
                                     }
-                                }
+                                },
+                                enabled: true,
+                                shared: true,
+                                intersect: false,
                             },
                             noData: {
                                 text: "Veri bulunamadı",
@@ -595,7 +615,10 @@
                                 }
                             },
                             tooltip: {
-                                y: {}
+                                y: {},
+                                enabled: true,
+                                shared: true,
+                                intersect: false,
                             },
                             noData: {
                                 text: "Veri bulunamadı",
@@ -638,7 +661,14 @@
                         const yillikCiro = response.data.yillikCiro;
 
                         this.yillikCiro.chartOptions.xaxis.categories = yillikCiro.yillar;
-                        this.yillikCiro.series[0].data = yillikCiro.ciro;
+
+                        this.yillikCiro.series = [];
+                        _.forEach(yillikCiro.ciro, (ciro, paraBirimi) => {
+                            this.yillikCiro.series.push({
+                                name: paraBirimi,
+                                data: ciro,
+                            });
+                        });
 
                         this.yillikCiro = _.cloneDeep(this.yillikCiro);
                         this.yukleniyorObjesi.yillikCiro = false;
@@ -664,7 +694,14 @@
                         const aylikCiro = response.data.aylikCiro;
 
                         this.aylikCiro.chartOptions.xaxis.categories = aylikCiro.aylar;
-                        this.aylikCiro.series[0].data = aylikCiro.ciro;
+
+                        this.aylikCiro.series = [];
+                        _.forEach(aylikCiro.ciro, (ciro, paraBirimi) => {
+                            this.aylikCiro.series.push({
+                                name: paraBirimi,
+                                data: ciro
+                            });
+                        });
 
                         this.aylikCiro = _.cloneDeep(this.aylikCiro);
                         this.yukleniyorObjesi.aylikCiro = false;
@@ -827,8 +864,9 @@
                         });
                     });
                 },
-                tonaCevir(kilo) {
-                    return (kilo / 1000).toFixed(3);
+                tonaCevir(kilo, yazi = false) {
+                    const ton = _.round(kilo / 1000, 2);
+                    return !yazi ? ton : ton.toString().split(".").join(",");
                 },
                 birimBasiTutar(birim, tutar) {
                     return (tutar / birim).toFixed(2);
