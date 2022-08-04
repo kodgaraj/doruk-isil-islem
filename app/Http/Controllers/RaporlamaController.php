@@ -16,9 +16,12 @@ class RaporlamaController extends Controller
         $sonSiparisYili = Siparisler::selectRaw("YEAR(tarih) as yil")->groupBy('yil')->orderBy('yil', 'desc')->first();
         $ilkSiparisYili = Siparisler::selectRaw("YEAR(tarih) as yil")->groupBy('yil')->orderBy('yil', 'asc')->first();
 
+        $firinlar = Firinlar::all();
+
         return view('raporlama', [
             'ilkSiparisYili' => $ilkSiparisYili->yil,
             'sonSiparisYili' => $sonSiparisYili->yil,
+            "firinlar" => $firinlar,
         ]);
     }
 
@@ -242,6 +245,12 @@ class RaporlamaController extends Controller
 
             $firinlar = $firinlar->get();
 
+            $toplamlar = [
+                "tonaj" => 0,
+                "tutarTL" => 0,
+                "tutarUSD" => 0,
+                "firinSayisi" => 0,
+            ];
             foreach ($firinlar as &$firin)
             {
                 $firin->tutarTLYazi = $this->yaziyaDonustur($firin->tutarTL, [
@@ -255,12 +264,28 @@ class RaporlamaController extends Controller
                 ]);
 
                 $firin->json = json_decode($firin->json);
+
+                $toplamlar["tonaj"] += $firin->tonaj;
+                $toplamlar["tutarTL"] += $firin->tutarTL;
+                $toplamlar["tutarUSD"] += $firin->tutarUSD;
+                $toplamlar["firinSayisi"]++;
             }
+
+            $toplamlar["tonajYazi"] = $this->yaziyaDonustur($toplamlar["tonaj"], [
+                "kg" => true,
+            ]);
+            $toplamlar["tutarTLYazi"] = $this->yaziyaDonustur($toplamlar["tutarTL"], [
+                "paraBirimi" => $this->paraBirimleri["TL"],
+            ]);
+            $toplamlar["tutarUSDYazi"] = $this->yaziyaDonustur($toplamlar["tutarUSD"], [
+                "paraBirimi" => $this->paraBirimleri["USD"],
+            ]);
 
             return response()->json([
                 "durum" => true,
                 "mesaj" => "Firin bazli tonaj getirildi",
                 "firinlar" => $firinlar->toArray(),
+                "toplamlar" => $toplamlar,
             ]);
         }
         catch (\Exception $e)

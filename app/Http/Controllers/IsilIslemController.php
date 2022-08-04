@@ -541,6 +541,7 @@ class IsilIslemController extends Controller
             $siparisTabloAdi = (new Siparisler())->getTable();
             $malzemeTabloAdi = (new Malzemeler())->getTable();
             $firmaTabloAdi = (new Firmalar())->getTable();
+            $islemTuruTabloAdi = (new IslemTurleri())->getTable();
 
             $islemler = Islemler::select(DB::raw("
                     $islemTabloAdi.*,
@@ -574,16 +575,18 @@ class IsilIslemController extends Controller
                     $siparisTabloAdi.terminSuresi,
                     $siparisTabloAdi.tarih,
                     $malzemeTabloAdi.ad as malzemeAdi,
-                    $firmaTabloAdi.firmaAdi
+                    $firmaTabloAdi.firmaAdi,
+                    $islemTuruTabloAdi.ad as islemTuruAdi
                 "))
                 ->join($islemDurumTabloAdi, $islemDurumTabloAdi . ".id", "=", $islemTabloAdi . ".durumId")
                 ->join($firinTabloAdi, $firinTabloAdi . ".id", "=", $islemTabloAdi . ".firinId")
                 ->join($siparisTabloAdi, $siparisTabloAdi . ".id", "=", $islemTabloAdi . ".siparisId")
                 ->join($malzemeTabloAdi, $malzemeTabloAdi . ".id", "=", $islemTabloAdi . ".malzemeId")
                 ->join($firmaTabloAdi, $firmaTabloAdi . ".id", "=", $siparisTabloAdi . ".firmaId")
+                ->leftJoin($islemTuruTabloAdi, $islemTuruTabloAdi . ".id", "=", $islemTabloAdi . ".islemTuruId")
                 ->where("$islemTabloAdi.tekrarEdilenId", null)
-                ->orderBy("$siparisTabloAdi.tarih", "asc")
-                ->orderBy("$islemTabloAdi.id", "desc");
+                ->orderBy("$siparisTabloAdi.siparisNo", "desc")
+                ->orderBy("$islemTabloAdi.siraNo", "asc");
 
             if (isset($filtrelemeler["islemId"]) && $filtrelemeler["islemId"])
             {
@@ -627,11 +630,21 @@ class IsilIslemController extends Controller
                 $islemler = $islemler->where("$islemTabloAdi.tekrarEdenId", "!=", null);
             }
 
+            if (isset($filtrelemeler["baslangicTarihi"]) && $filtrelemeler["baslangicTarihi"])
+            {
+                $islemler = $islemler->where("$siparisTabloAdi.tarih", ">=", $filtrelemeler["baslangicTarihi"]);
+            }
+
+            if (isset($filtrelemeler["bitisTarihi"]) && $filtrelemeler["bitisTarihi"])
+            {
+                $islemler = $islemler->where("$siparisTabloAdi.tarih", "<=", $filtrelemeler["bitisTarihi"]);
+            }
+
             $islemler = $islemler->paginate($sayfalamaSayisi)->toArray();
 
             foreach ($islemler["data"] as &$islem)
             {
-                $terminBilgileri = $this->terminHesapla($islem["tarih"], $islem["terminSuresi"] ?? 5);
+                $terminBilgileri = $this->terminHesapla($islem["tarih"], $islem["terminSuresi"] ?? 5, $islem["bitisTarihi"]);
                 $islem["gecenSure"] = $terminBilgileri["gecenSure"];
                 $islem["gecenSureRenk"] = $terminBilgileri["gecenSureRenk"];
 
@@ -653,6 +666,9 @@ class IsilIslemController extends Controller
                 ]);
                 $islem["tutarUSDYazi"] = $this->yaziyaDonustur($islem["tutarUSD"], [
                     "paraBirimi" => $this->paraBirimleri["USD"],
+                ]);
+                $islem["birimFiyatYazi"] = $this->yaziyaDonustur($islem["birimFiyat"], [
+                    "paraBirimi" => $this->paraBirimleri[$islem["paraBirimi"]],
                 ]);
                 $islem["netYazi"] = $this->yaziyaDonustur($islem["net"], ["kg" => true]);
 
@@ -709,7 +725,7 @@ class IsilIslemController extends Controller
                 {
                     foreach ($islem["tekrarEdenIslemler"] as &$tekrarEdenIslem)
                     {
-                        $terminBilgileri = $this->terminHesapla($tekrarEdenIslem["tarih"], $tekrarEdenIslem["terminSuresi"] ?? 5);
+                        $terminBilgileri = $this->terminHesapla($tekrarEdenIslem["tarih"], $tekrarEdenIslem["terminSuresi"] ?? 5, $tekrarEdenIslem["bitisTarihi"]);
                         $tekrarEdenIslem["gecenSure"] = $terminBilgileri["gecenSure"];
                         $tekrarEdenIslem["gecenSureRenk"] = $terminBilgileri["gecenSureRenk"];
 
@@ -779,7 +795,9 @@ class IsilIslemController extends Controller
                 'mesaj' => 'İşlemler listelendi.',
                 'islemler' => $islemler,
             ], 200);
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e)
+        {
             return response()->json([
                 'durum' => false,
                 'mesaj' => $e->getMessage(),

@@ -3,6 +3,249 @@
 <div class="row doruk-content">
     <h4 style="color:#999"><i class="fa fa-chart-line"></i> RAPORLAMA</h4>
     @can("siparis_ucreti_goruntuleme")
+        <!-- GENEL İŞLEM RAPORLARI -->
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="row d-flex align-items-center">
+                        <div class="col">
+                            <h4>GENEL İŞLEM RAPORLARI</h4>
+                        </div>
+                        <div class="col-auto">
+                            <div class="row d-flex align-items-center">
+                                <div class="col">
+                                    <div class="input-group">
+                                        <input
+                                            v-model="islemlerFiltrelemeObjesi.arama"
+                                            type="text"
+                                            class="form-control"
+                                            placeholder="Arama"
+                                            aria-label="Arama"
+                                            aria-describedby="arama"
+                                            @keyup.enter="isilIslemleriGetir()"
+                                        />
+                                        <span @click="isilIslemleriGetir()" class="input-group-text waves-effect" id="arama">
+                                            <i class="mdi mdi-magnify"></i>
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div class="col-auto ps-0">
+                                    <!-- Filtreleme butonu -->
+                                    <button class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#islemFiltrelemeModal">
+                                        <i class="fa fa-filter"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12">
+                                    <small class="text-muted">
+                                        Sipariş no, firma, fırın, malzeme...
+                                    </small>
+                                </div>
+                            </div>
+
+                            <div class="modal fade" id="islemFiltrelemeModal" tabindex="-1" aria-labelledby="islemFiltrelemeModal" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="exampleModalLabel">Filtreleme</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="row gap-3">
+                                                <div class="col-12 m-0">
+                                                    <div class="form-group">
+                                                        <label for="firinFiltre">Fırın</label>
+                                                        <v-select
+                                                            v-model="islemlerFiltrelemeObjesi.firin"
+                                                            :options="firinlar"
+                                                            label="ad"
+                                                            multiple
+                                                            id="firinFiltre"
+                                                        ></v-select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-12">
+                                                    <label for="islemTarihAraligi">Tarih Aralığı</label>
+                                                    <div class="input-group" id="islemTarihAraligi">
+                                                        <span class="input-group-text d-none d-sm-block">Başlangıç</span>
+                                                        <input
+                                                            v-model="islemlerFiltrelemeObjesi.baslangicTarihi"
+                                                            type="date"
+                                                            class="form-control"
+                                                            placeholder="Başlangıç"
+                                                            data-date-container='#datepicker2'
+                                                            data-provide="datepicker"
+                                                            data-date-autoclose="true"
+                                                            id="tarih"
+                                                            aria-label="Başlangıç"
+                                                        />
+                                                        <span class="input-group-text d-none d-sm-block">Bitiş</span>
+                                                        <input
+                                                            v-model="islemlerFiltrelemeObjesi.bitisTarihi"
+                                                            type="date"
+                                                            class="form-control"
+                                                            placeholder="Bitiş"
+                                                            data-date-container='#datepicker2'
+                                                            data-provide="datepicker"
+                                                            data-date-autoclose="true"
+                                                            id="tarih"
+                                                            aria-label="Bitiş"
+                                                        />
+                                                        <span @click="islemTarihAraligiTemizle()" class="input-group-text waves-effect" id="islemTarihAraligiButon">
+                                                            <i class="fa fa-eraser"></i>
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                <div class="col-12">
+                                                    <div class="form-group">
+                                                        <label for="sayfalamaSayisi">Sayfalama Sayısı</label>
+                                                        <v-select
+                                                            v-model="islemlerFiltrelemeObjesi.limit"
+                                                            :options="sayfalamaSayilari"
+                                                            id="sayfalamaSayisi"
+                                                        ></v-select>
+                                                        <small class="text-muted">Gösterilecek kayıt sayısı</small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            @can("siparis_ucreti_goruntuleme")
+                                                <button type="button" class="btn btn-success" data-bs-dismiss="modal" @click="excelCikti()">
+                                                    <i class="fas fa-file-excel"></i>
+                                                    EXCEL
+                                                </button>
+                                            @endcan
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">VAZGEÇ</button>
+                                            <button type="button" class="btn btn-primary" data-bs-dismiss="modal" @click="isilIslemleriGetir()">ARA</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <!-- yükleniyor -->
+                    <div v-if="yukleniyorObjesi.islemler">
+                        <div class="text-center">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="sr-only">Yükleniyor...</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div v-else>
+                        <div class="table-responsive">
+                            <table id="tech-companies-1" class="table table-striped mb-1 table-bordered table-centered table-nowrap table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Sipariş No</th>
+                                        <th>Resim</th>
+                                        <th>Fırın</th>
+                                        <th>Firma</th>
+                                        <th>Malzeme</th>
+                                        <th>İşlem</th>
+                                        <th>Net KG</th>
+                                        @can("siparis_ucreti_goruntuleme")
+                                            <th>Birim Fiyat</th>
+                                            <th>Tutar (₺)</th>
+                                            <th>Tutar ($)</th>
+                                        @endcan
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <template v-if="!_.size(islemler.data)">
+                                        <tr>
+                                            <td colspan="9" class="text-center">
+                                                <div class="col-12 text-center">
+                                                    <h5>İşlem Bulunamadı</h5>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </template>
+                                    <template v-else>
+                                        <template v-for="(islem, iIndex) in islemler.data">
+                                            <tr
+                                                @click.stop=""
+                                                :key="iIndex"
+                                            >
+                                                <td>
+                                                    @{{ islem.siparisNo }}
+                                                </td>
+                                                <td class="text-center">
+                                                    <img
+                                                        :src="islem.resimYolu ? islem.resimYolu : varsayilanResimYolu"
+                                                        class="kg-resim-sec"
+                                                        @click.stop="resimOnizlemeAc(islem.resimYolu)"
+                                                    />
+                                                </td>
+                                                <td>
+                                                    <span class="badge badge-pill" :class="`bg-${ islem.firinRenk }`">@{{ islem.firinAdi }}</span>
+                                                </td>
+                                                <td>
+                                                    @{{ islem.firmaAdi }}
+                                                </td>
+                                                <td>
+                                                    @{{ islem.malzemeAdi }}
+                                                </td>
+                                                <td>
+                                                    @{{ islem.islemTuruAdi ?? '-' }}
+                                                </td>
+                                                <td>
+                                                    @{{ islem.net }} kg
+                                                </td>
+                                                @can("siparis_ucreti_goruntuleme")
+                                                    <td>
+                                                        @{{ islem.birimFiyatYazi }}
+                                                    </td>
+                                                    <td>
+                                                        @{{ islem.tutarTLYazi }}
+                                                    </td>
+                                                    <td>
+                                                        @{{ islem.tutarUSDYazi }}
+                                                    </td>
+                                                @endcan
+                                            </tr>
+                                        </template>
+                                        @can("siparis_ucreti_goruntuleme")
+                                        @endcan
+                                    </template>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <div class="row d-flex align-items-center justify-content-between">
+                        <div class="col-auto"></div>
+                        <div class="col">
+                            <ul class="pagination pagination-rounded justify-content-center mb-0">
+                                <li class="page-item">
+                                    <button class="page-link" :disabled="!islemler.prev_page_url" @click="isilIslemleriGetir(islemler.prev_page_url)">Önceki</button>
+                                </li>
+                                <li
+                                    v-for="sayfa in islemler.last_page"
+                                    class="page-item"
+                                    :class="[islemler.current_page === sayfa ? 'active' : '']"
+                                >
+                                    <button class="page-link" @click='isilIslemleriGetir("{{ route("islemler") }}?page=" + sayfa)'>@{{ sayfa }}</button>
+                                </li>
+                                <li class="page-item">
+                                    <button class="page-link" :disabled="!islemler.next_page_url" @click="isilIslemleriGetir(islemler.next_page_url)">Sonraki</button>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="col-auto">
+                            <small class="text-muted">Toplam Kayıt: @{{ islemler.total }}</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CİROLAR -->
         <div class="col-12 col-md-6">
             <div class="card">
                 <div class="card-header">
@@ -62,8 +305,23 @@
                     <div class="col">
                         <div class="row">
                             <div class="col-12">
-                                <h4 class="m-0">FIRIN BAZLI TONAJ @can("siparis_ucreti_goruntuleme") /TUTAR @endcan</h4>
+                                <h4 class="m-0">
+                                    FIRIN BAZLI TONAJ
+                                    @can("siparis_ucreti_goruntuleme")
+                                        /TUTAR
+                                    @endcan
+                                </h4>
                             </div>
+
+                            <div class="col-12">
+                                <h6>
+                                    @{{ firinBazliTonaj.toplamlar.firinSayisi ?? 0 }} Fırın |
+                                    @{{ firinBazliTonaj.toplamlar.tonajYazi ? ins1000Sep(firinBazliTonaj.toplamlar.tonajYazi) : 0 }} |
+                                    @{{ firinBazliTonaj.toplamlar.tutarTLYazi ? ins1000Sep(firinBazliTonaj.toplamlar.tutarTLYazi) : 0 }} &
+                                    @{{ firinBazliTonaj.toplamlar.tutarUSDYazi ? ins1000Sep(firinBazliTonaj.toplamlar.tutarUSDYazi) : 0 }}
+                                </h6>
+                            </div>
+
                             <div class="col-12">
                                 <div class="btn-group mr-2" role="group" aria-label="First group">
                                     <button
@@ -98,6 +356,7 @@
                             </div>
                         </div>
                     </div>
+
                     <div class="col-auto">
                         <div class="input-group">
                             <span class="input-group-text d-none d-sm-block">Başlangıç</span>
@@ -132,6 +391,7 @@
                             </span>
                         </div>
                     </div>
+
                 </div>
             </div>
             <!-- yükleniyor -->
@@ -190,6 +450,7 @@
                                     :options="firinBazliIslemTuru.hazirlananChartBilgileri[firin.id].chartOptions"
                                     :series="firinBazliIslemTuru.hazirlananChartBilgileri[firin.id].chartSeries"
                                     type="bar"
+                                    height="400"
                                 ></apexchart>
                             </div>
                         </div>
@@ -435,6 +696,10 @@
     <script>
 
         function ins1000Sep(val) {
+            if (val === null || val === undefined) {
+                return;
+            }
+
             val = val.split(",");
             val[0] = val[0].split("").reverse().join("");
             val[0] = val[0].replace(/(\d{3})/g, "$1.");
@@ -468,6 +733,7 @@
                         firinBazliTonaj: false,
                         firmaBazliBilgiler: false,
                         firinBazliIslemTurleri: false,
+                        islemler: false,
                     },
                     yillikCiro: {
                         chartOptions: {
@@ -578,6 +844,7 @@
                         baslangicTarihi: null,
                         bitisTarihi: null,
                         firinlar: [],
+                        toplamlar: {},
                     },
                     firmaBazliBilgiler: {
                         orderTuru: "tonaj",
@@ -603,10 +870,17 @@
                                 stacked: true,
                             },
                             xaxis: {
+                                categories: [],
                                 labels: {
-                                    rotate: -45
+                                    formatter: function (val) {
+                                        const karakterSayisi = _.size(val);
+                                        if (karakterSayisi > 16) {
+                                            return [val.substring(0, 16), val.substring(16)];
+                                        } else {
+                                            return val;
+                                        }
+                                    }
                                 },
-                                categories: []
                             },
                             dataLabels: {},
                             plotOptions: {
@@ -626,6 +900,16 @@
                         },
                         series: [],
                     },
+                    islemler: {},
+                    islemlerFiltrelemeObjesi: {
+                        arama: "",
+                        firin: null,
+                        baslangicTarihi: null,
+                        bitisTarihi: null,
+                        limit: 10,
+                    },
+                    sayfalamaSayilari: [10, 25, 50, 100, 250, 500],
+                    firinlar: @json($firinlar),
                 };
             },
             computed: {
@@ -647,6 +931,7 @@
                     this.aylikCiro.aktifYil = this.yillar[0];
                 }
 
+                this.isilIslemleriGetir();
                 this.yillikCiroGetir();
                 this.aylikCiroGetir();
                 this.firinBazliTonajGetir();
@@ -737,6 +1022,7 @@
                         }
 
                         this.firinBazliTonaj.firinlar = response.data.firinlar;
+                        this.firinBazliTonaj.toplamlar = response.data.toplamlar;
                         this.firinBazliTonaj = _.cloneDeep(this.firinBazliTonaj);
                         this.yukleniyorObjesi.firinBazliTonaj = false;
                     })
@@ -870,6 +1156,59 @@
                 },
                 birimBasiTutar(birim, tutar) {
                     return (tutar / birim).toFixed(2);
+                },
+                isilIslemleriGetir(url = "{{ route('islemler') }}", cikti = false) {
+                    this.yukleniyorObjesi.islemler = true;
+                    axios.get(url, {
+                        params: {
+                            cikti,
+                            filtreleme: this.islemlerFiltrelemeObjesi,
+                        },
+                        responseType: cikti ? "blob" : "json",
+                    })
+                    .then(response => {
+                        this.yukleniyorObjesi.islemler = false;
+
+                        if (cikti) {
+                            // convert blob
+                            const blob = new Blob([response.data]);
+                            const url = window.URL.createObjectURL(blob);
+                            const link = document.createElement('a');
+                            link.href = url;
+                            link.download = 'İşlem Listesi ' + moment().format('L LTS') + '.xlsx';
+                            link.click();
+
+                            window.URL.revokeObjectURL(url);
+
+                            return;
+                        }
+
+                        if (!response.data.durum) {
+                            return this.uyariAc({
+                                baslik: 'Hata',
+                                mesaj: response.data.mesaj,
+                                tur: "error"
+                            });
+                        }
+
+                        this.islemler = response.data.islemler;
+                    })
+                    .catch(error => {
+                        this.yukleniyorObjesi.islemler = false;
+                        this.uyariAc({
+                            baslik: 'Hata',
+                            mesaj: error.response.data.mesaj + " - Hata Kodu: " + error.response.data.hataKodu,
+                            tur: "error"
+                        });
+                        console.log(error);
+                    });
+                },
+                excelCikti() {
+                    this.isilIslemleriGetir(undefined, true);
+                },
+                islemTarihAraligiTemizle() {
+                    this.islemlerFiltrelemeObjesi.baslangicTarihi = null;
+                    this.islemlerFiltrelemeObjesi.bitisTarihi = null;
                 },
                 ins1000Sep: ins1000Sep,
                 formatNum: formatNum,

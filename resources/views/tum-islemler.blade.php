@@ -122,10 +122,12 @@
                                         </div>
                                     </div>
                                     <div class="modal-footer">
-                                        <button type="button" class="btn btn-success" data-bs-dismiss="modal" @click="excelCikti()">
-                                            <i class="fas fa-file-excel"></i>
-                                            EXCEL
-                                        </button>
+                                        @can("siparis_ucreti_goruntuleme")
+                                            <button type="button" class="btn btn-success" data-bs-dismiss="modal" @click="excelCikti()">
+                                                <i class="fas fa-file-excel"></i>
+                                                EXCEL
+                                            </button>
+                                        @endcan
                                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">VAZGEÇ</button>
                                         <button type="button" class="btn btn-primary" data-bs-dismiss="modal" @click="filtrele()">ARA</button>
                                     </div>
@@ -193,7 +195,7 @@
                                                     <div class="col-12">
                                                         <span class="badge badge-pill bg-primary">Sipariş No: @{{ islem.siparisNo }}</span>
                                                     </div>
-                                                    <div class="col-12">
+                                                    <div class="col-12" v-if="!islem.bitisTarihi">
                                                         <span class="badge badge-pill" :class="`bg-${ islem.gecenSureRenk }`">Termin: @{{ islem.gecenSure }} Gün</span>
                                                     </div>
                                                     <div class="col-12">
@@ -226,6 +228,9 @@
                                                     </div>
                                                     <div class="col-12">
                                                         <small class="text-muted">Dara: @{{ islem.dara }} kg</small>
+                                                    </div>
+                                                    <div class="col-12">
+                                                        <b class="text-muted">Net: @{{ islem.net }} kg</b>
                                                     </div>
                                                 </div>
                                             </td>
