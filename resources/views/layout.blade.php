@@ -476,6 +476,98 @@
                     const { link, kod } = bildirim.json;
                     window.location.href = link;
                 },
+                /**
+                 * Aktif sayfaya göre pagination dizisi oluşturur.
+                 * 
+                 * @param {Integer} toplamSayfaSayisi
+                 * @param {Integer} aktifSayfa
+                 * 
+                 * @return {Array}
+                 */
+                sayfalamaAyarla(toplamSayfaSayisi = 1, aktifSayfa = 1) {
+                    // İlk ve son sayfa hariç gösterilmesi gereken sayfa sayısı
+                    const gosterilmesiGerekenSayfaSayisi = 3;
+                    const sayfalamaDizisi = [];
+
+                    if (toplamSayfaSayisi <= (gosterilmesiGerekenSayfaSayisi + 3)) {
+                        for (let i = 1; i <= toplamSayfaSayisi; i++) {
+                            sayfalamaDizisi.push({
+                                sayfa: i,
+                                tur: "SAYFA",
+                                aktif: aktifSayfa === i
+                            });
+                        }
+                    }
+                    else if (aktifSayfa - gosterilmesiGerekenSayfaSayisi <= 0) {
+                        for (let i = 1; i <= gosterilmesiGerekenSayfaSayisi + 1; i++) {
+                            sayfalamaDizisi.push({
+                                sayfa: i,
+                                tur: "SAYFA",
+                                aktif: aktifSayfa === i
+                            });
+                        }
+                        sayfalamaDizisi.push({
+                            sayfa: '...',
+                            tur: "NOKTA",
+                            aktif: false
+                        });
+                        sayfalamaDizisi.push({
+                            sayfa: toplamSayfaSayisi,
+                            tur: "SAYFA",
+                            aktif: aktifSayfa === toplamSayfaSayisi
+                        });
+                    }
+                    else if (aktifSayfa + gosterilmesiGerekenSayfaSayisi > toplamSayfaSayisi) {
+                        sayfalamaDizisi.push({
+                            sayfa: 1,
+                            tur: "SAYFA",
+                            aktif: aktifSayfa === 1
+                        });
+                        sayfalamaDizisi.push({
+                            sayfa: '...',
+                            tur: "NOKTA",
+                            aktif: false
+                        });
+                        for (let i = toplamSayfaSayisi - gosterilmesiGerekenSayfaSayisi; i <= toplamSayfaSayisi; i++) {
+                            sayfalamaDizisi.push({
+                                sayfa: i,
+                                tur: "SAYFA",
+                                aktif: aktifSayfa === i
+                            });
+                        }
+                    }
+                    else {
+                        sayfalamaDizisi.push({
+                            sayfa: 1,
+                            tur: "SAYFA",
+                            aktif: aktifSayfa === 1
+                        });
+                        sayfalamaDizisi.push({
+                            sayfa: '...',
+                            tur: "NOKTA",
+                            aktif: false
+                        });
+                        for (let i = aktifSayfa - 1; i <= aktifSayfa + 1; i++) {
+                            sayfalamaDizisi.push({
+                                sayfa: i,
+                                tur: "SAYFA",
+                                aktif: aktifSayfa === i
+                            });
+                        }
+                        sayfalamaDizisi.push({
+                            sayfa: '...',
+                            tur: "NOKTA",
+                            aktif: false
+                        });
+                        sayfalamaDizisi.push({
+                            sayfa: toplamSayfaSayisi,
+                            tur: "SAYFA",
+                            aktif: aktifSayfa === toplamSayfaSayisi
+                        });
+                    }
+
+                    return sayfalamaDizisi;
+                },
             },
         });
     </script>

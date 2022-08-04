@@ -560,17 +560,21 @@
                             <div class="col">
                                 <ul class="pagination pagination-rounded justify-content-center mb-0">
                                     <li class="page-item">
-                                        <button class="page-link" :disabled="!formlar.prev_page_url" @click="formlariGetir(formlar.prev_page_url)">Önceki</button>
+                                        <button class="page-link" :disabled="!formlar.prev_page_url" @click="formlariGetir(formlar.prev_page_url)">
+                                            <i class="fas fa-angle-left"></i>
+                                        </button>
                                     </li>
                                     <li
-                                        v-for="sayfa in formlar.last_page"
+                                        v-for="sayfa in sayfalamaAyarla(formlar.last_page, formlar.current_page)"
                                         class="page-item"
-                                        :class="[formlar.current_page === sayfa ? 'active' : '']"
+                                        :class="[sayfa.aktif ? 'active' : '']"
                                     >
-                                        <button class="page-link" @click="formlariGetir('/formlar?page=' + sayfa)">@{{ sayfa }}</button>
+                                        <button class="page-link" @click="sayfa.tur === 'SAYFA' ? formlariGetir('/formlar?page=' + sayfa.sayfa) : ()  => {}">@{{ sayfa.sayfa }}</button>
                                     </li>
                                     <li class="page-item">
-                                        <button class="page-link" :disabled="!formlar.next_page_url" @click="formlariGetir(formlar.next_page_url)">Sonraki</button>
+                                        <button class="page-link" :disabled="!formlar.next_page_url" @click="formlariGetir(formlar.next_page_url)">
+                                            <i class="fas fa-angle-right"></i>
+                                        </button>
                                     </li>
                                 </ul>
                             </div>

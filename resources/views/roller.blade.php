@@ -81,17 +81,21 @@
                                 <div class="col">
                                     <ul class="pagination pagination-rounded justify-content-center mb-0">
                                         <li class="page-item">
-                                            <button class="page-link" :disabled="!roller.prev_page_url" @click="rolleriGetir(roller.prev_page_url)">Önceki</button>
+                                            <button class="page-link" :disabled="!roller.prev_page_url" @click="rolleriGetir(roller.prev_page_url)">
+                                                <i class="fas fa-angle-left"></i>
+                                            </button>
                                         </li>
                                         <li
-                                            v-for="sayfa in roller.last_page"
+                                            v-for="sayfa in sayfalamaAyarla(roller.last_page, roller.current_page)"
                                             class="page-item"
-                                            :class="[roller.current_page === sayfa ? 'active' : '']"
+                                            :class="[sayfa.aktif ? 'active' : '']"
                                         >
-                                            <button class="page-link" @click='rolleriGetir("{{ route("rolleriGetir") }}?page=" + sayfa)'>@{{ sayfa }}</button>
+                                            <button class="page-link" @click="sayfa.tur === 'SAYFA' ? rolleriGetir('{{ route("rolleriGetir") }}?page=' + sayfa.sayfa) : ()  => {}">@{{ sayfa.sayfa }}</button>
                                         </li>
                                         <li class="page-item">
-                                            <button class="page-link" :disabled="!roller.next_page_url" @click="rolleriGetir(roller.next_page_url)">Sonraki</button>
+                                            <button class="page-link" :disabled="!roller.next_page_url" @click="rolleriGetir(roller.next_page_url)">
+                                                <i class="fas fa-angle-right"></i>
+                                            </button>
                                         </li>
                                     </ul>
                                 </div>

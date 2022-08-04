@@ -19,14 +19,14 @@
                             <div class="row d-flex align-items-center">
                                 <div class="col">
                                     <div class="input-group">
-                                        <input 
+                                        <input
                                             v-model="filtrelemeObjesi.arama" t
-                                            ype="text" 
+                                            ype="text"
                                             class="form-control"
-                                            placeholder="Arama" 
-                                            aria-label="Arama" 
+                                            placeholder="Arama"
+                                            aria-label="Arama"
                                             aria-describedby="arama"
-                                            @keyup.enter="firmalariGetir()" 
+                                            @keyup.enter="firmalariGetir()"
                                         />
                                         <span @click="firmalariGetir()" class="input-group-text waves-effect"
                                             id="arama">
@@ -81,7 +81,7 @@
                                                     </template>
                                                 </th>
                                                 <th @click="siralamaYap('sorumluKisi')" class="text-center">
-                                                    Firma Sorumlusu 
+                                                    Firma Sorumlusu
                                                     <template v-if="filtrelemeObjesi.siralamaTuru">
                                                         <i :class="filtrelemeObjesi.siralamaTuru.sorumluKisi === 'desc' ? 'fas fa-sort-alpha-down' : 'fas fa-sort-alpha-up'"></i>
                                                     </template>
@@ -130,17 +130,21 @@
                                     <div class="col">
                                         <ul class="pagination pagination-rounded justify-content-center mb-0">
                                             <li class="page-item">
-                                                <button class="page-link" :disabled="!firmalar.prev_page_url"
-                                                    @click="firmalariGetir(firmalar.prev_page_url)">Önceki</button>
+                                                <button class="page-link" :disabled="!firmalar.prev_page_url" @click="firmalariGetir(firmalar.prev_page_url)">
+                                                    <i class="fas fa-angle-left"></i>
+                                                </button>
                                             </li>
-                                            <li v-for="sayfa in firmalar.last_page" class="page-item"
-                                                :class="[firmalar.current_page === sayfa ? 'active' : '']">
-                                                <button class="page-link"
-                                                    @click='firmalariGetir("{{ route('firmalariGetir') }}?page=" + sayfa)'>@{{ sayfa }}</button>
+                                            <li
+                                                v-for="sayfa in sayfalamaAyarla(firmalar.last_page, firmalar.current_page)"
+                                                class="page-item"
+                                                :class="[sayfa.aktif ? 'active' : '']"
+                                            >
+                                                <button class="page-link" @click="sayfa.tur === 'SAYFA' ? firmalariGetir('{{ route("firmalariGetir") }}?page=' + sayfa.sayfa) : ()  => {}">@{{ sayfa.sayfa }}</button>
                                             </li>
                                             <li class="page-item">
-                                                <button class="page-link" :disabled="!firmalar.next_page_url"
-                                                    @click="firmalariGetir(firmalar.next_page_url)">Sonraki</button>
+                                                <button class="page-link" :disabled="!firmalar.next_page_url" @click="firmalariGetir(firmalar.next_page_url)">
+                                                    <i class="fas fa-angle-right"></i>
+                                                </button>
                                             </li>
                                         </ul>
                                     </div>
@@ -432,7 +436,7 @@
                         .replace(/[Öö]/g, "O")
                         .replace(/[Şş]/g, "S")
                         .replace(/[Üü]/g, "U");
-                },               
+                },
             }
         };
     </script>
