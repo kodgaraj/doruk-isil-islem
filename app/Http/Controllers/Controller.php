@@ -157,7 +157,7 @@ class Controller extends BaseController
                 $this->bildirimAt(auth()->user()->id, [
                     "baslik" => "Sipariş Formu Tamamlandı",
                     "icerik" => "$siparis->firmaAdi firmasının, $turkceTarih tarihli $siparis->siparisId numaralı sipariş formu tamamlandı. (Sipariş No: $siparis->siparisNo)",
-                    "link" => "/siparis-islemler?siparisId=$siparis->siparisId",
+                    "link" => "/siparis-formu?siparisId=$siparis->siparisId",
                     "kod" => "SIPARIS_BILDIRIMI",
                     "actionId" => $siparis->siparisId,
                 ]);

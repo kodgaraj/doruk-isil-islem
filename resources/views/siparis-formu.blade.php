@@ -1,7 +1,18 @@
 @extends('layout') 
 @section('content')
 <div class="row doruk-content">
-    <h4 style="color:#999"><i class="fab fa-wpforms"> </i> SİPARİŞ FORMU</h4>
+    <div class="d-inline-flex">
+        <h4 style="color:#999">
+            <i class="fab fa-wpforms"> </i>
+            SİPARİŞ FORMU
+        </h4>
+        <div class="ms-1">
+            <button @click="sorguParametreleriTemizle" v-if="sorguParametreleri.siparisId" class="btn btn-danger btn-sm">
+                <b>Sipariş ID: @{{ sorguParametreleri.siparisId }}</b>
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </div>
     <div class="col-12">
         <div class="card">
             <div class="card-body">
@@ -913,11 +924,13 @@
                     },
                 },
                 paraBirimleri: @json($paraBirimleri),
+                sorguParametreleri: {
+                    siparisId: null,
+                },
             }
         },
         mounted() {
-            this.siparisleriGetir();
-            this.firmalariGetir();
+            this.onyukleme();
         },
         watch: {
             "aktifSiparis.islemler": {
@@ -966,6 +979,17 @@
             },
         },
         methods: {
+            onyukleme() {
+                let url = new URL(window.location.href);
+                this.sorguParametreleri.siparisId = _.toNumber(url.searchParams.get("siparisId"));
+
+                if (this.sorguParametreleri.siparisId) {
+                    this.filtrelemeObjesi.siparisId = this.sorguParametreleri.siparisId;
+                }
+
+                this.siparisleriGetir();
+                this.firmalariGetir();
+            },
             aktifSayfaDegistir(kod) {
                 this.aktifSayfa = _.find(this.sayfalar, { kod });
             },
@@ -1003,9 +1027,14 @@
                             tur: "error"
                         });
                     }
+
                     this.siparisler = response.data.siparisler;
 
                     this.siparisler = _.cloneDeep(this.siparisler);
+
+                    if (this.sorguParametreleri.siparisId) {
+                        this.siparisDetayAc(this.siparisler.data[0]);
+                    }
                 })
                 .catch(error => {
                     this.yukleniyorDurum(false);
@@ -1905,6 +1934,21 @@
             },
             excelCikti() {
                 this.siparisleriGetir(undefined, true);
+            },
+            sorguParametreleriTemizle() {
+                this.sorguParametreleri = {
+                    siparisId: null,
+                };
+
+                if (this.aktifSiparis && this.aktifSiparis.siparisId === this.filtrelemeObjesi.siparisId) {
+                    this.geri();
+                }
+
+                delete this.filtrelemeObjesi.siparisId;
+
+                window.history.replaceState({}, document.title, (new URL(window.location.href)).pathname)
+
+                this.siparisleriGetir();
             },
         }
     };

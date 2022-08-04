@@ -140,6 +140,11 @@ class SiparisController extends Controller
                 $siparisler = $siparisler->where("$siparisTabloAdi.tarih", "<=", $filtrelemeler["bitisTarihi"]);
             }
 
+            if (isset($filtrelemeler["siparisId"]) && $filtrelemeler["siparisId"])
+            {
+                $siparisler = $siparisler->where("$siparisTabloAdi.id", $filtrelemeler["siparisId"]);
+            }
+
             $siparisler = $siparisler->paginate($sayfalamaSayisi)->toArray();
 
             foreach ($siparisler["data"] as &$siparis)
