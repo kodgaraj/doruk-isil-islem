@@ -8,6 +8,7 @@ use App\Providers\RouteServiceProvider;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
+use Firebase\JWT\JWT;
 use Illuminate\Support\Facades\Hash;
 
 class AuthenticatedSessionController extends Controller
@@ -57,5 +58,45 @@ class AuthenticatedSessionController extends Controller
                 "url" => route('login'),
             ])
             : redirect('/');
+    }
+
+    public function jwtLogin(Request $requst)
+    {
+        $jwt = $requst->jwt;
+
+        if (!$jwt) {
+            return response()->json([
+                'durum' => false,
+                'mesaj' => 'JWT bulunamadı',
+            ]);
+        }
+
+        try
+        {
+            $kullanici = JWT::decode($jwt, config('app.jwt.secret'), ['HS256']);
+        }
+        catch (\Exception $e)
+        {
+            return response()->json([
+                'durum' => false,
+                'mesaj' => 'JWT hatası',
+                "hataKodu" => "JWT_HATASI",
+            ]);
+        }
+
+        $kullaniciBilgileri = User::find($kullanici->id);
+
+        if (!$kullaniciBilgileri) {
+            return response()->json([
+                'durum' => false,
+                'mesaj' => 'Kullanıcı bulunamadı',
+            ]);
+        }
+
+        return response()->json([
+            'durum' => true,
+            'mesaj' => 'Giriş başarılı',
+            'kullanici' => $kullanici,
+        ]);
     }
 }
