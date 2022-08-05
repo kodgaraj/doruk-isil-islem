@@ -5,13 +5,12 @@
 
     <meta charset="utf-8" />
     <title>Doruk Otomasyon</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
     <link rel="shortcut icon" href="/img/favicon.png">
     <link href="assets/css/bootstrap.min.css" id="bootstrap-style" rel="stylesheet" type="text/css" />
     <link href="assets/css/icons.min.css" rel="stylesheet" type="text/css" />
     <link href="assets/css/app.min.css" id="app-style" rel="stylesheet" type="text/css" />
     <link href="assets/css/doruk.css" rel="stylesheet" type="text/css" />
-
     <link rel="stylesheet" href="https://unpkg.com/vue-select@3/dist/vue-select.css">
 
     <style>
