@@ -51,6 +51,11 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerateToken();
 
-        return redirect('/');
+        return $request->ajax()
+            ? response()->json([
+                "durum" => true,
+                "url" => route('login'),
+            ])
+            : redirect('/');
     }
 }

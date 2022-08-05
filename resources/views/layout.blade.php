@@ -290,7 +290,7 @@
                                                     class="bx bx-wrench font-size-16 align-middle me-1"></i> Ayarlar</a>
 
                                                 <div class="dropdown-divider"></div> --}}
-                                                <a class="dropdown-item text-danger" href="{{ route('logout') }}"><i
+                                                <a class="dropdown-item text-danger" @click="cikisYap()"><i
                                                     class="bx bx-power-off font-size-16 align-middle me-1 text-danger"></i> Çıkış</a>
                                             </div>
                                         </div>
@@ -353,6 +353,8 @@
 
     <script>
         moment.locale("tr");
+
+        axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 
         Vue.use(VMoney, { precision: 2 });
         Vue.use(VueMask.VueMaskPlugin);
@@ -566,6 +568,22 @@
                     }
 
                     return sayfalamaDizisi;
+                },
+                cikisYap() {
+                    axios.get("{{ route('logout') }}")
+                    .then(response => {
+                        if (response.data.durum) {
+                            if (window.isNativeApp) {
+                                window.ReactNativeWebView.postMessage(JSON.stringify({
+                                    kod: "CIKIS_YAPILDI",
+                                    durum: true,
+                                    mesaj: "Çıkış yapıldı"
+                                }));
+                            }
+
+                            window.location.href = response.data.url;
+                        }
+                    })
                 },
             },
         });
