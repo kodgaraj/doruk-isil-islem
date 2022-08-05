@@ -223,17 +223,21 @@
                         <div class="col">
                             <ul class="pagination pagination-rounded justify-content-center mb-0">
                                 <li class="page-item">
-                                    <button class="page-link" :disabled="!islemler.prev_page_url" @click="isilIslemleriGetir(islemler.prev_page_url)">Önceki</button>
+                                    <button class="page-link" :disabled="!islemler.prev_page_url" @click="isilIslemleriGetir(islemler.prev_page_url)">
+                                        <i class="fas fa-angle-left"></i>
+                                    </button>
                                 </li>
                                 <li
-                                    v-for="sayfa in islemler.last_page"
+                                    v-for="sayfa in sayfalamaAyarla(islemler.last_page, islemler.current_page)"
                                     class="page-item"
-                                    :class="[islemler.current_page === sayfa ? 'active' : '']"
+                                    :class="[sayfa.aktif ? 'active' : '']"
                                 >
-                                    <button class="page-link" @click='isilIslemleriGetir("{{ route("islemler") }}?page=" + sayfa)'>@{{ sayfa }}</button>
+                                    <button class="page-link" @click="sayfa.tur === 'SAYFA' ? isilIslemleriGetir('{{ route("islemler") }}?page=' + sayfa.sayfa) : ()  => {}">@{{ sayfa.sayfa }}</button>
                                 </li>
                                 <li class="page-item">
-                                    <button class="page-link" :disabled="!islemler.next_page_url" @click="isilIslemleriGetir(islemler.next_page_url)">Sonraki</button>
+                                    <button class="page-link" :disabled="!islemler.next_page_url" @click="isilIslemleriGetir(islemler.next_page_url)">
+                                        <i class="fas fa-angle-right"></i>
+                                    </button>
                                 </li>
                             </ul>
                         </div>
@@ -663,17 +667,21 @@
                     <div class="col">
                         <ul class="pagination pagination-rounded justify-content-center mb-0">
                             <li class="page-item">
-                                <button class="page-link" :disabled="!firmaBazliBilgiler.firmalar.prev_page_url" @click="firmaBazliBilgileriGetir(firmaBazliBilgiler.firmalar.prev_page_url)">Önceki</button>
+                                <button class="page-link" :disabled="!firmaBazliBilgiler.firmalar.prev_page_url" @click="firmaBazliBilgileriGetir(firmaBazliBilgiler.firmalar.prev_page_url)">
+                                    <i class="fas fa-angle-left"></i>
+                                </button>
                             </li>
                             <li
-                                v-for="sayfa in firmaBazliBilgiler.firmalar.last_page"
+                                v-for="sayfa in sayfalamaAyarla(firmaBazliBilgiler.firmalar.last_page, firmaBazliBilgiler.firmalar.current_page)"
                                 class="page-item"
-                                :class="[firmaBazliBilgiler.firmalar.current_page === sayfa ? 'active' : '']"
+                                :class="[sayfa.aktif ? 'active' : '']"
                             >
-                                <button class="page-link" @click='firmaBazliBilgileriGetir("{{ route("firmaBazliBilgileriGetir") }}?page=" + sayfa)'>@{{ sayfa }}</button>
+                                <button class="page-link" @click="sayfa.tur === 'SAYFA' ? firmaBazliBilgileriGetir('{{ route("firmaBazliBilgileriGetir") }}?page=' + sayfa.sayfa) : ()  => {}">@{{ sayfa.sayfa }}</button>
                             </li>
                             <li class="page-item">
-                                <button class="page-link" :disabled="!firmaBazliBilgiler.firmalar.next_page_url" @click="firmaBazliBilgileriGetir(firmaBazliBilgiler.firmalar.next_page_url)">Sonraki</button>
+                                <button class="page-link" :disabled="!firmaBazliBilgiler.firmalar.next_page_url" @click="firmaBazliBilgileriGetir(firmaBazliBilgiler.firmalar.next_page_url)">
+                                    <i class="fas fa-angle-right"></i>
+                                </button>
                             </li>
                         </ul>
                     </div>
