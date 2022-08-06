@@ -97,10 +97,12 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        return response()->json([
-            'durum' => true,
-            'mesaj' => 'Giriş başarılı',
-            'kullanici' => $kullanici,
-        ]);
+        return $request->ajax()
+            ? response()->json([
+                'durum' => true,
+                'mesaj' => 'Giriş başarılı',
+                'kullanici' => $kullanici,
+            ])
+            : redirect()->intended(RouteServiceProvider::Anasayfa);
     }
 }
