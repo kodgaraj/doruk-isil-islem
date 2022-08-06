@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
 use Illuminate\Support\Facades\Hash;
 
 class AuthenticatedSessionController extends Controller
@@ -73,7 +74,12 @@ class AuthenticatedSessionController extends Controller
 
         try
         {
-            $kullanici = JWT::decode($jwt, config('app.jwt.secret'), ['HS256']);
+            $secretKey = config('app.jwt.secret');
+            $kullanici = JWT::decode($jwt, new Key($secretKey, 'HS256'));
+            // Kafa karıştırmaması için jwt keyini siliyoruz
+            if (isset($kullanici->jwt)) {
+                unset($kullanici->jwt);
+            }
         }
         catch (\Exception $e)
         {
