@@ -104,7 +104,7 @@ class IslemTerminBildirim extends Command
         $controller->bildirimAt(0, [
             "baslik" => "Termin Süresi Geçmiş İşlemler",
             "icerik" => $bildirimIcerigi,
-            "link" => route("tum-islemler", ["tur" => "GECIKMIS"]),
+            "link" => "/tum-islemler?tur=GECIKMIS",
             "kod" => "ISLEM_BILDIRIMI"
         ]);
 
