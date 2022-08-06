@@ -60,9 +60,9 @@ class AuthenticatedSessionController extends Controller
             : redirect('/');
     }
 
-    public function jwtLogin(Request $requst)
+    public function jwtLogin(Request $request)
     {
-        $jwt = $requst->jwt;
+        $jwt = $request->jwt;
 
         if (!$jwt) {
             return response()->json([
@@ -92,6 +92,10 @@ class AuthenticatedSessionController extends Controller
                 'mesaj' => 'Kullanıcı bulunamadı',
             ]);
         }
+
+        auth()->login($kullaniciBilgileri);
+
+        $request->session()->regenerate();
 
         return response()->json([
             'durum' => true,
