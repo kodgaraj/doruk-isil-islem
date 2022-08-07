@@ -226,7 +226,7 @@
                                                     @{{ miniBildirimlerObjesi.okunmamisBildirimSayisi }}
                                                 </span>
                                             </button>
-                                            <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end p-0" aria-labelledby="page-header-notifications-dropdown">
+                                            <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end p-0" aria-labelledby="page-header-notifications-dropdown" style="min-width: 350px;">
                                                 <div class="p-3">
                                                     <div class="row align-items-center">
                                                         <div class="col">
