@@ -75,7 +75,7 @@
     <div id="app" class="container-fluid">
         <div id="layout-wrapper">
 
-            <div id="mySidenav" class="sidenav">
+            <div id="doruk-side-nav" class="sidenav">
                 <a href="javascript:void(0)" class="closebtn" @click="sidebarAcKapat(false)">&times;</a>
                 <div class="user-wid text-center py-4">
                     <div class="text-center">
@@ -413,10 +413,10 @@
                 sidebarAcKapat(durum = null) {
                     const width = this.isMobile ? "100%" : "320px";
                     if (durum === null) {
-                        document.getElementById("mySidenav").style.width = this.sidebarModel ? "0" : width;
+                        document.getElementById("doruk-side-nav").style.width = this.sidebarModel ? "0" : width;
                     } else {
                         this.sidebarModel = durum;
-                        document.getElementById("mySidenav").style.width = durum ? width : "0";
+                        document.getElementById("doruk-side-nav").style.width = durum ? width : "0";
                     }
                 },
                 resimOnizlemeAc(resimYolu) {
@@ -584,7 +584,7 @@
     </script>
 
     <style>
-        .sidenav {
+        .sidenav#doruk-side-nav {
             height: 100%; /* 100% Full-height */
             width: 0; /* 0 width - change this with JavaScript */
             position: fixed; /* Stay in place */
@@ -597,17 +597,14 @@
             transition: 0.5s; /* 0.5 second transition effect to slide in the sidenav */
         }
 
-        .sidenav a {
+        .sidenav#doruk-side-nav a {
             padding: 8px 8px 8px 32px;
-            /* text-decoration: none;
-            font-size: 16px;
-            color: rgb(27, 27, 27); */
             display: block;
             white-space: nowrap;
             transition: 0.3s;
         }
 
-        .sidenav .closebtn {
+        .sidenav#doruk-side-nav .closebtn {
             position: absolute;
             top: 0;
             right: 16px;
