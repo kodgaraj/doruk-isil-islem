@@ -74,131 +74,125 @@
 
     <div id="app" class="container-fluid">
         <div id="layout-wrapper">
-            <div class="vertical-menu">
-                <div class="h-100">
-                    <!--- Sidemenu close button -->
-                    <div v-if="sidebarButonDurum" class="position-absolute top-0 end-0 m-2">
-                        <button @click="sidebarAcKapat(false)" class="btn btn-outline-danger btn-sm">
-                            <i class="mdi mdi-close-circle-outline"></i>
-                        </button>
+
+            <div id="mySidenav" class="sidenav">
+                <a href="javascript:void(0)" class="closebtn" @click="sidebarAcKapat(false)">&times;</a>
+                <div class="user-wid text-center py-4">
+                    <div class="text-center">
+                        <img src="img/doruk-logo.png" alt="">
                     </div>
-                    <div class="user-wid text-center py-4">
-                        <div class="text-center">
-                            <img src="img/doruk-logo.png" alt="">
-                        </div>
-                    </div>
-                    <div id="sidebar-menu">
-                        <ul class="metismenu list-unstyled" id="side-menu">
+                </div>
+                <div id="sidebar-menu">
+                    <ul class="metismenu list-unstyled" id="side-menu">
+                        <li>
+                            <a href="{{ route('home') }}" class="waves-effect">
+                                <i class="mdi mdi-home"></i> Anasayfa
+                            </a>
+                        </li>
+
+                        @can("siparis_listeleme")
                             <li>
-                                <a href="{{ route('home') }}" class="waves-effect">
-                                    <i class="mdi mdi-home"></i> Anasayfa
+                                <a href="{{ route('siparis-formu') }}" class=" waves-effect">
+                                    <i class="mdi mdi-tag-plus-outline"></i> Sipariş Formu
                                 </a>
                             </li>
+                        @endcan
 
-                            @can("siparis_listeleme")
-                                <li>
-                                    <a href="{{ route('siparis-formu') }}" class=" waves-effect">
-                                        <i class="mdi mdi-tag-plus-outline"></i> Sipariş Formu
-                                    </a>
-                                </li>
-                            @endcan
-
-                            @can("isil_islem_formu_listeleme")
-                                <li>
-                                    <a href="{{ route("isil-islemler") }}" class=" waves-effect">
-                                        <i class="mdi mdi-calendar-check"></i> Isıl İşlem Formları
-                                    </a>
-                                </li>
-                            @endcan
-
-                            @can("isil_islem_listeleme")
-                                <li>
-                                    <a href="{{ route("tum-islemler") }}" class=" waves-effect">
-                                        <i class="mdi mdi-progress-wrench"></i> Isıl İşlemler
-                                    </a>
-                                </li>
-                            @endcan
-
-                            @can("rapor_listeleme")
-                                <li>
-                                    <a href="{{ route("raporlama") }}" class=" waves-effect">
-                                        <i class="fas fa-chart-line"></i> Raporlama
-                                    </a>
-                                </li>
-                            @endcan
-
+                        @can("isil_islem_formu_listeleme")
                             <li>
-                                <a href="{{ route("bildirimler") }}" class=" waves-effect">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <span>
-                                            <i class="fas fa-bell"></i> Bildirimler
-                                        </span>
-                                        <span class="badge bg-danger badge-pill" v-if="miniBildirimlerObjesi.okunmamisBildirimSayisi > 0">@{{ miniBildirimlerObjesi.okunmamisBildirimSayisi }}</span>
-                                    </div>
+                                <a href="{{ route("isil-islemler") }}" class=" waves-effect">
+                                    <i class="mdi mdi-calendar-check"></i> Isıl İşlem Formları
                                 </a>
                             </li>
+                        @endcan
 
-                            @can("yonetim_menusu")
-                                <li>
-                                    <a
-                                        href="javascript:
-                                            (document.getElementById('yonetim-ust-menu')).classList.toggle('mm-active');
-                                            (document.getElementById('yonetim-alt-menu')).classList.toggle('mm-show');
-                                        "
-                                        class="has-arrow waves-effect"
-                                        id="yonetim-ust-menu"
-                                    >
-                                        <i class="mdi mdi-account-multiple-outline"></i> Yönetim
-                                    </a>
-                                    <ul class="sub-menu mm-collapse" aria-expanded="true" id="yonetim-alt-menu">
-                                        @can('kullanici_listeleme')
-                                            <li class="waves-effect">
-                                                <a href="{{ route('kullanicilar') }}">
-                                                    <i class="fa fa-users"></i>
-                                                    Kullanıcılar
-                                                </a>
-                                            </li>
-                                        @endcan
-                                        @can('rol_listeleme')
-                                            <li class="waves-effect">
-                                                <a href="{{ route('roller') }}">
-                                                    <i class="fa fa-user-tag"></i>
-                                                    Roller
-                                                </a>
-                                            </li>
-                                        @endcan
-                                        @can('log_listeleme')
-                                            <li class="waves-effect">
-                                                <a href="{{ route('log-kayitlari') }}">
-                                                    <i class="fa fa-clipboard-list"></i>
-                                                    Log Kayıtları
-                                                </a>
-                                            </li>
-                                        @endcan
-                                        @can('firin_listeleme')
-                                            <li class="waves-effect">
-                                                <a href="{{ route('firinlar') }}">
-                                                    <i class="fa fa-spinner"></i>
-                                                    Fırınlar
-                                                </a>
-                                            </li>
-                                        @endcan
-                                        @can('firma_listeleme')
-                                            <li class="waves-effect">
-                                                <a href="{{ route('firmalar') }}">
-                                                    <i class="fas fa-globe"></i>
-                                                    Firmalar
-                                                </a>
-                                            </li>
-                                        @endcan
-                                        {{-- <li><a href="#">Firmalar</a></li>
-                                        <li><a href="#">İşlem Türleri</a></li>
-                                        <li><a href="#">Fırınlar</a></li> --}}
-                                    </ul>
-                                </li>
-                            @endcan
-                        </ul>
-                    </div>
+                        @can("isil_islem_listeleme")
+                            <li>
+                                <a href="{{ route("tum-islemler") }}" class=" waves-effect">
+                                    <i class="mdi mdi-progress-wrench"></i> Isıl İşlemler
+                                </a>
+                            </li>
+                        @endcan
+
+                        @can("rapor_listeleme")
+                            <li>
+                                <a href="{{ route("raporlama") }}" class=" waves-effect">
+                                    <i class="fas fa-chart-line"></i> Raporlama
+                                </a>
+                            </li>
+                        @endcan
+
+                        <li>
+                            <a href="{{ route("bildirimler") }}" class=" waves-effect">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span>
+                                        <i class="fas fa-bell"></i> Bildirimler
+                                    </span>
+                                    <span class="badge bg-danger badge-pill" v-if="miniBildirimlerObjesi.okunmamisBildirimSayisi > 0">@{{ miniBildirimlerObjesi.okunmamisBildirimSayisi }}</span>
+                                </div>
+                            </a>
+                        </li>
+
+                        @can("yonetim_menusu")
+                            <li>
+                                <a
+                                    href="javascript:
+                                        (document.getElementById('yonetim-ust-menu')).classList.toggle('mm-active');
+                                        (document.getElementById('yonetim-alt-menu')).classList.toggle('mm-show');
+                                    "
+                                    class="has-arrow waves-effect"
+                                    id="yonetim-ust-menu"
+                                >
+                                    <i class="mdi mdi-account-multiple-outline"></i> Yönetim
+                                </a>
+                                <ul class="sub-menu mm-collapse" aria-expanded="true" id="yonetim-alt-menu">
+                                    @can('kullanici_listeleme')
+                                        <li class="waves-effect">
+                                            <a href="{{ route('kullanicilar') }}">
+                                                <i class="fa fa-users"></i>
+                                                Kullanıcılar
+                                            </a>
+                                        </li>
+                                    @endcan
+                                    @can('rol_listeleme')
+                                        <li class="waves-effect">
+                                            <a href="{{ route('roller') }}">
+                                                <i class="fa fa-user-tag"></i>
+                                                Roller
+                                            </a>
+                                        </li>
+                                    @endcan
+                                    @can('log_listeleme')
+                                        <li class="waves-effect">
+                                            <a href="{{ route('log-kayitlari') }}">
+                                                <i class="fa fa-clipboard-list"></i>
+                                                Log Kayıtları
+                                            </a>
+                                        </li>
+                                    @endcan
+                                    @can('firin_listeleme')
+                                        <li class="waves-effect">
+                                            <a href="{{ route('firinlar') }}">
+                                                <i class="fa fa-spinner"></i>
+                                                Fırınlar
+                                            </a>
+                                        </li>
+                                    @endcan
+                                    @can('firma_listeleme')
+                                        <li class="waves-effect">
+                                            <a href="{{ route('firmalar') }}">
+                                                <i class="fas fa-globe"></i>
+                                                Firmalar
+                                            </a>
+                                        </li>
+                                    @endcan
+                                    {{-- <li><a href="#">Firmalar</a></li>
+                                    <li><a href="#">İşlem Türleri</a></li>
+                                    <li><a href="#">Fırınlar</a></li> --}}
+                                </ul>
+                            </li>
+                        @endcan
+                    </ul>
                 </div>
             </div>
 
@@ -209,7 +203,7 @@
                             <div class="page-title-box d-flex align-items-center justify-content-between">
                                 <!-- sidebar button -->
                                 <div class="d-inline-flex align-items-center justify-content-between">
-                                    <div v-if="sidebarButonDurum" class="me-2">
+                                    <div class="me-2">
                                         <button @click="sidebarAcKapat(true)" class="btn btn-outline-light btn-sm">
                                             <i class="fas fa-bars"></i>
                                         </button>
@@ -367,8 +361,10 @@
             mixins: [mixinApp],
             el: '#app',
             data: {
+                isNativeApp: !!window.isNativeApp,
+                isMobile: window.innerWidth < 600,
+                sidebarModel: false,
                 yukleniyor: false,
-                sidebarButonDurum: false,
                 varsayilanResimYolu: "/no-image.jpg",
                 miniBildirimlerObjesi: {
                     yukleniyor: false,
@@ -383,7 +379,7 @@
             },
             mounted() {
                 this.$nextTick(() => {
-                    this.sidebarButonDurum = window.innerWidth < 992;
+                    this.isMobile = window.innerWidth < 600;
                 });
                 this.okunmamisBildirimSayisiGetir();
             },
@@ -415,14 +411,12 @@
                     this.yukleniyor = durum;
                 },
                 sidebarAcKapat(durum = null) {
+                    const width = this.isMobile ? "100%" : "320px";
                     if (durum === null) {
-                        document.body.classList.toggle('sidebar-enable');
+                        document.getElementById("mySidenav").style.width = this.sidebarModel ? "0" : width;
                     } else {
-                        if (durum) {
-                            document.body.classList.add('sidebar-enable');
-                        } else {
-                            document.body.classList.remove('sidebar-enable');
-                        }
+                        this.sidebarModel = durum;
+                        document.getElementById("mySidenav").style.width = durum ? width : "0";
                     }
                 },
                 resimOnizlemeAc(resimYolu) {
@@ -588,6 +582,39 @@
             },
         });
     </script>
+
+    <style>
+        .sidenav {
+            height: 100%; /* 100% Full-height */
+            width: 0; /* 0 width - change this with JavaScript */
+            position: fixed; /* Stay in place */
+            z-index: 5; /* Stay on top */
+            top: 0; /* Stay at the top */
+            left: 0;
+            background-color: #ffffff; /* Black*/
+            overflow-x: hidden; /* Disable horizontal scroll */
+            padding-top: 25px; /* Place content 60px from the top */
+            transition: 0.5s; /* 0.5 second transition effect to slide in the sidenav */
+        }
+
+        .sidenav a {
+            padding: 8px 8px 8px 32px;
+            /* text-decoration: none;
+            font-size: 16px;
+            color: rgb(27, 27, 27); */
+            display: block;
+            white-space: nowrap;
+            transition: 0.3s;
+        }
+
+        .sidenav .closebtn {
+            position: absolute;
+            top: 0;
+            right: 16px;
+            font-size: 36px;
+            margin-left: 50px;
+        }
+    </style>
 
 </body>
 
