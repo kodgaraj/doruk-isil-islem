@@ -220,6 +220,20 @@
                                             </button>
                                         </div> --}}
                                         <div class="dropdown d-inline-block">
+                                            <button type="button" class="btn header-item waves-effect" id="page-header-user-dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                <span class="ms-1">{{ Auth::user()->name }}</span>
+                                                <i class="mdi mdi-chevron-down"></i>
+                                            </button>
+                                            <div class="dropdown-menu dropdown-menu-end">
+                                                {{-- <a class="dropdown-item d-block" href="#"><i
+                                                    class="bx bx-wrench font-size-16 align-middle me-1"></i> Ayarlar</a>
+
+                                                <div class="dropdown-divider"></div> --}}
+                                                <a class="dropdown-item text-danger" @click="cikisYap()"><i
+                                                    class="bx bx-power-off font-size-16 align-middle me-1 text-danger"></i> Çıkış</a>
+                                            </div>
+                                        </div>
+                                        <div class="dropdown d-inline-block">
                                             <button @click="miniBildirimleriGetir" type="button" class="btn header-item noti-icon waves-effect" id="page-header-notifications-dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                                 <i class="mdi mdi-bell-outline"></i>
                                                 <span class="badge rounded-pill bg-danger" v-if="miniBildirimlerObjesi.okunmamisBildirimSayisi > 0">
@@ -272,20 +286,6 @@
                                                         </div>
                                                     </template>
                                                 </div>
-                                            </div>
-                                        </div>
-                                        <div class="dropdown d-inline-block">
-                                            <button type="button" class="btn header-item waves-effect" id="page-header-user-dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                <span class="ms-1">{{ Auth::user()->name }}</span>
-                                                <i class="mdi mdi-chevron-down"></i>
-                                            </button>
-                                            <div class="dropdown-menu dropdown-menu-end">
-                                                {{-- <a class="dropdown-item d-block" href="#"><i
-                                                    class="bx bx-wrench font-size-16 align-middle me-1"></i> Ayarlar</a>
-
-                                                <div class="dropdown-divider"></div> --}}
-                                                <a class="dropdown-item text-danger" @click="cikisYap()"><i
-                                                    class="bx bx-power-off font-size-16 align-middle me-1 text-danger"></i> Çıkış</a>
                                             </div>
                                         </div>
                                     </div>
