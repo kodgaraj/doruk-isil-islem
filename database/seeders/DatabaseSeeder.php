@@ -201,7 +201,6 @@ class DatabaseSeeder extends Seeder
             $daraTuru = DB::select("SELECT DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = 'islemler' AND COLUMN_NAME = 'dara'")[0]->DATA_TYPE;
             $birimFiyatTuru = DB::select("SELECT DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = 'islemler' AND COLUMN_NAME = 'birimFiyat'")[0]->DATA_TYPE;
 
-            dd($miktarTuru, $daraTuru, $birimFiyatTuru);
             if ($miktarTuru !== "double")
             {
                 DB::statement('ALTER TABLE islemler MODIFY miktar DOUBLE(15, 2) DEFAULT 0');
