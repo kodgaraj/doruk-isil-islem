@@ -194,7 +194,10 @@
                         @endcan
                     </ul>
                 </div>
+
             </div>
+
+            <div class="doruk-side-nav-overlay"></div>
 
             <div class="main-content">
                 <div class="page-content mb-5">
@@ -418,6 +421,12 @@
                         this.sidebarModel = durum;
                         document.getElementById("doruk-side-nav").style.width = durum ? width : "0";
                     }
+
+                    const overlayEl = document.querySelector(".doruk-side-nav-overlay");
+                    overlayEl.style.display = this.sidebarModel ? "block" : "none";
+                    overlayEl.addEventListener("click", () => {
+                        this.sidebarAcKapat(false);
+                    }, {once : true});
                 },
                 resimOnizlemeAc(resimYolu) {
                     if (!resimYolu) {
@@ -588,13 +597,27 @@
             height: 100%; /* 100% Full-height */
             width: 0; /* 0 width - change this with JavaScript */
             position: fixed; /* Stay in place */
-            z-index: 5; /* Stay on top */
+            z-index: 10; /* Stay on top */
             top: 0; /* Stay at the top */
             left: 0;
             background-color: #ffffff; /* Black*/
             overflow-x: hidden; /* Disable horizontal scroll */
             padding-top: 25px; /* Place content 60px from the top */
-            transition: 0.5s; /* 0.5 second transition effect to slide in the sidenav */
+            transition: 0.3s; /* 0.5 second transition effect to slide in the sidenav */
+            box-shadow: 0px 0 5px grey;
+        }
+
+        .doruk-side-nav-overlay {
+            position: fixed; /* Stay in place */
+            z-index: 5; /* Sit on top */
+            top: 0; /* Stay at the top */
+            left: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: #000000; /* Black*/
+            opacity: 0.3; /* Set opacity to 0.5 */
+            display: none;
         }
 
         .sidenav#doruk-side-nav a {
@@ -610,6 +633,10 @@
             right: 16px;
             font-size: 36px;
             margin-left: 50px;
+        }
+
+        .sidenav#doruk-side-nav li {
+            padding-right: 12px;
         }
     </style>
 
