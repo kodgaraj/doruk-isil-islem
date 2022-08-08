@@ -604,7 +604,7 @@
             overflow-x: hidden; /* Disable horizontal scroll */
             padding-top: 25px; /* Place content 60px from the top */
             transition: 0.3s; /* 0.5 second transition effect to slide in the sidenav */
-            box-shadow: 0px 0 5px grey;
+            /* box-shadow: 0px 0 5px grey; */
         }
 
         .doruk-side-nav-overlay {
