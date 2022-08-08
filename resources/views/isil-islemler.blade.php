@@ -1630,13 +1630,19 @@
                         const exportToExcel = (type = "xlsx") => {
                             var elt = document.getElementById(id);
                             elt = this.$refs.formGorunumu;
-                            console.log(elt);
                             var wb = XLSX.utils.table_to_book(elt);
                             wb.Sheets["Sheet1"];
                             return XLSX.writeFile(wb, this.aktifForm.formAdi + '.' + type);
                         }
 
-                        exportToExcel();
+                        const blobUrl = exportToExcel();
+                        
+                        if (this.isNativeApp) {
+                            window.ReactNativeWebView.postMessage(JSON.stringify({
+                                kod: "INDIR",
+                                url: blobUrl
+                            }));
+                        }
 
                         this.aktifForm.onizlemeModu = baslangicDurum;
                     }

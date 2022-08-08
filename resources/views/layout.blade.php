@@ -576,7 +576,7 @@
                     axios.get("{{ route('logout') }}")
                     .then(response => {
                         if (response.data.durum) {
-                            if (window.isNativeApp) {
+                            if (this.isNativeApp) {
                                 window.ReactNativeWebView.postMessage(JSON.stringify({
                                     kod: "CIKIS_YAPILDI",
                                     durum: true,
