@@ -1007,16 +1007,29 @@
                     },
                     responseType: cikti ? 'blob' : 'json',
                 })
-                .then(response => {
+                .then(async response => {
                     this.yukleniyorDurum(false);
 
                     if (cikti) {
+                        const dosyaAdi = 'Sipariş Listesi ' + moment().format('L LTS');
+                        const uzanti = "xlsx";
                         // convert blob
                         const blob = new Blob([response.data]);
+                        if (this.isNativeApp) {
+                            const base64 = await this.blobToBase64(blob);
+                            window.ReactNativeWebView.postMessage(JSON.stringify({
+                                kod: "INDIR",
+                                dosya: base64,
+                                dosyaAdi: dosyaAdi,
+                                dosyaUzantisi: uzanti,
+                            }));
+                            return;
+                        }
+
                         const url = window.URL.createObjectURL(blob);
                         const link = document.createElement('a');
                         link.href = url;
-                        link.download = 'Sipariş Listesi ' + moment().format('L LTS') + '.xlsx';
+                        link.download = dosyaAdi + '.' + uzanti;
                         link.click();
 
                         window.URL.revokeObjectURL(url);
@@ -1858,9 +1871,20 @@
                 this.aktifSiparis = _.cloneDeep(this.aktifSiparis);
                 this.$nextTick(() => {
                     html2canvas(document.getElementById("onizlemeGorunumu")).then(canvas => {
+                        const uzanti = "png";
+                        const base64 = canvas.toDataURL("image/png");
                         var a = document.createElement("a");
-                        a.href = canvas.toDataURL("image/png");
-                        a.download = this.aktifSiparis.siparisAdi + ".png";
+                        a.href = base64;
+                        a.download = this.aktifSiparis.siparisAdi + "." + uzanti;
+
+                        if (this.isNativeApp) {
+                            window.ReactNativeWebView.postMessage(JSON.stringify({
+                                kod: "INDIR",
+                                dosya: base64,
+                                dosyaAdi: this.aktifSiparis.siparisAdi,
+                                dosyaUzantisi: uzanti,
+                            }));
+                        }
                         a.click();
                         this.aktifSiparis.onizlemeModu = baslangicDurum;
                     });
@@ -1953,6 +1977,13 @@
                 window.history.replaceState({}, document.title, (new URL(window.location.href)).pathname)
 
                 this.siparisleriGetir();
+            },
+            blobToBase64(blob) {
+                return new Promise((resolve, _) => {
+                    const reader = new FileReader();
+                    reader.onloadend = () => resolve(reader.result);
+                    reader.readAsDataURL(blob);
+                });
             },
         }
     };

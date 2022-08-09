@@ -1017,7 +1017,7 @@
                                 <i class="fas fa-file-export"></i>
                                 ÇIKTI
                             </button>
-                            <button @click="ciktiAl(undefined, 'EXCEL')" class="btn btn-secondary">
+                            <button @click="ciktiAl(undefined, 'EXCEL')" class="btn btn-secondary" v-if="!isNativeApp">
                                 <i class="fas fa-file-excel"></i>
                                 EXCEL
                             </button>
@@ -1627,23 +1627,15 @@
 
                 this.$nextTick(() => {
                     if (tur === 'EXCEL') {
-                        // const exportToExcel = (type = "xlsx") => {
-                        //     var elt = document.getElementById(id);
-                        //     elt = this.$refs.formGorunumu;
-                        //     var wb = XLSX.utils.table_to_book(elt);
-                        //     wb.Sheets["Sheet1"];
-                        //     return XLSX.writeFile(wb, this.aktifForm.formAdi + '.' + type);
-                        // }
+                        const exportToExcel = (type = "xlsx") => {
+                            var elt = document.getElementById(id);
+                            elt = this.$refs.formGorunumu;
+                            var wb = XLSX.utils.table_to_book(elt);
+                            wb.Sheets["Sheet1"];
+                            return XLSX.writeFile(wb, this.aktifForm.formAdi + '.' + type);
+                        }
 
-                        // const blobUrl = exportToExcel();
-
-                        // if (this.isNativeApp) {
-                        //     window.ReactNativeWebView.postMessage(JSON.stringify({
-                        //         kod: "INDIR",
-                        //         url: blobUrl,
-                        //         dosyaAdi: this.aktifForm.formAdi + '.xlsx'
-                        //     }));
-                        // }
+                        exportToExcel();
 
                         this.aktifForm.onizlemeModu = baslangicDurum;
                     }
@@ -1666,28 +1658,6 @@
                             }
 
                             this.aktifForm.onizlemeModu = baslangicDurum;
-                            // canvas.toBlob((blob) => {
-                            //     const url = URL.createObjectURL(blob);
-
-                            //     const a = document.createElement("a");
-                            //     a.href = url;
-                            //     a.download = this.aktifForm.formAdi + '.png';
-                            //     a.click();
-
-                            //     if (this.isNativeApp) {
-                            //         window.ReactNativeWebView.postMessage(JSON.stringify({
-                            //             kod: "INDIR",
-                            //             dosya: blob,
-                            //             dosyaAdi: this.aktifForm.formAdi + '.xlsx'
-                            //         }));
-                            //     }
-
-                            //     this.aktifForm.onizlemeModu = baslangicDurum;
-
-                            //     setTimeout(() => {
-                            //         URL.revokeObjectURL(url);
-                            //     }, 1000);
-                            // }, "image/png", 1.0);
                         });
                     }
                 });
