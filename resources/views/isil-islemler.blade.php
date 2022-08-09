@@ -1627,32 +1627,49 @@
 
                 this.$nextTick(() => {
                     if (tur === 'EXCEL') {
-                        const exportToExcel = (type = "xlsx") => {
-                            var elt = document.getElementById(id);
-                            elt = this.$refs.formGorunumu;
-                            var wb = XLSX.utils.table_to_book(elt);
-                            wb.Sheets["Sheet1"];
-                            return XLSX.writeFile(wb, this.aktifForm.formAdi + '.' + type);
-                        }
+                        // const exportToExcel = (type = "xlsx") => {
+                        //     var elt = document.getElementById(id);
+                        //     elt = this.$refs.formGorunumu;
+                        //     var wb = XLSX.utils.table_to_book(elt);
+                        //     wb.Sheets["Sheet1"];
+                        //     return XLSX.writeFile(wb, this.aktifForm.formAdi + '.' + type);
+                        // }
 
-                        const blobUrl = exportToExcel();
-                        
-                        if (this.isNativeApp) {
-                            window.ReactNativeWebView.postMessage(JSON.stringify({
-                                kod: "INDIR",
-                                url: blobUrl
-                            }));
-                        }
+                        // const blobUrl = exportToExcel();
+
+                        // if (this.isNativeApp) {
+                        //     window.ReactNativeWebView.postMessage(JSON.stringify({
+                        //         kod: "INDIR",
+                        //         url: blobUrl,
+                        //         dosyaAdi: this.aktifForm.formAdi + '.xlsx'
+                        //     }));
+                        // }
 
                         this.aktifForm.onizlemeModu = baslangicDurum;
                     }
                     else {
                         html2canvas(document.getElementById(id)).then(canvas => {
-                            var a = document.createElement("a");
-                            a.href = canvas.toDataURL("image/png");
-                            a.download = this.aktifForm.formAdi + ".png";
-                            a.click();
-                            this.aktifForm.onizlemeModu = baslangicDurum;
+                            canvas.toBlob((blob) => {
+                                const url = URL.createObjectURL(blob);
+
+                                const a = document.createElement("a");
+                                a.href = url;
+                                a.download = this.aktifForm.formAdi + '.png';
+                                a.click();
+                                if (this.isNativeApp) {
+                                    window.ReactNativeWebView.postMessage(JSON.stringify({
+                                        kod: "INDIR",
+                                        dosya: blob,
+                                        dosyaAdi: this.aktifForm.formAdi + '.xlsx'
+                                    }));
+                                }
+
+                                this.aktifForm.onizlemeModu = baslangicDurum;
+
+                                setTimeout(() => {
+                                    URL.revokeObjectURL(url);
+                                }, 1000);
+                            }, "image/png", 1.0);
                         });
                     }
                 });
