@@ -1649,10 +1649,11 @@
                     }
                     else {
                         html2canvas(document.getElementById(id)).then(canvas => {
+                            const uzanti = "png";
                             const base64 = canvas.toDataURL('image/png');
                             const link = document.createElement('a');
                             link.href = base64;
-                            link.download = this.aktifForm.formAdi + '.png';
+                            link.download = this.aktifForm.formAdi + '.' + uzanti;
                             link.click();
 
                             if (this.isNativeApp) {
@@ -1660,7 +1661,7 @@
                                     kod: "INDIR",
                                     dosya: base64,
                                     dosyaAdi: this.aktifForm.formAdi,
-                                    dosyaUzantisi: "xlsx",
+                                    dosyaUzantisi: uzanti,
                                 }));
                             }
 
