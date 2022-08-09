@@ -1660,7 +1660,7 @@
                                     kod: "INDIR",
                                     dosya: base64,
                                     dosyaAdi: this.aktifForm.formAdi
-                                    dosyaUzantisi: ".xlsx"
+                                    dosyaUzantisi: "xlsx"
                                 }));
                             }
 
