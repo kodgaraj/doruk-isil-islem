@@ -1659,8 +1659,8 @@
                                 window.ReactNativeWebView.postMessage(JSON.stringify({
                                     kod: "INDIR",
                                     dosya: base64,
-                                    dosyaAdi: this.aktifForm.formAdi
-                                    dosyaUzantisi: "xlsx"
+                                    dosyaAdi: this.aktifForm.formAdi,
+                                    dosyaUzantisi: "xlsx",
                                 }));
                             }
 
