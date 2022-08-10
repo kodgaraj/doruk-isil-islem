@@ -621,12 +621,13 @@
         /* Track */
         ::-webkit-scrollbar-track {
             background: #DDD;
+            border-radius: 4px;
         }
 
         /* Handle */
         ::-webkit-scrollbar-thumb {
             background: #929292cc;
-            border-radius: 2px;
+            border-radius: 4px;
         }
 
         /* Handle on hover */
