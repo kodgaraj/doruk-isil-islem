@@ -423,7 +423,20 @@
                     }
 
                     const overlayEl = document.querySelector(".doruk-side-nav-overlay");
-                    overlayEl.style.display = this.sidebarModel ? "block" : "none";
+                    if (this.sidebarModel) {
+                        overlayEl.style.display = "block";
+                        document.body.style.overflow = "hidden";
+                        setTimeout(() => {
+                            overlayEl.style.opacity = ".5";
+                        }, 1);
+                    }
+                    else {
+                        overlayEl.style.opacity = "0";
+                        document.body.style.overflow = "auto";
+                        setTimeout(() => {
+                            overlayEl.style.display = "none";
+                        }, 300);
+                    }
                     overlayEl.addEventListener("click", () => {
                         this.sidebarAcKapat(false);
                     }, {once : true});
@@ -588,11 +601,39 @@
                         }
                     })
                 },
+                blobToBase64(blob) {
+                    return new Promise((resolve, _) => {
+                        const reader = new FileReader();
+                        reader.onloadend = () => resolve(reader.result);
+                        reader.readAsDataURL(blob);
+                    });
+                },
             },
         });
     </script>
 
     <style>
+        /* width */
+        ::-webkit-scrollbar {
+            width: 12px;
+        }
+
+        /* Track */
+        ::-webkit-scrollbar-track {
+            background: #DDD;
+        }
+
+        /* Handle */
+        ::-webkit-scrollbar-thumb {
+            background: #929292cc;
+            border-radius: 2px;
+        }
+
+        /* Handle on hover */
+        ::-webkit-scrollbar-thumb:hover {
+            background: #939393;
+        }
+
         .sidenav#doruk-side-nav {
             height: 100%; /* 100% Full-height */
             width: 0; /* 0 width - change this with JavaScript */
@@ -616,8 +657,9 @@
             height: 100%; /* Full height */
             overflow: auto; /* Enable scroll if needed */
             background-color: #000000; /* Black*/
-            opacity: 0.3; /* Set opacity to 0.5 */
+            opacity: 0; /* Set opacity to 0.5 */
             display: none;
+            transition: all .3s;
         }
 
         .sidenav#doruk-side-nav a {

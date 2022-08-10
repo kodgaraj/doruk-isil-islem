@@ -676,7 +676,7 @@
                                 class="page-item"
                                 :class="[sayfa.aktif ? 'active' : '']"
                             >
-                                <button class="page-link" @click="sayfa.tur === 'SAYFA' ? firmaBazliBilgileriGetir('{{ route("firmaBazliBilgileriGetir") }}?page=' + sayfa.sayfa) : ()  => {}">@{{ sayfa.sayfa }}</button>
+                                <button class="page-link" @click="sayfa.tur === 'SAYFA' ? firmaBazliBilgileriGetir(`{{ route("firmaBazliBilgileriGetir") }}?page=` + sayfa.sayfa) : ()  => {}">@{{ sayfa.sayfa }}</button>
                             </li>
                             <li class="page-item">
                                 <button class="page-link" :disabled="!firmaBazliBilgiler.firmalar.next_page_url" @click="firmaBazliBilgileriGetir(firmaBazliBilgiler.firmalar.next_page_url)">
@@ -1174,16 +1174,28 @@
                         },
                         responseType: cikti ? "blob" : "json",
                     })
-                    .then(response => {
+                    .then(async response => {
                         this.yukleniyorObjesi.islemler = false;
 
                         if (cikti) {
+                            const dosyaAdi = 'İşlem Listesi ' + moment().format('L LTS');
+                            const uzanti = "xlsx";
                             // convert blob
                             const blob = new Blob([response.data]);
+                            if (this.isNativeApp) {
+                                const base64 = await this.blobToBase64(blob);
+                                window.ReactNativeWebView.postMessage(JSON.stringify({
+                                    kod: "INDIR",
+                                    dosya: base64,
+                                    dosyaAdi: dosyaAdi,
+                                    dosyaUzantisi: uzanti,
+                                }));
+                                return;
+                            }
                             const url = window.URL.createObjectURL(blob);
                             const link = document.createElement('a');
                             link.href = url;
-                            link.download = 'İşlem Listesi ' + moment().format('L LTS') + '.xlsx';
+                            link.download = dosyaAdi + '.' + uzanti;
                             link.click();
 
                             window.URL.revokeObjectURL(url);
