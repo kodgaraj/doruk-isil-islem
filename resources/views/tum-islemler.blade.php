@@ -8,6 +8,10 @@
                 <b>İşlem ID: @{{ sorguParametreleri.islemId }}</b>
                 <i class="fas fa-times"></i>
             </button>
+            <button @click="sorguParametreleriTemizle" v-if="sorguParametreleri.tur" class="btn btn-danger btn-sm">
+                <b>@{{ sorguParametreleri.tur }}</b>
+                <i class="fas fa-times"></i>
+            </button>
         </div>
     </div>
     <div class="col-12">
@@ -552,9 +556,14 @@
                 onyukleme() {
                     let url = new URL(window.location.href);
                     this.sorguParametreleri.islemId = _.toNumber(url.searchParams.get("islemId"));
+                    this.sorguParametreleri.tur = url.searchParams.get("tur");
 
                     if (this.sorguParametreleri.islemId) {
                         this.filtrelemeObjesi.islemId = this.sorguParametreleri.islemId;
+                    }
+
+                    if (this.sorguParametreleri.tur) {
+                        this.filtrelemeObjesi.tur = this.sorguParametreleri.tur;
                     }
 
                     this.isilIslemleriGetir();
@@ -562,9 +571,11 @@
                 sorguParametreleriTemizle() {
                     this.sorguParametreleri = {
                         islemId: null,
+                        tur: null,
                     };
 
                     delete this.filtrelemeObjesi.islemId;
+                    delete this.filtrelemeObjesi.tur;
 
                     window.history.replaceState({}, document.title, (new URL(window.location.href)).pathname)
 

@@ -12,7 +12,6 @@ use App\Http\Controllers\LogKayitlariController;
 use App\Http\Controllers\MalzemeController;
 use App\Http\Controllers\RaporlamaController;
 use App\Http\Controllers\RolController;
-use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SiparisController;
 use App\Http\Controllers\TumIslemlerController;

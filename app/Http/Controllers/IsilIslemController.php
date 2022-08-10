@@ -530,6 +530,7 @@ class IsilIslemController extends Controller
         try
         {
             $filtrelemeler = json_decode($request->filtreleme ?? "[]", true);
+            $gecikmisIslemler = isset($filtrelemeler["tur"]) && $filtrelemeler["tur"] == "GECIKMIS";
 
             $cikti = isset($request->cikti) && json_decode($request->cikti) === true;
 
@@ -542,51 +543,66 @@ class IsilIslemController extends Controller
             $malzemeTabloAdi = (new Malzemeler())->getTable();
             $firmaTabloAdi = (new Firmalar())->getTable();
             $islemTuruTabloAdi = (new IslemTurleri())->getTable();
+            $siparisDurumTabloAdi = (new SiparisDurumlari())->getTable();
 
-            $islemler = Islemler::select(DB::raw("
-                    $islemTabloAdi.*,
-                    IF(
-                        $islemTabloAdi.paraBirimi = 'TL',
-                        IF (
-                            $islemTabloAdi.miktarFiyatCarp,
-                            $islemTabloAdi.birimFiyat * ($islemTabloAdi.miktar - $islemTabloAdi.dara),
-                            $islemTabloAdi.birimFiyat
-                        ),
-                        0
-                    ) as tutarTL,
-                    IF(
-                        $islemTabloAdi.paraBirimi = 'USD',
-                        IF (
-                            $islemTabloAdi.miktarFiyatCarp,
-                            $islemTabloAdi.birimFiyat * ($islemTabloAdi.miktar - $islemTabloAdi.dara),
-                            $islemTabloAdi.birimFiyat
-                        ),
-                        0
-                    ) as tutarUSD,
-                    ($islemTabloAdi.miktar - $islemTabloAdi.dara) as net,
-                    $islemDurumTabloAdi.ad as islemDurumuAdi,
-                    $islemDurumTabloAdi.kod as islemDurumuKodu,
-                    $islemDurumTabloAdi.json as islemDurumuJson,
-                    $firinTabloAdi.ad as firinAdi,
-                    $firinTabloAdi.json as firinJson,
-                    $siparisTabloAdi.firmaId,
-                    $siparisTabloAdi.siparisNo,
-                    $siparisTabloAdi.ad as siparisAdi,
-                    $siparisTabloAdi.terminSuresi,
-                    $siparisTabloAdi.tarih,
-                    $malzemeTabloAdi.ad as malzemeAdi,
-                    $firmaTabloAdi.firmaAdi,
-                    $islemTuruTabloAdi.ad as islemTuruAdi
-                "))
+            $alanlar = "
+                $islemTabloAdi.*,
+                IF(
+                    $islemTabloAdi.paraBirimi = 'TL',
+                    IF (
+                        $islemTabloAdi.miktarFiyatCarp,
+                        $islemTabloAdi.birimFiyat * ($islemTabloAdi.miktar - $islemTabloAdi.dara),
+                        $islemTabloAdi.birimFiyat
+                    ),
+                    0
+                ) as tutarTL,
+                IF(
+                    $islemTabloAdi.paraBirimi = 'USD',
+                    IF (
+                        $islemTabloAdi.miktarFiyatCarp,
+                        $islemTabloAdi.birimFiyat * ($islemTabloAdi.miktar - $islemTabloAdi.dara),
+                        $islemTabloAdi.birimFiyat
+                    ),
+                    0
+                ) as tutarUSD,
+                ($islemTabloAdi.miktar - $islemTabloAdi.dara) as net,
+                $islemDurumTabloAdi.ad as islemDurumuAdi,
+                $islemDurumTabloAdi.kod as islemDurumuKodu,
+                $islemDurumTabloAdi.json as islemDurumuJson,
+                $firinTabloAdi.ad as firinAdi,
+                $firinTabloAdi.json as firinJson,
+                $siparisTabloAdi.firmaId,
+                $siparisTabloAdi.siparisNo,
+                $siparisTabloAdi.ad as siparisAdi,
+                $siparisTabloAdi.terminSuresi,
+                $siparisTabloAdi.tarih,
+                $malzemeTabloAdi.ad as malzemeAdi,
+                $firmaTabloAdi.firmaAdi,
+                $islemTuruTabloAdi.ad as islemTuruAdi
+            ";
+
+            $islemler = Islemler::select(DB::raw($alanlar))
                 ->join($islemDurumTabloAdi, $islemDurumTabloAdi . ".id", "=", $islemTabloAdi . ".durumId")
                 ->join($firinTabloAdi, $firinTabloAdi . ".id", "=", $islemTabloAdi . ".firinId")
                 ->join($siparisTabloAdi, $siparisTabloAdi . ".id", "=", $islemTabloAdi . ".siparisId")
                 ->join($malzemeTabloAdi, $malzemeTabloAdi . ".id", "=", $islemTabloAdi . ".malzemeId")
                 ->join($firmaTabloAdi, $firmaTabloAdi . ".id", "=", $siparisTabloAdi . ".firmaId")
+                ->join($siparisDurumTabloAdi, $siparisDurumTabloAdi . ".id", "=", $siparisTabloAdi . ".durumId")
                 ->leftJoin($islemTuruTabloAdi, $islemTuruTabloAdi . ".id", "=", $islemTabloAdi . ".islemTuruId")
                 ->where("$islemTabloAdi.tekrarEdilenId", null)
                 ->orderBy("$siparisTabloAdi.siparisNo", "desc")
                 ->orderBy("$islemTabloAdi.siraNo", "asc");
+
+            if ($gecikmisIslemler)
+            {
+                $islemler = $islemler->whereRaw("
+                    DATEDIFF(DATE(NOW()), $siparisTabloAdi.tarih) > FLOOR($siparisTabloAdi.terminSuresi * 30 / 100)
+                    AND $islemTabloAdi.bitisTarihi IS NULL
+                    AND $siparisTabloAdi.bitisTarihi IS NULL
+                    AND $siparisDurumTabloAdi.kod <> 'TAMAMLANDI'
+                    AND $siparisDurumTabloAdi.kod <> 'TAMAMLANDI'
+                ");
+            }
 
             if (isset($filtrelemeler["islemId"]) && $filtrelemeler["islemId"])
             {
