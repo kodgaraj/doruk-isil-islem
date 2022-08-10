@@ -530,7 +530,6 @@ class IsilIslemController extends Controller
         try
         {
             $filtrelemeler = json_decode($request->filtreleme ?? "[]", true);
-            $gecikmisIslemler = isset($filtrelemeler["tur"]) && $filtrelemeler["tur"] == "GECIKMIS";
 
             $cikti = isset($request->cikti) && json_decode($request->cikti) === true;
 
@@ -593,7 +592,7 @@ class IsilIslemController extends Controller
                 ->orderBy("$siparisTabloAdi.siparisNo", "desc")
                 ->orderBy("$islemTabloAdi.siraNo", "asc");
 
-            if ($gecikmisIslemler)
+            if (isset($filtrelemeler["gecikmisIslemleriGoster"]) && $filtrelemeler["gecikmisIslemleriGoster"])
             {
                 $islemler = $islemler->whereRaw("
                     DATEDIFF(DATE(NOW()), $siparisTabloAdi.tarih) > FLOOR($siparisTabloAdi.terminSuresi * 30 / 100)

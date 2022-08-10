@@ -123,6 +123,19 @@
                                                     </label>
                                                 </div>
                                             </div>
+                                            <div class="col-12 m-0">
+                                                <div class="form-check">
+                                                    <input
+                                                        class="form-check-input"
+                                                        type="checkbox"
+                                                        id="gecikmisIslemleriGoster"
+                                                        v-model="filtrelemeObjesi.gecikmisIslemleriGoster"
+                                                    />
+                                                    <label class="form-check-label" for="gecikmisIslemleriGoster">
+                                                        Gecikmiş işlemleri göster
+                                                    </label>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                     <div class="modal-footer">
@@ -546,6 +559,7 @@
                     islemDurumlari: @json($islemDurumlari),
                     sorguParametreleri: {
                         islemId: null,
+                        tur: null,
                     },
                 };
             },
@@ -562,8 +576,8 @@
                         this.filtrelemeObjesi.islemId = this.sorguParametreleri.islemId;
                     }
 
-                    if (this.sorguParametreleri.tur) {
-                        this.filtrelemeObjesi.tur = this.sorguParametreleri.tur;
+                    if (this.sorguParametreleri.tur && this.sorguParametreleri.tur === "GECIKMIS") {
+                        this.filtrelemeObjesi.gecikmisIslemleriGoster = true;
                     }
 
                     this.isilIslemleriGetir();
@@ -575,7 +589,7 @@
                     };
 
                     delete this.filtrelemeObjesi.islemId;
-                    delete this.filtrelemeObjesi.tur;
+                    this.filtrelemeObjesi.gecikmisIslemleriGoster = false;
 
                     window.history.replaceState({}, document.title, (new URL(window.location.href)).pathname)
 
