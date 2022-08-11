@@ -12,6 +12,10 @@ class Roller extends Role
 {
     use SoftDeletes, RefreshesPermissionCache, LogsActivity;
 
+    protected $casts = [
+        'id' => 'integer',
+    ];
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()

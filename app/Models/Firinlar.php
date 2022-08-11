@@ -13,6 +13,10 @@ class Firinlar extends Model
 
     protected $table = 'firinlar';
 
+    protected $casts = [
+        "id" => "integer",
+    ];
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()

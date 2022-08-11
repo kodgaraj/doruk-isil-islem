@@ -13,6 +13,11 @@ class Formlar extends Model
 
     protected $table = 'formlar';
 
+    protected $casts = [
+        "id" => "integer",
+        "userId" => "integer",
+    ];
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()

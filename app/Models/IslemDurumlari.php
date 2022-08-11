@@ -10,4 +10,8 @@ class IslemDurumlari extends Model
     use SoftDeletes;
 
     protected $table = 'islem_durumlari';
+
+    protected $casts = [
+        'id' => 'integer',
+    ];
 }

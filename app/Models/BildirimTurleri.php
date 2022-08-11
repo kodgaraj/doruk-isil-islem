@@ -13,6 +13,10 @@ class BildirimTurleri extends Model
 
     protected $table = 'bildirim_turleri';
 
+    protected $casts = [
+        'id' => 'integer',
+    ];
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
