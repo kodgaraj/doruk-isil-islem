@@ -33,6 +33,7 @@
                                             aria-label="Arama"
                                             aria-describedby="arama"
                                             @keyup.enter="filtrele()"
+                                            @input="gecikmeliFonksiyon.varsayilan()"
                                         />
                                         <span @click="filtrele()" class="input-group-text waves-effect" id="arama">
                                             <i class="mdi mdi-magnify"></i>
@@ -1013,6 +1014,8 @@
                 if (this.sorguParametreleri.siparisId) {
                     this.filtrelemeObjesi.siparisId = this.sorguParametreleri.siparisId;
                 }
+
+                this.gecikmeliFonksiyonCalistir(this.filtrele);
 
                 this.siparisleriGetir();
                 this.firmalariGetir();

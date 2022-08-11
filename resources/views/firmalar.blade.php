@@ -27,6 +27,7 @@
                                             aria-label="Arama"
                                             aria-describedby="arama"
                                             @keyup.enter="firmalariGetir()"
+                                            @input="gecikmeliFonksiyon.varsayilan()"
                                         />
                                         <span @click="firmalariGetir()" class="input-group-text waves-effect"
                                             id="arama">
@@ -139,7 +140,7 @@
                                                 class="page-item"
                                                 :class="[sayfa.aktif ? 'active' : '']"
                                             >
-                                                <button class="page-link" @click="sayfa.tur === 'SAYFA' ? firmalariGetir('{{ route("firmalariGetir") }}?page=' + sayfa.sayfa) : ()  => {}">@{{ sayfa.sayfa }}</button>
+                                                <button class="page-link" @click="sayfa.tur === 'SAYFA' ? firmalariGetir(`{{ route("firmalariGetir") }}?page=` + sayfa.sayfa) : ()  => {}">@{{ sayfa.sayfa }}</button>
                                             </li>
                                             <li class="page-item">
                                                 <button class="page-link" :disabled="!firmalar.next_page_url" @click="firmalariGetir(firmalar.next_page_url)">
@@ -230,6 +231,8 @@
             },
 
             mounted() {
+                this.gecikmeliFonksiyonCalistir(this.firmalariGetir);
+
                 this.firmalariGetir();
             },
             methods: {

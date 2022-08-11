@@ -374,6 +374,9 @@
                     okunmamisBildirimSayisi: 0,
                     veriler: []
                 },
+                gecikmeliFonksiyon: {
+                    varsayilan: () => {},
+                },
             },
             computed: {
                 m() {
@@ -607,6 +610,17 @@
                         reader.onloadend = () => resolve(reader.result);
                         reader.readAsDataURL(blob);
                     });
+                },
+                gecikmeliFonksiyonCalistir(fonksiyon, p = {}) {
+                    const beklemeSuresi = p.beklemeSuresi || 500;
+                    const maksBeklemeSuresi = p.maksBeklemeSuresi || 3000;
+                    const fonksiyonKey = p.fonksiyonKey || "varsayilan";
+
+                    this.gecikmeliFonksiyon[fonksiyonKey] = _.debounce(fonksiyon, beklemeSuresi, {
+                        maxWait: maksBeklemeSuresi
+                    });
+
+                    return this.gecikmeliFonksiyon;
                 },
             },
         });

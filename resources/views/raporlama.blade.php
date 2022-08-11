@@ -23,6 +23,7 @@
                                             aria-label="Arama"
                                             aria-describedby="arama"
                                             @keyup.enter="isilIslemleriGetir()"
+                                            @input="gecikmeliFonksiyon.isilIslemleriGetir()"
                                         />
                                         <span @click="isilIslemleriGetir()" class="input-group-text waves-effect" id="arama">
                                             <i class="mdi mdi-magnify"></i>
@@ -232,7 +233,7 @@
                                     class="page-item"
                                     :class="[sayfa.aktif ? 'active' : '']"
                                 >
-                                    <button class="page-link" @click="sayfa.tur === 'SAYFA' ? isilIslemleriGetir('{{ route("islemler") }}?page=' + sayfa.sayfa) : ()  => {}">@{{ sayfa.sayfa }}</button>
+                                    <button class="page-link" @click="sayfa.tur === 'SAYFA' ? isilIslemleriGetir(`{{ route("islemler") }}?page=` + sayfa.sayfa) : ()  => {}">@{{ sayfa.sayfa }}</button>
                                 </li>
                                 <li class="page-item">
                                     <button class="page-link" :disabled="!islemler.next_page_url" @click="isilIslemleriGetir(islemler.next_page_url)">
@@ -491,6 +492,7 @@
                                         aria-label="Arama"
                                         aria-describedby="arama"
                                         @keyup.enter="firmaBazliBilgileriGetir()"
+                                        @input="gecikmeliFonksiyon.firmaBazliBilgileriGetir()"
                                     />
                                     <span @click="firmaBazliBilgileriGetir()" class="input-group-text waves-effect" id="arama">
                                         <i class="mdi mdi-magnify"></i>
@@ -945,6 +947,13 @@
                 this.firinBazliTonajGetir();
                 this.firmaBazliBilgileriGetir();
                 this.firinBazliIslemTurleriGetir();
+
+                this.gecikmeliFonksiyonCalistir(this.isilIslemleriGetir, {
+                    fonksiyonKey: "isilIslemleriGetir",
+                });
+                this.gecikmeliFonksiyonCalistir(this.firmaBazliBilgileriGetir, {
+                    fonksiyonKey: "firmaBazliBilgileriGetir",
+                });
             },
             methods: {
                 yillikCiroGetir() {

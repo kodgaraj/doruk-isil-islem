@@ -33,6 +33,7 @@
                                             aria-label="Arama"
                                             aria-describedby="arama"
                                             @keyup.enter="filtrele()"
+                                            @input="gecikmeliFonksiyon.varsayilan()"
                                         />
                                         <span @click="filtrele()" class="input-group-text waves-effect" id="arama">
                                             <i class="mdi mdi-magnify"></i>
@@ -1333,6 +1334,8 @@
                 if (this.sorguParametreleri.formId) {
                     this.filtrelemeObjesi.formId = this.sorguParametreleri.formId;
                 }
+
+                this.gecikmeliFonksiyonCalistir(this.filtrele);
 
                 this.formlariGetir();
             },

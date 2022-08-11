@@ -23,6 +23,7 @@
                                         aria-label="Arama"
                                         aria-describedby="arama"
                                         @keyup.enter="bildirimleriGetir(undefined, true)"
+                                        @input="gecikmeliFonksiyon.varsayilan()"
                                     />
                                     <span @click="bildirimleriGetir(undefined, true)" class="input-group-text waves-effect" id="arama">
                                         <i class="mdi mdi-magnify"></i>
@@ -137,6 +138,7 @@
                 };
             },
             mounted() {
+                this.gecikmeliFonksiyonCalistir(() => this.bildirimleriGetir(undefined, true));
                 this.bildirimleriGetir();
             },
             methods: {
