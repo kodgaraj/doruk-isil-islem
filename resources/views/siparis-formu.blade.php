@@ -642,12 +642,12 @@
                                         <th>Sıra No</th>
                                         <th class="text-center">Resim</th>
                                         <th>Malzeme*</th>
-                                        <th>Adet</th>
+                                        <th class="text-center">Adet</th>
                                         <th class="text-center">Miktar (KG)</th>
-                                        <th>Dara (KG)</th>
+                                        <th class="text-center">Dara (KG)</th>
                                         <th class="text-center">Net (KG)</th>
                                         @can("siparis_ucreti_goruntuleme")
-                                            <th>Tutar</th>
+                                            <th class="text-center">Tutar</th>
                                             <th v-if="!aktifSiparis.onizlemeModu">Para Birimi</th>
                                         @endcan
                                         <th>Kalite</th>
@@ -667,20 +667,29 @@
                                                         @click.stop="resimOnizlemeAc(islem.resimYolu)"
                                                     />
                                                 </td>
-                                                <td>@{{ islem.malzeme ? islem.malzeme.ad : "-" }}</td>
-                                                <td>@{{ islem.adet ? islem.adet : "0" }}</td>
-                                                <td>@{{ islem.miktarYazi ? islem.miktarYazi : "0" }}</td>
-                                                <td>@{{ islem.daraYazi ? islem.daraYazi : "0" }}</td>
+                                                <td class="en-uzun-uzunluk">@{{ islem.malzeme ? islem.malzeme.ad : "-" }}</td>
+                                                <td class="kisa-uzunluk text-center">@{{ islem.adet ? islem.adet : "0" }}</td>
+                                                <td class="orta-uzunluk text-center">@{{ islem.miktarYazi ? islem.miktarYazi : "0" }}</td>
+                                                <td class="orta-uzunluk text-center">
+                                                    <div class="col-12">
+                                                        @{{ islem.daraYazi ? islem.daraYazi : "0" }}
+                                                    </div>
+                                                    <div class="col-12" v-if="islem.daraSonraGirilecek">
+                                                        <small class="text-danger">
+                                                            @{{ "Dara bilgi sonra girilecek" }}
+                                                        </small>
+                                                    </div>
+                                                </td>
                                                 <td class="kisa-uzunluk text-center">
                                                     <b><h5>@{{ islem.netYazi ? islem.netYazi : "0" }}</h5></b>
                                                 </td>
                                                 @can("siparis_ucreti_goruntuleme")
-                                                    <td>@{{ islem.birimFiyatYazi }}</td>
+                                                    <td class="orta-uzunluk text-center">@{{ islem.birimFiyatYazi }}</td>
                                                 @endcan
-                                                <td>@{{ islem.kalite ? islem.kalite : "-" }}</td>
-                                                <td>@{{ islem.yapilacakIslem ? islem.yapilacakIslem.ad : "-" }}</td>
-                                                <td>@{{ islem.istenilenSertlik ? islem.istenilenSertlik : "-" }}</td>
-                                                <td>@{{ islem.islemDurumu ? islem.islemDurumu.ad : "-" }}</td>
+                                                <td class="kisa-uzunluk">@{{ islem.kalite ? islem.kalite : "-" }}</td>
+                                                <td class="en-uzun-uzunluk">@{{ islem.yapilacakIslem ? islem.yapilacakIslem.ad : "-" }}</td>
+                                                <td class="kisa-uzunluk">@{{ islem.istenilenSertlik ? islem.istenilenSertlik : "-" }}</td>
+                                                <td class="orta-uzunluk">@{{ islem.islemDurumu ? islem.islemDurumu.ad : "-" }}</td>
                                             </tr>
                                         </template>
                                         <template v-else>
@@ -748,7 +757,21 @@
                                                         placeholder="Dara (KG)"
                                                         v-model="islem.daraYazi"
                                                         v-money="maskeler.kg"
+                                                        :disabled="islem.daraSonraGirilecek"
                                                     />
+                                                    <div class="form-check form-switch">
+                                                        <input
+                                                            class="form-check-input"
+                                                            type="checkbox"
+                                                            value=""
+                                                            id="daraSonraGirilecek"
+                                                            v-model="islem.daraSonraGirilecek"
+                                                            @change="daraSonraGirilecekAyarla(islem)"
+                                                        />
+                                                        <label class="form-check-label" for="daraSonraGirilecek">
+                                                            <small>Sonra girilecek</small>
+                                                        </label>
+                                                    </div>
                                                 </td>
                                                 <td class="kisa-uzunluk text-center">
                                                     <b><h5>@{{ islem.netYazi ? islem.netYazi : "0" }}</h5></b>
@@ -1977,6 +2000,16 @@
                 window.history.replaceState({}, document.title, (new URL(window.location.href)).pathname)
 
                 this.siparisleriGetir();
+            },
+            daraSonraGirilecekAyarla(islem) {
+                console.log(islem);
+                console.log(islem.daraSonraGirilecek);
+                if (islem.daraSonraGirilecek) {
+                    islem.dara = 0;
+                    islem.daraYazi = this.yaziyaDonustur(islem.dara, { kg: true });
+
+                    this.aktifSiparis = _.cloneDeep(this.aktifSiparis);
+                }
             },
         }
     };

@@ -346,6 +346,25 @@ class SiparisController extends Controller
                     $islemModel = new Islemler();
                 }
 
+                $islemJson = $islem["json"] ?? null;
+
+                if ($islemJson === null)
+                {
+                    if (isset($islem["daraSonraGirilecek"]))
+                    {
+                        $islemJson = [
+                            "daraSonraGirilecek" => true,
+                        ];
+                    }
+                }
+                else
+                {
+                    $islemJson = [
+                        ...$islemJson,
+                        "daraSonraGirilecek" => $islem["daraSonraGirilecek"] ?? false
+                    ];
+                }
+
                 // dd($islemModel->siparisId, $siparisIslemleri, $siparis->id);
 
                 $islemModel->siparisId = $siparis->id;
@@ -361,7 +380,7 @@ class SiparisController extends Controller
                 $islemModel->miktarFiyatCarp = $islem['miktarFiyatCarp'] ?? 1;
                 $islemModel->kalite = $islem['kalite'];
                 $islemModel->istenilenSertlik = $islem['istenilenSertlik'];
-                $islemModel->json = $islem['json'] ?? null;
+                $islemModel->json = $islemJson !== null ? json_encode($islemJson) : null;
 
                 if (isset($islem["yeniResimSecildi"], $islem["resim"]) && $islem["yeniResimSecildi"] && $islem["resim"])
                 {
@@ -500,6 +519,10 @@ class SiparisController extends Controller
                     "paraBirimi" => $paraBirimi
                 ]);
                 $islem["paraBirimi"] = $paraBirimi;
+
+                $islem["json"] = json_decode($islem["json"], true);
+
+                $islem["daraSonraGirilecek"] = $islem["json"] && $islem["json"]["daraSonraGirilecek"];
             }
 
             return response()->json([
