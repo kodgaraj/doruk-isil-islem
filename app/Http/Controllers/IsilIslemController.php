@@ -1281,8 +1281,9 @@ class IsilIslemController extends Controller
                 $siparisTabloAdi.tarih as siparisTarihi,
                 $firmaTabloAdi.firmaAdi,
                 $firmaTabloAdi.sorumluKisi,
-                $islemDurumTabloAdi.ad as islemDurumAdi,
-                $islemDurumTabloAdi.kod as islemDurumKodu,
+                $islemDurumTabloAdi.ad as islemDurumuAdi,
+                $islemDurumTabloAdi.kod as islemDurumuKodu,
+                $islemDurumTabloAdi.json as islemDurumuJson,
                 $malzemeTabloAdi.ad as malzemeAdi,
                 $islemTuruTabloAdi.ad as islemTuruAdi,
                 $firinTabloAdi.ad as firinAdi,
@@ -1302,6 +1303,13 @@ class IsilIslemController extends Controller
             $islemler = [];
             foreach ($firinSarjGrupluIslemler as $islem) {
                 $islem["firinJson"] = json_decode($islem["firinJson"], true);
+                $islem["islemDurumuJson"] = json_decode($islem["islemDurumuJson"], true);
+
+                if (isset(($islem["islemDurumuJson"]["renk"])))
+                {
+                    $islem["islemDurumuRenk"] = $islem["islemDurumuJson"]["renk"];
+                    $islem["islemDurumuIkon"] = $islem["islemDurumuJson"]["ikon"];
+                }
 
                 $terminDizisi = $this->terminHesapla($islem["siparisTarihi"], $islem["terminSuresi"] ?? 5);
                 $islem["gecenSure"] = $terminDizisi["gecenSure"];
@@ -1386,7 +1394,7 @@ class IsilIslemController extends Controller
                 $islemler[$islem["firinId"]]["sarjlar"][$islem["sarj"]]["islemler"][] = $islem;
 
                 // Şarjın durumu ve fırının durumunu tespit ediyoruz
-                $islemIcinDurumlar = array_count_values(array_column($islemler[$islem["firinId"]]["sarjlar"][$islem["sarj"]]["islemler"], 'islemDurumKodu'));
+                $islemIcinDurumlar = array_count_values(array_column($islemler[$islem["firinId"]]["sarjlar"][$islem["sarj"]]["islemler"], 'islemDurumuKodu'));
 
                 $islemler[$islem["firinId"]]["sarjlar"][$islem["sarj"]]["islemdekiIslemSayisi"] = $islemIcinDurumlar["ISLEMDE"] ?? 0;
                 $islemler[$islem["firinId"]]["sarjlar"][$islem["sarj"]]["bekleyenIslemSayisi"] = $islemIcinDurumlar["ISLEM_BEKLIYOR"] ?? 0;
@@ -1394,12 +1402,12 @@ class IsilIslemController extends Controller
 
                 if ($islemler[$islem["firinId"]]["sarjlar"][$islem["sarj"]]["islemdekiIslemSayisi"] > 0)
                 {
-                    $islemler[$islem["firinId"]]["sarjlar"][$islem["sarj"]]["islemDurumKodu"] = "ISLEMDE";
+                    $islemler[$islem["firinId"]]["sarjlar"][$islem["sarj"]]["islemDurumuKodu"] = "ISLEMDE";
                     $islemler[$islem["firinId"]]["sarjlar"][$islem["sarj"]]["islemDurumAdi"] = "İşlemde";
                 }
                 else if ($islemler[$islem["firinId"]]["sarjlar"][$islem["sarj"]]["bekleyenIslemSayisi"] > 0)
                 {
-                    $islemler[$islem["firinId"]]["sarjlar"][$islem["sarj"]]["islemDurumKodu"] = "ISLEM_BEKLIYOR";
+                    $islemler[$islem["firinId"]]["sarjlar"][$islem["sarj"]]["islemDurumuKodu"] = "ISLEM_BEKLIYOR";
                     $islemler[$islem["firinId"]]["sarjlar"][$islem["sarj"]]["islemDurumAdi"] = "İşlem Bekliyor";
                 }
                 else if ($islemler[$islem["firinId"]]["sarjlar"][$islem["sarj"]]["tamamlananIslemSayisi"] > 0)
@@ -1407,12 +1415,12 @@ class IsilIslemController extends Controller
                     $toplamIslemSayisi = count($islemler[$islem["firinId"]]["sarjlar"][$islem["sarj"]]["islemler"]);
                     if ($islemler[$islem["firinId"]]["sarjlar"][$islem["sarj"]]["tamamlananIslemSayisi"] === $toplamIslemSayisi)
                     {
-                        $islemler[$islem["firinId"]]["sarjlar"][$islem["sarj"]]["islemDurumKodu"] = "TAMAMLANDI";
+                        $islemler[$islem["firinId"]]["sarjlar"][$islem["sarj"]]["islemDurumuKodu"] = "TAMAMLANDI";
                         $islemler[$islem["firinId"]]["sarjlar"][$islem["sarj"]]["islemDurumAdi"] = "Tamamlandı";
                     }
                 }
 
-                $sarjIcinDurumlar = array_count_values(array_column($islemler[$islem["firinId"]]["sarjlar"], 'islemDurumKodu'));
+                $sarjIcinDurumlar = array_count_values(array_column($islemler[$islem["firinId"]]["sarjlar"], 'islemDurumuKodu'));
 
                 $islemler[$islem["firinId"]]["islemdekiSarjSayisi"] = $sarjIcinDurumlar["ISLEMDE"] ?? 0;
                 $islemler[$islem["firinId"]]["bekleyenSarjSayisi"] = $sarjIcinDurumlar["ISLEM_BEKLIYOR"] ?? 0;
@@ -1420,12 +1428,12 @@ class IsilIslemController extends Controller
 
                 if ($islemler[$islem["firinId"]]["islemdekiSarjSayisi"] > 0)
                 {
-                    $islemler[$islem["firinId"]]["islemDurumKodu"] = "ISLEMDE";
+                    $islemler[$islem["firinId"]]["islemDurumuKodu"] = "ISLEMDE";
                     $islemler[$islem["firinId"]]["islemDurumAdi"] = "İşlemde";
                 }
                 else if ($islemler[$islem["firinId"]]["bekleyenSarjSayisi"] > 0)
                 {
-                    $islemler[$islem["firinId"]]["islemDurumKodu"] = "ISLEM_BEKLIYOR";
+                    $islemler[$islem["firinId"]]["islemDurumuKodu"] = "ISLEM_BEKLIYOR";
                     $islemler[$islem["firinId"]]["islemDurumAdi"] = "İşlem Bekliyor";
                 }
                 else if ($islemler[$islem["firinId"]]["tamamlananSarjSayisi"] > 0)
@@ -1433,7 +1441,7 @@ class IsilIslemController extends Controller
                     $toplamSarjSayisi = count($islemler[$islem["firinId"]]["sarjlar"]);
                     if ($islemler[$islem["firinId"]]["tamamlananSarjSayisi"] === $toplamSarjSayisi)
                     {
-                        $islemler[$islem["firinId"]]["islemDurumKodu"] = "TAMAMLANDI";
+                        $islemler[$islem["firinId"]]["islemDurumuKodu"] = "TAMAMLANDI";
                         $islemler[$islem["firinId"]]["islemDurumAdi"] = "Tamamlandı";
                     }
                 }

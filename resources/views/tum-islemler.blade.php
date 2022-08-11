@@ -195,11 +195,16 @@
                                             @click.stop=""
                                             style="cursor: pointer;"
                                             :style="{
-                                                backgroundColor: islem.tekrarEdenId ? '#F8747450' : '#fff',
                                                 border: islem.tekrarEdenId ? '1px solid #F87474' : '',
                                                 borderRadius: islem.tekrarEdenId ? '4px' : '',
                                             }"
                                             :key="iIndex"
+                                            :class="{
+                                                'table-danger': !!islem.tekrarEdenId,
+                                                'table-primary': islem.islemDurumuKodu === 'ISLEM_BEKLIYOR',
+                                                'table-warning': islem.islemDurumuKodu === 'ISLEMDE',
+                                                'table-success': islem.islemDurumuKodu === 'TAMAMLANDI',
+                                            }"
                                         >
                                             <td>
                                                 <div class="row">
@@ -232,7 +237,7 @@
                                                     @click.stop="resimOnizlemeAc(islem.resimYolu)"
                                                 />
                                             </td>
-                                            <td>
+                                            <td class="orta-uzunluk">
                                                 <div class="row">
                                                     <div class="col-12">
                                                         @{{ islem.malzemeAdi }}
@@ -251,7 +256,7 @@
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td>
+                                            <td class="orta-uzunluk">
                                                 <div class="row">
                                                     <div class="col-12">
                                                         <small class="text-muted">Türü: @{{ islem.islemTuruAdi ? islem.islemTuruAdi : "-" }}</small>
@@ -264,7 +269,7 @@
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td>
+                                            <td class="kisa-uzunluk">
                                                 <div class="row">
                                                     <div class="col-12">
                                                         <span class="badge badge-pill" :class="`bg-${ islem.firinRenk }`">@{{ islem.firinAdi }}</span>
@@ -281,11 +286,11 @@
                                                 <div class="btn-group row">
                                                     <div class="col-12">
                                                         <b :class="islem.islemDurumuRenk">
-                                                            @{{ islem.islemDurumuAdi }}
                                                             <i
                                                                 class="ml-2"
                                                                 :class="islem.islemDurumuIkon"
                                                             ></i>
+                                                            @{{ islem.islemDurumuAdi }}
                                                         </b>
                                                     </div>
                                                     <hr class="m-2" />
@@ -419,11 +424,11 @@
                                                         <div class="btn-group row">
                                                             <div class="col-12">
                                                                 <b :class="tekrarEdenIslem.islemDurumuRenk">
-                                                                    @{{ tekrarEdenIslem.islemDurumuAdi }}
                                                                     <i
                                                                         class="ml-2"
                                                                         :class="tekrarEdenIslem.islemDurumuIkon"
                                                                     ></i>
+                                                                    @{{ tekrarEdenIslem.islemDurumuAdi }}
                                                                 </b>
                                                             </div>
                                                             <hr class="m-2" />

@@ -242,12 +242,12 @@
                                                                                 <div class="card-body">
                                                                                     <h5 class="card-title">
                                                                                         @{{ firin.firinAdi }}
-                                                                                        <i v-if="firin.islemDurumKodu === 'TAMAMLANDI'" class="fas fa-check text-success"></i>
+                                                                                        <i v-if="firin.islemDurumuKodu === 'TAMAMLANDI'" class="fas fa-check text-success"></i>
                                                                                     </h5>
                                                                                     <template v-for="(sarj, sIndex) in firin.sarjlar">
                                                                                         <h6 class="card-subtitle my-2 text-muted" :key="sIndex + 'sarj'" :ref="'firin' + firin.firinId + 'sarj' + sarj.sarj">
                                                                                             @{{ sarj.sarj }}. Şarj
-                                                                                            <i v-if="sarj.islemDurumKodu === 'TAMAMLANDI'" class="fas fa-check text-success"></i>
+                                                                                            <i v-if="sarj.islemDurumuKodu === 'TAMAMLANDI'" class="fas fa-check text-success"></i>
                                                                                             <button
                                                                                                 v-if="sarj.bekleyenIslemSayisi > 0"
                                                                                                 class="btn btn-sm btn-success ms-1"
@@ -283,13 +283,19 @@
                                                                                                     <template v-for="(islem, iIndex) in sarj.islemler">
                                                                                                         <tr
                                                                                                             :key="iIndex + 'islemler'"
+                                                                                                            :class="{
+                                                                                                                'table-danger': !!islem.tekrarEdenId,
+                                                                                                                'table-primary': islem.islemDurumuKodu === 'ISLEM_BEKLIYOR',
+                                                                                                                'table-warning': islem.islemDurumuKodu === 'ISLEMDE',
+                                                                                                                'table-success': islem.islemDurumuKodu === 'TAMAMLANDI',
+                                                                                                            }"
                                                                                                         >
                                                                                                             <td>
                                                                                                                 <div class="row">
                                                                                                                     <div class="col-12 d-inline-flex">
                                                                                                                         <span>
                                                                                                                             # @{{ islem.id }}
-                                                                                                                            <i v-if="islem.islemDurumKodu === 'TAMAMLANDI'" class="fas fa-check text-success"></i>
+                                                                                                                            <i v-if="islem.islemDurumuKodu === 'TAMAMLANDI'" class="fas fa-check text-success"></i>
                                                                                                                         </span>
                                                                                                                         <div v-if="islem.tekrarEdilenId" class="ms-1">
                                                                                                                             <span class="badge rounded-pill bg-danger">Tekrar Edilen İşlem ID: @{{ islem.tekrarEdilenId }}</span>
@@ -298,7 +304,7 @@
                                                                                                                     <div class="col-12">
                                                                                                                         <span class="badge badge-pill bg-primary">Sipariş No: @{{ islem.siparisNo }}</span>
                                                                                                                     </div>
-                                                                                                                    <div class="col-12" v-if="islem.islemDurumKodu !== 'TAMAMLANDI'">
+                                                                                                                    <div class="col-12" v-if="islem.islemDurumuKodu !== 'TAMAMLANDI'">
                                                                                                                         <span class="badge badge-pill" :class="`bg-${ islem.gecenSureRenk }`">Termin: @{{ islem.gecenSure }} Gün</span>
                                                                                                                     </div>
                                                                                                                     <div class="col-12">
@@ -354,11 +360,11 @@
                                                                                                                 <div class="btn-group row">
                                                                                                                     <div class="col-12">
                                                                                                                         <b :class="islem.islemDurumuRenk">
-                                                                                                                            @{{ islem.islemDurumAdi }}
                                                                                                                             <i
                                                                                                                                 class="ml-2"
                                                                                                                                 :class="islem.islemDurumuIkon"
                                                                                                                             ></i>
+                                                                                                                            @{{ islem.islemDurumuAdi }}
                                                                                                                         </b>
                                                                                                                     </div>
                                                                                                                     <hr class="m-2" />
@@ -367,19 +373,19 @@
                                                                                                                             <button
                                                                                                                                 class="btn btn-primary btn-sm"
                                                                                                                                 @click.stop="islemBaslat(islem, index)"
-                                                                                                                                v-if="islem.islemDurumKodu === 'ISLEM_BEKLIYOR'"
+                                                                                                                                v-if="islem.islemDurumuKodu === 'ISLEM_BEKLIYOR'"
                                                                                                                             >
                                                                                                                                 <i class="mdi mdi-play"></i>
                                                                                                                             </button>
                                                                                                                             <button
-                                                                                                                                v-else-if="islem.islemDurumKodu === 'ISLEMDE'"
+                                                                                                                                v-else-if="islem.islemDurumuKodu === 'ISLEMDE'"
                                                                                                                                 class="btn btn-success btn-sm"
                                                                                                                                 @click.stop="islemTamamla(islem, index)"
                                                                                                                             >
                                                                                                                                 <i class="mdi mdi-check"></i>
                                                                                                                             </button>
                                                                                                                         @endcan
-                                                                                                                        <template v-if="islem.islemDurumKodu === 'TAMAMLANDI'">
+                                                                                                                        <template v-if="islem.islemDurumuKodu === 'TAMAMLANDI'">
                                                                                                                             @can("isil_islem_duzenleme")
                                                                                                                                 <button
                                                                                                                                     class="btn btn-danger btn-sm"
@@ -394,7 +400,7 @@
                                                                                                                         </template>
                                                                                                                         @can("isil_islem_duzenleme")
                                                                                                                             <button
-                                                                                                                                v-if="islem.islemDurumKodu === 'ISLEMDE'"
+                                                                                                                                v-if="islem.islemDurumuKodu === 'ISLEMDE'"
                                                                                                                                 class="btn btn-warning btn-sm"
                                                                                                                                 @click.stop="islemTekrar(islem, index)"
                                                                                                                             >
@@ -482,11 +488,11 @@
                                                                                                                         <div class="btn-group row">
                                                                                                                             <div class="col-12">
                                                                                                                                 <b :class="tekrarEdenIslem.islemDurumuRenk">
-                                                                                                                                    @{{ tekrarEdenIslem.islemDurumuAdi }}
                                                                                                                                     <i
                                                                                                                                         class="ml-2"
                                                                                                                                         :class="tekrarEdenIslem.islemDurumuIkon"
                                                                                                                                     ></i>
+                                                                                                                                    @{{ tekrarEdenIslem.islemDurumuAdi }}
                                                                                                                                 </b>
                                                                                                                             </div>
                                                                                                                             <hr class="m-2" />
