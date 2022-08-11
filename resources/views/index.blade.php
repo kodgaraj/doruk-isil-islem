@@ -119,7 +119,7 @@
                             <h4 class="card-title mb-4">Formlar</h4>
                         </div>
                         <div class="col-4 text-end ">
-                            <button @click="" class="btn btn-primary btn-sm">Tümünü Gör</button>
+                            <button @click="formSayfasiAc()" class="btn btn-primary btn-sm">Tümünü Gör</button>
                         </div>
                     </div>
 
@@ -617,13 +617,13 @@
                 // this.isilIslemleriGetir();
             },
             methods: {
-                siparisSayfasiAc: function () {
+                siparisSayfasiAc() {
                     window.location.href = "{{ route('siparis-formu') }}";
                 },
-                kullanicilarSayfasiAc: function () {
+                kullanicilarSayfasiAc() {
                     window.location.href = "{{ route('kullanicilar') }}";
                 },
-                isilIslemSayfasiAc: function () {
+                isilIslemSayfasiAc() {
                     window.location.href = "{{ route('tum-islemler') }}";
                 },
                 isilIslemleriGetir(url = "{{ route('islemler') }}") {
@@ -776,6 +776,9 @@
                             fonksiyon(result.value);
                         }
                     });
+                },
+                formSayfasiAc() {
+                    window.location.href = "{{ route('isil-islemler') }}";
                 },
                 formDetayiAc({ formId }) {
                     window.location.href = "{{ route('isil-islemler') }}?formId=" + formId;
