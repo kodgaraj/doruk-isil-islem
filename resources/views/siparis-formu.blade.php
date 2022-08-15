@@ -677,7 +677,7 @@
                                                     </div>
                                                     <div class="col-12" v-if="islem.daraSonraGirilecek">
                                                         <small class="text-danger">
-                                                            @{{ "Dara bilgi sonra girilecek" }}
+                                                            Dara bilgisi sonra girilecek
                                                         </small>
                                                     </div>
                                                 </td>

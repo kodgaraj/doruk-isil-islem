@@ -350,7 +350,7 @@ class SiparisController extends Controller
 
                 if ($islemJson === null)
                 {
-                    if (isset($islem["daraSonraGirilecek"]))
+                    if (isset($islem["daraSonraGirilecek"]) && $islem["daraSonraGirilecek"])
                     {
                         $islemJson = [
                             "daraSonraGirilecek" => true,
