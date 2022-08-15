@@ -2005,8 +2005,6 @@
                 this.siparisleriGetir();
             },
             daraSonraGirilecekAyarla(islem) {
-                console.log(islem);
-                console.log(islem.daraSonraGirilecek);
                 if (islem.daraSonraGirilecek) {
                     islem.dara = 0;
                     islem.daraYazi = this.yaziyaDonustur(islem.dara, { kg: true });
