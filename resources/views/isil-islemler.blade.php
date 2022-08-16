@@ -692,19 +692,7 @@
                                 rows="3"
                             ></textarea>
                         </div>
-                        <div class="row mt-3" v-if="yukleniyorObjesi.firmaGrupluIslemler">
-                            <div class="col-12 text-center">
-                                <div class="spinner-border text-primary" role="status">
-                                    <span class="visually-hidden">Loading...</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row mt-3" v-else-if="_.size(aktifForm.firmaGrupluIslemler.data) === 0">
-                            <div class="col-12 text-center">
-                                <h4>Forma eklenecek işlem bulunamadı.</h4>
-                            </div>
-                        </div>
-                        <div class="row mt-3" v-else>
+                        <div class="row mt-3">
                             <div class="col-12">
                                 <div class="card-header">
                                     <div class="row d-flex align-items-center">
@@ -723,6 +711,7 @@
                                                             aria-label="Arama"
                                                             aria-describedby="arama"
                                                             @keyup.enter="firmaGrupluIslemleriGetir()"
+                                                            @input="gecikmeliFonksiyon.firmaGrupluIslemleriGetir()"
                                                         />
                                                         <span @click="firmaGrupluIslemleriGetir()" class="input-group-text waves-effect" id="arama">
                                                             <i class="mdi mdi-magnify"></i>
@@ -747,257 +736,275 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-12 mt-2">
-                                <div class="table-rep-plugin">
-                                    <div class="table-responsive mb-0" data-pattern="priority-columns">
-                                        <table id="tech-companies-1" class="table table-striped table-hover table-centered">
-                                            <thead>
-                                                <tr>
-                                                    <th>İşlem ID</th>
-                                                    <th class="text-center">Termin</th>
-                                                    <th class="text-center">Resim</th>
-                                                    <th>Malzeme</th>
-                                                    <th>İşlem</th>
-                                                    <th class="text-center">Fırın*</th>
-                                                    <th class="text-center">Şarj*</th>
-                                                    <th class="text-center">Ekle</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <tr v-for="(islem, iIndex) in aktifForm.firmaGrupluIslemler.data" :key="iIndex">
-                                                    <td class="kisa-uzunluk">
-                                                        <div class="row">
-                                                            <div class="col-12">
-                                                                <span
-                                                                    v-if="sorguParametreleri.islemId && sorguParametreleri.islemId === islem.id"
-                                                                    class="badge rounded-pill bg-danger"
-                                                                >
-                                                                    # @{{ islem.id }}
-                                                                </span>
-                                                                <span v-else># @{{ islem.id }}</span>
-                                                            </div>
-                                                            <div class="col-12">
-                                                                <small>@{{ islem.firmaAdi }}</small>
-                                                            </div>
-                                                            <div class="col-12">
-                                                                <span class="badge bg-primary">Sipariş No: @{{ islem.siparisNo }}</span>
-                                                            </div>
-                                                            <div v-if="islem.tekrarEdenId" class="col-12">
-                                                                <span class="badge rounded-pill bg-danger">Tekrar Eden İşlem ID: @{{ islem.tekrarEdenId }}</span>
-                                                            </div>
-                                                            <div v-if="islem.tekrarEdilenId" class="col-12">
-                                                                <span class="badge rounded-pill bg-info">Tekrar Edilen İşlem ID: @{{ islem.tekrarEdilenId }}</span>
-                                                            </div>
-                                                            <div v-if="islem.bolunmusId" class="col-12">
-                                                                <span class="badge rounded-pill bg-warning">
-                                                                    Bölünmüş İşlem ID: @{{ islem.bolunmusId }}
-                                                                </span>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td class="kisa-uzunluk text-center">
-                                                        <span class="badge badge-pill" :class="`bg-${ islem.gecenSureRenk }`">@{{ islem.gecenSure }} Gün</span>
-                                                    </td>
-                                                    <td class="text-center">
-                                                        <img
-                                                            :src="islem.resimYolu ? islem.resimYolu : varsayilanResimYolu"
-                                                            class="kg-resim-sec"
-                                                            @click.stop="resimOnizlemeAc(islem.resimYolu)"
-                                                        />
-                                                    </td>
-                                                    <td class="uzun-uzunluk">
-                                                        <div class="row">
-                                                            <div class="col-12">
-                                                                @{{ islem.malzemeAdi }}
-                                                            </div>
-                                                            <div class="col-12">
-                                                                <small class="text-muted">Adet: @{{ islem.adet }} adet</small>
-                                                            </div>
-                                                            <div class="col-12">
-                                                                <small class="text-muted">Miktar: @{{ islem.miktar }} kg</small>
-                                                            </div>
-                                                            <div class="col-12">
-                                                                <small class="text-muted">Dara: @{{ islem.dara }} kg</small>
-                                                            </div>
-                                                            <div class="col-12">
-                                                                <small class="text-muted"><b>Net: @{{ islem.net }} kg</b></small>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td class="orta-uzunluk">
-                                                        <div class="col-12">
-                                                            @{{ islem.islemTuruAdi ? islem.islemTuruAdi : "-" }}
-                                                        </div>
-                                                        <div class="col-12">
-                                                            <small>@{{ islem.istenilenSertlik ? islem.istenilenSertlik : "-" }}</small>
-                                                        </div>
-                                                        <div class="col-12">
-                                                            <small>@{{ islem.kalite ? islem.kalite : "-" }}</small>
-                                                        </div>
-                                                    </td>
-                                                    <td class="orta-uzunluk text-center">
-                                                        <div class="form-group">
-                                                            <select class="form-control select2" v-model="islem.firin" @change="formaEkle(islem)">
-                                                                <optgroup label="Fırınlar">
-                                                                    <option
-                                                                        v-for="(firin, firinIndex) in firinlar"
-                                                                        :value="firin"
-                                                                        :key="firinIndex"
+                            <div class="row mt-3" v-if="yukleniyorObjesi.firmaGrupluIslemler">
+                                <div class="col-12 text-center">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mt-3" v-else-if="_.size(aktifForm.firmaGrupluIslemler.data) === 0">
+                                <div class="col-12 text-center">
+                                    <h4>Forma eklenecek işlem bulunamadı.</h4>
+                                </div>
+                            </div>
+                            <template v-else>
+                                <div class="col-12 mt-2">
+                                    <div class="table-rep-plugin">
+                                        <div class="table-responsive mb-0" data-pattern="priority-columns">
+                                            <table id="tech-companies-1" class="table table-striped table-hover table-centered">
+                                                <thead>
+                                                    <tr>
+                                                        <th>İşlem ID</th>
+                                                        <th class="text-center">Termin</th>
+                                                        <th class="text-center">Resim</th>
+                                                        <th>Malzeme</th>
+                                                        <th>İşlem</th>
+                                                        <th class="text-center">Fırın*</th>
+                                                        <th class="text-center">Şarj*</th>
+                                                        <th class="text-center">Ekle</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr v-for="(islem, iIndex) in aktifForm.firmaGrupluIslemler.data" :key="iIndex">
+                                                        <td class="kisa-uzunluk">
+                                                            <div class="row">
+                                                                <div class="col-12">
+                                                                    <span
+                                                                        v-if="sorguParametreleri.islemId && sorguParametreleri.islemId === islem.id"
+                                                                        class="badge rounded-pill bg-danger"
                                                                     >
-                                                                        @{{ firin.ad }}
-                                                                    </option>
-                                                                </optgroup>
-                                                            </select>
-                                                        </div>
-                                                    </td>
-                                                    <td class="kisa-uzunluk text-center">
-                                                        <div class="form-group">
-                                                            <input
-                                                                v-model="islem.sarj"
-                                                                type="number"
-                                                                class="form-control"
-                                                                placeholder="Şarj (Örn: 1)"
-                                                                @change="formaEkle(islem)"
+                                                                        # @{{ islem.id }}
+                                                                    </span>
+                                                                    <span v-else># @{{ islem.id }}</span>
+                                                                </div>
+                                                                <div class="col-12">
+                                                                    <small>@{{ islem.firmaAdi }}</small>
+                                                                </div>
+                                                                <div class="col-12">
+                                                                    <span class="badge bg-primary">Sipariş No: @{{ islem.siparisNo }}</span>
+                                                                </div>
+                                                                <div v-if="islem.tekrarEdenId" class="col-12">
+                                                                    <span class="badge rounded-pill bg-danger">Tekrar Eden İşlem ID: @{{ islem.tekrarEdenId }}</span>
+                                                                </div>
+                                                                <div v-if="islem.tekrarEdilenId" class="col-12">
+                                                                    <span class="badge rounded-pill bg-info">Tekrar Edilen İşlem ID: @{{ islem.tekrarEdilenId }}</span>
+                                                                </div>
+                                                                <div v-if="islem.bolunmusId" class="col-12">
+                                                                    <span class="badge rounded-pill bg-warning">
+                                                                        Bölünmüş İşlem ID: @{{ islem.bolunmusId }}
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                        <td class="kisa-uzunluk text-center">
+                                                            <span class="badge badge-pill" :class="`bg-${ islem.gecenSureRenk }`">@{{ islem.gecenSure }} Gün</span>
+                                                        </td>
+                                                        <td class="text-center">
+                                                            <img
+                                                                :src="islem.resimYolu ? islem.resimYolu : varsayilanResimYolu"
+                                                                class="kg-resim-sec"
+                                                                @click.stop="resimOnizlemeAc(islem.resimYolu)"
                                                             />
-                                                        </div>
-                                                    </td>
-                                                    <td class="orta-uzunluk text-center">
-                                                        <button
-                                                            @click="formaIslemEkleSil(islem)"
-                                                            class="btn"
-                                                            :class="islem.secildi ? 'btn-success' : 'btn-outline-primary'"
-                                                        >
-                                                            <i class="fas" :class="islem.secildi ? 'fa-check' : 'fa-plus'"></i>
-                                                        </button>
-                                                        <button
-                                                            @click="islemBolAc(iIndex)"
-                                                            class="btn btn-outline-warning p-1"
-                                                        >
-                                                            <i class="mdi mdi-call-split font-size-20 mx-1"></i>
-                                                        </button>
+                                                        </td>
+                                                        <td class="uzun-uzunluk">
+                                                            <div class="row">
+                                                                <div class="col-12">
+                                                                    @{{ islem.malzemeAdi }}
+                                                                </div>
+                                                                <div class="col-12">
+                                                                    <small class="text-muted">Adet: @{{ islem.adet }} adet</small>
+                                                                </div>
+                                                                <div class="col-12">
+                                                                    <small class="text-muted">Miktar: @{{ islem.miktar }} kg</small>
+                                                                </div>
+                                                                <div class="col-12">
+                                                                    <small class="text-muted">Dara: @{{ islem.dara }} kg</small>
+                                                                </div>
+                                                                <div class="col-12">
+                                                                    <small class="text-muted"><b>Net: @{{ islem.net }} kg</b></small>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                        <td class="orta-uzunluk">
+                                                            <div class="col-12">
+                                                                @{{ islem.islemTuruAdi ? islem.islemTuruAdi : "-" }}
+                                                            </div>
+                                                            <div class="col-12">
+                                                                <small>@{{ islem.istenilenSertlik ? islem.istenilenSertlik : "-" }}</small>
+                                                            </div>
+                                                            <div class="col-12">
+                                                                <small>@{{ islem.kalite ? islem.kalite : "-" }}</small>
+                                                            </div>
+                                                        </td>
+                                                        <td class="orta-uzunluk text-center">
+                                                            <div class="form-group">
+                                                                <select class="form-control select2" v-model="islem.firin" @change="formaEkle(islem)">
+                                                                    <optgroup label="Fırınlar">
+                                                                        <option
+                                                                            v-for="(firin, firinIndex) in firinlar"
+                                                                            :value="firin"
+                                                                            :key="firinIndex"
+                                                                        >
+                                                                            @{{ firin.ad }}
+                                                                        </option>
+                                                                    </optgroup>
+                                                                </select>
+                                                            </div>
+                                                        </td>
+                                                        <td class="kisa-uzunluk text-center">
+                                                            <div class="form-group">
+                                                                <input
+                                                                    v-model="islem.sarj"
+                                                                    type="number"
+                                                                    class="form-control"
+                                                                    placeholder="Şarj (Örn: 1)"
+                                                                    @change="formaEkle(islem)"
+                                                                />
+                                                            </div>
+                                                        </td>
+                                                        <td class="orta-uzunluk text-center">
+                                                            <button
+                                                                @click="formaIslemEkleSil(islem)"
+                                                                class="btn"
+                                                                :class="islem.secildi ? 'btn-success' : 'btn-outline-primary'"
+                                                            >
+                                                                <i class="fas" :class="islem.secildi ? 'fa-check' : 'fa-plus'"></i>
+                                                            </button>
+                                                            <button
+                                                                @click="islemBolAc(iIndex)"
+                                                                class="btn btn-outline-warning p-1"
+                                                            >
+                                                                <i class="mdi mdi-call-split font-size-20 mx-1"></i>
+                                                            </button>
 
-                                                        <!-- Modal -->
-                                                        <div class="modal fade" id="islemBolModal" tabindex="-1" aria-labelledby="islemBolModal" aria-hidden="true">
-                                                            <div class="modal-dialog">
-                                                                <div class="modal-content" v-if="aktifBolunecekIslem.islem">
-                                                                    <div class="modal-header">
-                                                                        <div class="row text-start">
-                                                                            <div class="col-12">
-                                                                                <h5 class="modal-title" id="exampleModalLabel">
-                                                                                    İşlem Bölme
-                                                                                </h5>
+                                                            <!-- Modal -->
+                                                            <div class="modal fade" id="islemBolModal" tabindex="-1" aria-labelledby="islemBolModal" aria-hidden="true">
+                                                                <div class="modal-dialog">
+                                                                    <div class="modal-content" v-if="aktifBolunecekIslem.islem">
+                                                                        <div class="modal-header">
+                                                                            <div class="row text-start">
+                                                                                <div class="col-12">
+                                                                                    <h5 class="modal-title" id="exampleModalLabel">
+                                                                                        İşlem Bölme
+                                                                                    </h5>
+                                                                                </div>
+                                                                                <div class="col-12">
+                                                                                    <small class="text-muted">@{{ aktifBolunecekIslem.islem.malzemeAdi }} (Net: @{{ aktifBolunecekIslem.islem.net }} kg)</small>
+                                                                                </div>
                                                                             </div>
-                                                                            <div class="col-12">
-                                                                                <small class="text-muted">@{{ aktifBolunecekIslem.islem.malzemeAdi }} (Net: @{{ aktifBolunecekIslem.islem.net }} kg)</small>
-                                                                            </div>
+                                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                                                         </div>
-                                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                                    </div>
-                                                                    <div class="modal-body text-start">
-                                                                        <div class="row">
-                                                                            <div class="col-12 mb-2" v-for="(bIslem, bIndex) in aktifBolunecekIslem.bolunmusIslemler">
-                                                                                <div class="row align-items-end">
-                                                                                    <div class="col-auto">
-                                                                                        <div class="form-check">
-                                                                                            <input v-model="bIslem.sabit" class="form-check-input" type="checkbox" :id="'flexCheckChecked' + bIndex">
-                                                                                            <label class="form-check-label" :for="'flexCheckChecked' + bIndex">
-                                                                                                Sabitle
-                                                                                            </label>
+                                                                        <div class="modal-body text-start">
+                                                                            <div class="row">
+                                                                                <div class="col-12 mb-2" v-for="(bIslem, bIndex) in aktifBolunecekIslem.bolunmusIslemler">
+                                                                                    <div class="row align-items-end">
+                                                                                        <div class="col-auto">
+                                                                                            <div class="form-check">
+                                                                                                <input v-model="bIslem.sabit" class="form-check-input" type="checkbox" :id="'flexCheckChecked' + bIndex">
+                                                                                                <label class="form-check-label" :for="'flexCheckChecked' + bIndex">
+                                                                                                    Sabitle
+                                                                                                </label>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                        <div class="col">
+                                                                                            <div class="form-group">
+                                                                                                <label for="">@{{ bIndex + 1 }}. Net KG (%@{{ _.round(bIslem.yuzde, 2) }})</label>
+                                                                                                <input
+                                                                                                    v-model="bIslem.net"
+                                                                                                    @input="bolunmusIslemNetDegisti(bIslem)"
+                                                                                                    type="number"
+                                                                                                    class="form-control"
+                                                                                                    placeholder="İşlem Adedi"
+                                                                                                />
+                                                                                            </div>
+                                                                                        </div>
+                                                                                        <div class="col-auto">
+                                                                                            <button
+                                                                                                @click="islemBolIslemKaldir(bIndex)"
+                                                                                                class="btn btn-outline-danger"
+                                                                                                v-if="bIslem.yeniIslem"
+                                                                                            >
+                                                                                                <i class="mdi mdi-delete"></i>
+                                                                                            </button>
                                                                                         </div>
                                                                                     </div>
-                                                                                    <div class="col">
-                                                                                        <div class="form-group">
-                                                                                            <label for="">@{{ bIndex + 1 }}. Net KG (%@{{ _.round(bIslem.yuzde, 2) }})</label>
-                                                                                            <input
-                                                                                                v-model="bIslem.net"
-                                                                                                @input="bolunmusIslemNetDegisti(bIslem)"
-                                                                                                type="number"
-                                                                                                class="form-control"
-                                                                                                placeholder="İşlem Adedi"
-                                                                                            />
-                                                                                        </div>
-                                                                                    </div>
-                                                                                    <div class="col-auto">
-                                                                                        <button
-                                                                                            @click="islemBolIslemKaldir(bIndex)"
-                                                                                            class="btn btn-outline-danger"
-                                                                                            v-if="bIslem.yeniIslem"
-                                                                                        >
-                                                                                            <i class="mdi mdi-delete"></i>
+                                                                                </div>
+                                                                                <div class="col-12 mt-1">
+                                                                                    <div class="d-grid gap-2">
+                                                                                        <button @click="islemBolIslemEkle()" class="btn btn-sm btn-outline-primary" type="button">
+                                                                                            <i class="fas fa-plus"></i>
+                                                                                            Böl
                                                                                         </button>
                                                                                     </div>
                                                                                 </div>
                                                                             </div>
-                                                                            <div class="col-12 mt-1">
-                                                                                <div class="d-grid gap-2">
-                                                                                    <button @click="islemBolIslemEkle()" class="btn btn-sm btn-outline-primary" type="button">
-                                                                                        <i class="fas fa-plus"></i>
-                                                                                        Böl
-                                                                                    </button>
+                                                                        </div>
+                                                                        <div class="modal-footer">
+                                                                            <template v-if="_.size(aktifBolunecekIslem.hatalar)">
+                                                                                <div class="col-12 text-start" v-for="(hata, hKey, hIndex) in aktifBolunecekIslem.hatalar" :key="hIndex">
+                                                                                    <small class="text-danger">
+                                                                                        <i class="mdi mdi-info-outline text-danger"></i>
+                                                                                        @{{ hIndex + 1 }}) @{{ hata }}
+                                                                                    </small>
                                                                                 </div>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="modal-footer">
-                                                                        <template v-if="_.size(aktifBolunecekIslem.hatalar)">
-                                                                            <div class="col-12 text-start" v-for="(hata, hKey, hIndex) in aktifBolunecekIslem.hatalar" :key="hIndex">
-                                                                                <small class="text-danger">
-                                                                                    <i class="mdi mdi-info-outline text-danger"></i>
-                                                                                    @{{ hIndex + 1 }}) @{{ hata }}
-                                                                                </small>
-                                                                            </div>
-                                                                        </template>
-                                                                        <div class="form-check">
-                                                                            <input v-model="aktifBolunecekIslem.kaydettiktenSonraSec" class="form-check-input" type="checkbox" id="kaydettiktenSonraSec">
-                                                                            <label class="form-check-label" for="kaydettiktenSonraSec">
-                                                                                <small>
-                                                                                    Kaydettikten sonra işlemleri seç
-                                                                                </small>
-                                                                            </label>
-                                                                        </div>
-                                                                        <button
-                                                                            type="button"
-                                                                            class="btn btn-primary"
-                                                                            :disabled="_.size(aktifBolunecekIslem.hatalar) !== 0 || yukleniyorObjesi.islemBol"
-                                                                            @click="islemBolKaydet()"
-                                                                        >
-                                                                            <template v-if="yukleniyorObjesi.islemBol">
-                                                                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                                                                                Kaydediliyor...
                                                                             </template>
-                                                                            <template v-else>
-                                                                                İşlemleri Kaydet
-                                                                            </template>
-                                                                        </button>
-                                                                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Kapat</button>
+                                                                            <div class="form-check">
+                                                                                <input v-model="aktifBolunecekIslem.kaydettiktenSonraSec" class="form-check-input" type="checkbox" id="kaydettiktenSonraSec">
+                                                                                <label class="form-check-label" for="kaydettiktenSonraSec">
+                                                                                    <small>
+                                                                                        Kaydettikten sonra işlemleri seç
+                                                                                    </small>
+                                                                                </label>
+                                                                            </div>
+                                                                            <button
+                                                                                type="button"
+                                                                                class="btn btn-primary"
+                                                                                :disabled="_.size(aktifBolunecekIslem.hatalar) !== 0 || yukleniyorObjesi.islemBol"
+                                                                                @click="islemBolKaydet()"
+                                                                            >
+                                                                                <template v-if="yukleniyorObjesi.islemBol">
+                                                                                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                                                                    Kaydediliyor...
+                                                                                </template>
+                                                                                <template v-else>
+                                                                                    İşlemleri Kaydet
+                                                                                </template>
+                                                                            </button>
+                                                                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Kapat</button>
+                                                                        </div>
                                                                     </div>
                                                                 </div>
                                                             </div>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="col-12">
-                                <ul class="pagination pagination-rounded justify-content-center mb-0">
-                                    <li class="page-item">
-                                        <button class="page-link" :disabled="!aktifForm.firmaGrupluIslemler.prev_page_url" @click="firmaGrupluIslemleriGetir(null, aktifForm.firmaGrupluIslemler.prev_page_url)">Önceki</button>
-                                    </li>
-                                    <li
-                                        v-for="sayfa in aktifForm.firmaGrupluIslemler.last_page"
-                                        class="page-item"
-                                        :class="[aktifForm.firmaGrupluIslemler.current_page === sayfa ? 'active' : '']"
-                                    >
-                                        <button class="page-link" @click="firmaGrupluIslemleriGetir(null, '/firmaGrupluIslemleriGetir?page=' + sayfa)">@{{ sayfa }}</button>
-                                    </li>
-                                    <li class="page-item">
-                                        <button class="page-link" :disabled="!aktifForm.firmaGrupluIslemler.next_page_url" @click="firmaGrupluIslemleriGetir(null, aktifForm.firmaGrupluIslemler.next_page_url)">Sonraki</button>
-                                    </li>
-                                </ul>
-                            </div>
+                                <div class="col-12">
+                                    <ul class="pagination pagination-rounded justify-content-center mb-0">
+                                        <li class="page-item">
+                                            <button class="page-link" :disabled="!aktifForm.firmaGrupluIslemler.prev_page_url" @click="firmaGrupluIslemleriGetir(null, aktifForm.firmaGrupluIslemler.prev_page_url)">
+                                                <i class="fas fa-angle-left"></i>
+                                            </button>
+                                        </li>
+                                        <li
+                                            v-for="sayfa in sayfalamaAyarla(aktifForm.firmaGrupluIslemler.last_page, aktifForm.firmaGrupluIslemler.current_page)"
+                                            class="page-item"
+                                            :class="[sayfa.aktif ? 'active' : '']"
+                                        >
+                                            <button class="page-link" @click="sayfa.tur === 'SAYFA' ? firmaGrupluIslemleriGetir(null, `{{ route("firmaGrupluIslemleriGetir") }}?page=` + sayfa.sayfa) : ()  => {}">@{{ sayfa.sayfa }}</button>
+                                        </li>
+                                        <li class="page-item">
+                                            <button class="page-link" :disabled="!aktifForm.firmaGrupluIslemler.next_page_url" @click="firmaGrupluIslemleriGetir(null, aktifForm.firmaGrupluIslemler.next_page_url)">
+                                                <i class="fas fa-angle-right"></i>
+                                            </button>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </template>
                         </div>
                     </div>
                 </template>
@@ -1299,6 +1306,7 @@
                     bitisTarihi: null,
                     takipNo: '',
                     formAdi: '',
+                    firmaArama: "",
                 },
                 sayfalamaSayilari: [10, 25, 50, 100],
                 sayfalamaSayisi: 10,
@@ -1342,6 +1350,9 @@
                 }
 
                 this.gecikmeliFonksiyonCalistir(this.filtrele);
+                this.gecikmeliFonksiyonCalistir(this.firmaGrupluIslemleriGetir, {
+                    fonksiyonKey: "firmaGrupluIslemleriGetir",
+                });
 
                 this.formlariGetir();
             },
@@ -1500,6 +1511,15 @@
                 this.aktifSayfaDegistir("ANASAYFA");
 
                 this.aktifForm = null;
+
+                this.filtrelemeObjesi = {
+                    arama: "",
+                    baslangicTarihi: null,
+                    bitisTarihi: null,
+                    takipNo: '',
+                    formAdi: '',
+                    firmaArama: "",
+                }
             },
             geriYeniForm() {
                 if (this.aktifForm.geriFonksiyon) {

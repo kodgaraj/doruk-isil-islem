@@ -268,8 +268,9 @@ class IsilIslemController extends Controller
 
             if (isset($filtrelemeler["arama"]) && $filtrelemeler["arama"] != "")
             {
+                // dd($filtrelemeler["arama"]);
                 $firmaGrupluIslemler = $firmaGrupluIslemler->where(function ($query) use ($filtrelemeler, $firmaTabloAdi, $malzemeTabloAdi, $islemTuruTabloAdi) {
-                    $query->where($firmaTabloAdi . '.firmaAdi', 'like', '%' . $filtrelemeler["arama"] . '%')
+                    $query->orWhere($firmaTabloAdi . '.firmaAdi', 'like', '%' . $filtrelemeler["arama"] . '%')
                         ->orWhere($firmaTabloAdi . '.sorumluKisi', 'like', '%' . $filtrelemeler["arama"] . '%')
                         ->orWhere($malzemeTabloAdi . '.ad', 'like', '%' . $filtrelemeler["arama"] . '%')
                         ->orWhere($islemTuruTabloAdi . '.ad', 'like', '%' . $filtrelemeler["arama"] . '%');
