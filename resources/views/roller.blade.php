@@ -90,7 +90,7 @@
                                             class="page-item"
                                             :class="[sayfa.aktif ? 'active' : '']"
                                         >
-                                            <button class="page-link" @click="sayfa.tur === 'SAYFA' ? rolleriGetir('{{ route("rolleriGetir") }}?page=' + sayfa.sayfa) : ()  => {}">@{{ sayfa.sayfa }}</button>
+                                            <button class="page-link" @click="sayfa.tur === 'SAYFA' ? rolleriGetir(`{{ route("rolleriGetir") }}?page=` + sayfa.sayfa) : ()  => {}">@{{ sayfa.sayfa }}</button>
                                         </li>
                                         <li class="page-item">
                                             <button class="page-link" :disabled="!roller.next_page_url" @click="rolleriGetir(roller.next_page_url)">

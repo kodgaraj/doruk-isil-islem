@@ -181,6 +181,7 @@ class IsilIslemController extends Controller
             $islemDurumTabloAdi = (new IslemDurumlari())->getTable();
             $malzemeTabloAdi = (new Malzemeler())->getTable();
             $islemTuruTabloAdi = (new IslemTurleri())->getTable();
+            $firinTabloAdi = (new Firinlar())->getTable();
 
             $firmaGrupluIslemler = Islemler::select(DB::raw("
                     $islemTabloAdi.id,
@@ -219,22 +220,46 @@ class IsilIslemController extends Controller
                     $firmaTabloAdi.sorumluKisi,
                     $islemDurumTabloAdi.ad as islemDurumAdi,
                     $malzemeTabloAdi.ad as malzemeAdi,
-                    $islemTuruTabloAdi.ad as islemTuruAdi
+                    $islemTuruTabloAdi.ad as islemTuruAdi,
+                    $firinTabloAdi.ad as firinAdi,
+                    $firinTabloAdi.kod as firinKodu,
+                    $firinTabloAdi.json as firinJson
                 "))
                 ->join($siparisTabloAdi, $siparisTabloAdi . '.id', '=', $islemTabloAdi . '.siparisId')
                 ->join($firmaTabloAdi, $firmaTabloAdi . '.id', '=', $siparisTabloAdi . '.firmaId')
                 ->join($islemDurumTabloAdi, $islemDurumTabloAdi . '.id', '=', $islemTabloAdi . '.durumId')
                 ->join($malzemeTabloAdi, $malzemeTabloAdi . '.id', '=', $islemTabloAdi . '.malzemeId')
                 ->leftJoin($islemTuruTabloAdi, $islemTuruTabloAdi . '.id', '=', $islemTabloAdi . '.islemTuruId')
-                ->where($islemDurumTabloAdi . '.kod', "BASLANMADI")
-                ->orderBy($siparisTabloAdi . '.siparisNo', 'desc')
-                ->orderBy($islemTabloAdi . '.created_at', 'desc')
-                ->orderBy($firmaTabloAdi . '.firmaAdi', 'asc');
+                ->leftJoin($firinTabloAdi, $firinTabloAdi . '.id', '=', $islemTabloAdi . '.firinId');
+
+            /**
+             * DİKKAT!!!
+             * 
+             * Aşağıdaki satırların sıralamasını değiştirmeyin.
+             * Sebep; Laravel query builder sapıtıyor veya ben
+             * gözümden bir şey kaçırıyorum.
+             */
+            if ($formId)
+            {
+                $secilenIslemler = clone $firmaGrupluIslemler;
+                $secilenIslemler = $secilenIslemler->where("$islemTabloAdi.formId", $formId)
+                    ->get()
+                    ->toArray();
+            }
+
+            $firmaGrupluIslemler = $firmaGrupluIslemler->where($islemDurumTabloAdi . '.kod', "BASLANMADI");
 
             if ($formId)
             {
-                $firmaGrupluIslemler = $firmaGrupluIslemler->orWhere($islemTabloAdi . '.formId', $formId);
+                $firmaGrupluIslemler = $firmaGrupluIslemler->orWhere($islemTabloAdi . '.formId', $formId)
+                    ->selectRaw("IF($islemTabloAdi.formId = $formId, 1, 0) as secildi")
+                    ->orderBy('secildi', 'desc');
             }
+
+            $firmaGrupluIslemler = $firmaGrupluIslemler->orderBy($firmaTabloAdi . '.firmaAdi', 'asc')
+                ->orderBy($siparisTabloAdi . '.siparisNo', 'desc')
+                ->orderBy($islemTabloAdi . '.created_at', 'desc');
+            /** DİKKAT SON!!! */
 
             if ($firmaId)
             {
@@ -251,38 +276,46 @@ class IsilIslemController extends Controller
                 });
             }
 
-            $islemler = $firmaGrupluIslemler->paginate(25);
+            $islemler = $firmaGrupluIslemler->paginate(10);
 
             // dd($islemler->toArray());
             $islemler = $islemler->toArray();
 
-            $hazirlananVeriler = [];
-            foreach ($islemler["data"] as $islem) {
-                if (!isset($hazirlananVeriler[$islem["firmaId"]])) {
-                    $hazirlananVeriler[$islem["firmaId"]] = [
-                        "firmaId" => $islem["firmaId"],
-                        'firmaAdi' => $islem["firmaAdi"],
-                        "sorumluKisi" => $islem["sorumluKisi"],
-                        'islemler' => [],
-                    ];
-                }
-
+            foreach ($islemler["data"] as &$islem)
+            {
                 $terminDizisi = $this->terminHesapla($islem["siparisTarihi"], $islem["terminSuresi"] ?? 5);
                 $islem["gecenSure"] = $terminDizisi["gecenSure"];
                 $islem["gecenSureRenk"] = $terminDizisi["gecenSureRenk"];
 
                 $islem["sarj"] = $islem["sarj"] ?? 1;
-                $islem["firin"] = $islem["firin"] ?? null;
-
-                $hazirlananVeriler[$islem["firmaId"]]['islemler'][] = $islem;
+                $islem["firin"] = $islem["firinId"]
+                    ? [
+                        "id" => $islem["firinId"],
+                        "ad" => $islem["firinAdi"],
+                        "kod" => $islem["firinKodu"],
+                        "json" => $islem["firinJson"] ? json_decode($islem["firinJson"], true) : null,
+                    ]
+                    : null;
             }
 
-            $islemler["data"] = array_values($hazirlananVeriler);
+            if ($formId)
+            {
+                foreach ($secilenIslemler as &$islem)
+                {
+                    $islem["firin"] = [
+                        "id" => $islem["firinId"],
+                        "ad" => $islem["firinAdi"],
+                        "kod" => $islem["firinKodu"],
+                        "json" => $islem["firinJson"] ? json_decode($islem["firinJson"], true) : null,
+                    ];
+                }
+            }
 
             return response()->json([
                 'durum' => true,
                 'mesaj' => 'İşlemler bulundu.',
                 'firmaGrupluIslemler' => $islemler,
+                "secilenIslemler" => $secilenIslemler ?? null,
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
@@ -1677,10 +1710,15 @@ class IsilIslemController extends Controller
 
                     $donecekIslemler[] = $yeniIslem;
                 }
+                else
+                {
+                    $anaIslemMiktar = $islemBilgisi->miktar * $bolunmusIslem["yuzde"] / 100;
+                    $anaIslemDara = $islemBilgisi->dara * $bolunmusIslem["yuzde"] / 100;
+                }
             }
 
-            $islemBilgisi->miktar = $islemBilgisi->miktar * $bolunmusIslem["yuzde"] / 100;
-            $islemBilgisi->dara = $islemBilgisi->dara * $bolunmusIslem["yuzde"] / 100;
+            $islemBilgisi->miktar = $anaIslemMiktar;
+            $islemBilgisi->dara = $anaIslemDara;
 
             if (!$islemBilgisi->save())
             {

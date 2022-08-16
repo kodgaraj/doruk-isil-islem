@@ -747,10 +747,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-12 mt-2" v-for="(firma, fIndex) in aktifForm.firmaGrupluIslemler.data" :key="fIndex">
-                                <div class="row">
-                                    <h5>@{{ firma.firmaAdi }}</h5>
-                                </div>
+                            <div class="col-12 mt-2">
                                 <div class="table-rep-plugin">
                                     <div class="table-responsive mb-0" data-pattern="priority-columns">
                                         <table id="tech-companies-1" class="table table-striped table-hover table-centered">
@@ -761,15 +758,13 @@
                                                     <th class="text-center">Resim</th>
                                                     <th>Malzeme</th>
                                                     <th>İşlem</th>
-                                                    <th>İstenilen Sertlik</th>
-                                                    <th>Kalite</th>
                                                     <th class="text-center">Fırın*</th>
                                                     <th class="text-center">Şarj*</th>
                                                     <th class="text-center">Ekle</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                <tr v-for="(islem, iIndex) in firma.islemler" :key="iIndex">
+                                                <tr v-for="(islem, iIndex) in aktifForm.firmaGrupluIslemler.data" :key="iIndex">
                                                     <td class="kisa-uzunluk">
                                                         <div class="row">
                                                             <div class="col-12">
@@ -780,6 +775,9 @@
                                                                     # @{{ islem.id }}
                                                                 </span>
                                                                 <span v-else># @{{ islem.id }}</span>
+                                                            </div>
+                                                            <div class="col-12">
+                                                                <small>@{{ islem.firmaAdi }}</small>
                                                             </div>
                                                             <div class="col-12">
                                                                 <span class="badge bg-primary">Sipariş No: @{{ islem.siparisNo }}</span>
@@ -826,9 +824,17 @@
                                                             </div>
                                                         </div>
                                                     </td>
-                                                    <td class="kisa-uzunluk">@{{ islem.islemTuruAdi ? islem.islemTuruAdi : "-" }}</td>
-                                                    <td class="kisa-uzunluk">@{{ islem.istenilenSertlik ? islem.istenilenSertlik : "-" }}</td>
-                                                    <td class="kisa-uzunluk">@{{ islem.kalite ? islem.kalite : "-" }}</td>
+                                                    <td class="orta-uzunluk">
+                                                        <div class="col-12">
+                                                            @{{ islem.islemTuruAdi ? islem.islemTuruAdi : "-" }}
+                                                        </div>
+                                                        <div class="col-12">
+                                                            <small>@{{ islem.istenilenSertlik ? islem.istenilenSertlik : "-" }}</small>
+                                                        </div>
+                                                        <div class="col-12">
+                                                            <small>@{{ islem.kalite ? islem.kalite : "-" }}</small>
+                                                        </div>
+                                                    </td>
                                                     <td class="orta-uzunluk text-center">
                                                         <div class="form-group">
                                                             <select class="form-control select2" v-model="islem.firin" @change="formaEkle(islem)">
@@ -864,7 +870,7 @@
                                                             <i class="fas" :class="islem.secildi ? 'fa-check' : 'fa-plus'"></i>
                                                         </button>
                                                         <button
-                                                            @click="islemBolAc(firma, iIndex)"
+                                                            @click="islemBolAc(iIndex)"
                                                             class="btn btn-outline-warning p-1"
                                                         >
                                                             <i class="mdi mdi-call-split font-size-20 mx-1"></i>
@@ -901,7 +907,7 @@
                                                                                     </div>
                                                                                     <div class="col">
                                                                                         <div class="form-group">
-                                                                                            <label for="">@{{ bIndex + 1 }}. Net KG (%@{{ bIslem.yuzde }})</label>
+                                                                                            <label for="">@{{ bIndex + 1 }}. Net KG (%@{{ _.round(bIslem.yuzde, 2) }})</label>
                                                                                             <input
                                                                                                 v-model="bIslem.net"
                                                                                                 @input="bolunmusIslemNetDegisti(bIslem)"
@@ -1506,7 +1512,7 @@
                 this.yukleniyorObjesi.firmaGrupluIslemler = true;
                 return axios.get(url, {
                     params: {
-                        formId,
+                        formId: formId || this.aktifForm.id,
                         filtreleme: {
                             arama: this.filtrelemeObjesi.firmaArama,
                         }
@@ -1522,7 +1528,24 @@
                         });
                     }
 
-                    this.aktifForm.firmaGrupluIslemler = response.data.firmaGrupluIslemler;
+                    this.aktifForm.firmaGrupluIslemler = _.cloneDeep(response.data.firmaGrupluIslemler);
+
+                    if (this.aktifForm.id && _.size(this.aktifForm.firmaGrupluIslemler.data)) {
+                        this.aktifForm.secilenIslemler = _.unionBy(response.data.secilenIslemler, this.aktifForm.secilenIslemler, "id");
+
+                        for (const [index, islem] of _.toPairs(this.aktifForm.secilenIslemler)) {
+                            const _islem = _.find(this.aktifForm.firmaGrupluIslemler.data, { id: islem.id });
+                            if (_islem) {
+                                _islem.firin = islem.firin && islem.firin.id ? _.find(this.firinlar, { id: islem.firin.id }) : null;
+                                _islem.sarj = islem.sarj;
+                                _islem.secildi = true;
+                            }
+
+                            this.formaEkle(islem, { cloneYap: false });
+                        }
+
+                        this.aktifForm = _.cloneDeep(this.aktifForm);
+                    }
                 })
                 .catch(error => {
                     this.yukleniyorObjesi.firmaGrupluIslemler = false;
@@ -1556,13 +1579,22 @@
 
                 this.aktifForm = _.cloneDeep(this.aktifForm);
             },
-            formaEkle(islem, cloneYap = true) {
-                const islemIndex = _.findIndex(this.aktifForm.secilenIslemler, { id: islem.id });
-                if (islemIndex === -1) {
-                    this.aktifForm.secilenIslemler.push(islem);
+            formaEkle(islem, p = {}) {
+                const cloneYap = "cloneYap" in p ? p.cloneYap : true;
+
+                const islemIndex = _.findIndex(this.aktifForm.firmaGrupluIslemler.data, { id: islem.id });
+                if (islemIndex > -1) {
+                    islem = this.aktifForm.firmaGrupluIslemler.data[islemIndex];
+                    this.aktifForm.firmaGrupluIslemler.data[islemIndex].secildi = true;
                 }
 
-                islem.secildi = true;
+                const secilenIndex = _.findIndex(this.aktifForm.secilenIslemler, { id: islem.id });
+                if (secilenIndex === -1) {
+                    this.aktifForm.secilenIslemler.push(islem);
+                }
+                else {
+                    this.aktifForm.secilenIslemler[secilenIndex] = islem;
+                }
 
                 if (cloneYap) {
                     this.aktifForm = _.cloneDeep(this.aktifForm);
@@ -1695,9 +1727,10 @@
                         }
 
                         this.uyariAc({
-                            baslik: 'Başarılı',
-                            mesaj: 'Form başarıyla kaydedildi.',
-                            tur: "success"
+                            toast: {
+                                status: true,
+                                message: response.data.mesaj,
+                            },
                         });
 
                         this.formlariGetir();
@@ -1733,7 +1766,7 @@
                     islem();
                 }
             },
-            formDuzenle(form) {
+            async formDuzenle(form) {
                 this.yukleniyorObjesi.form = true;
 
                 this.aktifForm = {
@@ -1750,35 +1783,17 @@
                     ...form,
                 };
 
-                const promises = [];
-
                 if (!_.size(this.firinlar)) {
-                    promises.push(this.firinlariGetir());
+                    await this.firinlariGetir();
                 }
 
-                promises.push(this.firmaGrupluIslemleriGetir(this.aktifForm.id));
+                await this.firmaGrupluIslemleriGetir(this.aktifForm.id);
 
-                return Promise.all(promises)
-                .then((p) => {
-                    this.yukleniyorObjesi.form = false;
-                    // this.aktifForm.secilenIslemler = response.data.secilenIslemler;
+                this.aktifForm.baslangictakiIslemler = _.cloneDeep(this.aktifForm.secilenIslemler);
 
-                    for (const [index, firma] of _.toPairs(this.aktifForm.firmaGrupluIslemler.data)) {
-                        for (const [index, islem] of _.toPairs(firma.islemler)) {
-                            if (islem.firinId) {
-                                islem.firin = _.find(this.firinlar, { id: islem.firinId });
+                this.yukleniyorObjesi.form = false;
 
-                                this.formaEkle(islem, false);
-                            }
-                        }
-                    }
-
-                    this.aktifForm.baslangictakiIslemler = _.cloneDeep(this.aktifForm.secilenIslemler);
-
-                    this.aktifSayfaDegistir("YENI_FORM");
-
-                    this.aktifForm = _.cloneDeep(this.aktifForm);
-                });
+                this.aktifSayfaDegistir("YENI_FORM");
             },
             formSil(form) {
                 const islem = () => {
@@ -1833,17 +1848,18 @@
                     }
                 });
             },
-            formDetayGoruntule(form) {
-                this.formDuzenle(form).then(() => {
-                    this.formHazirla();
-                    this.aktifForm.onizlemeModu = true;
-                    this.aktifForm.detayGoruntule = true;
-                    this.aktifForm.geriFonksiyon = () => {
-                        this.geriAnasayfa();
-                    };
+            async formDetayGoruntule(form) {
+                await this.formDuzenle(form);
+                console.log(this.aktifForm.baslangictakiIslemler);
 
-                    this.aktifForm = _.cloneDeep(this.aktifForm);
-                });
+                this.formHazirla();
+                this.aktifForm.onizlemeModu = true;
+                this.aktifForm.detayGoruntule = true;
+                this.aktifForm.geriFonksiyon = () => {
+                    this.geriAnasayfa();
+                };
+
+                this.aktifForm = _.cloneDeep(this.aktifForm);
             },
             sorguParametreleriTemizle() {
                 this.sorguParametreleri = {
@@ -2129,8 +2145,8 @@
 
                 container.scrollTo(0, top);
             },
-            islemBolAc(firma, islemIndex) {
-                const islem = _.cloneDeep(firma.islemler[islemIndex]);
+            islemBolAc(islemIndex) {
+                const islem = _.cloneDeep(this.aktifForm.firmaGrupluIslemler.data[islemIndex]);
                 this.aktifBolunecekIslem = {
                     islem: {
                         ...islem,
@@ -2139,7 +2155,6 @@
                     hatalar: {},
                     kaydettiktenSonraSec: true,
                     modal: new bootstrap.Modal(document.getElementById("islemBolModal")),
-                    firma: _.cloneDeep(firma),
                 };
 
                 this.aktifBolunecekIslem.modal.show();
@@ -2240,6 +2255,7 @@
             },
             islemBolKaydet() {
                 this.yukleniyorObjesi.islemBol = true;
+
                 axios.post("{{ route('islemBol') }}", {
                     ...this.aktifBolunecekIslem,
                 })
@@ -2253,25 +2269,54 @@
                         });
                     }
 
-                    const index = _.findIndex(this.aktifForm.firmaGrupluIslemler.data, {
-                        firmaId: this.aktifBolunecekIslem.firma.firmaId,
-                    });
+                    const duzenlenenIslemler = response.data.islemler;
 
-                    if (index > -1) {
-                        const duzenlenenIslemler = response.data.islemler;
-                        const islemler = await this.firmaGrupluFirmaIslemleriGetir(this.aktifForm.firmaGrupluIslemler.data[index].firmaId);
-                        if (islemler && _.size(islemler)) {
-                            this.aktifForm.firmaGrupluIslemler.data[index].islemler = islemler;
-
-                            if (this.aktifBolunecekIslem.kaydettiktenSonraSec) {
-                                const secilecekIslemler = _.filter(islemler, islem => _.find(duzenlenenIslemler, { id: islem.id }));
-
-                                _.forEach(secilecekIslemler, islem => {
-                                    this.formaEkle(islem, false);
-                                })
+                    if (this.aktifBolunecekIslem.kaydettiktenSonraSec) {
+                        _.forEach(this.aktifBolunecekIslem.bolunmusIslemler, (islem, index) => {
+                            if (index === 0) {
+                                const secilenIslemIndex = _.findIndex(this.aktifForm.secilenIslemler, { id: islem.id });
+                                if (secilenIslemIndex) {
+                                    this.aktifForm.secilenIslemler.splice(secilenIslemIndex, 1);
+                                }
                             }
-                        }
+
+                            this.aktifForm.secilenIslemler.push({
+                                ...islem,
+                                ...(duzenlenenIslemler[index] || {}),
+                            });
+                        })
                     }
+
+                    await this.firmaGrupluIslemleriGetir(
+                        undefined,
+                        `{{ route("firmaGrupluIslemleriGetir") }}?page=` + this.aktifForm.firmaGrupluIslemler.current_page
+                    );
+
+                    // İŞLEM BÖLÜNDÜKTEN SONRA SEÇME İŞLEMİNİ YAP
+
+                    // const islemIndex = _.findIndex(this.aktifForm.firmaGrupluIslemler.data, {
+                    //     id: this.aktifBolunecekIslem.islem.id,
+                    // });
+
+                    // if (islemIndex > -1) {
+                    //     // this.aktifForm.firmaGrupluIslemler.data.splice(islemIndex, 1, ...duzenlenenIslemler);
+
+                    //     if (this.aktifBolunecekIslem.kaydettiktenSonraSec) {
+                    //         // const secilecekIslemler = _.filter(
+                    //         //     this.aktifForm.firmaGrupluIslemler.data,
+                    //         //     islem => _.find(duzenlenenIslemler, { id: islem.id })
+                    //         // );
+
+                    //         _.forEach(duzenlenenIslemler, islem => {
+                    //             this.formaEkle(
+                    //                 _.find(this.aktifForm.firmaGrupluIslemler.data, { id: islem.id }),
+                    //                 {
+                    //                     cloneYap: false,
+                    //                 }
+                    //             );
+                    //         })
+                    //     }
+                    // }
 
                     this.aktifBolunecekIslem.modal.hide();
 
