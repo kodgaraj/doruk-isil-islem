@@ -13,6 +13,10 @@ class IslemTurleri extends Model
 
     protected $table = 'islem_turleri';
 
+    protected $casts = [
+        'id' => 'integer',
+    ];
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()

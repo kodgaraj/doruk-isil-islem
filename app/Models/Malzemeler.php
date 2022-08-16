@@ -13,6 +13,10 @@ class Malzemeler extends Model
 
     protected $table = 'malzemeler';
 
+    protected $casts = [
+        'id' => 'integer',
+    ];
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()

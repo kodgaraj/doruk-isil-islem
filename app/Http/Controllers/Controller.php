@@ -4,10 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\Bildirimler;
 use App\Models\BildirimTurleri;
+use App\Models\Firmalar;
 use App\Models\Formlar;
 use App\Models\IslemDurumlari;
 use App\Models\Islemler;
 use App\Models\OkunmamisBildirimler;
+use App\Models\SiparisDurumlari;
 use App\Models\Siparisler;
 use App\Models\User;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -15,6 +17,8 @@ use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Routing\Controller as BaseController;
 use Carbon\Carbon;
+use ExpoSDK\Expo;
+use ExpoSDK\ExpoMessage;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -22,33 +26,48 @@ class Controller extends BaseController
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
 
-    public function terminHesapla($tarih, $terminSuresi = 5)
+    protected $paraBirimleri = [
+        "TL" => [
+            "kod" => "TL",
+            "sembol" => "₺",
+            "ad" => "TL (₺)",
+            "maske" => "tl",
+        ],
+        "USD" => [
+            "kod" => "USD",
+            "sembol" => "$",
+            "ad" => "USD ($)",
+            "maske" => "usd",
+        ],
+    ];
+
+    public function terminHesapla($tarih, $terminSuresi = 5, $sonTarih = null)
     {
         $birinciFaz = floor($terminSuresi * 30 / 100);
         $ikinciFaz = floor($terminSuresi * 60 / 100);
 
         $islemTarih = Carbon::parse($tarih);
-        $simdiTarih = Carbon::now();
+        $simdiTarih = $sonTarih ? Carbon::parse($sonTarih) : Carbon::now();
 
         $termin = $islemTarih->diffInDays($simdiTarih);
         $renk = "success";
+        $kod = "TEMIZ";
 
         if ($termin > $ikinciFaz)
         {
             $renk = "danger";
+            $kod = "IKINCI_FAZ_GECIKMIS";
         }
-        elseif ($termin > $birinciFaz)
+        else if ($termin > $birinciFaz)
         {
             $renk = "warning";
-        }
-        else
-        {
-            $renk = "success";
+            $kod = "BIRINCI_FAZ_GECIKMIS";
         }
 
         return [
             'gecenSure' => $termin,
             'gecenSureRenk' => $renk,
+            'gecenSureKod' => $kod,
         ];
     }
 
@@ -64,6 +83,7 @@ class Controller extends BaseController
             $formTabloAdi = (new Formlar())->getTable();
             $islemDurumTabloAdi = (new IslemDurumlari())->getTable();
             $siparisTabloAdi = (new Siparisler())->getTable();
+            $firmaTabloAdi = (new Firmalar())->getTable();
 
             // Formun bitiş tarihini ayarlama
             $form = Formlar::join($islemTabloAdi, $formTabloAdi . '.id', '=', $islemTabloAdi . '.formId')
@@ -87,9 +107,10 @@ class Controller extends BaseController
 
                 $this->bildirimAt(auth()->user()->id, [
                     "baslik" => "Isıl İşlem Formu Tamamlandı",
-                    "icerik" => "<b>$form->formId</b> numaralı idye ait ısıl işlem formu tamamlandı.",
-                    "link" => "/isil-islemler/$form->formId",
+                    "icerik" => "$form->formId numaralı idye ait ısıl işlem formu tamamlandı. (Form Takip No: $form->takipNo)",
+                    "link" => "/isil-islemler?formId=$form->formId",
                     "kod" => "FORM_BILDIRIMI",
+                    "actionId" => $form->formId,
                 ]);
             }
             else
@@ -100,6 +121,46 @@ class Controller extends BaseController
             if (!$guncellenecekForm->save())
             {
                 return false;
+            }
+
+            $siparis = Siparisler::join($islemTabloAdi, $siparisTabloAdi . '.id', '=', $islemTabloAdi . '.siparisId')
+                ->join($firmaTabloAdi, $firmaTabloAdi . '.id', '=', $siparisTabloAdi . '.firmaId')
+                ->where("$islemTabloAdi.id", $islemId)
+                ->first();
+
+            if (!$siparis)
+            {
+                return false;
+            }
+
+            $tamamlanmamisSiparisIslemler = Islemler::join($islemDurumTabloAdi, $islemDurumTabloAdi . '.id', '=', $islemTabloAdi . '.durumId')
+                ->where("$islemTabloAdi.siparisId", $siparis->siparisId)
+                ->where("$islemDurumTabloAdi.kod", "<>", "TAMAMLANDI")
+                ->count();
+
+            if ($tamamlanmamisSiparisIslemler === 0)
+            {
+                $guncellenecekSiparis = Siparisler::find($siparis->siparisId);
+                // Burada tekrar aynı işlemin yapılmasının sebebi, işlem tekrar ederse tamamlanan sipariş olursa diye.
+                $siparisTamamlandiDurum = SiparisDurumlari::where("kod", "TAMAMLANDI")->first();
+
+                $guncellenecekSiparis->durumId = $siparisTamamlandiDurum->id;
+                $guncellenecekSiparis->bitisTarihi = Carbon::now();
+
+                if (!$guncellenecekSiparis->save())
+                {
+                    return false;
+                }
+
+                $turkceTarih = Carbon::parse($siparis->tarih)->format('d.m.Y');
+
+                $this->bildirimAt(auth()->user()->id, [
+                    "baslik" => "Sipariş Formu Tamamlandı",
+                    "icerik" => "$siparis->firmaAdi firmasının, $turkceTarih tarihli $siparis->siparisId numaralı sipariş formu tamamlandı. (Sipariş No: $siparis->siparisNo)",
+                    "link" => "/siparis-formu?siparisId=$siparis->siparisId",
+                    "kod" => "SIPARIS_BILDIRIMI",
+                    "actionId" => $siparis->siparisId,
+                ]);
             }
 
             return true;
@@ -212,6 +273,20 @@ class Controller extends BaseController
         return mb_strtolower($degisken);
     }
 
+    /**
+     * Bildirim atma
+     * 
+     * @param integer $kullaniciId Kullanıcı id
+     * @param array $veriler Bildirim bilgileri
+     * 
+     * @example $this->bildirimAt(1, [
+     *    "baslik" => "Bildirim Başlığı",
+     *    "icerik" => "Bildirim içeriği",
+     *    "link" => "/link/adresi",
+     *    "kod" => "KOD",
+     *    "actionId" => 1 //?,
+     * ]);
+     */
     public function bildirimAt($kullaniciId, $veriler)
     {
         try
@@ -221,13 +296,19 @@ class Controller extends BaseController
             $baslik = $veriler["baslik"];
             $icerik = $veriler["icerik"];
             $link = $veriler["link"];
+            $kod = $veriler["kod"];
+            $actionId = $veriler["actionId"] ?? null;
 
             $bildirim = new Bildirimler();
             $bildirim->btId = $btid;
             $bildirim->kullaniciId = $kullaniciId;
             $bildirim->baslik = $baslik;
             $bildirim->icerik = $icerik;
-            $bildirim->json = json_encode(["link" => $link]);
+            $bildirim->json = json_encode([
+                "link" => $link,
+                "kod" => $kod,
+                "actionId" => $actionId
+            ]);
 
             if (!$bildirim->save())
             {
@@ -236,6 +317,21 @@ class Controller extends BaseController
                     "mesaj" => "Bildirim kaydedilemedi."
                 ];
             }
+
+            $mesajlar = [
+                new ExpoMessage([
+                    "title" => $baslik,
+                    "body" => $icerik,
+                    "data" => [
+                        "link" => $link,
+                        "kod" => $kod,
+                        "actionId" => $actionId,
+                        "bildirimId" => $bildirim->id,
+                    ],
+                ])
+            ];
+
+            $pushTokens = [];
 
             $kullanicilar = User::where("id", "<>", $kullaniciId)->get();
 
@@ -252,7 +348,11 @@ class Controller extends BaseController
                         "mesaj" => "Okunmamış bildirim kaydedilemedi.",
                     ];
                 }
+
+                $pushTokens[] = $kullanici->pushToken;
             }
+
+            (new Expo())->send($mesajlar)->to($pushTokens)->push();
 
             return true;
         }
@@ -374,5 +474,132 @@ class Controller extends BaseController
     {
         $kullaniciId = $kullaniciId ?: Auth::user()->id;
         return OkunmamisBildirimler::where("kullaniciId", $kullaniciId)->count();
+    }
+
+    public function floatDonustur($deger, $parametreler = [])
+    {
+        $arr = explode(".", $deger);
+        $binliksizPara = implode("", $arr);
+        $sayi = str_replace(",", ".", $binliksizPara);
+
+        if (isset($parametreler["paraBirimi"]))
+        {
+            $sayi = str_replace($parametreler["paraBirimi"]["sembol"], "", $sayi);
+        }
+        else if (isset($parametreler["kg"]))
+        {
+            $sayi = str_replace("kg", "", $sayi);
+        }
+
+        return round($sayi, 2);
+    }
+
+    public function yaziyaDonustur($deger, $parametreler = [])
+    {
+        $stringDeger = (string) $deger;
+        $arr = explode(".", $stringDeger);
+        $sayi = $arr[0];
+        if (isset($arr[1]) && $arr[1])
+        {
+            $sayi .= "," . str_pad($arr[1], 2, "0");
+        }
+        else
+        {
+            $sayi .= ",00";
+        }
+
+        if (isset($parametreler["paraBirimi"]))
+        {
+            $sayi = $sayi . " " . $parametreler["paraBirimi"]["sembol"];
+        }
+        else if (isset($parametreler["kg"]))
+        {
+            $sayi = $sayi . " kg";
+        }
+
+        return $sayi;
+    }
+
+    public function siparisDurumKontrol($siparisId)
+    {
+        try
+        {
+            $islemTabloAdi = (new Islemler())->getTable();
+            $islemDurumTabloAdi = (new IslemDurumlari())->getTable();
+
+            $siparisIslemleri = Islemler::select("$islemTabloAdi.*", "$islemDurumTabloAdi.kod as islemDurumKodu")
+                ->join($islemDurumTabloAdi, "$islemDurumTabloAdi.id", "=", "$islemTabloAdi.durumId")
+                ->where("$islemTabloAdi.siparisId", $siparisId)
+                ->get()
+                ->toArray();
+
+            $siparis = Siparisler::find($siparisId);
+
+            // Sipariş işlemlerinin hepsi tamamlandığında siparişi tamamlandı olarak işaretle
+            $durumlar = array_count_values(array_column($siparisIslemleri, "islemDurumKodu"));
+
+            if (isset($durumlar["TAMAMLANDI"]) && $durumlar["TAMAMLANDI"] === count($siparisIslemleri))
+            {
+                $siparis->durumId = SiparisDurumlari::where("kod", "TAMAMLANDI")->first()->id;
+            }
+            else if (isset($durumlar["ISLEMDE"]) && $durumlar["ISLEMDE"] > 0)
+            {
+                $siparis->durumId = SiparisDurumlari::where("kod", "ISLEMDE")->first()->id;
+            }
+            else
+            {
+                $siparis->durumId = SiparisDurumlari::where("kod", "SIPARIS_ALINDI")->first()->id;
+            }
+
+            $siparis->save();
+
+            return true;
+        }
+        catch (\Exception $e)
+        {
+            return false;
+        }
+    }
+
+    public function formDurumKontrol($formId)
+    {
+        try
+        {
+            $islemTabloAdi = (new Islemler())->getTable();
+            $islemDurumTabloAdi = (new IslemDurumlari())->getTable();
+
+            $formIslemleri = Islemler::select("$islemTabloAdi.*", "$islemDurumTabloAdi.kod as islemDurumKodu")
+                ->join($islemDurumTabloAdi, "$islemDurumTabloAdi.id", "=", "$islemTabloAdi.durumId")
+                ->where("$islemTabloAdi.formId", $formId)
+                ->get()
+                ->toArray();
+
+            $form = Formlar::find($formId);
+
+            // Form işlemlerinin hepsi tamamlandığında formun bitisTarihi'ni ayarlar
+            $durumlar = array_count_values(array_column($formIslemleri, "islemDurumKodu"));
+
+            if (isset($durumlar["TAMAMLANDI"]) && $durumlar["TAMAMLANDI"] === count($formIslemleri))
+            {
+                $form->bitisTarihi = Carbon::now();
+            }
+            else
+            {
+                $form->bitisTarihi = null;
+            }
+
+            $form->save();
+
+            foreach ($formIslemleri as $islem)
+            {
+                $this->siparisDurumKontrol($islem["siparisId"]);
+            }
+
+            return true;
+        }
+        catch (\Exception $e)
+        {
+            return false;
+        }
     }
 }

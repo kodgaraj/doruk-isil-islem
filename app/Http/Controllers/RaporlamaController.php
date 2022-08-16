@@ -16,9 +16,12 @@ class RaporlamaController extends Controller
         $sonSiparisYili = Siparisler::selectRaw("YEAR(tarih) as yil")->groupBy('yil')->orderBy('yil', 'desc')->first();
         $ilkSiparisYili = Siparisler::selectRaw("YEAR(tarih) as yil")->groupBy('yil')->orderBy('yil', 'asc')->first();
 
+        $firinlar = Firinlar::all();
+
         return view('raporlama', [
             'ilkSiparisYili' => $ilkSiparisYili->yil,
             'sonSiparisYili' => $sonSiparisYili->yil,
+            "firinlar" => $firinlar,
         ]);
     }
 
@@ -26,19 +29,51 @@ class RaporlamaController extends Controller
     {
         try
         {
-            $yillikCiro = Siparisler::selectRaw('YEAR(tarih) as yil, SUM(tutar) as ciro')
+            $islemTabloAdi = (new Islemler())->getTable();
+            $siparisTabloAdi = (new Siparisler())->getTable();
+
+            $yillikCiro = Siparisler::selectRaw("
+                    YEAR(tarih) as yil,
+                    SUM(
+                        IF(
+                            $islemTabloAdi.paraBirimi = 'TL',
+                            IF (
+                                $islemTabloAdi.miktarFiyatCarp,
+                                $islemTabloAdi.birimFiyat * ($islemTabloAdi.miktar - $islemTabloAdi.dara),
+                                $islemTabloAdi.birimFiyat
+                            ),
+                            0
+                        )
+                    ) as ciroTL,
+                    SUM(
+                        IF(
+                            $islemTabloAdi.paraBirimi = 'USD',
+                            IF (
+                                $islemTabloAdi.miktarFiyatCarp,
+                                $islemTabloAdi.birimFiyat * ($islemTabloAdi.miktar - $islemTabloAdi.dara),
+                                $islemTabloAdi.birimFiyat
+                            ),
+                            0
+                        )
+                    ) as ciroUSD
+                ")
+                ->join($islemTabloAdi, $islemTabloAdi . '.siparisId', '=', $siparisTabloAdi . '.id')
                 ->groupBy('yil')
                 ->get();
 
             // dd($yillikCiro->toArray());
             $yillar = $yillikCiro->pluck('yil')->toArray();
-            $ciro = $yillikCiro->pluck('ciro')->toArray();
+            $ciroTL = $yillikCiro->pluck('ciroTL')->toArray();
+            $ciroUSD = $yillikCiro->pluck('ciroUSD')->toArray();
 
             return response()->json([
                 "durum" => true,
                 "mesaj" => "Yillik ciro getirildi",
                 "yillikCiro" => [
-                    "ciro" => $ciro,
+                    "ciro" => [
+                        "TL" => $ciroTL,
+                        "USD" => $ciroUSD,
+                    ],
                     "yillar" => $yillar,
                     "tumu" => $yillikCiro->toArray(),
                 ],
@@ -61,14 +96,44 @@ class RaporlamaController extends Controller
         try
         {
             $yil = $request->yil ?? date('Y');
-            $aylikCiro = Siparisler::selectRaw('MONTH(tarih) as ay, SUM(tutar) as ciro')
-                ->whereYear('tarih', $yil)
+
+            $islemTabloAdi = (new Islemler())->getTable();
+            $siparisTabloAdi = (new Siparisler())->getTable();
+
+            $aylikCiro = Siparisler::selectRaw("
+                    MONTH($siparisTabloAdi.tarih) as ay,
+                    SUM(
+                        IF(
+                            $islemTabloAdi.paraBirimi = 'TL',
+                            IF (
+                                $islemTabloAdi.miktarFiyatCarp,
+                                $islemTabloAdi.birimFiyat * ($islemTabloAdi.miktar - $islemTabloAdi.dara),
+                                $islemTabloAdi.birimFiyat
+                            ),
+                            0
+                        )
+                    ) as ciroTL,
+                    SUM(
+                        IF(
+                            $islemTabloAdi.paraBirimi = 'USD',
+                            IF (
+                                $islemTabloAdi.miktarFiyatCarp,
+                                $islemTabloAdi.birimFiyat * ($islemTabloAdi.miktar - $islemTabloAdi.dara),
+                                $islemTabloAdi.birimFiyat
+                            ),
+                            0
+                        )
+                    ) as ciroUSD
+                ")
+                ->join($islemTabloAdi, $islemTabloAdi . '.siparisId', '=' , $siparisTabloAdi . '.id')
+                ->whereYear("$siparisTabloAdi.tarih", $yil)
                 ->groupBy('ay')
                 ->get();
 
             // dd($aylikCiro->toArray());
             $aylar = $aylikCiro->pluck('ay')->toArray();
-            $ciro = $aylikCiro->pluck('ciro')->toArray();
+            $ciroTL = $aylikCiro->pluck('ciroTL')->toArray();
+            $ciroUSD = $aylikCiro->pluck('ciroUSD')->toArray();
 
             $ayIsimleri = [
                 1 => 'Oca',
@@ -94,7 +159,10 @@ class RaporlamaController extends Controller
                 "durum" => true,
                 "mesaj" => "Aylik ciro getirildi",
                 "aylikCiro" => [
-                    "ciro" => $ciro,
+                    "ciro" => [
+                        "TL" => $ciroTL,
+                        "USD" => $ciroUSD,
+                    ],
                     "aylar" => $aylar,
                     "tumu" => $aylikCiro->toArray(),
                 ],
@@ -129,7 +197,28 @@ class RaporlamaController extends Controller
                 $firinTabloAdi.kod,
                 $firinTabloAdi.json,
                 SUM($islemTabloAdi.miktar - $islemTabloAdi.dara) as tonaj,
-                SUM($islemTabloAdi.birimFiyat) as tutar
+                SUM(
+                    IF(
+                        $islemTabloAdi.paraBirimi = 'TL',
+                        IF (
+                            $islemTabloAdi.miktarFiyatCarp,
+                            $islemTabloAdi.birimFiyat * ($islemTabloAdi.miktar - $islemTabloAdi.dara),
+                            $islemTabloAdi.birimFiyat
+                        ),
+                        0
+                    )
+                ) as tutarTL,
+                SUM(
+                    IF(
+                        $islemTabloAdi.paraBirimi = 'USD',
+                        IF (
+                            $islemTabloAdi.miktarFiyatCarp,
+                            $islemTabloAdi.birimFiyat * ($islemTabloAdi.miktar - $islemTabloAdi.dara),
+                            $islemTabloAdi.birimFiyat
+                        ),
+                        0
+                    )
+                ) as tutarUSD
             ")
                 ->join($islemTabloAdi, "$firinTabloAdi.id", '=', "$islemTabloAdi.firinId")
                 ->groupBy(
@@ -156,15 +245,47 @@ class RaporlamaController extends Controller
 
             $firinlar = $firinlar->get();
 
+            $toplamlar = [
+                "tonaj" => 0,
+                "tutarTL" => 0,
+                "tutarUSD" => 0,
+                "firinSayisi" => 0,
+            ];
             foreach ($firinlar as &$firin)
             {
+                $firin->tutarTLYazi = $this->yaziyaDonustur($firin->tutarTL, [
+                    "paraBirimi" => $this->paraBirimleri["TL"],
+                ]);
+                $firin->tutarUSDYazi = $this->yaziyaDonustur($firin->tutarUSD, [
+                    "paraBirimi" => $this->paraBirimleri["USD"],
+                ]);
+                $firin->tonajYazi = $this->yaziyaDonustur($firin->tonaj, [
+                    "kg" => true,
+                ]);
+
                 $firin->json = json_decode($firin->json);
+
+                $toplamlar["tonaj"] += $firin->tonaj;
+                $toplamlar["tutarTL"] += $firin->tutarTL;
+                $toplamlar["tutarUSD"] += $firin->tutarUSD;
+                $toplamlar["firinSayisi"]++;
             }
+
+            $toplamlar["tonajYazi"] = $this->yaziyaDonustur($toplamlar["tonaj"], [
+                "kg" => true,
+            ]);
+            $toplamlar["tutarTLYazi"] = $this->yaziyaDonustur($toplamlar["tutarTL"], [
+                "paraBirimi" => $this->paraBirimleri["TL"],
+            ]);
+            $toplamlar["tutarUSDYazi"] = $this->yaziyaDonustur($toplamlar["tutarUSD"], [
+                "paraBirimi" => $this->paraBirimleri["USD"],
+            ]);
 
             return response()->json([
                 "durum" => true,
                 "mesaj" => "Firin bazli tonaj getirildi",
                 "firinlar" => $firinlar->toArray(),
+                "toplamlar" => $toplamlar,
             ]);
         }
         catch (\Exception $e)
@@ -197,7 +318,28 @@ class RaporlamaController extends Controller
                 $firmaTabloAdi.firmaAdi,
                 $firmaTabloAdi.sorumluKisi,
                 SUM($islemTabloAdi.miktar - $islemTabloAdi.dara) as tonaj,
-                SUM($islemTabloAdi.birimFiyat) as tutar
+                SUM(
+                    IF(
+                        $islemTabloAdi.paraBirimi = 'TL',
+                        IF (
+                            $islemTabloAdi.miktarFiyatCarp,
+                            $islemTabloAdi.birimFiyat * ($islemTabloAdi.miktar - $islemTabloAdi.dara),
+                            $islemTabloAdi.birimFiyat
+                        ),
+                        0
+                    )
+                ) as tutarTL,
+                SUM(
+                    IF(
+                        $islemTabloAdi.paraBirimi = 'USD',
+                        IF (
+                            $islemTabloAdi.miktarFiyatCarp,
+                            $islemTabloAdi.birimFiyat * ($islemTabloAdi.miktar - $islemTabloAdi.dara),
+                            $islemTabloAdi.birimFiyat
+                        ),
+                        0
+                    )
+                ) as tutarUSD
             ")
                 ->join($siparisTabloAdi, "$firmaTabloAdi.id", '=', "$siparisTabloAdi.firmaId")
                 ->join($islemTabloAdi, "$siparisTabloAdi.id", '=', "$islemTabloAdi.siparisId")
@@ -229,6 +371,19 @@ class RaporlamaController extends Controller
             }
 
             $firmalar = $firmalar->paginate(6);
+
+            foreach ($firmalar as &$firma)
+            {
+                $firma->tonajYazi = $this->yaziyaDonustur($firma->tonaj, [
+                    "kg" => true,
+                ]);
+                $firma->tutarTLYazi = $this->yaziyaDonustur($firma->tutarTL, [
+                    "paraBirimi" => $this->paraBirimleri["TL"],
+                ]);
+                $firma->tutarUSDYazi = $this->yaziyaDonustur($firma->tutarUSD, [
+                    "paraBirimi" => $this->paraBirimleri["USD"],
+                ]);
+            }
 
             return response()->json([
                 "durum" => true,

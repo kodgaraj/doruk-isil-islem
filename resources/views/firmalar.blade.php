@@ -1,13 +1,13 @@
 @extends('layout')
 @section('content')
     <div class="row doruk-content">
-        <h4 style="color:#999"><i class="fa fa-home"></i>FİRMALAR</h4>
+        <h4 style="color:#999"><i class="fas fa-globe"></i> FİRMALAR</h4>
         <div class="col-12">
             <div class="card" key="ANASAYFA">
-                <div class="card-header">
+                <div class="card-body">
                     <div class="row d-flex align-items-center">
                         <div class="col">
-                            <h4>
+                            <h4 class="card-title">
                                 <button class="btn btn-warning" v-if="aktifSayfa.geriFonksiyon"
                                     @click="aktifSayfa.geriFonksiyon()">
                                     <i class="fa fa-arrow-left"></i> GERİ
@@ -16,10 +16,39 @@
                             </h4>
                         </div>
                         <div class="col-auto">
-                            <button v-if="aktifSayfa.kod === 'ANASAYFA'" class="btn btn-sm btn-primary"
-                                @click="firmaEkleAc()">
-                                <i class="fa fa-plus"></i> FİRMA EKLE
-                            </button>
+                            <div class="row d-flex align-items-center">
+                                <div class="col">
+                                    <div class="input-group">
+                                        <input
+                                            v-model="filtrelemeObjesi.arama" t
+                                            ype="text"
+                                            class="form-control"
+                                            placeholder="Arama"
+                                            aria-label="Arama"
+                                            aria-describedby="arama"
+                                            @keyup.enter="firmalariGetir()"
+                                            @input="gecikmeliFonksiyon.varsayilan()"
+                                        />
+                                        <span @click="firmalariGetir()" class="input-group-text waves-effect"
+                                            id="arama">
+                                            <i class="mdi mdi-magnify"></i>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="col-auto">
+                                    <button v-if="aktifSayfa.kod === 'ANASAYFA'" class="btn btn-sm btn-primary"
+                                        @click="firmaEkleAc()">
+                                        <i class="fa fa-plus"></i> FİRMA EKLE
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12">
+                                    <small class="text-muted">
+                                        Firma adı/firma sorumlusu/telefon...
+                                    </small>
+                                </div>
+                            </div>
                             <!-- firma KAYDET BUTONU -->
                             <button v-if="aktifSayfa.kod === 'YENI_FIRMA' && !yukleniyorObjesi.firmaEkle"
                                 class="btn btn-primary" @click="firmaEkle()">
@@ -46,9 +75,19 @@
                                         <thead>
                                             <tr>
                                                 <th>ID</th>
-                                                <th>Firmalar</th>
-                                                <th class="text-center">Firma Sorumlusu</th>
-                                                <th class="text-center">Telefon</th>
+                                                <th @click="siralamaYap('firmaAdi')">
+                                                    Firmalar
+                                                    <template v-if="filtrelemeObjesi.siralamaTuru">
+                                                        <i :class="filtrelemeObjesi.siralamaTuru.firmaAdi === 'desc' ? 'fas fa-sort-alpha-down' : 'fas fa-sort-alpha-up'"></i>
+                                                    </template>
+                                                </th>
+                                                <th @click="siralamaYap('sorumluKisi')" class="text-center">
+                                                    Firma Sorumlusu
+                                                    <template v-if="filtrelemeObjesi.siralamaTuru">
+                                                        <i :class="filtrelemeObjesi.siralamaTuru.sorumluKisi === 'desc' ? 'fas fa-sort-alpha-down' : 'fas fa-sort-alpha-up'"></i>
+                                                    </template>
+                                                </th>
+                                                <th @click="siralamaYap('telefon')" class="text-center">Telefon</th>
                                                 <th class="text-center">İşlemler</th>
                                             </tr>
                                         </thead>
@@ -57,7 +96,7 @@
                                                 <tr v-for="(firma, index) in firmalar.data" :key="index">
                                                     <td># @{{ firma.id }}</td>
                                                     <td class="uzun-uzunluk">
-                                                            @{{ firma.firmaAdi }}
+                                                        @{{ firma.firmaAdi }}
                                                     </td>
                                                     <td class="kisa-uzunluk text-center">
                                                         @{{ firma.sorumluKisi }}
@@ -72,7 +111,7 @@
                                                         <button class="btn btn-sm btn-danger" @click="firmaSil(firma)">
                                                             <i class="fa fa-trash"></i>
                                                         </button>
-                                                    </td>                                                    
+                                                    </td>
                                                 </tr>
                                             </template>
                                             <template v-else>
@@ -92,17 +131,21 @@
                                     <div class="col">
                                         <ul class="pagination pagination-rounded justify-content-center mb-0">
                                             <li class="page-item">
-                                                <button class="page-link" :disabled="!firmalar.prev_page_url" @click="firmalariGetir(firmalar.prev_page_url)">Önceki</button>
+                                                <button class="page-link" :disabled="!firmalar.prev_page_url" @click="firmalariGetir(firmalar.prev_page_url)">
+                                                    <i class="fas fa-angle-left"></i>
+                                                </button>
                                             </li>
                                             <li
-                                                v-for="sayfa in firmalar.last_page"
+                                                v-for="sayfa in sayfalamaAyarla(firmalar.last_page, firmalar.current_page)"
                                                 class="page-item"
-                                                :class="[firmalar.current_page === sayfa ? 'active' : '']"
+                                                :class="[sayfa.aktif ? 'active' : '']"
                                             >
-                                                <button class="page-link" @click='firmalariGetir("{{ route("firmalariGetir") }}?page=" + sayfa)'>@{{ sayfa }}</button>
+                                                <button class="page-link" @click="sayfa.tur === 'SAYFA' ? firmalariGetir(`{{ route("firmalariGetir") }}?page=` + sayfa.sayfa) : ()  => {}">@{{ sayfa.sayfa }}</button>
                                             </li>
                                             <li class="page-item">
-                                                <button class="page-link" :disabled="!firmalar.next_page_url" @click="firmalariGetir(firmalar.next_page_url)">Sonraki</button>
+                                                <button class="page-link" :disabled="!firmalar.next_page_url" @click="firmalariGetir(firmalar.next_page_url)">
+                                                    <i class="fas fa-angle-right"></i>
+                                                </button>
                                             </li>
                                         </ul>
                                     </div>
@@ -123,8 +166,8 @@
                             </div>
                             <div class="col-12 col-sm-6 col-md-4">
                                 <label for="firma_sorumlusu">Firma Sorumlusu *</label>
-                                <input v-model="yeniFirma.sorumluKisi" autocomplete="off" id="firma_sorumlusu" type="text" class="form-control"
-                                    placeholder="Firma Sorumlusu" />
+                                <input v-model="yeniFirma.sorumluKisi" autocomplete="off" id="firma_sorumlusu"
+                                    type="text" class="form-control" placeholder="Firma Sorumlusu" />
                             </div>
                             <div class="col-12 col-sm-6 col-md-4">
                                 <label for="telefon">Telefon</label>
@@ -165,7 +208,7 @@
                         },
                         {
                             kod: "YENI_FIRMA",
-                            baslik: "Firma Düzenleme",
+                            baslik: "Firma Kaydet",
                             geriFonksiyon: () => this.geriAnasayfa(),
                         },
                     ],
@@ -180,10 +223,16 @@
                         sorumluKisi: "",
                         telefon: null,
                     },
+                    filtrelemeObjesi: {
+                        arama: "",
+                        siralamaTuru: null,
+                    },
                 };
             },
 
             mounted() {
+                this.gecikmeliFonksiyonCalistir(this.firmalariGetir);
+
                 this.firmalariGetir();
             },
             methods: {
@@ -192,6 +241,7 @@
                     axios.get(url, {
                             params: {
                                 sayfalama: true,
+                                filtreleme: this.filtrelemeObjesi,
                             }
                         })
                         .then(response => {
@@ -236,6 +286,7 @@
 
                     // this.yeniFirma.renk = _.find(this.renkler, ["kod", firma.json.renk]);
                     this.firmaEkleAc();
+                    this.aktifSayfa.baslik = "Firma Düzenleme";
                 },
                 firmaSil(firma) {
                     const islem = (cikisDurum) => {
@@ -291,9 +342,9 @@
                     });
                 },
                 firmaEkleAc() {
-                    this.aktifSayfa = _.find(this.sayfalar, {
+                    this.aktifSayfa = _.cloneDeep(_.find(this.sayfalar, {
                         kod: "YENI_FIRMA"
-                    });
+                    }));
                 },
                 firmaEkle() {
                     if (!this.yeniFirma.firmaAdi) {
@@ -362,6 +413,23 @@
                             });
                             console.log(error);
                         });
+                },
+                siralamaYap(alan){
+                    if(this.filtrelemeObjesi.siralamaTuru && this.filtrelemeObjesi.siralamaTuru[alan]){
+                        if(this.filtrelemeObjesi.siralamaTuru[alan]==='desc'){
+                            this.filtrelemeObjesi.siralamaTuru[alan] = 'asc'
+                        }
+                        else {
+                            this.filtrelemeObjesi.siralamaTuru[alan] = 'desc'
+                        }
+                    }
+                    else {
+                        this.filtrelemeObjesi.siralamaTuru = {
+                            [alan]: "desc"
+                        };
+                    }
+                    this.firmalariGetir();
+                    // console.log(this.filtrelemeObjesi.siralamaTuru);
                 },
                 turkceKarakterCevir(str) {
                     return str

@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\ExcelExporter;
 use App\Models\Firmalar;
 use App\Models\Islemler;
 use App\Models\IslemTurleri;
 use App\Models\Malzemeler;
 use App\Models\SiparisDurumlari;
 use App\Models\Siparisler;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -22,7 +24,9 @@ class SiparisController extends Controller
      */
     public function index()
     {
-        return view('siparis-formu');
+        return view('siparis-formu', [
+            "paraBirimleri" => array_values($this->paraBirimleri),
+        ]);
     }
 
     public function siparisler(Request $request)
@@ -31,11 +35,14 @@ class SiparisController extends Controller
         {
             $filtrelemeler = json_decode($request->filtreleme ?? "[]", true);
 
-            $sayfalamaSayisi = $request->sayfalamaSayisi ?? 10;
+            $cikti = isset($request->cikti) && json_decode($request->cikti) === true;
+
+            $sayfalamaSayisi = $cikti ? 9999 : ($request->sayfalamaSayisi ?? 10);
             $firmaTabloAdi = (new Firmalar())->getTable();
             $siparisDurumTabloAdi = (new SiparisDurumlari())->getTable();
             $siparisTabloAdi = (new Siparisler())->getTable();
             $islemTabloAdi = (new Islemler())->getTable();
+            $kullaniciTabloAdi = (new User())->getTable();
 
             $siparisler = Siparisler::select(DB::raw("
                     $siparisTabloAdi.id as siparisId,
@@ -51,11 +58,36 @@ class SiparisController extends Controller
                     $siparisDurumTabloAdi.ad as siparisDurumAdi,
                     $firmaTabloAdi.firmaAdi,
                     $firmaTabloAdi.sorumluKisi,
-                    COUNT(IF($islemTabloAdi.deleted_at IS NULL, $islemTabloAdi.id, NULL)) as islemSayisi
+                    $kullaniciTabloAdi.name as duzenleyen,
+                    COUNT(IF($islemTabloAdi.deleted_at IS NULL, $islemTabloAdi.id, NULL)) as islemSayisi,
+                    SUM($islemTabloAdi.miktar - $islemTabloAdi.dara) as net,
+                    SUM(
+                        IF(
+                            $islemTabloAdi.paraBirimi = 'TL',
+                            IF (
+                                $islemTabloAdi.miktarFiyatCarp,
+                                $islemTabloAdi.birimFiyat * ($islemTabloAdi.miktar - $islemTabloAdi.dara),
+                                $islemTabloAdi.birimFiyat
+                            ),
+                            0
+                        )
+                    ) as tutarTL,
+                    SUM(
+                        IF(
+                            $islemTabloAdi.paraBirimi = 'USD',
+                            IF (
+                                $islemTabloAdi.miktarFiyatCarp,
+                                $islemTabloAdi.birimFiyat * ($islemTabloAdi.miktar - $islemTabloAdi.dara),
+                                $islemTabloAdi.birimFiyat
+                            ),
+                            0
+                        )
+                    ) as tutarUSD
                 "))
                 ->join($firmaTabloAdi, $firmaTabloAdi . '.id', '=', $siparisTabloAdi . '.firmaId')
                 ->join($siparisDurumTabloAdi, $siparisDurumTabloAdi . '.id', '=', $siparisTabloAdi . '.durumId')
                 ->leftJoin($islemTabloAdi, $islemTabloAdi . '.siparisId', '=', $siparisTabloAdi . '.id')
+                ->leftJoin($kullaniciTabloAdi, $kullaniciTabloAdi . '.id', '=', $siparisTabloAdi . '.userId')
                 ->groupBy(
                     $siparisTabloAdi . '.id',
                     $siparisTabloAdi . '.ad',
@@ -69,7 +101,8 @@ class SiparisController extends Controller
                     $siparisTabloAdi . '.aciklama',
                     $siparisDurumTabloAdi . '.ad',
                     $firmaTabloAdi . '.firmaAdi',
-                    $firmaTabloAdi . '.sorumluKisi'
+                    $firmaTabloAdi . '.sorumluKisi',
+                    $kullaniciTabloAdi . '.name',
                 )
                 ->orderBy($siparisTabloAdi . '.created_at', 'desc');
 
@@ -107,6 +140,11 @@ class SiparisController extends Controller
                 $siparisler = $siparisler->where("$siparisTabloAdi.tarih", "<=", $filtrelemeler["bitisTarihi"]);
             }
 
+            if (isset($filtrelemeler["siparisId"]) && $filtrelemeler["siparisId"])
+            {
+                $siparisler = $siparisler->where("$siparisTabloAdi.id", $filtrelemeler["siparisId"]);
+            }
+
             $siparisler = $siparisler->paginate($sayfalamaSayisi)->toArray();
 
             foreach ($siparisler["data"] as &$siparis)
@@ -115,6 +153,35 @@ class SiparisController extends Controller
 
                 $siparis["gecenSure"] = $terminBilgileri["gecenSure"];
                 $siparis["gecenSureRenk"] = $terminBilgileri["gecenSureRenk"];
+
+                $siparis["tutarTLYazi"] = $this->yaziyaDonustur($siparis["tutarTL"], [
+                    "paraBirimi" => $this->paraBirimleri["TL"],
+                ]);
+                $siparis["tutarUSDYazi"] = $this->yaziyaDonustur($siparis["tutarUSD"], [
+                    "paraBirimi" => $this->paraBirimleri["USD"],
+                ]);
+                $siparis["netYazi"] = $this->yaziyaDonustur($siparis["net"], ["kg" => true]);
+            }
+
+            if ($cikti)
+            {
+                return (
+                    new ExcelExporter($siparisler["data"], [
+                        "siparisId" => "Sipariş ID",
+                        "siparisNo" => "Sipariş No",
+                        "gecenSure" => "Termin",
+                        "firmaAdi" => "Firma",
+                        "islemSayisi" => "İşlem Sayısı",
+                        "netYazi" => "Miktar (Net)",
+                        "tutarTLYazi" => "Tutar (TL)",
+                        "tutarUSDYazi" => "Tutar (USD)",
+                        [
+                            "key" => "tarih",
+                            "value" => "Sipariş Tarihi",
+                            "tur" => "TARIH"
+                        ],
+                    ])
+                )->downloadExcel("Sipariş Listesi");
             }
 
             return response()->json([
@@ -279,6 +346,25 @@ class SiparisController extends Controller
                     $islemModel = new Islemler();
                 }
 
+                $islemJson = $islem["json"] ?? null;
+
+                if ($islemJson === null)
+                {
+                    if (isset($islem["daraSonraGirilecek"]) && $islem["daraSonraGirilecek"])
+                    {
+                        $islemJson = [
+                            "daraSonraGirilecek" => true,
+                        ];
+                    }
+                }
+                else
+                {
+                    $islemJson = [
+                        ...$islemJson,
+                        "daraSonraGirilecek" => $islem["daraSonraGirilecek"] ?? false
+                    ];
+                }
+
                 // dd($islemModel->siparisId, $siparisIslemleri, $siparis->id);
 
                 $islemModel->siparisId = $siparis->id;
@@ -286,13 +372,15 @@ class SiparisController extends Controller
                 $islemModel->islemTuruId = $islem['yapilacakIslem']["id"] ?? null;
                 $islemModel->durumId = $islem['islemDurumu']["id"] ?? null;
                 $islemModel->siraNo = $key + 1;
-                $islemModel->adet = $islem['adet'];
+                $islemModel->adet = $islem['adet'] ?? 1;
                 $islemModel->miktar = $islem['miktar'];
                 $islemModel->dara = $islem['dara'];
                 $islemModel->birimFiyat = $islem['birimFiyat'];
+                $islemModel->paraBirimi = $islem['paraBirimi']["kod"] ?? "TL";
+                $islemModel->miktarFiyatCarp = $islem['miktarFiyatCarp'] ?? 1;
                 $islemModel->kalite = $islem['kalite'];
                 $islemModel->istenilenSertlik = $islem['istenilenSertlik'];
-                $islemModel->json = $islem['json'] ?? null;
+                $islemModel->json = $islemJson !== null ? json_encode($islemJson) : null;
 
                 if (isset($islem["yeniResimSecildi"], $islem["resim"]) && $islem["yeniResimSecildi"] && $islem["resim"])
                 {
@@ -393,19 +481,54 @@ class SiparisController extends Controller
         try
         {
             $siparisId = $request->siparisId;
-
-            $malzemeTabloAdi = (new Malzemeler())->getTable();
-            $islemTuruTabloAdi = (new IslemTurleri())->getTable();
-            $islemTabloAdi = (new Islemler())->getTable();
+            $siparisDetaylariGetir = $request->detaylariGetir;
 
             $islemler = Islemler::where('siparisId', $siparisId)->get();
+
+            $donecekVeriler = [
+                "islemler" => $islemler,
+            ];
+
+            if ($siparisDetaylariGetir)
+            {
+                $firmaTabloAdi = (new Firmalar())->getTable();
+                $siparisDurumTabloAdi = (new SiparisDurumlari())->getTable();
+                $siparisTabloAdi = (new Siparisler())->getTable();
+
+                $siparisDetaylari = Siparisler::select("$siparisTabloAdi.*", $firmaTabloAdi . ".firmaAdi", "$firmaTabloAdi.sorumluKisi", $siparisDurumTabloAdi . ".ad as siparisDurumAdi")
+                    ->join($firmaTabloAdi, $firmaTabloAdi . ".id", "=", "$siparisTabloAdi.firmaId")
+                    ->join($siparisDurumTabloAdi, $siparisDurumTabloAdi . ".id", "=", "$siparisTabloAdi.durumId")
+                    ->where("$siparisTabloAdi.id", $siparisId)
+                    ->first()
+                    ->toArray();
+
+                    $terminBilgileri = $this->terminHesapla($siparisDetaylari["tarih"], $siparisDetaylari["terminSuresi"]);
+
+                    $siparisDetaylari["gecenSure"] = $terminBilgileri["gecenSure"];
+                    $siparisDetaylari["gecenSureRenk"] = $terminBilgileri["gecenSureRenk"];
+
+                $donecekVeriler["siparisDetaylari"] = $siparisDetaylari;
+            }
+
+            foreach ($donecekVeriler["islemler"] as &$islem)
+            {
+                $paraBirimi = $this->paraBirimleri[$islem["paraBirimi"]];
+                $islem["miktarYazi"] = $this->yaziyaDonustur($islem["miktar"], ["kg" => true]);
+                $islem["daraYazi"] = $this->yaziyaDonustur($islem["dara"], ["kg" => true]);
+                $islem["birimFiyatYazi"] = $this->yaziyaDonustur($islem["birimFiyat"], [
+                    "paraBirimi" => $paraBirimi
+                ]);
+                $islem["paraBirimi"] = $paraBirimi;
+
+                $islem["json"] = json_decode($islem["json"], true);
+
+                $islem["daraSonraGirilecek"] = $islem["json"] && $islem["json"]["daraSonraGirilecek"];
+            }
 
             return response()->json([
                 'durum' => true,
                 'mesaj' => 'Sipariş başarıyla getirildi.',
-                'veriler' => [
-                    "islemler" => $islemler,
-                ],
+                'veriler' => $donecekVeriler,
             ]);
         }
         catch(\Exception $e)

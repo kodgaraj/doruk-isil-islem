@@ -13,6 +13,10 @@ class Firmalar extends Model
 
     protected $table = 'firmalar';
 
+    protected $casts = [
+        "id" => "integer",
+    ];
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()

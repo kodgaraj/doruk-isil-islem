@@ -8,6 +8,8 @@ use App\Providers\RouteServiceProvider;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
+use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
 use Illuminate\Support\Facades\Hash;
 
 class AuthenticatedSessionController extends Controller
@@ -51,6 +53,62 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerateToken();
 
-        return redirect('/');
+        return $request->ajax()
+            ? response()->json([
+                "durum" => true,
+                "url" => route('login'),
+            ])
+            : redirect('/');
+    }
+
+    public function jwtLogin(Request $request)
+    {
+        $jwt = $request->jwt;
+
+        if (!$jwt) {
+            return response()->json([
+                'durum' => false,
+                'mesaj' => 'JWT bulunamadı',
+            ]);
+        }
+
+        try
+        {
+            $secretKey = config('app.jwt.secret');
+            $kullanici = JWT::decode($jwt, new Key($secretKey, 'HS256'));
+            // Kafa karıştırmaması için jwt keyini siliyoruz
+            if (isset($kullanici->jwt)) {
+                unset($kullanici->jwt);
+            }
+        }
+        catch (\Exception $e)
+        {
+            return response()->json([
+                'durum' => false,
+                'mesaj' => 'JWT hatası',
+                "hataKodu" => "JWT_HATASI",
+            ]);
+        }
+
+        $kullaniciBilgileri = User::find($kullanici->id);
+
+        if (!$kullaniciBilgileri) {
+            return response()->json([
+                'durum' => false,
+                'mesaj' => 'Kullanıcı bulunamadı',
+            ]);
+        }
+
+        auth()->login($kullaniciBilgileri);
+
+        $request->session()->regenerate();
+
+        return $request->ajax()
+            ? response()->json([
+                'durum' => true,
+                'mesaj' => 'Giriş başarılı',
+                'kullanici' => $kullanici,
+            ])
+            : redirect()->intended(RouteServiceProvider::Anasayfa);
     }
 }

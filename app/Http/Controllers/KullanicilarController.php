@@ -79,11 +79,6 @@ class KullanicilarController extends Controller
                 ? bcrypt($kullaniciBilgileri["password"])
                 : $kullanici->password;
 
-            if (!isset($kullaniciBilgileri["id"]))
-            {
-                $kullanici->jwt = JWT::encode([], config('app.jwt.secret'), 'HS256');
-            }
-
             if (!$kullanici->save())
             {
                 DB::rollBack();

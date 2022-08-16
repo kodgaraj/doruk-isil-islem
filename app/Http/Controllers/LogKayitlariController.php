@@ -41,7 +41,9 @@ class LogKayitlariController extends Controller
             {
                 $logKayitlari->where("$logTabloAdi.description", "like", "%" . $filtreleme["arama"] . "%")
                     ->orWhere("$logTabloAdi.subject_id", "like", "%" . $filtreleme["arama"] . "%")
-                    ->orWhere("$logTabloAdi.causer_id", "like", "%" . $filtreleme["arama"] . "%");
+                    ->orWhere("$logTabloAdi.causer_id", "like", "%" . $filtreleme["arama"] . "%")
+                    ->orWhere("$kullaniciTabloAdi.id", "like", "%" . $filtreleme["arama"] . "%")
+                    ->orWhere("$kullaniciTabloAdi.name", "like", "%" . $filtreleme["arama"] . "%");
             }
 
             if (isset($filtreleme["kullanicilar"]) && count($filtreleme["kullanicilar"]) > 0)

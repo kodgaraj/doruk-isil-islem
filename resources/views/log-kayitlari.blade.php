@@ -23,6 +23,7 @@
                                         aria-label="Arama"
                                         aria-describedby="arama"
                                         @keyup.enter="logKayitlariGetir()"
+                                        @input="gecikmeliFonksiyon.varsayilan()"
                                     />
                                     <span @click="logKayitlariGetir()" class="input-group-text waves-effect" id="arama">
                                         <i class="mdi mdi-magnify"></i>
@@ -244,6 +245,8 @@
                 };
             },
             mounted() {
+                this.gecikmeliFonksiyonCalistir(this.logKayitlariGetir);
+
                 this.logKayitlariGetir();
             },
             methods: {

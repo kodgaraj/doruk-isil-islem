@@ -1,7 +1,19 @@
-@extends('layout') 
+@extends('layout')
 @section('content')
 <div class="row doruk-content">
-    <h4 style="color:#999"><i class="mdi mdi-progress-wrench"></i> ISIL İŞLEMLER</h4>
+    <div class="d-inline-flex">
+        <h4 style="color:#999"><i class="mdi mdi-progress-wrench"></i> ISIL İŞLEMLER</h4>
+        <div class="ms-1">
+            <button @click="sorguParametreleriTemizle" v-if="sorguParametreleri.islemId" class="btn btn-danger btn-sm">
+                <b>İşlem ID: @{{ sorguParametreleri.islemId }}</b>
+                <i class="fas fa-times"></i>
+            </button>
+            <button @click="sorguParametreleriTemizle" v-if="sorguParametreleri.tur" class="btn btn-danger btn-sm">
+                <b>@{{ sorguParametreleri.tur }}</b>
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </div>
     <div class="col-12">
         <div class="card">
             <div class="card-header">
@@ -26,6 +38,7 @@
                                         aria-label="Arama"
                                         aria-describedby="arama"
                                         @keyup.enter="filtrele()"
+                                        @input="gecikmeliFonksiyon.varsayilan()"
                                     />
                                     <span @click="filtrele()" class="input-group-text waves-effect" id="arama">
                                         <i class="mdi mdi-magnify"></i>
@@ -111,9 +124,28 @@
                                                     </label>
                                                 </div>
                                             </div>
+                                            <div class="col-12 m-0">
+                                                <div class="form-check">
+                                                    <input
+                                                        class="form-check-input"
+                                                        type="checkbox"
+                                                        id="gecikmisIslemleriGoster"
+                                                        v-model="filtrelemeObjesi.gecikmisIslemleriGoster"
+                                                    />
+                                                    <label class="form-check-label" for="gecikmisIslemleriGoster">
+                                                        Gecikmiş işlemleri göster
+                                                    </label>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                     <div class="modal-footer">
+                                        @can("siparis_ucreti_goruntuleme")
+                                            <button type="button" class="btn btn-success" data-bs-dismiss="modal" @click="excelCikti()">
+                                                <i class="fas fa-file-excel"></i>
+                                                EXCEL
+                                            </button>
+                                        @endcan
                                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">VAZGEÇ</button>
                                         <button type="button" class="btn btn-primary" data-bs-dismiss="modal" @click="filtrele()">ARA</button>
                                     </div>
@@ -164,11 +196,16 @@
                                             @click.stop=""
                                             style="cursor: pointer;"
                                             :style="{
-                                                backgroundColor: islem.tekrarEdenId ? '#F8747450' : '#fff',
                                                 border: islem.tekrarEdenId ? '1px solid #F87474' : '',
                                                 borderRadius: islem.tekrarEdenId ? '4px' : '',
                                             }"
                                             :key="iIndex"
+                                            :class="{
+                                                'table-danger': !!islem.tekrarEdenId,
+                                                'table-primary': islem.islemDurumuKodu === 'ISLEM_BEKLIYOR',
+                                                'table-warning': islem.islemDurumuKodu === 'ISLEMDE',
+                                                'table-success': islem.islemDurumuKodu === 'TAMAMLANDI',
+                                            }"
                                         >
                                             <td>
                                                 <div class="row">
@@ -181,11 +218,16 @@
                                                     <div class="col-12">
                                                         <span class="badge badge-pill bg-primary">Sipariş No: @{{ islem.siparisNo }}</span>
                                                     </div>
-                                                    <div class="col-12">
+                                                    <div class="col-12" v-if="!islem.bitisTarihi">
                                                         <span class="badge badge-pill" :class="`bg-${ islem.gecenSureRenk }`">Termin: @{{ islem.gecenSure }} Gün</span>
                                                     </div>
                                                     <div class="col-12">
                                                         <small class="text-muted">Firma: @{{ islem.firmaAdi }}</small>
+                                                    </div>
+                                                    <div v-if="islem.bolunmusId" class="col-12">
+                                                        <span class="badge rounded-pill bg-warning">
+                                                            Bölünmüş İşlem ID: @{{ islem.bolunmusId }}
+                                                        </span>
                                                     </div>
                                                 </div>
                                             </td>
@@ -196,7 +238,7 @@
                                                     @click.stop="resimOnizlemeAc(islem.resimYolu)"
                                                 />
                                             </td>
-                                            <td>
+                                            <td class="orta-uzunluk">
                                                 <div class="row">
                                                     <div class="col-12">
                                                         @{{ islem.malzemeAdi }}
@@ -210,9 +252,12 @@
                                                     <div class="col-12">
                                                         <small class="text-muted">Dara: @{{ islem.dara }} kg</small>
                                                     </div>
+                                                    <div class="col-12">
+                                                        <b class="text-muted">Net: @{{ islem.net }} kg</b>
+                                                    </div>
                                                 </div>
                                             </td>
-                                            <td>
+                                            <td class="orta-uzunluk">
                                                 <div class="row">
                                                     <div class="col-12">
                                                         <small class="text-muted">Türü: @{{ islem.islemTuruAdi ? islem.islemTuruAdi : "-" }}</small>
@@ -225,7 +270,7 @@
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td>
+                                            <td class="kisa-uzunluk">
                                                 <div class="row">
                                                     <div class="col-12">
                                                         <span class="badge badge-pill" :class="`bg-${ islem.firinRenk }`">@{{ islem.firinAdi }}</span>
@@ -242,11 +287,11 @@
                                                 <div class="btn-group row">
                                                     <div class="col-12">
                                                         <b :class="islem.islemDurumuRenk">
-                                                            @{{ islem.islemDurumuAdi }}
                                                             <i
                                                                 class="ml-2"
                                                                 :class="islem.islemDurumuIkon"
                                                             ></i>
+                                                            @{{ islem.islemDurumuAdi }}
                                                         </b>
                                                     </div>
                                                     <hr class="m-2" />
@@ -269,13 +314,6 @@
                                                         @endcan
                                                         <template v-if="islem.islemDurumuKodu === 'TAMAMLANDI'">
                                                             @can("isil_islem_duzenleme")
-                                                                <button
-                                                                    v-if="islem.bildirim !== 1"
-                                                                    class="btn btn-info btn-sm"
-                                                                    @click.stop="islemBildirimAt(islem)"
-                                                                >
-                                                                    <i class="mdi mdi-bell"></i>
-                                                                </button>
                                                                 <button
                                                                     class="btn btn-danger btn-sm"
                                                                     @click.stop="islemTamamlandiGeriAl(islem)"
@@ -387,11 +425,11 @@
                                                         <div class="btn-group row">
                                                             <div class="col-12">
                                                                 <b :class="tekrarEdenIslem.islemDurumuRenk">
-                                                                    @{{ tekrarEdenIslem.islemDurumuAdi }}
                                                                     <i
                                                                         class="ml-2"
                                                                         :class="tekrarEdenIslem.islemDurumuIkon"
                                                                     ></i>
+                                                                    @{{ tekrarEdenIslem.islemDurumuAdi }}
                                                                 </b>
                                                             </div>
                                                             <hr class="m-2" />
@@ -414,13 +452,6 @@
                                                                 @endcan
                                                                 <template v-if="tekrarEdenIslem.islemDurumuKodu === 'TAMAMLANDI'">
                                                                     @can("isil_islem_duzenleme")
-                                                                        <button
-                                                                            v-if="tekrarEdenIslem.bildirim !== 1"
-                                                                            class="btn btn-info btn-sm"
-                                                                            @click.stop="islemBildirimAt(tekrarEdenIslem)"
-                                                                        >
-                                                                            <i class="mdi mdi-bell"></i>
-                                                                        </button>
                                                                         <button
                                                                             class="btn btn-danger btn-sm"
                                                                             @click.stop="islemTamamlandiGeriAl(tekrarEdenIslem)"
@@ -470,17 +501,21 @@
                     <div class="col">
                         <ul class="pagination pagination-rounded justify-content-center mb-0">
                             <li class="page-item">
-                                <button class="page-link" :disabled="!islemler.prev_page_url" @click="isilIslemleriGetir(islemler.prev_page_url)">Önceki</button>
+                                <button class="page-link" :disabled="!islemler.prev_page_url" @click="isilIslemleriGetir(islemler.prev_page_url)">
+                                    <i class="fas fa-angle-left"></i>
+                                </button>
                             </li>
                             <li
-                                v-for="sayfa in islemler.last_page"
+                                v-for="sayfa in sayfalamaAyarla(islemler.last_page, islemler.current_page)"
                                 class="page-item"
-                                :class="[islemler.current_page === sayfa ? 'active' : '']"
+                                :class="[sayfa.aktif ? 'active' : '']"
                             >
-                                <button class="page-link" @click='isilIslemleriGetir("{{ route("islemler") }}?page=" + sayfa)'>@{{ sayfa }}</button>
+                                <button class="page-link" @click="sayfa.tur === 'SAYFA' ? isilIslemleriGetir(`{{ route("islemler") }}?page=` + sayfa.sayfa) : ()  => {}">@{{ sayfa.sayfa }}</button>
                             </li>
                             <li class="page-item">
-                                <button class="page-link" :disabled="!islemler.next_page_url" @click="isilIslemleriGetir(islemler.next_page_url)">Sonraki</button>
+                                <button class="page-link" :disabled="!islemler.next_page_url" @click="isilIslemleriGetir(islemler.next_page_url)">
+                                    <i class="fas fa-angle-right"></i>
+                                </button>
                             </li>
                         </ul>
                     </div>
@@ -528,21 +563,84 @@
                     },
                     firinlar: @json($firinlar),
                     islemDurumlari: @json($islemDurumlari),
+                    sorguParametreleri: {
+                        islemId: null,
+                        tur: null,
+                    },
                 };
             },
             mounted() {
-                this.isilIslemleriGetir();
+                this.onyukleme();
             },
             methods: {
-                isilIslemleriGetir(url = "{{ route('islemler') }}") {
+                onyukleme() {
+                    let url = new URL(window.location.href);
+                    this.sorguParametreleri.islemId = _.toNumber(url.searchParams.get("islemId"));
+                    this.sorguParametreleri.tur = url.searchParams.get("tur");
+
+                    if (this.sorguParametreleri.islemId) {
+                        this.filtrelemeObjesi.islemId = this.sorguParametreleri.islemId;
+                    }
+
+                    if (this.sorguParametreleri.tur && this.sorguParametreleri.tur === "GECIKMIS") {
+                        this.filtrelemeObjesi.gecikmisIslemleriGoster = true;
+                    }
+
+                    this.gecikmeliFonksiyonCalistir(this.filtrele);
+
+                    this.isilIslemleriGetir();
+                },
+                sorguParametreleriTemizle() {
+                    this.sorguParametreleri = {
+                        islemId: null,
+                        tur: null,
+                    };
+
+                    delete this.filtrelemeObjesi.islemId;
+                    this.filtrelemeObjesi.gecikmisIslemleriGoster = false;
+
+                    window.history.replaceState({}, document.title, (new URL(window.location.href)).pathname)
+
+                    this.isilIslemleriGetir();
+                },
+                isilIslemleriGetir(url = "{{ route('islemler') }}", cikti = false) {
                     this.yukleniyorObjesi.islemler = true;
                     axios.get(url, {
                         params: {
+                            cikti,
                             filtreleme: this.filtrelemeObjesi,
                         },
+                        responseType: cikti ? "blob" : "json",
                     })
-                    .then(response => {
+                    .then(async response => {
                         this.yukleniyorObjesi.islemler = false;
+
+                        if (cikti) {
+                            const dosyaAdi = 'İşlem Listesi ' + moment().format('L LTS');
+                            const uzanti = "xlsx";
+                            // convert blob
+                            const blob = new Blob([response.data]);
+                            if (this.isNativeApp) {
+                                const base64 = await this.blobToBase64(blob);
+                                window.ReactNativeWebView.postMessage(JSON.stringify({
+                                    kod: "INDIR",
+                                    dosya: base64,
+                                    dosyaAdi: dosyaAdi,
+                                    dosyaUzantisi: uzanti,
+                                }));
+                                return;
+                            }
+                            const url = window.URL.createObjectURL(blob);
+                            const link = document.createElement('a');
+                            link.href = url;
+                            link.download = dosyaAdi + '.' + uzanti;
+                            link.click();
+
+                            window.URL.revokeObjectURL(url);
+
+                            return;
+                        }
+
                         if (!response.data.durum) {
                             return this.uyariAc({
                                 baslik: 'Hata',
@@ -721,6 +819,9 @@
                 },
                 filtrele() {
                     this.isilIslemleriGetir();
+                },
+                excelCikti() {
+                    this.isilIslemleriGetir(undefined, true);
                 },
             }
         };

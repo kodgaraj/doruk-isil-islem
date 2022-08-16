@@ -89,17 +89,21 @@
                                 <div class="col">
                                     <ul class="pagination pagination-rounded justify-content-center mb-0">
                                         <li class="page-item">
-                                            <button class="page-link" :disabled="!kullanicilar.prev_page_url" @click="kullanicilariGetir(kullanicilar.prev_page_url)">Önceki</button>
+                                            <button class="page-link" :disabled="!kullanicilar.prev_page_url" @click="kullanicilariGetir(kullanicilar.prev_page_url)">
+                                                <i class="fas fa-angle-left"></i>
+                                            </button>
                                         </li>
                                         <li
-                                            v-for="sayfa in kullanicilar.last_page"
+                                            v-for="sayfa in sayfalamaAyarla(kullanicilar.last_page, kullanicilar.current_page)"
                                             class="page-item"
-                                            :class="[kullanicilar.current_page === sayfa ? 'active' : '']"
+                                            :class="[sayfa.aktif ? 'active' : '']"
                                         >
-                                            <button class="page-link" @click='kullanicilariGetir("{{ route("kullanicilariGetir") }}?page=" + sayfa)'>@{{ sayfa }}</button>
+                                            <button class="page-link" @click="sayfa.tur === 'SAYFA' ? kullanicilariGetir('/kullanicilariGetir?page=' + sayfa.sayfa) : ()  => {}">@{{ sayfa.sayfa }}</button>
                                         </li>
                                         <li class="page-item">
-                                            <button class="page-link" :disabled="!kullanicilar.next_page_url" @click="kullanicilariGetir(kullanicilar.next_page_url)">Sonraki</button>
+                                            <button class="page-link" :disabled="!kullanicilar.next_page_url" @click="kullanicilariGetir(kullanicilar.next_page_url)">
+                                                <i class="fas fa-angle-right"></i>
+                                            </button>
                                         </li>
                                     </ul>
                                 </div>

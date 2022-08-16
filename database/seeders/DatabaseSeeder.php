@@ -10,6 +10,7 @@ use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 class DatabaseSeeder extends Seeder
@@ -174,6 +175,145 @@ class DatabaseSeeder extends Seeder
             $mesajlar[] = 'Okunmamış bildirimler tablosu oluşturuldu > ' . date('Y-m-d H:i:s');
         }
 
+        // Kullanıcılar tablosuna pushToken alanı eklenmesi
+        if (!Schema::hasColumn("users", "pushToken")) {
+            Schema::table("users", function (Blueprint $table) {
+                $table->string('pushToken')->nullable()->after('password');
+            });
+
+            $mesajlar[] = 'Kullanıcılar tablosuna pushToken alanı eklendi > ' . date('Y-m-d H:i:s');
+        }
+
+        // İşlemler tablosuna miktarFiyatCarp alanı eklenmesi
+        if (!Schema::hasColumn("islemler", "miktarFiyatCarp")) {
+            Schema::table("islemler", function (Blueprint $table) {
+                $table->tinyInteger('miktarFiyatCarp')
+                    ->default(1)
+                    ->after('birimFiyat');
+            });
+
+            $mesajlar[] = 'İşlemler tablosuna miktarFiyatCarp alanı eklendi > ' . date('Y-m-d H:i:s');
+        }
+
+        // İşlemler tablosundaki miktar, dara ve birimFiyat alanlarının tipinin değiştirilmesi
+        if (Schema::hasColumn("islemler", "miktar") && Schema::hasColumn("islemler", "dara") && Schema::hasColumn("islemler", "birimFiyat")) {
+            $miktarTuru = DB::select("SELECT DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = 'islemler' AND COLUMN_NAME = 'miktar'")[0]->DATA_TYPE;
+            $daraTuru = DB::select("SELECT DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = 'islemler' AND COLUMN_NAME = 'dara'")[0]->DATA_TYPE;
+            $birimFiyatTuru = DB::select("SELECT DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = 'islemler' AND COLUMN_NAME = 'birimFiyat'")[0]->DATA_TYPE;
+
+            if ($miktarTuru !== "double")
+            {
+                DB::statement('ALTER TABLE islemler MODIFY miktar DOUBLE(15, 2) DEFAULT 0');
+
+                $mesajlar[] = 'İşlemler tablosundaki miktar alanının tipi değiştirildi > ' . date('Y-m-d H:i:s');
+            }
+
+            if ($daraTuru !== "double")
+            {
+                DB::statement('ALTER TABLE islemler MODIFY dara DOUBLE(15, 2) DEFAULT 0');
+
+                $mesajlar[] = 'İşlemler tablosundaki dara alanının tipi değiştirildi > ' . date('Y-m-d H:i:s');
+            }
+
+            if ($birimFiyatTuru !== "double")
+            {
+                DB::statement('ALTER TABLE islemler MODIFY birimFiyat DOUBLE(15, 2) DEFAULT 0');
+
+                $mesajlar[] = 'İşlemler tablosundaki birimFiyat alanının tipi değiştirildi > ' . date('Y-m-d H:i:s');
+            }
+        }
+
+        // İşlemler tablosuna paraBirimi alanı eklenmesi
+        if (!Schema::hasColumn("islemler", "paraBirimi")) {
+            Schema::table("islemler", function (Blueprint $table) {
+                $table->string('paraBirimi')
+                    ->default('TL')
+                    ->after('birimFiyat')
+                    ->comment("İşlemin para birimi (kod cinsinden; TL, USD vb.)");
+            });
+
+            $mesajlar[] = 'İşlemler tablosuna paraBirimi alanı eklendi > ' . date('Y-m-d H:i:s');
+        }
+
+        // Formlar tablosuna userId alanı eklenmesi
+        if (!Schema::hasColumn("formlar", "userId")) {
+            Schema::table("formlar", function (Blueprint $table) {
+                $table->integer('userId')
+                    ->nullable()
+                    ->after('id')
+                    ->comment("Formu oluşturan kullanıcı idsi (users tablosundan)");
+            });
+
+            $mesajlar[] = 'Formlar tablosuna userId alanı eklendi > ' . date('Y-m-d H:i:s');
+        }
+
+        // İşlem tablosuna baslangicTarihi ve bitisTarihi alanlarının eklenmesi
+        if (!Schema::hasColumn("islemler", "baslangicTarihi")) {
+            Schema::table("islemler", function (Blueprint $table) {
+                $table->dateTime('baslangicTarihi')
+                    ->nullable()
+                    ->after('resimYolu')
+                    ->comment("İşlemin başlangıç tarihi");
+            });
+
+            $mesajlar[] = 'İşlemler tablosuna baslangicTarihi alanı eklendi > ' . date('Y-m-d H:i:s');
+        }
+
+        if (!Schema::hasColumn("islemler", "bitisTarihi")) {
+            Schema::table("islemler", function (Blueprint $table) {
+                $table->dateTime('bitisTarihi')
+                    ->nullable()
+                    ->after('baslangicTarihi')
+                    ->comment("İşlemin bitiş tarihi");
+            });
+
+            $mesajlar[] = 'İşlemler tablosuna bitisTarihi alanı eklendi > ' . date('Y-m-d H:i:s');
+        }
+
+        // Siparişler tablosuna bitisTarihi alanı eklenmesi
+        if (!Schema::hasColumn("siparisler", "bitisTarihi")) {
+            Schema::table("siparisler", function (Blueprint $table) {
+                $table->dateTime('bitisTarihi')
+                    ->nullable()
+                    ->after('tarih')
+                    ->comment("Siparişin bitiş tarihi");
+            });
+
+            $mesajlar[] = 'Siparişler tablosuna bitisTarihi alanı eklendi > ' . date('Y-m-d H:i:s');
+        }
+
+        // İşlemler tablosuna terminBildirim alanı eklenmesi
+        if (!Schema::hasColumn("islemler", "terminBildirim")) {
+            Schema::table("islemler", function (Blueprint $table) {
+                $table->tinyInteger('terminBildirim')
+                    ->default(0)
+                    ->after('bitisTarihi')
+                    ->comment("İşlemin termin süresi geçtiyse bildirim atılması (0: atılmadı, 1: atıldı)");
+            });
+
+            $mesajlar[] = 'İşlemler tablosuna terminBildirim alanı eklendi > ' . date('Y-m-d H:i:s');
+        }
+
+        // İşlemler tablosundan bildirim alanının kaldırılması
+        if (Schema::hasColumn("islemler", "bildirim")) {
+            Schema::table("islemler", function (Blueprint $table) {
+                $table->dropColumn('bildirim');
+            });
+
+            $mesajlar[] = 'İşlemler tablosundan bildirim alanı kaldırıldı > ' . date('Y-m-d H:i:s');
+        }
+
+        // İşlemler tablosuna bolunmusId alanı eklenmesi
+        if (!Schema::hasColumn("islemler", "bolunmusId")) {
+            Schema::table("islemler", function (Blueprint $table) {
+                $table->integer('bolunmusId')
+                    ->nullable()
+                    ->after('tekrarEdilenId')
+                    ->comment("İşlemin bölünmüş olduğu işlem idsi (islemler tablosundan)");
+            });
+
+            $mesajlar[] = 'İşlemler tablosuna bolunmusId alanı eklendi > ' . date('Y-m-d H:i:s');
+        }
 
         $mesajlar[] = 'Veritabanı güncellendi > ' . date('Y-m-d H:i:s');
 

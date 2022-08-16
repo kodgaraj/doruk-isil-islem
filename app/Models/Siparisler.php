@@ -18,6 +18,7 @@ class Siparisler extends Model
         "firmaId" => "integer",
         "durumId" => "integer",
         "userId" => "integer",
+        "terminSuresi" => "integer",
     ];
 
     public function getActivitylogOptions(): LogOptions

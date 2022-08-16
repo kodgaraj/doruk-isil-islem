@@ -29,6 +29,9 @@ use Throwable;
 
 use function rtrim;
 
+/**
+ * @deprecated The "League\Flysystem\PhpseclibV2\SftpAdapter" class is deprecated since Flysystem 3.0, use "League\Flysystem\PhpseclibV3\SftpAdapter" instead.
+ */
 class SftpAdapter implements FilesystemAdapter
 {
     /**
@@ -145,7 +148,7 @@ class SftpAdapter implements FilesystemAdapter
         } catch (UnableToWriteFile $exception) {
             throw $exception;
         } catch (Throwable $exception) {
-            throw UnableToWriteFile::atLocation($path, '', $exception);
+            throw UnableToWriteFile::atLocation($path, $exception->getMessage(), $exception);
         }
     }
 
@@ -156,7 +159,7 @@ class SftpAdapter implements FilesystemAdapter
         } catch (UnableToWriteFile $exception) {
             throw $exception;
         } catch (Throwable $exception) {
-            throw UnableToWriteFile::atLocation($path, '', $exception);
+            throw UnableToWriteFile::atLocation($path, $exception->getMessage(), $exception);
         }
     }
 
@@ -246,7 +249,7 @@ class SftpAdapter implements FilesystemAdapter
             $contents = $this->read($path);
             $mimetype = $this->mimeTypeDetector->detectMimeType($path, $contents);
         } catch (Throwable $exception) {
-            throw UnableToRetrieveMetadata::mimeType($path, '', $exception);
+            throw UnableToRetrieveMetadata::mimeType($path, $exception->getMessage(), $exception);
         }
 
         if ($mimetype === null) {

@@ -48,7 +48,6 @@
                                                 <th>Fırınlar</th>
                                                 <th class="text-center">Fırın işlem Sayısı</th>
                                                 <th class="text-center">İşlemler</th>
-                                                
                                             </tr>
                                         </thead>
                                         <tbody>

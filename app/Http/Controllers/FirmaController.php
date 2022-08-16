@@ -10,7 +10,6 @@ class FirmaController extends Controller
 {
     public function index()
     {
-
         return view("firmalar");
     }
 
@@ -90,11 +89,32 @@ class FirmaController extends Controller
     public function firmalariGetir(Request $request)
     {
         try {
+            $filtreleme = isset($request->filtreleme) ? json_decode($request->filtreleme, true) : [];
             $sayfalama = $request->sayfalama ?? false;
+            $firmaTabloAdi = (new Firmalar())->getTable();
+
             if (!$sayfalama) {
                 $firmalar = Firmalar::orderBy("created_at", "desc")->get();
             } else {
-                $firmalar = Firmalar::orderBy("created_at", "desc")->paginate(10);
+                if (isset($filtreleme["siralamaTuru"]) && $filtreleme["siralamaTuru"])
+                {
+                    $alan = array_keys($filtreleme["siralamaTuru"])[0];
+                    $siralamaTuru = array_values($filtreleme["siralamaTuru"])[0];
+                    $firmalar = Firmalar::orderBy($alan, $siralamaTuru);
+                }
+                else
+                {
+                    $firmalar = Firmalar::orderBy("created_at", "desc");
+                }
+
+                if (isset($filtreleme["arama"]) && $filtreleme["arama"] != "")
+                {
+                    $firmalar->where("$firmaTabloAdi.firmaAdi", "like", "%" . $filtreleme["arama"] . "%")
+                        ->orWhere("$firmaTabloAdi.sorumluKisi", "like", "%" . $filtreleme["arama"] . "%")
+                        ->orWhere("$firmaTabloAdi.telefon", "like", "%" . $filtreleme["arama"] . "%");
+                }
+
+                $firmalar = $firmalar->paginate(10);
             }
 
 

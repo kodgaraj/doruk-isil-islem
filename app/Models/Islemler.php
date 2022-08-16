@@ -23,6 +23,8 @@ class Islemler extends Model
         "islemTuruId" => "integer",
         "tekrarEdenId" => "integer",
         "tekrarEdilenId" => "integer",
+        "siraNo" => "integer",
+        "adet" => "integer",
     ];
 
     public function getActivitylogOptions(): LogOptions

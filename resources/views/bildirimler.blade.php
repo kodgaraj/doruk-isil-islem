@@ -23,6 +23,7 @@
                                         aria-label="Arama"
                                         aria-describedby="arama"
                                         @keyup.enter="bildirimleriGetir(undefined, true)"
+                                        @input="gecikmeliFonksiyon.varsayilan()"
                                     />
                                     <span @click="bildirimleriGetir(undefined, true)" class="input-group-text waves-effect" id="arama">
                                         <i class="mdi mdi-magnify"></i>
@@ -53,7 +54,12 @@
                             </thead>
                             <tbody>
                                 <template v-if="bildirimler.veriler && _.size(bildirimler.veriler.data)">
-                                    <tr v-for="(bildirim, index) in bildirimler.veriler.data" :key="index">
+                                    <tr
+                                        v-for="(bildirim, index) in bildirimler.veriler.data"
+                                        :key="index"
+                                        style="cursor: pointer;"
+                                        @click="bildirimeGit(bildirim)"
+                                    >
                                         <td>
                                             <div class="col-12">
                                                 <span class="badge" :class="`bg-${bildirim.bildirimTuruJson.renk}`">
@@ -106,8 +112,8 @@
                                 Daha fazla göster
                             </template>
                         </button>
-                        <small class="text-muted">
-                            Tüm bildirimler gösteriliyor.
+                        <small class="text-muted" v-else>
+                            Tüm bildirimler gösteriliyor...
                         </small>
                     </div>
                 </div>
@@ -132,6 +138,7 @@
                 };
             },
             mounted() {
+                this.gecikmeliFonksiyonCalistir(() => this.bildirimleriGetir(undefined, true));
                 this.bildirimleriGetir();
             },
             methods: {

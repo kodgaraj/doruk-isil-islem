@@ -18,10 +18,6 @@ use Illuminate\Support\Facades\Route;
 
 Route::post("/giris", [ApiController::class, "giris"]);
 
-// Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-//     return $request->user();
-// });
-
 Route::middleware([JwtVerify::class])->group(function () {
 
     Route::post('/', function (Request $request) {
