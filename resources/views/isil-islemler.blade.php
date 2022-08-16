@@ -984,25 +984,33 @@
                                     </div>
                                 </div>
                                 <div class="col-12">
-                                    <ul class="pagination pagination-rounded justify-content-center mb-0">
-                                        <li class="page-item">
-                                            <button class="page-link" :disabled="!aktifForm.firmaGrupluIslemler.prev_page_url" @click="firmaGrupluIslemleriGetir(null, aktifForm.firmaGrupluIslemler.prev_page_url)">
-                                                <i class="fas fa-angle-left"></i>
-                                            </button>
-                                        </li>
-                                        <li
-                                            v-for="sayfa in sayfalamaAyarla(aktifForm.firmaGrupluIslemler.last_page, aktifForm.firmaGrupluIslemler.current_page)"
-                                            class="page-item"
-                                            :class="[sayfa.aktif ? 'active' : '']"
-                                        >
-                                            <button class="page-link" @click="sayfa.tur === 'SAYFA' ? firmaGrupluIslemleriGetir(null, `{{ route("firmaGrupluIslemleriGetir") }}?page=` + sayfa.sayfa) : ()  => {}">@{{ sayfa.sayfa }}</button>
-                                        </li>
-                                        <li class="page-item">
-                                            <button class="page-link" :disabled="!aktifForm.firmaGrupluIslemler.next_page_url" @click="firmaGrupluIslemleriGetir(null, aktifForm.firmaGrupluIslemler.next_page_url)">
-                                                <i class="fas fa-angle-right"></i>
-                                            </button>
-                                        </li>
-                                    </ul>
+                                    <div class="row d-flex align-items-center justify-content-between">
+                                        <div class="col-auto"></div>
+                                        <div class="col">
+                                            <ul class="pagination pagination-rounded justify-content-center mb-0">
+                                                <li class="page-item">
+                                                    <button class="page-link" :disabled="!aktifForm.firmaGrupluIslemler.prev_page_url" @click="firmaGrupluIslemleriGetir(null, aktifForm.firmaGrupluIslemler.prev_page_url)">
+                                                        <i class="fas fa-angle-left"></i>
+                                                    </button>
+                                                </li>
+                                                <li
+                                                    v-for="sayfa in sayfalamaAyarla(aktifForm.firmaGrupluIslemler.last_page, aktifForm.firmaGrupluIslemler.current_page)"
+                                                    class="page-item"
+                                                    :class="[sayfa.aktif ? 'active' : '']"
+                                                >
+                                                    <button class="page-link" @click="sayfa.tur === 'SAYFA' ? firmaGrupluIslemleriGetir(null, `{{ route("firmaGrupluIslemleriGetir") }}?page=` + sayfa.sayfa) : ()  => {}">@{{ sayfa.sayfa }}</button>
+                                                </li>
+                                                <li class="page-item">
+                                                    <button class="page-link" :disabled="!aktifForm.firmaGrupluIslemler.next_page_url" @click="firmaGrupluIslemleriGetir(null, aktifForm.firmaGrupluIslemler.next_page_url)">
+                                                        <i class="fas fa-angle-right"></i>
+                                                    </button>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                        <div class="col-auto">
+                                            <small class="text-muted">Toplam Kayıt: @{{ aktifForm.firmaGrupluIslemler.total }}</small>
+                                        </div>
+                                    </div>
                                 </div>
                             </template>
                         </div>
