@@ -287,6 +287,7 @@ class IsilIslemController extends Controller
                 $terminDizisi = $this->terminHesapla($islem["siparisTarihi"], $islem["terminSuresi"] ?? 5);
                 $islem["gecenSure"] = $terminDizisi["gecenSure"];
                 $islem["gecenSureRenk"] = $terminDizisi["gecenSureRenk"];
+                $islem["net"] = (float) $islem["net"];
 
                 $islem["sarj"] = $islem["sarj"] ?? 1;
                 $islem["firin"] = $islem["firinId"]
