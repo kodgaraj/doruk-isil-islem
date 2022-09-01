@@ -289,7 +289,7 @@
                                                                     :key="index + 'islemler'"
                                                                     style="max-height: 400px"
                                                                 >
-                                                                    <table class="table table-striped table-bordered nowrap" id="urun-detay">
+                                                                    <table class="table table-bordered nowrap" id="urun-detay">
                                                                         <thead>
                                                                             <th>Sıra No</th>
                                                                             <th class="text-center">Resim</th>
@@ -308,7 +308,7 @@
                                                                         </thead>
                                                                         <tbody id="islem-satir-ekle">
                                                                             <tr v-for="(islem, iIndex) in siparis.islemler">
-                                                                                <td>@{{ iIndex + 1 }}</td>
+                                                                                <td class="kisa-uzunluk">@{{ iIndex + 1 }}</td>
                                                                                 <td class="text-center">
                                                                                     <img
                                                                                         :src="islem.resimYolu ? islem.resimYolu : varsayilanResimYolu"
@@ -316,10 +316,19 @@
                                                                                         @click.stop="resimOnizlemeAc(islem.resimYolu)"
                                                                                     />
                                                                                 </td>
-                                                                                <td>@{{ islem.malzeme ? islem.malzeme.ad : "-" }}</td>
+                                                                                <td class="orta-uzunluk">@{{ islem.malzeme ? islem.malzeme.ad : "-" }}</td>
                                                                                 <td>@{{ islem.adet ? islem.adet : "0" }}</td>
                                                                                 <td>@{{ islem.miktarYazi ? islem.miktarYazi : "0" }}</td>
-                                                                                <td>@{{ islem.daraYazi ? islem.daraYazi : "0" }}</td>
+                                                                                <td class="orta-uzunluk" :style="islem.daraSonraGirilecek ? 'background-color: #EB1D3666; color: white !important' : ''">
+                                                                                    <div class="col-12">
+                                                                                        @{{ islem.daraYazi ? islem.daraYazi : "0" }}
+                                                                                    </div>
+                                                                                    <div class="col-12" v-if="islem.daraSonraGirilecek">
+                                                                                        <small class="text-white">
+                                                                                            Dara bilgisi sonra girilecek
+                                                                                        </small>
+                                                                                    </div>
+                                                                                </td>
                                                                                 <td class="kisa-uzunluk text-center">
                                                                                     <b><h5>@{{ islem.netYazi ? islem.netYazi : "0" }}</h5></b>
                                                                                 </td>
@@ -503,42 +512,44 @@
                                     />
                                 </template>
                             </div>
-                            <div class="col-6 col-sm-6 col-md-4 mb-2">
-                                <template v-if="aktifSiparis.onizlemeModu">
-                                    <div class="form-group">
-                                        <label for="toplamTutar">Toplam TL (₺)</label>
-                                        <h5 id="toplamTutar">@{{ aktifSiparis.tutarTLYazi }} ₺</h5>
-                                    </div>
-                                </template>
-                                <template v-else>
-                                    <label class="form-label">Toplam TL (₺)</label>
-                                    <input
-                                        v-model.lazy="aktifSiparis.tutarTLYazi"
-                                        v-money="maskeler.tl"
-                                        class="form-control"
-                                        placeholder="Toplam tutarını giriniz..."
-                                        disabled
-                                    />
-                                </template>
-                            </div>
-                            <div class="col-6 col-sm-6 col-md-4 mb-2">
-                                <template v-if="aktifSiparis.onizlemeModu">
-                                    <div class="form-group">
-                                        <label for="toplamTutar">Toplam USD ($)</label>
-                                        <h5 id="toplamTutar">@{{ aktifSiparis.tutarUSDYazi }} $</h5>
-                                    </div>
-                                </template>
-                                <template v-else>
-                                    <label class="form-label">Toplam USD ($)</label>
-                                    <input
-                                        v-model.lazy="aktifSiparis.tutarUSDYazi"
-                                        v-money="maskeler.usd"
-                                        class="form-control"
-                                        placeholder="Toplam tutarını giriniz..."
-                                        disabled
-                                    />
-                                </template>
-                            </div>
+                            @can("siparis_ucreti_goruntuleme")
+                                <div class="col-6 col-sm-6 col-md-4 mb-2">
+                                    <template v-if="aktifSiparis.onizlemeModu">
+                                        <div class="form-group">
+                                            <label for="toplamTutar">Toplam TL (₺)</label>
+                                            <h5 id="toplamTutar">@{{ aktifSiparis.tutarTLYazi }} ₺</h5>
+                                        </div>
+                                    </template>
+                                    <template v-else>
+                                        <label class="form-label">Toplam TL (₺)</label>
+                                        <input
+                                            v-model.lazy="aktifSiparis.tutarTLYazi"
+                                            v-money="maskeler.tl"
+                                            class="form-control"
+                                            placeholder="Toplam tutarını giriniz..."
+                                            disabled
+                                        />
+                                    </template>
+                                </div>
+                                <div class="col-6 col-sm-6 col-md-4 mb-2">
+                                    <template v-if="aktifSiparis.onizlemeModu">
+                                        <div class="form-group">
+                                            <label for="toplamTutar">Toplam USD ($)</label>
+                                            <h5 id="toplamTutar">@{{ aktifSiparis.tutarUSDYazi }} $</h5>
+                                        </div>
+                                    </template>
+                                    <template v-else>
+                                        <label class="form-label">Toplam USD ($)</label>
+                                        <input
+                                            v-model.lazy="aktifSiparis.tutarUSDYazi"
+                                            v-money="maskeler.usd"
+                                            class="form-control"
+                                            placeholder="Toplam tutarını giriniz..."
+                                            disabled
+                                        />
+                                    </template>
+                                </div>
+                            @endcan
                             <div class="col-6 col-sm-6 col-md-4 mb-2">
                                 <template v-if="aktifSiparis.onizlemeModu">
                                     <div class="form-group">
@@ -638,7 +649,7 @@
                         </div>
                         <div class="mb-3 row overflow-auto">
                             <div class="col-12">
-                                <table class="table table-striped table-bordered nowrap" id="urun-detay">
+                                <table class="table table-bordered nowrap" id="urun-detay">
                                     <thead>
                                         <th>Sıra No</th>
                                         <th class="text-center">Resim</th>
@@ -671,12 +682,12 @@
                                                 <td class="en-uzun-uzunluk">@{{ islem.malzeme ? islem.malzeme.ad : "-" }}</td>
                                                 <td class="kisa-uzunluk text-center">@{{ islem.adet ? islem.adet : "0" }}</td>
                                                 <td class="orta-uzunluk text-center">@{{ islem.miktarYazi ? islem.miktarYazi : "0" }}</td>
-                                                <td class="orta-uzunluk text-center">
+                                                <td class="orta-uzunluk text-center" :style="islem.daraSonraGirilecek ? 'background-color: #EB1D3666; color: white !important' : ''">
                                                     <div class="col-12">
                                                         @{{ islem.daraYazi ? islem.daraYazi : "0" }}
                                                     </div>
                                                     <div class="col-12" v-if="islem.daraSonraGirilecek">
-                                                        <small class="text-danger">
+                                                        <small class="text-white">
                                                             Dara bilgisi sonra girilecek
                                                         </small>
                                                     </div>
@@ -752,7 +763,7 @@
                                                         v-model="islem.miktarYazi"
                                                     />
                                                 </td>
-                                                <td class="orta-uzunluk text-center">
+                                                <td class="orta-uzunluk text-center" :style="islem.daraSonraGirilecek ? 'background-color: #EB1D3666; color: white !important' : ''">
                                                     <input
                                                         class="form-control"
                                                         placeholder="Dara (KG)"

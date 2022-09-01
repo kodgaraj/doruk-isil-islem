@@ -165,22 +165,29 @@ class SiparisController extends Controller
 
             if ($cikti)
             {
+                $alanlar = [
+                    "siparisId" => "Sipariş ID",
+                    "siparisNo" => "Sipariş No",
+                    "gecenSure" => "Termin",
+                    "firmaAdi" => "Firma",
+                    "islemSayisi" => "İşlem Sayısı",
+                    "netYazi" => "Miktar (Net)",
+                ];
+
+                if (auth()->user()->can('siparis_ucreti_goruntuleme'))
+                {
+                    $alanlar["tutarTLYazi"] = "Tutar (TL)";
+                    $alanlar["tutarUSDYazi"] = "Tutar (USD)";
+                }
+
+                $alanlar[] = [
+                    "key" => "tarih",
+                    "value" => "Sipariş Tarihi",
+                    "tur" => "TARIH"
+                ];
+
                 return (
-                    new ExcelExporter($siparisler["data"], [
-                        "siparisId" => "Sipariş ID",
-                        "siparisNo" => "Sipariş No",
-                        "gecenSure" => "Termin",
-                        "firmaAdi" => "Firma",
-                        "islemSayisi" => "İşlem Sayısı",
-                        "netYazi" => "Miktar (Net)",
-                        "tutarTLYazi" => "Tutar (TL)",
-                        "tutarUSDYazi" => "Tutar (USD)",
-                        [
-                            "key" => "tarih",
-                            "value" => "Sipariş Tarihi",
-                            "tur" => "TARIH"
-                        ],
-                    ])
+                    new ExcelExporter($siparisler["data"], $alanlar)
                 )->downloadExcel("Sipariş Listesi");
             }
 

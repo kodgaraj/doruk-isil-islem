@@ -805,38 +805,45 @@ class IsilIslemController extends Controller
 
             if ($cikti)
             {
+                $alanlar = [
+                    "id" => "İşlem ID",
+                    "siparisNo" => "Sipariş No",
+                    [
+                        "key" => "tarih",
+                        "value" => "Sipariş Tarihi",
+                        "tur" => "TARIH"
+                    ],
+                    "gecenSure" => "Termin",
+                    "firmaAdi" => "Firma",
+                    "formId" => "Form ID",
+                    "firinAdi" => "Fırın",
+                    "sarj" => "Şarj",
+                    "islemDurumuAdi" => "İşlem Durumu",
+                    "adet" => "Adet",
+                    "miktar" => "Miktar",
+                    "dara" => "Dara",
+                    "netYazi" => "Miktar (Net)",
+                ];
+
+                if (auth()->user()->can('siparis_ucreti_goruntuleme'))
+                {
+                    $alanlar["tutarTLYazi"] = "Tutar (TL)";
+                    $alanlar["tutarUSDYazi"] = "Tutar (USD)";
+                }
+
+                $alanlar["malzemeAdi"] = "Malzeme";
+                $alanlar["istenilenSertlik"] = "İst. Sertlik";
+                $alanlar["kalite"] = "Kalite";
+                $alanlar["sicaklik"] = "Sıcaklık";
+                $alanlar["carbon"] = "Carbon";
+                $alanlar["beklenenSure"] = "Süre";
+                $alanlar["cikisSertligi"] = "Ç. Sertliği";
+                $alanlar["menevisSicakligi"] = "Men. Sıcaklığı";
+                $alanlar["cikisSuresi"] = "Süre";
+                $alanlar["sonSertlik"] = "Son Sertlik";
+
                 return (
-                    new ExcelExporter($islemler["data"], [
-                        "id" => "İşlem ID",
-                        "siparisNo" => "Sipariş No",
-                        [
-                            "key" => "tarih",
-                            "value" => "Sipariş Tarihi",
-                            "tur" => "TARIH"
-                        ],
-                        "gecenSure" => "Termin",
-                        "firmaAdi" => "Firma",
-                        "formId" => "Form ID",
-                        "firinAdi" => "Fırın",
-                        "sarj" => "Şarj",
-                        "islemDurumuAdi" => "İşlem Durumu",
-                        "adet" => "Adet",
-                        "miktar" => "Miktar",
-                        "dara" => "Dara",
-                        "netYazi" => "Miktar (Net)",
-                        "tutarTLYazi" => "Tutar (TL)",
-                        "tutarUSDYazi" => "Tutar (USD)",
-                        "malzemeAdi" => "Malzeme",
-                        "istenilenSertlik" => "İst. Sertlik",
-                        "kalite" => "Kalite",
-                        "sicaklik" => "Sıcaklık",
-                        "carbon" => "Carbon",
-                        "beklenenSure" => "Süre",
-                        "cikisSertligi" => "Ç. Sertliği",
-                        "menevisSicakligi" => "Men. Sıcaklığı",
-                        "cikisSuresi" => "Süre",
-                        "sonSertlik" => "Son Sertlik",
-                    ])
+                    new ExcelExporter($islemler["data"], $alanlar)
                 )->downloadExcel("İşlem Listesi");
             }
 
