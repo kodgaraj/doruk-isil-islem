@@ -252,7 +252,7 @@ class IsilIslemController extends Controller
             if ($formId)
             {
                 $firmaGrupluIslemler = $firmaGrupluIslemler->orWhere($islemTabloAdi . '.formId', $formId)
-                    ->selectRaw("IF($islemTabloAdi.formId = $formId, 1, 0) as secildi")
+                    ->selectRaw("CAST(IF($islemTabloAdi.formId = $formId, TRUE, FALSE) AS UNSIGNED) as secildi")
                     ->orderBy('secildi', 'desc');
             }
 
