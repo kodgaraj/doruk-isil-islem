@@ -33,7 +33,14 @@ class MalzemeController extends Controller
                 ], 500);
             }
 
-            $malzeme = new Malzemeler();
+            if (isset($malzemeBilgileri["malzemeId"]) && $malzemeBilgileri["malzemeId"])
+            {
+                $malzeme = Malzemeler::find($malzemeBilgileri["malzemeId"]);
+            }
+            else
+            {
+                $malzeme = new Malzemeler();
+            }
 
             $malzeme->ad = $this->buyukHarf($malzemeBilgileri['malzemeAdi']);
             $malzeme->birimFiyat = $malzemeBilgileri['malzemeBirimFiyat'] ?? 0;
@@ -42,14 +49,14 @@ class MalzemeController extends Controller
             {
                 return response()->json([
                     'durum' => false,
-                    'mesaj' => 'Malzeme eklenemedi.',
+                    'mesaj' => 'Malzeme kaydedilemedi.',
                     "hataKodu" => "M005",
                 ], 500);
             }
 
             return response()->json([
                 'durum' => true,
-                'mesaj' => 'Malzeme başarılı bir şekilde eklendi.',
+                'mesaj' => 'Malzeme başarılı bir şekilde kaydedildi.',
                 'malzeme' => $malzeme->refresh(),
             ], 200);
         }

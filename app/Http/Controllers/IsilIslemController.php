@@ -634,7 +634,6 @@ class IsilIslemController extends Controller
                     AND $islemTabloAdi.bitisTarihi IS NULL
                     AND $siparisTabloAdi.bitisTarihi IS NULL
                     AND $siparisDurumTabloAdi.kod <> 'TAMAMLANDI'
-                    AND $siparisDurumTabloAdi.kod <> 'TAMAMLANDI'
                 ");
             }
 

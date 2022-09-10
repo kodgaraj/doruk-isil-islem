@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Exports\ExcelExporter;
+use App\Exports\SiparisExcelExporter;
 use App\Models\Firmalar;
+use App\Models\IslemDurumlari;
 use App\Models\Islemler;
 use App\Models\IslemTurleri;
 use App\Models\Malzemeler;
@@ -103,8 +104,7 @@ class SiparisController extends Controller
                     $firmaTabloAdi . '.firmaAdi',
                     $firmaTabloAdi . '.sorumluKisi',
                     $kullaniciTabloAdi . '.name',
-                )
-                ->orderBy($siparisTabloAdi . '.created_at', 'desc');
+                );
 
             if (isset($filtrelemeler["termin"]) && $filtrelemeler["termin"] > 0)
             {
@@ -145,7 +145,9 @@ class SiparisController extends Controller
                 $siparisler = $siparisler->where("$siparisTabloAdi.id", $filtrelemeler["siparisId"]);
             }
 
-            $siparisler = $siparisler->paginate($sayfalamaSayisi)->toArray();
+            $siparisler = $siparisler->orderBy($siparisTabloAdi . '.created_at', 'desc')
+                ->paginate($sayfalamaSayisi)
+                ->toArray();
 
             foreach ($siparisler["data"] as &$siparis)
             {
@@ -165,7 +167,7 @@ class SiparisController extends Controller
 
             if ($cikti)
             {
-                $alanlar = [
+                $siparisAlanlar = [
                     "siparisId" => "Sipariş ID",
                     "siparisNo" => "Sipariş No",
                     "gecenSure" => "Termin",
@@ -173,21 +175,58 @@ class SiparisController extends Controller
                     "islemSayisi" => "İşlem Sayısı",
                     "netYazi" => "Miktar (Net)",
                 ];
+                $islemlerAlanlar = [
+                    "id" => "İşlem ID",
+                    "siraNo" => "Sıra No",
+                    "malzemeAdi" => "Malzeme",
+                    "adet" => "Adet",
+                    "miktar" => "Miktar",
+                    "dara" => "Dara",
+                ];
 
                 if (auth()->user()->can('siparis_ucreti_goruntuleme'))
                 {
-                    $alanlar["tutarTLYazi"] = "Tutar (TL)";
-                    $alanlar["tutarUSDYazi"] = "Tutar (USD)";
+                    $siparisAlanlar["tutarTLYazi"] = "Tutar (TL)";
+                    $siparisAlanlar["tutarUSDYazi"] = "Tutar (USD)";
+
+                    $islemlerAlanlar["birimFiyat"] = "Tutar";
                 }
 
-                $alanlar[] = [
+                $siparisAlanlar[] = [
                     "key" => "tarih",
                     "value" => "Sipariş Tarihi",
                     "tur" => "TARIH"
                 ];
+                $islemlerAlanlar["kalite"] = "Kalite";
+                $islemlerAlanlar["islemTuruAdi"] = "Yapılacak İşlem";
+                $islemlerAlanlar["istenilenSertlik"] = "İst. Sertlik";
+                $islemlerAlanlar["islemDurumuAdi"] = "İşlem Durumu";
+
+                $malzemeTabloAdi = (new Malzemeler())->getTable();
+                $islemTuruTabloAdi = (new IslemTurleri())->getTable();
+                $islemDurumuTabloAdi = (new IslemDurumlari())->getTable();
+
+                foreach ($siparisler["data"] as &$siparis)
+                {
+                    $siparis["islemler"] = Islemler::selectRaw("
+                            $islemTabloAdi.*,
+                            $malzemeTabloAdi.ad as malzemeAdi,
+                            $islemDurumuTabloAdi.ad as islemDurumuAdi,
+                            $islemTuruTabloAdi.ad as islemTuruAdi
+                        ")
+                        ->join($malzemeTabloAdi, "$malzemeTabloAdi.id", "$islemTabloAdi.malzemeId")
+                        ->join($islemDurumuTabloAdi, "$islemDurumuTabloAdi.id", "$islemTabloAdi.durumId")
+                        ->leftJoin($islemTuruTabloAdi, "$islemTuruTabloAdi.id", "$islemTabloAdi.islemTuruId")
+                        ->where("$islemTabloAdi.siparisId", $siparis["siparisId"])
+                        ->get()
+                        ->toArray();
+                }
 
                 return (
-                    new ExcelExporter($siparisler["data"], $alanlar)
+                    new SiparisExcelExporter($siparisler["data"], [
+                        "siparis" => $siparisAlanlar,
+                        "islem" => $islemlerAlanlar
+                    ])
                 )->downloadExcel("Sipariş Listesi");
             }
 

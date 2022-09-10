@@ -741,12 +741,22 @@
                                                             </v-select>
                                                         </div>
                                                         @can("malzeme_kaydetme")
-                                                            <div class="col-auto ps-0" v-if="!aktifSiparis.onizlemeModu">
+                                                            <div class="col-auto ps-0" v-if="!aktifSiparis.onizlemeModu && !islem.malzeme">
                                                                 <button
                                                                     class="btn btn-primary"
                                                                     @click="malzemeEkleAc(index)"
                                                                 >
                                                                     <i class="fas fa-plus"></i>
+                                                                </button>
+                                                            </div>
+                                                        @endcan
+                                                        @can("malzeme_duzenleme")
+                                                            <div class="col-auto ps-0" v-else-if="!aktifSiparis.onizlemeModu && islem.malzeme">
+                                                                <button
+                                                                    class="btn btn-warning"
+                                                                    @click="malzemeEkleAc(index, true)"
+                                                                >
+                                                                    <i class="fas fa-edit"></i>
                                                                 </button>
                                                             </div>
                                                         @endcan
@@ -1670,21 +1680,24 @@
                     } else if (result.isDenied) {}
                 });
             },
-            malzemeEkleAc(islemIndex) {
+            malzemeEkleAc(islemIndex, duzenleme = false) {
+                const valueAttr = duzenleme ? this.aktifSiparis.islemler[islemIndex].malzeme.ad : "";
+                const buttonText = duzenleme ? "Güncelle" : "Ekle";
+                const malzemeId = duzenleme ? this.aktifSiparis.islemler[islemIndex].malzeme.id : undefined;
                 // Malzeme adı, malzeme fiyat
                 Swal.fire({
-                    title: "Malzeme Ekle",
+                    title: "Malzeme " + buttonText,
                     html: `
                         <div class="container">
                             <div class="row g-3">
                                 <div class="form-group col-12">
-                                    <input type="text" class="form-control" id="malzemeAdi" placeholder="Malzeme Adı *">
+                                    <input type="text" class="form-control" id="malzemeAdi" placeholder="Malzeme Adı *" value="${valueAttr}">
                                 </div>
                             </div>
                         </div>
                     `,
                     showCancelButton: true,
-                    confirmButtonText: 'Ekle',
+                    confirmButtonText: buttonText,
                     cancelButtonText: 'İptal',
                 })
                 .then((result) => {
@@ -1695,6 +1708,7 @@
                         this.yukleniyorObjesi.malzemeEkle = true;
                         axios.post("/malzemeEkle", {
                             malzeme: {
+                                malzemeId,
                                 malzemeAdi,
                             },
                         })
@@ -1709,14 +1723,10 @@
                             }
 
                             this.uyariAc({
-                                baslik: 'Başarılı',
-                                mesaj: response.data.mesaj,
-                                tur: "success",
-                                ozellikler: {
-                                    icon: 'success',
-                                    showConfirmButton: false,
-                                    timer: 2000
-                                }
+                                toast: {
+                                    status: true,
+                                    message: response.data.mesaj,
+                                },
                             });
 
                             this.malzemeleriGetir().then(() => {
@@ -1724,6 +1734,23 @@
                                     this.aktifSiparis.islemler[islemIndex].malzeme = response.data.malzeme;
 
                                     this.malzemeSecildiginde(islemIndex);
+
+                                    this.aktifSiparis = _.cloneDeep(this.aktifSiparis);
+                                }
+                                else if (duzenleme) {
+                                    const malzeme = response.data.malzeme;
+                                    _.forEach(this.aktifSiparis.islemler, (islem) => {
+                                        if (malzeme.id == islem.malzeme.id) {
+                                            islem.malzeme = malzeme;
+                                        }
+                                    });
+
+                                    const malzemeIndex = _.findIndex(this.malzemeler, { id: malzeme.id })
+                                    if (malzemeIndex > -1) {
+                                        this.malzemeler[malzemeIndex] = malzeme;
+
+                                        this.malzemeler = _.cloneDeep(this.malzemeler);
+                                    }
 
                                     this.aktifSiparis = _.cloneDeep(this.aktifSiparis);
                                 }
@@ -1818,7 +1845,7 @@
                         <div class="container">
                             <div class="row g-3">
                                 <div class="form-group col-12">
-                                    <input type="file" class="form-control" id="resimSecimi" placeholder="Resim Seçimi">
+                                    <input type="file" accept="image/*" capture class="form-control" id="resimSecimi" placeholder="Resim Seçimi">
                                 </div>
                                 <!-- previewer -->
                                 <div class="col-12">
