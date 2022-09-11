@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Firmalar;
+use App\Models\Siparisler;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -117,13 +118,80 @@ class FirmaController extends Controller
                 $firmalar = $firmalar->paginate(10);
             }
 
-
             return response()->json([
                 'durum' => true,
                 'mesaj' => 'Firmalar başarıyla getirildi.',
                 'firmalar' => $firmalar
             ]);
         } catch (\Exception $e) {
+            return response()->json([
+                'durum' => false,
+                'mesaj' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function firmalariBirlestir(Request $request)
+    {
+        try
+        {
+            $anaFirma = $request->anaFirma;
+            $birlestirilecekFirma = $request->birlestirilecekFirma;
+
+            $siparisSayisi = Siparisler::where("firmaId", $birlestirilecekFirma["id"])
+                ->count();
+
+            if ($siparisSayisi === 0)
+            {
+                $sonuc = Firmalar::where("id", $birlestirilecekFirma["id"])
+                    ->delete();
+
+                if (!$sonuc)
+                {
+                    return response()->json([
+                        'durum' => false,
+                        'mesaj' => 'Birleştirilecek firma silinemedi.',
+                        "hataKodu" => "FB003",
+                    ], 500);
+                }
+
+                return response()->json([
+                    'durum' => true,
+                    'mesaj' => 'Firmalar başarıyla birleştirildi.',
+                ]);
+            }
+
+            $sonuc = Siparisler::where("firmaId", $birlestirilecekFirma["id"])
+                ->update(["firmaId" => $anaFirma["id"]]);
+
+            if (!$sonuc)
+            {
+                return response()->json([
+                    'durum' => false,
+                    'mesaj' => 'Firma birleştirilemedi.',
+                    "hataKodu" => "FB001",
+                ], 500);
+            }
+
+            $sonuc = Firmalar::where("id", $birlestirilecekFirma["id"])
+                ->delete();
+
+            if (!$sonuc)
+            {
+                return response()->json([
+                    'durum' => false,
+                    'mesaj' => 'Birleştirilecek firma silinemedi.',
+                    "hataKodu" => "FB002",
+                ], 500);
+            }
+
+            return response()->json([
+                'durum' => true,
+                'mesaj' => 'Firmalar başarıyla birleştirildi.',
+            ]);
+        }
+        catch (\Exception $e)
+        {
             return response()->json([
                 'durum' => false,
                 'mesaj' => $e->getMessage()

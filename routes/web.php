@@ -75,11 +75,12 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/malzemeleriGetir', [MalzemeController::class, 'malzemeleriGetir'])->name("malzemeleriGetir");
     Route::post('/malzemeEkle', [MalzemeController::class, 'malzemeEkle'])->name("malzemeEkle");
 
-    Route::get('/firinlariGetir', [FirinlarController::class, 'firinlariGetir'])->name("firinlariGetir");
+    Route::get('/firmalariGetir', [FirmaController::class, 'firmalariGetir'])->name("firmalariGetir");
     Route::post('/firmaSil', [FirmaController::class, 'firmaSil'])->name("firmaSil");
     Route::post('/firmaEkle', [FirmaController::class, 'firmaEkle'])->name("firmaEkle");
+    Route::post('/firmalariBirlestir', [FirmaController::class, 'firmalariBirlestir'])->name("firmalariBirlestir");
 
-    Route::get('/firmalariGetir', [FirmaController::class, 'firmalariGetir'])->name("firmalariGetir");
+    Route::get('/firinlariGetir', [FirinlarController::class, 'firinlariGetir'])->name("firinlariGetir");
     Route::post('/firinKaydet', [FirinlarController::class, 'firinKaydet'])->name("firinKaydet");
     Route::post('/firinSil', [FirinlarController::class, 'firinSil'])->name("firinSil");
 
