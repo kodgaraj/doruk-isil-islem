@@ -51,11 +51,11 @@ class FirinlarController extends Controller
     }
 
     public function firinlariGetir()
-    {   
+    {
         $islemTabloAdi = (new Islemler())->getTable();
         $firinTabloAdi = (new Firinlar())->getTable();
 
-        $firinlar = Firinlar::join("$islemTabloAdi", "$firinTabloAdi.id", "=", "$islemTabloAdi.firinId")
+        $firinlar = Firinlar::leftJoin("$islemTabloAdi", "$firinTabloAdi.id", "=", "$islemTabloAdi.firinId")
         ->selectRaw("$firinTabloAdi.id, $firinTabloAdi.ad, $firinTabloAdi.kod, $firinTabloAdi.json, COUNT($islemTabloAdi.id) as islemSayisi")
         ->groupBy("$firinTabloAdi.id","$firinTabloAdi.ad","$firinTabloAdi.kod","$firinTabloAdi.json")
         ->get();
