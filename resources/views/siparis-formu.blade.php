@@ -1845,7 +1845,7 @@
                         <div class="container">
                             <div class="row g-3">
                                 <div class="form-group col-12">
-                                    <input type="file" accept="image/*" capture class="form-control" id="resimSecimi" placeholder="Resim Seçimi">
+                                    <input type="file" accept="image/*" class="form-control" id="resimSecimi" placeholder="Resim Seçimi">
                                 </div>
                                 <!-- previewer -->
                                 <div class="col-12">
