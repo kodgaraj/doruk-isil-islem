@@ -163,44 +163,34 @@ class SiparisController extends Controller
                     "paraBirimi" => $this->paraBirimleri["USD"],
                 ]);
                 $siparis["netYazi"] = $this->yaziyaDonustur($siparis["net"], ["kg" => true]);
+                $siparis["tarihTR"] = Carbon::parse($siparis["tarih"])->format("d.m.Y");
             }
 
             if ($cikti)
             {
                 $siparisAlanlar = [
-                    "siparisId" => "Sipariş ID",
                     "siparisNo" => "Sipariş No",
-                    "gecenSure" => "Termin",
                     "firmaAdi" => "Firma",
-                    "islemSayisi" => "İşlem Sayısı",
-                    "netYazi" => "Miktar (Net)",
+                    "tarihTR" => "Sipariş Tarihi",
                 ];
                 $islemlerAlanlar = [
-                    "id" => "İşlem ID",
-                    "siraNo" => "Sıra No",
                     "malzemeAdi" => "Malzeme",
                     "adet" => "Adet",
                     "miktar" => "Miktar",
                     "dara" => "Dara",
+                    "net" => "Net Miktar",
+                    "kalite" => "Kalite",
+                    "islemTuruAdi" => "Yapılacak İşlem",
+                    "istenilenSertlik" => "İst. Sertlik",
                 ];
 
                 if (auth()->user()->can('siparis_ucreti_goruntuleme'))
                 {
-                    $siparisAlanlar["tutarTLYazi"] = "Tutar (TL)";
-                    $siparisAlanlar["tutarUSDYazi"] = "Tutar (USD)";
+                    $siparisAlanlar["tutarTL"] = "Tutar (₺)";
+                    $siparisAlanlar["tutarUSD"] = "Tutar ($)";
 
                     $islemlerAlanlar["birimFiyat"] = "Tutar";
                 }
-
-                $siparisAlanlar[] = [
-                    "key" => "tarih",
-                    "value" => "Sipariş Tarihi",
-                    "tur" => "TARIH"
-                ];
-                $islemlerAlanlar["kalite"] = "Kalite";
-                $islemlerAlanlar["islemTuruAdi"] = "Yapılacak İşlem";
-                $islemlerAlanlar["istenilenSertlik"] = "İst. Sertlik";
-                $islemlerAlanlar["islemDurumuAdi"] = "İşlem Durumu";
 
                 $malzemeTabloAdi = (new Malzemeler())->getTable();
                 $islemTuruTabloAdi = (new IslemTurleri())->getTable();
@@ -210,6 +200,7 @@ class SiparisController extends Controller
                 {
                     $siparis["islemler"] = Islemler::selectRaw("
                             $islemTabloAdi.*,
+                            ($islemTabloAdi.miktar - $islemTabloAdi.dara) as net,
                             $malzemeTabloAdi.ad as malzemeAdi,
                             $islemDurumuTabloAdi.ad as islemDurumuAdi,
                             $islemTuruTabloAdi.ad as islemTuruAdi
