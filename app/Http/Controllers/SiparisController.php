@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Exports\ExcelExporter;
+use App\Exports\SiparisExcelExporter;
 use App\Models\Firmalar;
+use App\Models\IslemDurumlari;
 use App\Models\Islemler;
 use App\Models\IslemTurleri;
 use App\Models\Malzemeler;
@@ -103,8 +104,7 @@ class SiparisController extends Controller
                     $firmaTabloAdi . '.firmaAdi',
                     $firmaTabloAdi . '.sorumluKisi',
                     $kullaniciTabloAdi . '.name',
-                )
-                ->orderBy($siparisTabloAdi . '.created_at', 'desc');
+                );
 
             if (isset($filtrelemeler["termin"]) && $filtrelemeler["termin"] > 0)
             {
@@ -145,7 +145,9 @@ class SiparisController extends Controller
                 $siparisler = $siparisler->where("$siparisTabloAdi.id", $filtrelemeler["siparisId"]);
             }
 
-            $siparisler = $siparisler->paginate($sayfalamaSayisi)->toArray();
+            $siparisler = $siparisler->orderBy($siparisTabloAdi . '.created_at', 'desc')
+                ->paginate($sayfalamaSayisi)
+                ->toArray();
 
             foreach ($siparisler["data"] as &$siparis)
             {
@@ -161,25 +163,60 @@ class SiparisController extends Controller
                     "paraBirimi" => $this->paraBirimleri["USD"],
                 ]);
                 $siparis["netYazi"] = $this->yaziyaDonustur($siparis["net"], ["kg" => true]);
+                $siparis["tarihTR"] = Carbon::parse($siparis["tarih"])->format("d.m.Y");
             }
 
             if ($cikti)
             {
+                $siparisAlanlar = [
+                    "siparisNo" => "Sipariş No",
+                    "firmaAdi" => "Firma",
+                    "tarihTR" => "Sipariş Tarihi",
+                ];
+                $islemlerAlanlar = [
+                    "malzemeAdi" => "Malzeme",
+                    "adet" => "Adet",
+                    "miktar" => "Miktar",
+                    "dara" => "Dara",
+                    "net" => "Net Miktar",
+                    "kalite" => "Kalite",
+                    "islemTuruAdi" => "Yapılacak İşlem",
+                    "istenilenSertlik" => "İst. Sertlik",
+                ];
+
+                if (auth()->user()->can('siparis_ucreti_goruntuleme'))
+                {
+                    $siparisAlanlar["tutarTL"] = "Tutar (₺)";
+                    $siparisAlanlar["tutarUSD"] = "Tutar ($)";
+
+                    $islemlerAlanlar["birimFiyat"] = "Tutar";
+                }
+
+                $malzemeTabloAdi = (new Malzemeler())->getTable();
+                $islemTuruTabloAdi = (new IslemTurleri())->getTable();
+                $islemDurumuTabloAdi = (new IslemDurumlari())->getTable();
+
+                foreach ($siparisler["data"] as &$siparis)
+                {
+                    $siparis["islemler"] = Islemler::selectRaw("
+                            $islemTabloAdi.*,
+                            ($islemTabloAdi.miktar - $islemTabloAdi.dara) as net,
+                            $malzemeTabloAdi.ad as malzemeAdi,
+                            $islemDurumuTabloAdi.ad as islemDurumuAdi,
+                            $islemTuruTabloAdi.ad as islemTuruAdi
+                        ")
+                        ->join($malzemeTabloAdi, "$malzemeTabloAdi.id", "$islemTabloAdi.malzemeId")
+                        ->join($islemDurumuTabloAdi, "$islemDurumuTabloAdi.id", "$islemTabloAdi.durumId")
+                        ->leftJoin($islemTuruTabloAdi, "$islemTuruTabloAdi.id", "$islemTabloAdi.islemTuruId")
+                        ->where("$islemTabloAdi.siparisId", $siparis["siparisId"])
+                        ->get()
+                        ->toArray();
+                }
+
                 return (
-                    new ExcelExporter($siparisler["data"], [
-                        "siparisId" => "Sipariş ID",
-                        "siparisNo" => "Sipariş No",
-                        "gecenSure" => "Termin",
-                        "firmaAdi" => "Firma",
-                        "islemSayisi" => "İşlem Sayısı",
-                        "netYazi" => "Miktar (Net)",
-                        "tutarTLYazi" => "Tutar (TL)",
-                        "tutarUSDYazi" => "Tutar (USD)",
-                        [
-                            "key" => "tarih",
-                            "value" => "Sipariş Tarihi",
-                            "tur" => "TARIH"
-                        ],
+                    new SiparisExcelExporter($siparisler["data"], [
+                        "siparis" => $siparisAlanlar,
+                        "islem" => $islemlerAlanlar
                     ])
                 )->downloadExcel("Sipariş Listesi");
             }

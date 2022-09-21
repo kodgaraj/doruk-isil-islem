@@ -192,6 +192,19 @@
                                 </ul>
                             </li>
                         @endcan
+
+                        <li>
+                            <a target="_blank" href="/assets/dokuman.pdf" class="waves-effect">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span>
+                                        <i class="fas fa-question-circle"></i> Yardım
+                                    </span>
+                                    <span>
+                                        <i class="fas fa-link ps-2"></i>
+                                    </span>
+                                </div>
+                            </a>
+                        </li>
                     </ul>
                 </div>
 

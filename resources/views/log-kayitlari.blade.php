@@ -192,23 +192,28 @@
                             </table>
                         </div>
                     </div>
+
                     <div class="card-footer">
                         <div class="row d-flex align-items-center justify-content-between">
                             <div class="col-auto"></div>
                             <div class="col">
                                 <ul class="pagination pagination-rounded justify-content-center mb-0">
                                     <li class="page-item">
-                                        <button class="page-link" :disabled="!logKayitlari.prev_page_url" @click="logKayitlariGetir(logKayitlari.prev_page_url)">Önceki</button>
+                                        <button class="page-link" :disabled="!logKayitlari.prev_page_url" @click="logKayitlariGetir(logKayitlari.prev_page_url)">
+                                            <i class="fas fa-angle-left"></i>
+                                        </button>
                                     </li>
                                     <li
-                                        v-for="sayfa in logKayitlari.last_page"
+                                        v-for="sayfa in sayfalamaAyarla(logKayitlari.last_page, logKayitlari.current_page)"
                                         class="page-item"
-                                        :class="[logKayitlari.current_page === sayfa ? 'active' : '']"
+                                        :class="[sayfa.aktif ? 'active' : '']"
                                     >
-                                        <button class="page-link" @click='logKayitlariGetir("{{ route("logKayitlariGetir") }}?page=" + sayfa)'>@{{ sayfa }}</button>
+                                        <button class="page-link" @click="sayfa.tur === 'SAYFA' ? logKayitlariGetir(`{{ route("logKayitlariGetir") }}?page=` + sayfa.sayfa) : ()  => {}">@{{ sayfa.sayfa }}</button>
                                     </li>
                                     <li class="page-item">
-                                        <button class="page-link" :disabled="!logKayitlari.next_page_url" @click="logKayitlariGetir(logKayitlari.next_page_url)">Sonraki</button>
+                                        <button class="page-link" :disabled="!logKayitlari.next_page_url" @click="logKayitlariGetir(logKayitlari.next_page_url)">
+                                            <i class="fas fa-angle-right"></i>
+                                        </button>
                                     </li>
                                 </ul>
                             </div>

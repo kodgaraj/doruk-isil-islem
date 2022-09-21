@@ -14,12 +14,15 @@ class ExcelExporter implements FromArray
     protected $preparedData = [];
     protected $preparedHeaders = [];
 
-    public function __construct($data, $headers = [])
+    public function __construct($data, $headers = [], $manuel = false)
     {
         $this->data = $data;
         $this->headers = $headers;
 
-        $this->prepare();
+        if (!$manuel)
+        {
+            $this->prepare();
+        }
 
         return $this;
     }
@@ -39,7 +42,21 @@ class ExcelExporter implements FromArray
 
     public function prepare()
     {
-        foreach ($this->headers as $value)
+        $this->prepareHeaders();
+
+        $this->prepareValues();
+
+        // dd([
+        //     $this->preparedHeaders,
+        //     ...$this->preparedData,
+        // ]);
+    }
+
+    public function prepareHeaders($headers = null)
+    {
+        $headers = $headers ?? $this->headers;
+
+        foreach ($headers as $value)
         {
             if (is_array($value))
             {
@@ -51,6 +68,11 @@ class ExcelExporter implements FromArray
             }
         }
 
+        return $headers;
+    }
+
+    public function prepareValues()
+    {
         foreach ($this->data as $dataKey => $data)
         {
             foreach ($this->headers as $key => $value)
@@ -75,10 +97,5 @@ class ExcelExporter implements FromArray
                 $this->preparedData[$dataKey][] = $v;
             }
         }
-
-        // dd([
-        //     $this->preparedHeaders,
-        //     ...$this->preparedData,
-        // ]);
     }
 }

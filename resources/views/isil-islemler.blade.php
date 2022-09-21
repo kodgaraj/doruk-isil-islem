@@ -867,9 +867,9 @@
                                                             <button
                                                                 @click="formaIslemEkleSil(islem)"
                                                                 class="btn"
-                                                                :class="islem.secildi ? 'btn-success' : 'btn-outline-primary'"
+                                                                :class="islem.secildi == true ? 'btn-success' : 'btn-outline-primary'"
                                                             >
-                                                                <i class="fas" :class="islem.secildi ? 'fa-check' : 'fa-plus'"></i>
+                                                                <i class="fas" :class="islem.secildi == true ? 'fa-check' : 'fa-plus'"></i>
                                                             </button>
                                                             <button
                                                                 @click="islemBolAc(iIndex)"
@@ -1586,7 +1586,7 @@
                 });
             },
             formaIslemEkleSil(islem) {
-                islem.secildi = !islem.secildi;
+                islem.secildi = !(islem.secildi == true ? true : false);
 
                 const islemIndex = _.findIndex(this.aktifForm.secilenIslemler, { id: islem.id });
                 if (islemIndex > -1) {

@@ -15,7 +15,7 @@
                                 @{{ aktifSayfa.baslik }}
                             </h4>
                         </div>
-                        <div class="col-auto">
+                        <div class="col-auto" v-if="aktifSayfa.kod === 'ANASAYFA'">
                             <div class="row d-flex align-items-center">
                                 <div class="col">
                                     <div class="input-group">
@@ -49,6 +49,15 @@
                                     </small>
                                 </div>
                             </div>
+                        </div>
+                        <div class="col-auto">
+                            <button v-if="aktifSayfa.kod === 'YENI_FIRMA' && yeniFirma.id && !yukleniyorObjesi.firmaEkle"
+                                class="btn btn-warning" @click="firmaBirlestirmeAc()">
+                                <i class="fa fa-sync"></i> FİRMA BİRLEŞTİR
+                            </button>
+                        </div>
+
+                        <div class="col-auto">
                             <!-- firma KAYDET BUTONU -->
                             <button v-if="aktifSayfa.kod === 'YENI_FIRMA' && !yukleniyorObjesi.firmaEkle"
                                 class="btn btn-primary" @click="firmaEkle()">
@@ -57,6 +66,49 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="modal fade" id="birlestirmeModal" tabindex="-1" aria-labelledby="birlestirmeModalTitle" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="birlestirmeModalTitle">Firma Birleştirme</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="col m-0">
+                                    <div class="form-group">
+                                        <label for="birlestirilecekFirma">Birleştirilecek Firma</label>
+                                        <v-select
+                                            v-model="birlestirmeObjesi.firma"
+                                            :options="birlestirmeObjesi.firmalar"
+                                            :loading="yukleniyorObjesi.birlestirilecekFirmalar"
+                                            label="firmaAdi"
+                                            id="birlestirilecekFirma"
+                                        ></v-select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button
+                                    type="button"
+                                    class="btn btn-primary"
+                                    :disabled="yukleniyorObjesi.birlestirilecekFirmalar"
+                                    @click="firmalariBirlestir()"
+                                >
+                                    <template v-if="yukleniyorObjesi.birlestirilecekFirmalar">
+                                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                        BİRLEŞTİRİLİYOR...
+                                    </template>
+                                    <template v-else>
+                                        BİRLEŞTİR
+                                    </template>
+                                </button>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">VAZGEÇ</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="card-body">
                     <template v-if="aktifSayfa.kod === 'ANASAYFA'">
                         <template v-if="yukleniyorObjesi.firmalariGetir">
@@ -216,6 +268,7 @@
                         firmalariGetir: false,
                         firmaSil: false,
                         firmaEkle: false,
+                        birlestirilecekFirmalar: false,
                     },
                     firmalar: {},
                     yeniFirma: {
@@ -226,6 +279,11 @@
                     filtrelemeObjesi: {
                         arama: "",
                         siralamaTuru: null,
+                    },
+                    birlestirmeObjesi: {
+                        firmalar: [],
+                        firma: null,
+                        modal: null,
                     },
                 };
             },
@@ -439,6 +497,92 @@
                         .replace(/[Öö]/g, "O")
                         .replace(/[Şş]/g, "S")
                         .replace(/[Üü]/g, "U");
+                },
+                firmaBirlestirmeAc() {
+                    this.birlestirmeObjesi.modal = new bootstrap.Modal(document.getElementById("birlestirmeModal"));
+                    this.birlestirmeObjesi.firma = null;
+
+                    this.yukleniyorObjesi.birlestirilecekFirmalar = true;
+
+                    return axios.get("/firmalariGetir")
+                    .then(response => {
+                        this.yukleniyorObjesi.birlestirilecekFirmalar = false;
+                        if (!response.data.durum) {
+                            return this.uyariAc({
+                                baslik: 'Hata',
+                                mesaj: response.data.mesaj,
+                                tur: "error"
+                            });
+                        }
+
+                        this.birlestirmeObjesi.firmalar = response.data.firmalar;
+
+                        this.birlestirmeObjesi.modal.show();
+                    })
+                    .catch(error => {
+                        this.yukleniyorObjesi.birlestirilecekFirmalar = false;
+                        this.uyariAc({
+                            baslik: 'Hata',
+                            mesaj: error.response.data.mesaj + " - Hata Kodu: " + error.response.data.hataKodu,
+                            tur: "error"
+                        });
+                        console.log(error);
+                    });
+                },
+                firmalariBirlestir() {
+                    const fun = () => {
+                        this.yukleniyorObjesi.birlestirilecekFirmalar = true;
+
+                        axios.post("/firmalariBirlestir", {
+                            anaFirma: this.yeniFirma,
+                            birlestirilecekFirma: this.birlestirmeObjesi.firma,
+                        })
+                        .then(response => {
+                            this.yukleniyorObjesi.birlestirilecekFirmalar = false;
+                            if (!response.data.durum) {
+                                return this.uyariAc({
+                                    baslik: 'Hata',
+                                    mesaj: response.data.mesaj,
+                                    tur: "error"
+                                });
+                            }
+
+                            this.uyariAc({
+                                toast: {
+                                    status: true,
+                                    message: response.data.mesaj,
+                                },
+                            });
+
+                            this.birlestirmeObjesi.modal.hide();
+                            this.birlestirmeObjesi.firma = null;
+                            this.firmalariGetir();
+                        })
+                        .catch(error => {
+                            this.yukleniyorObjesi.birlestirilecekFirmalar = false;
+                            this.uyariAc({
+                                baslik: 'Hata',
+                                mesaj: error.response.data.mesaj + " - Hata Kodu: " + error.response.data.hataKodu,
+                                tur: "error"
+                            });
+                            console.log(error);
+                        });
+                    }
+
+                    Swal.fire({
+                        title: "Uyarı",
+                        text: `Eğer devam ederseniz "${this.birlestirmeObjesi.firma.firmaAdi}" firmasındaki tüm işlemler (siparişler vs.),
+                            "${this.yeniFirma.firmaAdi}" firmasına aktarılıp "${this.birlestirmeObjesi.firma.firmaAdi}" firması silinecektir.
+                            Devam etmek istiyor musunuz?`,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'Devam Et',
+                        cancelButtonText: 'İptal',
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            fun();
+                        }
+                    });
                 },
             }
         };
