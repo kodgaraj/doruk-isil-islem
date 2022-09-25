@@ -315,6 +315,18 @@ class DatabaseSeeder extends Seeder
             $mesajlar[] = 'İşlemler tablosuna bolunmusId alanı eklendi > ' . date('Y-m-d H:i:s');
         }
 
+        // İşlemler tablosuna bolunmusId alanı eklenmesi
+        if (!Schema::hasColumn("siparisler", "faturaKesildi")) {
+            Schema::table("siparisler", function (Blueprint $table) {
+                $table->tinyInteger('faturaKesildi')
+                    ->default(0)
+                    ->after('terminSuresi')
+                    ->comment("Siparişe ait fatura kesilip kesilmediği bilgisini tutar, 1 -> kesildi, 0 -> kesilmedi)");
+            });
+
+            $mesajlar[] = 'Siparişler tablosuna faturaKesildi alanı eklendi > ' . date('Y-m-d H:i:s');
+        }
+
         $mesajlar[] = 'Veritabanı güncellendi > ' . date('Y-m-d H:i:s');
 
         return implode("<br />", $mesajlar);

@@ -55,6 +55,7 @@ class SiparisController extends Controller
                     $siparisTabloAdi.firmaId,
                     $siparisTabloAdi.durumId,
                     $siparisTabloAdi.terminSuresi,
+                    $siparisTabloAdi.faturaKesildi,
                     $siparisTabloAdi.aciklama,
                     $siparisDurumTabloAdi.ad as siparisDurumAdi,
                     $firmaTabloAdi.firmaAdi,
@@ -99,6 +100,7 @@ class SiparisController extends Controller
                     $siparisTabloAdi . '.firmaId',
                     $siparisTabloAdi . '.durumId',
                     $siparisTabloAdi . '.terminSuresi',
+                    $siparisTabloAdi . '.faturaKesildi',
                     $siparisTabloAdi . '.aciklama',
                     $siparisDurumTabloAdi . '.ad',
                     $firmaTabloAdi . '.firmaAdi',
@@ -164,6 +166,8 @@ class SiparisController extends Controller
                 ]);
                 $siparis["netYazi"] = $this->yaziyaDonustur($siparis["net"], ["kg" => true]);
                 $siparis["tarihTR"] = Carbon::parse($siparis["tarih"])->format("d.m.Y");
+                $siparis["faturaKesildi"] = $siparis["faturaKesildi"] == 1 ? true : false;
+                $siparis["faturaKesildiYazi"] = $siparis["faturaKesildi"] ? "Kesildi" : "Kesilmedi";
             }
 
             if ($cikti)
@@ -178,6 +182,7 @@ class SiparisController extends Controller
                     "adet" => "Adet",
                     "miktar" => "Miktar",
                     "dara" => "Dara",
+                    "daraSonraGirilecek" => "Dara Sonra Girilecek",
                     "net" => "Net Miktar",
                     "kalite" => "Kalite",
                     "islemTuruAdi" => "Yapılacak İşlem",
@@ -190,6 +195,11 @@ class SiparisController extends Controller
                     $siparisAlanlar["tutarUSD"] = "Tutar ($)";
 
                     $islemlerAlanlar["birimFiyat"] = "Tutar";
+                }
+
+                if (auth()->user()->can("fatura_kesildi_listeleme"))
+                {
+                    $siparisAlanlar["faturaKesildiYazi"] = "Fatura Durumu";
                 }
 
                 $malzemeTabloAdi = (new Malzemeler())->getTable();
@@ -211,6 +221,13 @@ class SiparisController extends Controller
                         ->where("$islemTabloAdi.siparisId", $siparis["siparisId"])
                         ->get()
                         ->toArray();
+
+                    foreach ($siparis["islemler"] as &$islem)
+                    {
+                        $islem["json"] = json_decode($islem["json"], true);
+
+                        $islem["daraSonraGirilecek"] = $islem["json"] && $islem["json"]["daraSonraGirilecek"] ? "Evet" : "Hayır";
+                    }
                 }
 
                 return (
@@ -359,6 +376,7 @@ class SiparisController extends Controller
             $siparis->tarih = $siparisBilgileri['tarih'];
             $siparis->tutar = $siparisBilgileri['tutar'] ?? null;
             $siparis->terminSuresi = $siparisBilgileri['terminSuresi'] ?? 5;
+            $siparis->faturaKesildi = $siparisBilgileri['faturaKesildi'];
 
             if (!$siparis->save())
             {

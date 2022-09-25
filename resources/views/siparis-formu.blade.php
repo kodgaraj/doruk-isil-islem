@@ -247,6 +247,13 @@
                                                                         <div class="col-12" v-if="siparis.tutarUSD">
                                                                             @{{ siparis.tutarUSDYazi }}
                                                                         </div>
+                                                                        @can("fatura_kesildi_listeleme")
+                                                                            <div class="col-12">
+                                                                                <span :class="siparis.faturaKesildi ? 'text-success' : 'text-danger'">
+                                                                                    Fatura: <i class="fas" :class="siparis.faturaKesildi ? 'fa-check-circle' : 'fa-times-circle'"></i>
+                                                                                </span>
+                                                                            </div>
+                                                                        @endcan
                                                                     </div>
                                                                 </td>
                                                             @endcan
@@ -631,6 +638,38 @@
                                     </div>
                                 </template>
                             </div>
+                            @can("fatura_kesildi_listeleme")
+                                <div class="mb-3 col-12 col-sm-6 col-md-4 align-self-center">
+                                    <template v-if="aktifSiparis.onizlemeModu">
+                                        <span v-if="aktifSiparis.faturaKesildi" class="text-success">
+                                            <i class="fas fa-check-circle"></i>
+                                            Fatura kesildi
+                                        </span>
+                                        <span v-else class="text-danger">
+                                            <i class="fas fa-times-circle"></i>
+                                            Fatura kesilmedi
+                                        </span>
+                                    </template>
+                                    <template v-else>
+                                        <div class="row d-flex align-items-end">
+                                            <div class="form-group">
+                                                <div class="form-check form-switch">
+                                                    <input
+                                                        class="form-check-input"
+                                                        type="checkbox"
+                                                        id="faturaKesildi"
+                                                        v-model="aktifSiparis.faturaKesildi"
+                                                    />
+                                                    <label class="form-check-label" for="faturaKesildi">
+                                                        <span v-if="aktifSiparis.faturaKesildi" class="text-success">Fatura kesildi</span>
+                                                        <span v-else class="text-danger">Fatura kesilmedi</span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </template>
+                                </div>
+                            @endcan
                             <div class="form-group col-12 mb-2">
                                 <template v-if="aktifSiparis.onizlemeModu">
                                     <label for="aciklama">Açıklama</label>
