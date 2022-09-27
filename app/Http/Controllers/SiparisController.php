@@ -578,6 +578,7 @@ class SiparisController extends Controller
                 $islem["json"] = json_decode($islem["json"], true);
 
                 $islem["daraSonraGirilecek"] = $islem["json"] && $islem["json"]["daraSonraGirilecek"];
+                $islem["miktarFiyatCarp"] = $islem["miktarFiyatCarp"] == 1 ? true : false;
             }
 
             return response()->json([
