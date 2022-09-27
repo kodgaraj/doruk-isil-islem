@@ -376,7 +376,7 @@ class SiparisController extends Controller
             $siparis->tarih = $siparisBilgileri['tarih'];
             $siparis->tutar = $siparisBilgileri['tutar'] ?? null;
             $siparis->terminSuresi = $siparisBilgileri['terminSuresi'] ?? 5;
-            $siparis->faturaKesildi = $siparisBilgileri['faturaKesildi'];
+            $siparis->faturaKesildi = $siparisBilgileri['faturaKesildi'] ?? false;
 
             if (!$siparis->save())
             {

@@ -1153,6 +1153,7 @@
                     islemler: [],
                     firma: null,
                     onizlemeModu: false,
+                    faturaKesildi: false,
                 };
 
                 this.numaralariGetir();
