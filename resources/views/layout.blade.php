@@ -344,7 +344,7 @@
     <script src="assets/js/app.js"></script>
 
     <!-- axios cdn -->
-    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.27.2/axios.min.js"></script>
     <!-- v-mask -->
     <script src="https://cdn.jsdelivr.net/npm/v-mask/dist/v-mask.min.js"></script>
     <!-- v-money -->
