@@ -61,7 +61,7 @@ class SiparisController extends Controller
                     $firmaTabloAdi.firmaAdi,
                     $firmaTabloAdi.sorumluKisi,
                     $kullaniciTabloAdi.name as duzenleyen,
-                    COUNT(IF($islemTabloAdi.deleted_at IS NULL, $islemTabloAdi.id, NULL)) as islemSayisi,
+                    COUNT(IF($islemTabloAdi.deleted_at IS NULL AND $islemTabloAdi.bolunmusId IS NULL, $islemTabloAdi.id, NULL)) as islemSayisi,
                     SUM($islemTabloAdi.miktar - $islemTabloAdi.dara) as net,
                     SUM(
                         IF(
@@ -147,7 +147,8 @@ class SiparisController extends Controller
                 $siparisler = $siparisler->where("$siparisTabloAdi.id", $filtrelemeler["siparisId"]);
             }
 
-            $siparisler = $siparisler->orderBy($siparisTabloAdi . '.created_at', 'desc')
+            $siparisler = $siparisler->whereNull("$islemTabloAdi.deleted_at")
+                ->orderBy($siparisTabloAdi . '.created_at', 'desc')
                 ->paginate($sayfalamaSayisi)
                 ->toArray();
 
@@ -565,7 +566,9 @@ class SiparisController extends Controller
                 $donecekVeriler["siparisDetaylari"] = $siparisDetaylari;
             }
 
-            foreach ($donecekVeriler["islemler"] as &$islem)
+            $bolunmusToplamliIslemler = [];
+
+            foreach ($donecekVeriler["islemler"] as $islem)
             {
                 $paraBirimi = $this->paraBirimleri[$islem["paraBirimi"]];
                 $islem["miktarYazi"] = $this->yaziyaDonustur($islem["miktar"], ["kg" => true]);
@@ -579,6 +582,49 @@ class SiparisController extends Controller
 
                 $islem["daraSonraGirilecek"] = $islem["json"] && $islem["json"]["daraSonraGirilecek"];
                 $islem["miktarFiyatCarp"] = $islem["miktarFiyatCarp"] == 1 ? true : false;
+
+                $id = $islem["bolunmusId"] ? $islem["bolunmusId"] : $islem["id"];
+
+                if (!isset($bolunmusToplamliIslemler[$id]))
+                {
+                    $bolunmusToplamliIslemler[$id] = [];
+                }
+
+                $bolunmusToplamliIslemler[$id][] = $islem;
+            }
+
+            $donecekVeriler["bolunmusToplamliIslemler"] = [];
+
+            foreach($bolunmusToplamliIslemler as $bolunmusIslemId => $_islemler)
+            {
+                $anaIslemIndex = -1;
+                $toplamlar = [
+                    "miktar" => 0,
+                    "dara" => 0,
+                ];
+                foreach ($_islemler as $index => $islem)
+                {
+                    $toplamlar["miktar"] += (float) $islem["miktar"];
+                    $toplamlar["dara"] += (float) $islem["dara"];
+                    if ($bolunmusIslemId == $islem["id"])
+                    {
+                        $anaIslemIndex = $index;
+                    }
+                }
+
+                if ($anaIslemIndex > -1)
+                {
+                    // Referans bağlantısı koparılıyor
+                    $anaIslem = json_decode(json_encode($_islemler[$anaIslemIndex]), true);
+
+                    $anaIslem["miktar"] = $toplamlar["miktar"];
+                    $anaIslem["dara"] = $toplamlar["dara"];
+
+                    $anaIslem["miktarYazi"] = $this->yaziyaDonustur($anaIslem["miktar"], ["kg" => true]);
+                    $anaIslem["daraYazi"] = $this->yaziyaDonustur($anaIslem["dara"], ["kg" => true]);
+
+                    $donecekVeriler["bolunmusToplamliIslemler"][] = $anaIslem;
+                }
             }
 
             return response()->json([

@@ -112,6 +112,55 @@
                                                 </div>
                                             </div>
                                             <div class="col-12 m-0">
+                                                <div class="form-group">
+                                                    <div class="row d-flex align-items-center justify-space-between">
+                                                        <div class="col">
+                                                            <label for="tarihFiltre">Tarih</label>
+                                                        </div>
+                                                        <div class="col-auto">
+                                                            <button
+                                                                v-if="filtrelemeObjesi.baslangicTarihi || filtrelemeObjesi.bitisTarihi"
+                                                                @click="filtrelemeTarihTemizle()"
+                                                                class="btn btn-sm btn-outline-danger p-0 m-0"
+                                                                type="button"
+                                                                aria-label="Tarih temizle"
+                                                            >
+                                                                <span class="px-1">
+                                                                    Tarihleri Temizle
+                                                                    <i class="fa fa-times"></i>
+                                                                </span>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                    <div class="input-group mb-3">
+                                                        <span class="input-group-text">Başlangıç</span>
+                                                        <input
+                                                            v-model="filtrelemeObjesi.baslangicTarihi"
+                                                            type="date"
+                                                            class="form-control"
+                                                            placeholder="Başlangıç"
+                                                            data-date-container='#datepicker2'
+                                                            data-provide="datepicker"
+                                                            data-date-autoclose="true"
+                                                            id="tarih"
+                                                            aria-label="Başlangıç"
+                                                        />
+                                                        <span class="input-group-text">Bitiş</span>
+                                                        <input
+                                                            v-model="filtrelemeObjesi.bitisTarihi"
+                                                            type="date"
+                                                            class="form-control"
+                                                            placeholder="Bitiş"
+                                                            data-date-container='#datepicker2'
+                                                            data-provide="datepicker"
+                                                            data-date-autoclose="true"
+                                                            id="tarih"
+                                                            aria-label="Bitiş"
+                                                        />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-12 m-0">
                                                 <div class="form-check">
                                                     <input
                                                         class="form-check-input"
@@ -822,6 +871,10 @@
                 },
                 excelCikti() {
                     this.isilIslemleriGetir(undefined, true);
+                },
+                filtrelemeTarihTemizle() {
+                    this.filtrelemeObjesi.baslangicTarihi = null;
+                    this.filtrelemeObjesi.bitisTarihi = null;
                 },
             }
         };

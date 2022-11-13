@@ -314,7 +314,7 @@
                                                                             <th>İşlem Durumu</th>
                                                                         </thead>
                                                                         <tbody id="islem-satir-ekle">
-                                                                            <tr v-for="(islem, iIndex) in siparis.islemler">
+                                                                            <tr v-for="(islem, iIndex) in siparis.bolunmusToplamliIslemler">
                                                                                 <td class="kisa-uzunluk">@{{ iIndex + 1 }}</td>
                                                                                 <td class="text-center">
                                                                                     <img
@@ -709,7 +709,7 @@
                                     </thead>
                                     <tbody id="islem-satir-ekle">
                                         <template v-if="aktifSiparis.onizlemeModu">
-                                            <tr v-for="(islem, index) in aktifSiparis.islemler">
+                                            <tr v-for="(islem, index) in aktifSiparis.bolunmusToplamliIslemler">
                                                 <td>@{{ index + 1 }}</td>
                                                 <td class="text-center">
                                                     <img
@@ -745,7 +745,16 @@
                                         </template>
                                         <template v-else>
                                             <tr v-for="(islem, index) in aktifSiparis.islemler" :key="index" style="vertical-align: middle;">
-                                                <td># @{{ index + 1 }}</td>
+                                                <td>
+                                                    <div class="row d-flex">
+                                                        <div class="col-12">
+                                                            # @{{ index + 1 }}
+                                                        </div>
+                                                        <div class="col-12" v-if="islem.id">
+                                                            <span class="badge badge-pill bg-primary">ID: @{{ islem.id }}</span>
+                                                        </div>
+                                                    </div>
+                                                </td>
                                                 <td class="text-center">
                                                     <img
                                                         v-if="islem.resim || islem.resimYolu"
@@ -805,12 +814,19 @@
                                                     <input class="form-control" type="number" placeholder="1" v-model="islem.adet">
                                                 </td>
                                                 <td class="orta-uzunluk text-center">
-                                                    <input
-                                                        class="form-control"
-                                                        v-money="maskeler.kg"
-                                                        placeholder="Miktar (KG)"
-                                                        v-model="islem.miktarYazi"
-                                                    />
+                                                    <div class="row d-flex">
+                                                        <div class="col-12">
+                                                            <input
+                                                                class="form-control"
+                                                                v-money="maskeler.kg"
+                                                                placeholder="Miktar (KG)"
+                                                                v-model="islem.miktarYazi"
+                                                            />
+                                                        </div>
+                                                        <div class="col-12" v-if="islem.bolunmusId">
+                                                            <span class="badge badge-pill bg-primary">Bölünmüş ID: @{{ islem.bolunmusId }}</span>
+                                                        </div>
+                                                    </div>
                                                 </td>
                                                 <td class="orta-uzunluk text-center" :style="islem.daraSonraGirilecek ? 'background-color: #EB1D3666; color: white !important' : ''">
                                                     <input
@@ -1028,6 +1044,38 @@
                     let tutarTL = 0, tutarUSD = 0;
                     for (let i in this.aktifSiparis.islemler) {
                         const islem = this.aktifSiparis.islemler[i];
+
+                        islem.birimFiyat = this.floatDonustur(islem.birimFiyatYazi, { paraBirimi: islem.paraBirimi });
+                        islem.miktar = this.floatDonustur(islem.miktarYazi, { kg: true });
+                        islem.dara = this.floatDonustur(islem.daraYazi, { kg: true });
+
+                        islem.net = _.round(islem.miktar - islem.dara, 2);
+                        islem.netYazi = this.yaziyaDonustur(islem.net, { kg: true });
+
+                        const birimFiyat = _.round((islem.miktarFiyatCarp ? islem.net : 1) * islem.birimFiyat, 2);
+
+                        if (islem.paraBirimi.kod == "USD") {
+                            tutarUSD += birimFiyat;
+                        }
+                        else {
+                            tutarTL += birimFiyat;
+                        }
+                    }
+
+                    this.aktifSiparis.tutarUSD = tutarUSD;
+                    this.aktifSiparis.tutarUSDYazi = this.yaziyaDonustur(tutarUSD);
+                    this.aktifSiparis.tutarTL = tutarTL;
+                    this.aktifSiparis.tutarTLYazi = this.yaziyaDonustur(tutarTL);
+                },
+                deep: true
+            },
+            "aktifSiparis.bolunmusToplamliIslemler": {
+                handler: function (newValue, oldValue) {
+                    if (!this.aktifSiparis) return;
+
+                    let tutarTL = 0, tutarUSD = 0;
+                    for (let i in this.aktifSiparis.bolunmusToplamliIslemler) {
+                        const islem = this.aktifSiparis.bolunmusToplamliIslemler[i];
 
                         islem.birimFiyat = this.floatDonustur(islem.birimFiyatYazi, { paraBirimi: islem.paraBirimi });
                         islem.miktar = this.floatDonustur(islem.miktarYazi, { kg: true });
@@ -1501,7 +1549,7 @@
                 }
 
                 return axios.post("/siparisDetay", {
-                    siparisId: siparis.siparisId
+                    siparisId: siparis.siparisId,
                 })
                 .then(async response => {
                     if (!response.data.durum) {
@@ -1517,6 +1565,7 @@
                     const aktifSiparis = {
                         ...siparis,
                         islemler: response.data.veriler.islemler,
+                        bolunmusToplamliIslemler: response.data.veriler.bolunmusToplamliIslemler
                     };
 
                     const firma = _.find(this.firmalar, {
@@ -1537,6 +1586,41 @@
 
                     if (_.size(aktifSiparis.islemler)) {
                         aktifSiparis.islemler.forEach(islem => {
+
+                            if (islem.malzemeId) {
+                                const malzeme = _.find(this.malzemeler, {
+                                    id: islem.malzemeId
+                                });
+
+                                if (malzeme) {
+                                    islem.malzeme = malzeme;
+                                }
+                            }
+
+                            if (islem.islemTuruId) {
+                                const islemTur = _.find(this.islemTurleri, {
+                                    id: islem.islemTuruId
+                                });
+
+                                if (islemTur) {
+                                    islem.yapilacakIslem = islemTur;
+                                }
+                            }
+
+                            if (islem.durumId) {
+                                const islemDurumu = _.find(this.islemDurumlari, {
+                                    id: islem.durumId
+                                });
+
+                                if (islemDurumu) {
+                                    islem.islemDurumu = islemDurumu;
+                                }
+                            }
+                        });
+                    }
+
+                    if (_.size(aktifSiparis.bolunmusToplamliIslemler)) {
+                        aktifSiparis.bolunmusToplamliIslemler.forEach(islem => {
 
                             if (islem.malzemeId) {
                                 const malzeme = _.find(this.malzemeler, {
@@ -2060,6 +2144,7 @@
                 await this.siparisDuzenle(this.siparisler.data[index], true);
 
                 this.siparisler.data[index].islemler = this.aktifSiparis.islemler;
+                this.siparisler.data[index].bolunmusToplamliIslemler = this.aktifSiparis.bolunmusToplamliIslemler;
                 this.siparisler.data[index].islemlerAcik = true;
                 this.siparisler.data[index].islemYukleniyor = false;
                 this.siparisler = _.cloneDeep(this.siparisler);

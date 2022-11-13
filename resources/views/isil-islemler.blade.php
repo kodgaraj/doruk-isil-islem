@@ -1068,20 +1068,21 @@
                                     <table id="formGorunumu" ref="formGorunumu" class="table">
                                         <thead>
                                             <tr>
-                                                <th>Fırın</th>
-                                                <th>Şarj</th>
-                                                <th class="text-center">Resim</th>
-                                                <th>Firma</th>
-                                                <th>Malzeme</th>
-                                                <th>İst. Sertlik</th>
-                                                <th>Kalite</th>
-                                                <th>Sıcaklık</th>
-                                                <th>Carbon</th>
-                                                <th>Süre</th>
-                                                <th>Ç. Sertliği</th>
-                                                <th>Men. Sıcaklığı</th>
-                                                <th>Süre</th>
-                                                <th>Son Sertlik</th>
+                                                <th style="border-bottom: 1px solid black; border-right: 1px solid black">Fırın</th>
+                                                <th style="border-bottom: 1px solid black; border-right: 1px solid black">Şarj</th>
+                                                <th style="border-bottom: 1px solid black; border-right: 1px solid black" class="text-center">Resim</th>
+                                                <th style="border-bottom: 1px solid black; border-right: 1px solid black">Firma</th>
+                                                <th style="border-bottom: 1px solid black; border-right: 1px solid black">Malzeme</th>
+                                                <th style="border-bottom: 1px solid black; border-right: 1px solid black">İşlem</th>
+                                                <th style="border-bottom: 1px solid black; border-right: 1px solid black">İst. Sertlik</th>
+                                                <th style="border-bottom: 1px solid black; border-right: 1px solid black">Kalite</th>
+                                                <th style="border-bottom: 1px solid black; border-right: 1px solid black">Sıcaklık</th>
+                                                <th style="border-bottom: 1px solid black; border-right: 1px solid black">Carbon</th>
+                                                <th style="border-bottom: 1px solid black; border-right: 1px solid black">Süre</th>
+                                                <th style="border-bottom: 1px solid black; border-right: 1px solid black">Ç. Sertliği</th>
+                                                <th style="border-bottom: 1px solid black; border-right: 1px solid black">Men. Sıcaklığı</th>
+                                                <th style="border-bottom: 1px solid black; border-right: 1px solid black">Süre</th>
+                                                <th style="border-bottom: 1px solid black; border-right: 1px solid black">Son Sertlik</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -1093,31 +1094,34 @@
                                                             :id="firinId"
                                                         >
                                                             <td
-                                                                :style="islemIndex === (_.size(sarj.islemler) - 1) || sarjIndex === 0 ? 'border-bottom: 2px solid black' : ''"
-                                                                class="dikey"
-                                                                :rowspan="firin.toplamIslemSayisi"
                                                                 v-if="sarjIndex === 0 && islemIndex === 0"
+                                                                :style="sarjIndex === 0 && islemIndex === 0 ? 'border-bottom: 2px solid black' : ''"
+                                                                :rowspan="firin.toplamIslemSayisi"
+                                                                style="border-right: 1px solid black; padding: 4px;"
+                                                                class="dikey"
                                                             >
                                                                 <span>@{{ firin.firinAdi }}</span>
                                                             </td>
                                                             <td
-                                                                :style="islemIndex === (_.size(sarj.islemler) - 1) || sarjIndex === 0 ? 'border-bottom: 2px solid black' : ''"
-                                                                class="dikey"
-                                                                :rowspan="sarj.toplamIslemSayisi"
                                                                 v-if="islemIndex === 0"
+                                                                :style="islemIndex === 0 ? 'border-bottom: 2px solid black' : ''"
+                                                                :rowspan="sarj.toplamIslemSayisi"
+                                                                style="border-right: 1px solid black; padding: 4px;"
+                                                                class="dikey"
                                                             >
                                                                 <span>@{{ sarj.sarj }}. Şarj</span>
                                                             </td>
-                                                            <td :style="islemIndex === (_.size(sarj.islemler) - 1) ? 'border-bottom: 2px solid black' : ''" class="kisa-uzunluk text-center">
+                                                            <td style="border-right: 1px solid black; padding: 4px;" :style="islemIndex === (_.size(sarj.islemler) - 1) ? 'border-bottom: 2px solid black' : 'border-bottom: 1px solid black !important'" class="kisa-uzunluk text-center">
                                                                 <img
                                                                     :src="islem.resimYolu ? islem.resimYolu : varsayilanResimYolu"
                                                                     class="kg-resim-sec"
                                                                     @click.stop="resimOnizlemeAc(islem.resimYolu)"
                                                                 />
                                                             </td>
-                                                            <td :style="islemIndex === (_.size(sarj.islemler) - 1) ? 'border-bottom: 2px solid black' : ''" class="orta-uzunluk align-left">@{{ islem.firmaAdi }}</td>
-                                                            <td :style="islemIndex === (_.size(sarj.islemler) - 1) ? 'border-bottom: 2px solid black' : ''" class="kisa-uzunluk align-left">@{{ islem.malzemeAdi }}</td>
-                                                            <td :style="islemIndex === (_.size(sarj.islemler) - 1) ? 'border-bottom: 2px solid black' : ''" class="kisa-uzunluk">
+                                                            <td style="border-right: 1px solid black; padding: 4px;" :style="islemIndex === (_.size(sarj.islemler) - 1) ? 'border-bottom: 2px solid black' : 'border-bottom: 1px solid black !important'" class="orta-uzunluk align-left">@{{ islem.firmaAdi }}</td>
+                                                            <td style="border-right: 1px solid black; padding: 4px;" :style="islemIndex === (_.size(sarj.islemler) - 1) ? 'border-bottom: 2px solid black' : 'border-bottom: 1px solid black !important'" class="kisa-uzunluk align-left">@{{ islem.malzemeAdi }}</td>
+                                                            <td style="border-right: 1px solid black; padding: 4px;" :style="islemIndex === (_.size(sarj.islemler) - 1) ? 'border-bottom: 2px solid black' : 'border-bottom: 1px solid black !important'" class="kisa-uzunluk align-left">@{{ islem.islemTuruAdi }}</td>
+                                                            <td style="border-right: 1px solid black; padding: 4px;" :style="islemIndex === (_.size(sarj.islemler) - 1) ? 'border-bottom: 2px solid black' : 'border-bottom: 1px solid black !important'" class="kisa-uzunluk">
                                                                 <template v-if="aktifForm.onizlemeModu">
                                                                     <span>@{{ islem.istenilenSertlik }}</span>
                                                                 </template>
@@ -1130,7 +1134,7 @@
                                                                     />
                                                                 </template>
                                                             </td>
-                                                            <td :style="islemIndex === (_.size(sarj.islemler) - 1) ? 'border-bottom: 2px solid black' : ''" class="kisa-uzunluk">
+                                                            <td style="border-right: 1px solid black; padding: 4px;max-width: 25px !important;" :style="islemIndex === (_.size(sarj.islemler) - 1) ? 'border-bottom: 2px solid black' : 'border-bottom: 1px solid black !important'" class="kisa-uzunluk">
                                                                 <template v-if="aktifForm.onizlemeModu">
                                                                     <span>@{{ islem.kalite }}</span>
                                                                 </template>
@@ -1144,8 +1148,9 @@
                                                                 </template>
                                                             </td>
                                                             <td
-                                                                :style="islemIndex === (_.size(sarj.islemler) - 1) || sarjIndex === 0 ? 'border-bottom: 2px solid black' : ''"
+                                                                :style="islemIndex === 0 ? 'border-bottom: 2px solid black' : 'border-bottom: 1px solid black !important'"
                                                                 :rowspan="sarj.toplamIslemSayisi"
+                                                                style="border-right: 1px solid black; padding: 4px;max-width: 25px !important;"
                                                                 v-if="islemIndex === 0"
                                                                 class="kisa-uzunluk"
                                                             >
@@ -1162,8 +1167,9 @@
                                                                 </template>
                                                             </td>
                                                             <td
-                                                                :style="islemIndex === (_.size(sarj.islemler) - 1) || sarjIndex === 0 ? 'border-bottom: 2px solid black' : ''"
+                                                                :style="islemIndex === 0 ? 'border-bottom: 2px solid black' : 'border-bottom: 1px solid black !important'"
                                                                 :rowspan="sarj.toplamIslemSayisi"
+                                                                style="border-right: 1px solid black; padding: 4px;max-width: 25px !important;"
                                                                 v-if="islemIndex === 0"
                                                                 class="kisa-uzunluk"
                                                             >
@@ -1180,8 +1186,9 @@
                                                                 </template>
                                                             </td>
                                                             <td
-                                                                :style="islemIndex === (_.size(sarj.islemler) - 1) || sarjIndex === 0 ? 'border-bottom: 2px solid black' : ''"
+                                                                :style="islemIndex === 0 ? 'border-bottom: 2px solid black' : 'border-bottom: 1px solid black !important'"
                                                                 :rowspan="sarj.toplamIslemSayisi"
+                                                                style="border-right: 1px solid black; padding: 4px;max-width: 25px !important;"
                                                                 v-if="islemIndex === 0"
                                                                 class="kisa-uzunluk"
                                                             >
@@ -1197,7 +1204,7 @@
                                                                     />
                                                                 </template>
                                                             </td>
-                                                            <td :style="islemIndex === (_.size(sarj.islemler) - 1) ? 'border-bottom: 2px solid black' : ''" class="kisa-uzunluk">
+                                                            <td style="border-right: 1px solid black; padding: 4px;max-width: 25px !important;" :style="islemIndex === (_.size(sarj.islemler) - 1) ? 'border-bottom: 2px solid black' : 'border-bottom: 1px solid black !important'" class="kisa-uzunluk">
                                                                 <template v-if="aktifForm.onizlemeModu">
                                                                     <span>@{{ islem.cikisSertligi }}</span>
                                                                 </template>
@@ -1210,7 +1217,7 @@
                                                                     />
                                                                 </template>
                                                             </td>
-                                                            <td :style="islemIndex === (_.size(sarj.islemler) - 1) ? 'border-bottom: 2px solid black' : ''" class="kisa-uzunluk">
+                                                            <td style="border-right: 1px solid black; padding: 4px;max-width: 25px !important;" :style="islemIndex === (_.size(sarj.islemler) - 1) ? 'border-bottom: 2px solid black' : 'border-bottom: 1px solid black !important'" class="kisa-uzunluk">
                                                                 <template v-if="aktifForm.onizlemeModu">
                                                                     <span>@{{ islem.menevisSicakligi }}</span>
                                                                 </template>
@@ -1223,7 +1230,7 @@
                                                                     />
                                                                 </template>
                                                             </td>
-                                                            <td :style="islemIndex === (_.size(sarj.islemler) - 1) ? 'border-bottom: 2px solid black' : ''" class="kisa-uzunluk">
+                                                            <td style="border-right: 1px solid black; padding: 4px;max-width: 25px !important;" :style="islemIndex === (_.size(sarj.islemler) - 1) ? 'border-bottom: 2px solid black' : 'border-bottom: 1px solid black !important'" class="kisa-uzunluk">
                                                                 <template v-if="aktifForm.onizlemeModu">
                                                                     <span>@{{ islem.cikisSuresi }}</span>
                                                                 </template>
@@ -1236,7 +1243,7 @@
                                                                     />
                                                                 </template>
                                                             </td>
-                                                            <td :style="islemIndex === (_.size(sarj.islemler) - 1) ? 'border-bottom: 2px solid black' : ''" class="kisa-uzunluk">
+                                                            <td style="border-right: 1px solid black; padding: 4px;max-width: 25px !important;" :style="islemIndex === (_.size(sarj.islemler) - 1) ? 'border-bottom: 2px solid black' : 'border-bottom: 1px solid black !important'" class="kisa-uzunluk">
                                                                 <template v-if="aktifForm.onizlemeModu">
                                                                     <span>@{{ islem.sonSertlik }}</span>
                                                                 </template>

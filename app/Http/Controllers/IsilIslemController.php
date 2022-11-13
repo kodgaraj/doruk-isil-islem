@@ -812,6 +812,17 @@ class IsilIslemController extends Controller
                         "value" => "Sipariş Tarihi",
                         "tur" => "TARIH"
                     ],
+                    [
+                        "key" => "baslangicTarihi",
+                        "value" => "Başlangıç Tarihi",
+                        "tur" => "TARIH"
+                    ],
+                    [
+                        "key" => "bitisTarihi",
+                        "value" => "Bitiş Tarihi",
+                        "tur" => "TARIH"
+                    ],
+                    "islemTuruAdi" => "İşlem Türü",
                     "gecenSure" => "Termin",
                     "firmaAdi" => "Firma",
                     "formId" => "Form ID",
@@ -1697,7 +1708,7 @@ class IsilIslemController extends Controller
                 if (isset($bolunmusIslem["yeniIslem"]) && $bolunmusIslem["yeniIslem"])
                 {
                     $yeniIslem = $islemBilgisi->replicate();
-                    $yeniIslem->birimFiyat = 0;
+                    $yeniIslem->birimFiyat = $islemBilgisi->miktarFiyatCarp == false ? 0 : $islemBilgisi->birimFiyat;
                     $yeniIslem->miktar = $islemBilgisi->miktar * $bolunmusIslem["yuzde"] / 100;
                     $yeniIslem->dara = $islemBilgisi->dara * $bolunmusIslem["yuzde"] / 100;
                     $yeniIslem->adet = 0;

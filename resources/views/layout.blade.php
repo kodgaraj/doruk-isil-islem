@@ -14,6 +14,10 @@
     <link rel="stylesheet" href="https://unpkg.com/vue-select@3/dist/vue-select.css">
 
     <style>
+        table td.en-kisa-uzunluk {
+            max-width: 50px;
+        }
+
         table td.kisa-uzunluk {
             min-width: 100px;
         }
