@@ -1,4 +1,4 @@
-@extends('layout') 
+@extends('layout')
 @section('content')
 <div class="row doruk-content">
     <div class="d-inline-flex">
@@ -398,8 +398,8 @@
                     </div>
                 </template>
                 <template v-else-if="aktifSayfa.kod === 'YENI_SIPARIS'">
-                    <div class="row">
-                        <div class="col-8">
+                    <div class="row gap-2 gap-sm-0">
+                        <div class="col-12 col-md-8">
                             <div class="d-flex flex-row align-items-center">
                                 <button @click="geri" class="btn btn-warning"><i class="fas fa-arrow-left"></i> GERİ</button>
                                 <h4 class="card-title m-0 ms-2">
@@ -420,7 +420,111 @@
                                 </h4>
                             </div>
                         </div>
-                        <div class="col-4 text-end">
+                        <div class="col-12 col-md-4 text-end">
+                            @can("siparis_raporu_olusturma")
+                                <button @click="raporOlusturAc" class="btn btn-outline-primary">
+                                    <i class="fas fa-chart-line"></i>
+                                </button>
+
+                                <div class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" id="raporlamaModal" tabindex="-1" aria-labelledby="raporlamaModal" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-scrollable modal-fullscreen-lg-down modal-xl">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="exampleModalLabel">İşlem Raporlama</h5>
+                                                <button type="button" class="btn-close" @click="raporOlusturKapat" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="row gap-3">
+                                                    <div class="col-12 m-0">
+                                                        <ul class="list-group text-start">
+                                                            <li
+                                                                v-for="(islem, index) in siparisRaporlama.islemler"
+                                                                :class="{
+                                                                    'list-group-item-primary': siparisRaporlama.islem && siparisRaporlama.islem.id == islem.id,
+                                                                    'list-group-item-danger': (!siparisRaporlama.islem || siparisRaporlama.islem.id != islem.id) && islem.islemDurumu.kod !== 'TAMAMLANDI',
+                                                                }"
+                                                                :aria-current="siparisRaporlama.islem && siparisRaporlama.islem.id == islem.id"
+                                                                :key="index"
+                                                                class="list-group-item list-group-item-action"
+                                                                style="cursor: pointer"
+                                                                @click="raporIslemSec(islem)"
+                                                            >
+                                                                <div class="d-flex">
+                                                                    <div class="col-2">
+                                                                        <img
+                                                                            :src="islem.resimYolu ? islem.resimYolu : varsayilanResimYolu"
+                                                                            class="kg-resim-sec"
+                                                                            @click.stop="resimOnizlemeAc(islem.resimYolu)"
+                                                                        />
+                                                                    </div>
+                                                                    <div class="col-10">
+                                                                        <div class="row">
+                                                                            <div class="col-12">
+                                                                                @{{ islem.malzeme.ad }} - @{{ islem.netYazi }}
+                                                                            </div>
+                                                                            <div class="col-12 text-muted">
+                                                                                @{{ islem.islemDurumu.ad }}
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </li>
+                                                        </ul>
+
+                                                        <hr />
+
+                                                        <template v-if="siparisRaporlama.islem">
+                                                            <div class="col-12 m-0 mb-2 text-start">
+                                                                <label class="form-label">Geliş Tarihi</label>
+                                                                <input
+                                                                    v-model="siparisRaporlama.islem.gelisTarihi"
+                                                                    class="form-control"
+                                                                    @input="gecikmeliFonksiyon.siparisRaporlama('GELIS')"
+                                                                />
+                                                            </div>
+
+                                                            <div class="col-12 m-0 mb-2 text-start">
+                                                                <label class="form-label">Not</label>
+                                                                <textarea
+                                                                    v-model="siparisRaporlama.islem.not"
+                                                                    class="form-control"
+                                                                    @input="gecikmeliFonksiyon.siparisRaporlama('NOT')"
+                                                                ></textarea>
+                                                            </div>
+
+                                                            <div class="col-12 m-0 text-start">
+                                                                <label class="form-label">Ölçümler</label>
+                                                                <input
+                                                                    v-model="siparisRaporlama.islem.olcumler"
+                                                                    class="form-control"
+                                                                    placeholder="Örn: 65, 72, 70"
+                                                                    @input="gecikmeliFonksiyon.siparisRaporlama('OLCUM')"
+                                                                />
+                                                                <small class="text-muted">
+                                                                    Virgülle ayrılmış şekilde yazınız... (Örn: 65, 72, 70)
+                                                                </small>
+                                                            </div>
+                                                        </template>
+
+                                                        <div class="overflow-auto">
+                                                            <div
+                                                                v-show="siparisRaporlama.islem"
+                                                                v-html="siparisRaporlama.html"
+                                                                :key="siparisRaporlama.islem ? siparisRaporlama.islem.id : 'yok'"
+                                                            ></div>
+                                                        </div>
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" @click="raporOlusturKapat">VAZGEÇ</button>
+                                                <button type="button" class="btn btn-primary" @click="raporOlustur" :disabled="!siparisRaporlama.islem || !siparisRaporlama.islem.id">RAPOR OLUŞTUR</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endcan
                             @can("siparis_duzenleme")
                                 <button @click="moduDegistir" class="btn btn-outline-info">
                                     <i class="fas fa-eye" v-if="!aktifSiparis.onizlemeModu"></i>
@@ -952,9 +1056,162 @@
     </div>
     <!-- end col -->
 </div>
+
+<div ref="siparisRaporlama" style="background: white; display: none; color: black;">
+    <div class="printable-page" id="page-1">
+        <div class="col-12">
+            <div>
+                <img style="width: 100%" src="/img/doruk-belge-baslik.png" />
+            </div>
+        </div>
+        <div class="col-12 text-center">
+            <div>
+                <h3>KALİTE KONTROL RAPORU</h3>
+            </div>
+        </div>
+        <div class="col-12 text-end">
+            <div>
+                <h6><b>TARİH:</b> ${ rapor.tarih }</h6>
+            </div>
+        </div>
+        <div class="col-12 text-end">
+            <div>
+                <h6><b>RAPOR NO:</b> ${ rapor.no }</h6>
+            </div>
+        </div>
+        <div class="px-5">
+            <div class="col-12" style="border-bottom: 1px solid #dddddd;">
+                <div class="row d-flex align-items-center">
+                    <div class="col-4 text-end">
+                        <b>GELİŞ TARİHİ:</b>
+                    </div>
+                    <div class="col-8 text-start">
+                        <span>${ rapor.gelisTarihi }</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12" style="border-bottom: 1px solid #dddddd;">
+                <div class="row d-flex align-items-center">
+                    <div class="col-4 text-end">
+                        <b>FİRMA:</b>
+                    </div>
+                    <div class="col-8 text-start">
+                        <span>${ rapor.firma }</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12" style="border-bottom: 1px solid #dddddd;">
+                <div class="row d-flex align-items-center">
+                    <div class="col-4 text-end">
+                        <b>ÜRÜN KALİTESİ:</b>
+                    </div>
+                    <div class="col-8 text-start">
+                        <span>${ rapor.urunKalitesi }</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12" style="border-bottom: 1px solid #dddddd;">
+                <div class="row d-flex align-items-center">
+                    <div class="col-4 text-end">
+                        <b>MALZEME TANIMI:</b>
+                    </div>
+                    <div class="col-8 text-start">
+                        <span>${ rapor.malzeme }</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12" style="border-bottom: 1px solid #dddddd;">
+                <div class="row d-flex align-items-center">
+                    <div class="col-4 text-end">
+                        <b>ADET:</b>
+                    </div>
+                    <div class="col-8 text-start">
+                        <span>${ rapor.urunAdedi }</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12" style="border-bottom: 1px solid #dddddd;">
+                <div class="row d-flex align-items-center">
+                    <div class="col-4 text-end">
+                        <b>YAPILAN İŞLEM:</b>
+                    </div>
+                    <div class="col-8 text-start">
+                        <span>${ rapor.yapilanIslem }</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12" style="border-bottom: 1px solid #dddddd;">
+                <div class="row d-flex align-items-center">
+                    <div class="col-4 text-end">
+                        <b>İSTENEN SERTLİK:</b>
+                    </div>
+                    <div class="col-8 text-start">
+                        <span>${ rapor.istenenSertlik }</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12" style="border-bottom: 1px solid #dddddd;">
+                <div class="row d-flex align-items-center">
+                    <div class="col-4 text-end">
+                        <b>NOT:</b>
+                    </div>
+                    <div class="col-8 text-start">
+                        <span>${ rapor.not }</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 text-center mt-4">
+            <b>SİPARİŞ FOTOĞRAFI</b>
+        </div>
+        <div class="col-12 text-center mb-2">
+            <img height="400" style="object-fit: contain; width: 190mm;" src="${ rapor.urunFotografi }" />
+        </div>
+    </div>
+    <div class="printable-page" id="page-2">
+        <div class="col-12 text-center mt-4">
+            <b>ISIL İŞLEM SONRASI ÖLÇÜLEN SERTLİK DEĞERLERİ</b>
+        </div>
+        <div class="col-12 d-flex justify-content-center">
+            <div class="siparis-raporlama-chart"></div>
+            {{-- <apexchart
+                ref="siparisRaporlamaChart"
+                type="line"
+                height="400"
+                width="400"
+                :options="siparisRaporlama.grafikOptions"
+                :series="siparisRaporlama.grafikSeries"
+            ></apexchart> --}}
+        </div>
+        <hr />
+        <div class="px-5 my-3">
+            <div class="col-12">
+                <div class="row d-flex align-items-center">
+                    <div class="col-6 text-center">
+                        <b>Ünal SANDAL</b>
+                        <br />
+                        <b>Metalurji ve Malzeme Mühendisi</b>
+                    </div>
+                    <div class="col-6 text-center">
+                        <img height="250" width="250" style="object-fit: contain;" src="/img/doruk-unal-imza.jpg" />
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12">
+            <div>
+                <img style="width: 100%" src="/img/doruk-belge-alt-bilgi.jpg" />
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
 
 @section('script')
+<!-- apexcharts -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/apexcharts/3.35.3/apexcharts.min.js"></script>
+<!-- vue apexcharts -->
+<script src="https://unpkg.com/vue-apexcharts"></script>
 
 <script>
     let mixinApp = {
@@ -1031,7 +1288,84 @@
                 sorguParametreleri: {
                     siparisId: null,
                 },
+                siparisRaporlama: {
+                    html: "",
+                    modal: null,
+                    islem: null,
+                    islemler: null,
+                    grafikOptions: {
+                        chart: {
+                            height: 350,
+                            type: 'line',
+                            dropShadow: {
+                                enabled: true,
+                                color: '#000',
+                                top: 18,
+                                left: 7,
+                                blur: 10,
+                                opacity: 0.2
+                            },
+                            toolbar: {
+                                show: false
+                            },
+                            zoom: {
+                                enabled: false,
+                            },
+                        },
+                        colors: ['#77B6EA', '#545454'],
+                        dataLabels: {
+                            enabled: true,
+                        },
+                        stroke: {
+                            curve: 'smooth'
+                        },
+                        grid: {
+                            borderColor: '#e7e7e7',
+                            row: {
+                                colors: ['#f3f3f3', 'transparent'], // takes an array which will be repeated on columns
+                                opacity: 0.5
+                            },
+                        },
+                        markers: {
+                            size: 1
+                        },
+                        xaxis: {
+                            categories: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
+                            title: {
+                                text: 'Ölçüm No'
+                            }
+                        },
+                        yaxis: {
+                            title: {
+                                text: 'Sertlik'
+                            },
+                            min: 0,
+                            forceNiceScale: true,
+                        },
+                        legend: {
+                            show: false,
+                            // position: 'top',
+                            // horizontalAlign: 'right',
+                            // floating: true,
+                            // offsetY: -25,
+                            // offsetX: -5
+                        },
+                        tooltip: {
+                            enabled: false,
+                        },
+                    },
+                    grafikSeries: [
+                        {
+                            name: "Ölçüm",
+                            data: []
+                        },
+                    ],
+                },
             }
+        },
+        created() {
+            Vue.use(VueApexCharts);
+            Vue.component('apexchart', VueApexCharts);
         },
         mounted() {
             this.onyukleme();
@@ -1124,6 +1458,9 @@
                 }
 
                 this.gecikmeliFonksiyonCalistir(this.filtrele);
+                this.gecikmeliFonksiyonCalistir(this.raporAlanlariGuncelle, {
+                    fonksiyonKey: "siparisRaporlama"
+                });
 
                 this.siparisleriGetir();
                 this.firmalariGetir();
@@ -2175,12 +2512,136 @@
                     this.aktifSiparis = _.cloneDeep(this.aktifSiparis);
                 }
             },
+            raporOlusturAc() {
+                this.siparisRaporlama = {
+                    html: "",
+                    modal: new bootstrap.Modal(document.getElementById("raporlamaModal")),
+                    islem: null,
+                    islemler: _.cloneDeep(this.aktifSiparis.bolunmusToplamliIslemler),
+                    grafikOptions: _.cloneDeep(this.siparisRaporlama.grafikOptions),
+                    grafikSeries: _.cloneDeep(this.siparisRaporlama.grafikSeries),
+                    _defaultGrafikOptions: _.cloneDeep(this.siparisRaporlama.grafikOptions),
+                    _defaultGrafikSeries: _.cloneDeep(this.siparisRaporlama.grafikSeries),
+                };
+
+                this.siparisRaporlama.modal.show();
+            },
+            raporOlusturKapat() {
+                this.siparisRaporlama.modal.hide();
+
+                this.siparisRaporlama = {
+                    ...this.siparisRaporlama,
+                    modal: null,
+                    islem: null,
+                    islemler: null,
+                    grafikOptions: _.cloneDeep(this.siparisRaporlama._defaultGrafikOptions),
+                    grafikSeries: _.cloneDeep(this.siparisRaporlama._defaultGrafikSeries),
+                };
+            },
+            raporIslemSec(islem) {
+                if (this.siparisRaporlama.islem && this.siparisRaporlama.islem.id == islem.id) {
+                    return this.siparisRaporlama.islem = null;
+                }
+
+                this.siparisRaporlama.islem = {
+                    ...islem,
+                    onizlemeChart: null,
+                    siparisNo: this.aktifSiparis.siparisNo,
+                    firma: _.cloneDeep(this.aktifSiparis.firma),
+                };
+
+                this.raporAlanlariDoldur();
+            },
+            raporOlustur() {
+                this.siparisRaporlama.modal.hide();
+
+                this.globalYazdir(this.siparisRaporlama.html, {
+                    beforePrint: (printAreaEl) => {
+                        this.$nextTick(() => {
+                            const chart = new ApexCharts(printAreaEl.querySelector(".siparis-raporlama-chart"), {
+                                series: this.siparisRaporlama.grafikSeries,
+                                ...this.siparisRaporlama.grafikOptions,
+                            });
+                            chart.render();
+                        });
+                    },
+                    afterPrint: () => {
+                        this.siparisRaporlama.modal.show();
+                    }
+                });
+            },
+            raporAlanlariGuncelle(tur) {
+                console.log(tur);
+                if (!this.siparisRaporlama.islem) {
+                    return;
+                }
+
+                switch (tur) {
+                    case "OLCUM": {
+                        if (this.siparisRaporlama.islem.olcumler != "") {
+                            const olcumlerDizisi = _.map(_.split(this.siparisRaporlama.islem.olcumler, ","), _.trim);
+
+                            this.siparisRaporlama.grafikSeries[0].data = [];
+                            _.forEach(olcumlerDizisi, olcum => {
+                                if (olcum != "") {
+                                    const _olcum = _.toNumber(olcum);
+                                    if (!_.isNaN(_olcum)) {
+                                        this.siparisRaporlama.grafikSeries[0].data.push(_olcum);
+                                    }
+                                }
+                            });
+                        }
+                        else {
+                            this.siparisRaporlama.grafikSeries[0].data = [];
+                        }
+
+                        this.siparisRaporlama.islem.onizlemeChart.updateSeries(this.siparisRaporlama.grafikSeries);
+
+                        break;
+                    }
+                    case "GELIS":
+                    case "NOT": {
+                        this.raporAlanlariDoldur();
+                        break;
+                    }
+                }
+            },
+            raporAlanlariDoldur() {
+                const rapor = {
+                    tarih: this.m().format("L"),
+                    no: this.siparisRaporlama.islem.siparisNo + "-" + this.siparisRaporlama.islem.id,
+                    gelisTarihi: this.siparisRaporlama.islem.gelisTarihi ? this.siparisRaporlama.islem.gelisTarihi : "---",
+                    firma: this.siparisRaporlama.islem.firma.firmaAdi,
+                    urunKalitesi: this.siparisRaporlama.islem.kalite ? this.siparisRaporlama.islem.kalite : "---",
+                    malzeme: this.siparisRaporlama.islem.malzeme.ad,
+                    urunAdedi: this.siparisRaporlama.islem.adet,
+                    yapilanIslem: this.siparisRaporlama.islem.yapilacakIslem ? this.siparisRaporlama.islem.yapilacakIslem.ad : "---",
+                    istenenSertlik: this.siparisRaporlama.islem.istenilenSertlik ? this.siparisRaporlama.islem.istenilenSertlik : "---",
+                    not: this.siparisRaporlama.islem.not ? this.siparisRaporlama.islem.not : "---",
+                    urunFotografi: this.siparisRaporlama.islem.resimYolu ? this.siparisRaporlama.islem.resimYolu : "/no-image.jpg",
+                }
+
+                const cloneRaporArea = this.$refs.siparisRaporlama.cloneNode(true);
+                cloneRaporArea.style.display = "block";
+                cloneRaporArea.style.background = "white";
+                // cloneRaporArea.style.overflow = "hidden";
+
+                const compiled = _.template(cloneRaporArea.outerHTML);
+                this.siparisRaporlama.html = compiled({ rapor });
+
+                this.$nextTick(() => {
+                    this.siparisRaporlama.islem.onizlemeChart = new ApexCharts(document.querySelector(".siparis-raporlama-chart"), {
+                        series: _.cloneDeep(this.siparisRaporlama.grafikSeries),
+                        ..._.cloneDeep(this.siparisRaporlama.grafikOptions),
+                    });
+                    this.siparisRaporlama.islem.onizlemeChart.render();
+                });
+            }
         }
     };
 </script>
 @endsection
 
 @section('style')
-    <style>
-    </style>
+    <link rel="stylesheet" href="/css/print.css">
 @endsection

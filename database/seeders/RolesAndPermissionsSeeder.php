@@ -228,6 +228,11 @@ class RolesAndPermissionsSeeder extends Seeder
                     'guard_name' => 'web',
                     'slug' => 'Fatura kesildi'
                 ],
+                [
+                    'name' => 'siparis_raporu_olusturma',
+                    'guard_name' => 'web',
+                    'slug' => 'Sipariş raporu oluşturma'
+                ],
             ];
 
             foreach ($izinler as $izin)
@@ -314,6 +319,7 @@ class RolesAndPermissionsSeeder extends Seeder
                         'islem_turu_silme',
                         'islem_turu_listeleme',
                         'rapor_listeleme',
+                        'siparis_raporu_olusturma',
                     ],
                 ],
                 [

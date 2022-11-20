@@ -77,7 +77,7 @@
     </div>
 
     <div id="app" class="container-fluid">
-        <div id="layout-wrapper">
+        <div id="layout-wrapper" ref="layoutWrapper">
 
             <div id="doruk-side-nav" class="sidenav">
                 <a href="javascript:void(0)" class="closebtn" @click="sidebarAcKapat(false)">&times;</a>
@@ -333,6 +333,10 @@
                 </footer>
             </div>
         </div>
+
+        <div id="global-print-area" ref="globalPrintArea" style="display: none" v-show="yazdirmaObjesi.goster">
+            <div v-html="yazdirmaObjesi.html"></div>
+        </div>
     </div>
 
     @yield("script")
@@ -393,6 +397,10 @@
                 },
                 gecikmeliFonksiyon: {
                     varsayilan: () => {},
+                },
+                yazdirmaObjesi: {
+                    goster: false,
+                    html: ""
                 },
             },
             computed: {
@@ -639,6 +647,26 @@
 
                     return this.gecikmeliFonksiyon;
                 },
+                globalYazdir(html, options = {}) {
+                    this.yazdirmaObjesi.html = html;
+                    this.$refs.layoutWrapper.style.display = "none";
+                    this.yazdirmaObjesi.goster = true;
+
+                    if (typeof options.beforePrint === "function") {
+                        options.beforePrint(this.$refs.globalPrintArea);
+                    }
+
+                    setTimeout(() => {
+                        print();
+                        this.$refs.layoutWrapper.style.display = "block";
+                        this.yazdirmaObjesi.goster = false;
+                        this.yazdirmaObjesi.html = "";
+
+                        if (typeof options.afterPrint === "function") {
+                            options.afterPrint();
+                        }
+                    }, 750)
+                },
             },
         });
     </script>
@@ -712,6 +740,12 @@
 
         .sidenav#doruk-side-nav li {
             padding-right: 12px;
+        }
+
+        @media print {
+            .page-break-after {
+                page-break-after: always;
+            }
         }
     </style>
 

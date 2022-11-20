@@ -53,7 +53,7 @@
                                 </form>
                             </div>
                             <div class="pt-5" style="color:#222; font-size: 12px;">
-                                KodGaraj &copy; 2022
+                                KodGaraj &copy; {{ date("Y") }}
                             </div>
                         </div>
                     </div>
