@@ -422,7 +422,7 @@
                         </div>
                         <div class="col-12 col-md-4 text-end">
                             @can("siparis_raporu_olusturma")
-                                <button @click="raporOlusturAc" class="btn btn-outline-primary">
+                                <button @click="raporOlusturAc" class="btn btn-outline-primary" v-if="aktifSiparis.siparisId">
                                     <i class="fas fa-chart-line"></i>
                                 </button>
 
