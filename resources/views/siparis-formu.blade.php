@@ -1396,6 +1396,9 @@
                         }
                     }
 
+                    tutarTL = _.round(tutarTL, 2);
+                    tutarUSD = _.round(tutarUSD, 2);
+
                     this.aktifSiparis.tutarUSD = tutarUSD;
                     this.aktifSiparis.tutarUSDYazi = this.yaziyaDonustur(tutarUSD);
                     this.aktifSiparis.tutarTL = tutarTL;
