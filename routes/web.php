@@ -10,6 +10,7 @@ use App\Http\Controllers\IslemTurleriController;
 use App\Http\Controllers\KullanicilarController;
 use App\Http\Controllers\LogKayitlariController;
 use App\Http\Controllers\MalzemeController;
+use App\Http\Controllers\PDFExportController;
 use App\Http\Controllers\RaporlamaController;
 use App\Http\Controllers\RolController;
 use Illuminate\Support\Facades\Route;
@@ -29,6 +30,8 @@ use App\Http\Controllers\UpdateController;
 */
 
 Route::get('/update/{sifre}', [UpdateController::class, 'index']);
+Route::get("/pdf-exports/createPDF", [PDFExportController::class, "createPDF"]);
+Route::get("/pdf-exports/{tur}", [PDFExportController::class, "index"]);
 
 Route::group(['middleware' => ['auth']], function () {
     // sayfalar

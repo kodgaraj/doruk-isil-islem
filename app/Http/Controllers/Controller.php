@@ -21,6 +21,8 @@ use ExpoSDK\Expo;
 use ExpoSDK\ExpoMessage;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Symfony\Component\Console\Output\ConsoleOutput;
 
 class Controller extends BaseController
 {
@@ -601,5 +603,58 @@ class Controller extends BaseController
         {
             return false;
         }
+    }
+
+    public function pdfOlustur($dosyaAdi, $parametreler = [])
+    {
+        $altKlasor = "";
+        // $url = Storage::url(
+        //     'teklif/request.pdf'
+        // );
+        // dd($url);
+
+        if (isset($parametreler["klasor"]) && $parametreler["klasor"])
+        {
+            $altKlasor .= $parametreler["klasor"] . "/";
+        }
+        else
+        {
+            $altKlasor .= $parametreler["tur"] . "/";
+        }
+        // dd($altKlasor);
+
+        // $url = 'http://PhantomJScloud.com/api/browser/v2/a-demo-key-with-low-quota-per-ip-address/';
+        $url = 'https://PhantomJScloud.com/api/browser/v2/ak-5ykcp-wxt7z-74k7b-8h7gv-c6548/';
+        $payload = [
+            "url" => url("/pdf-exports/" . $parametreler["tur"], [], true),
+            "renderType" => "pdf",
+            "overseerScript" => '
+                await page.waitForSelector(".printable-page");
+                await page.waitForDelay(2000);
+                page.done()
+            ',
+        ];
+        $output = new ConsoleOutput();
+        $output->writeln("<info>" . $payload["url"] . "</info>");
+        $options = [
+            'http' => [
+                'header'  => "Content-type: application/json\r\n",
+                'method'  => 'POST',
+                'content' => json_encode($payload)
+            ],
+            'https' => [
+                'header'  => "Content-type: application/json\r\n",
+                'method'  => 'POST',
+                'content' => json_encode($payload)
+            ],
+        ];
+
+        $context  = stream_context_create($options);
+        $result = file_get_contents($url, false, $context);
+        if ($result === FALSE) {
+            dd($result, "HATA VAR!");
+        }
+
+        Storage::disk('local')->put("public/" . $altKlasor . $dosyaAdi . ".pdf", $result);
     }
 }

@@ -19,11 +19,20 @@ class FirmaController extends Controller
         try {
             $firmaBilgileri = $request->firma;
 
-            $firma = new Firmalar();
+            if (isset($firmaBilgileri["id"]) && $firmaBilgileri["id"])
+            {
+                $firma = Firmalar::find($firmaBilgileri["id"]);
+            }
+            else
+            {
+                $firma = new Firmalar();
+            }
 
             $firma->firmaAdi = $this->buyukHarf($firmaBilgileri['firmaAdi']);
-            $firma->sorumluKisi = $this->buyukHarf($firmaBilgileri['sorumluKisi']) ?: null;
-            $firma->telefon = $firmaBilgileri['telefon'];
+            $firma->sorumluKisi = isset($firmaBilgileri['sorumluKisi']) && $firmaBilgileri['sorumluKisi'] ? $this->buyukHarf($firmaBilgileri['sorumluKisi']) : null;
+            $firma->telefon = isset($firmaBilgileri['telefon']) && $firmaBilgileri['telefon'] ? $firmaBilgileri['telefon'] : null;
+            $firma->eposta = isset($firmaBilgileri['eposta']) && $firmaBilgileri['eposta'] ? $firmaBilgileri['eposta'] : null;
+            $firma->adres = isset($firmaBilgileri['adres']) && $firmaBilgileri['adres'] ? $this->buyukHarf($firmaBilgileri['adres']) : null;
 
             if (!$firma->save()) {
                 return response()->json([

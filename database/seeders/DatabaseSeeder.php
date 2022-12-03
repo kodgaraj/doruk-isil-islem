@@ -327,6 +327,28 @@ class DatabaseSeeder extends Seeder
             $mesajlar[] = 'Siparişler tablosuna faturaKesildi alanı eklendi > ' . date('Y-m-d H:i:s');
         }
 
+        if (!Schema::hasColumn("firmalar", "eposta")) {
+            Schema::table("firmalar", function (Blueprint $table) {
+                $table->string('eposta', 100)
+                    ->nullable()
+                    ->after('telefon')
+                    ->comment("Firma eposta bilgisi");
+            });
+
+            $mesajlar[] = 'Firmalar tablosuna eposta alanı eklendi > ' . date('Y-m-d H:i:s');
+        }
+
+        if (!Schema::hasColumn("firmalar", "adres")) {
+            Schema::table("firmalar", function (Blueprint $table) {
+                $table->string('adres')
+                    ->nullable()
+                    ->after('eposta')
+                    ->comment("Firma adres bilgisi");
+            });
+
+            $mesajlar[] = 'Firmalar tablosuna adres alanı eklendi > ' . date('Y-m-d H:i:s');
+        }
+
         $mesajlar[] = 'Veritabanı güncellendi > ' . date('Y-m-d H:i:s');
 
         return implode("<br />", $mesajlar);

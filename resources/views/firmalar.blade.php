@@ -35,18 +35,24 @@
                                         </span>
                                     </div>
                                 </div>
-                                <div class="col-auto">
+                                <div class="row">
+                                    <div class="col-12">
+                                        <small class="text-muted">
+                                            Firma adı/firma sorumlusu/telefon...
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12 text-center text-sm-end">
+                                    <button v-if="false && aktifSayfa.kod === 'ANASAYFA'" class="btn btn-sm btn-outline-info"
+                                        @click="teklifOlusturmaAc()">
+                                        <i class="fas fa-file-signature"></i> TEKLİF OLUŞTUR
+                                    </button>
                                     <button v-if="aktifSayfa.kod === 'ANASAYFA'" class="btn btn-sm btn-primary"
                                         @click="firmaEkleAc()">
                                         <i class="fa fa-plus"></i> FİRMA EKLE
                                     </button>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-12">
-                                    <small class="text-muted">
-                                        Firma adı/firma sorumlusu/telefon...
-                                    </small>
                                 </div>
                             </div>
                         </div>
@@ -217,7 +223,7 @@
                                     class="form-control" placeholder="Firma adı" />
                             </div>
                             <div class="col-12 col-sm-6 col-md-4">
-                                <label for="firma_sorumlusu">Firma Sorumlusu *</label>
+                                <label for="firma_sorumlusu">Firma Sorumlusu</label>
                                 <input v-model="yeniFirma.sorumluKisi" autocomplete="off" id="firma_sorumlusu"
                                     type="text" class="form-control" placeholder="Firma Sorumlusu" />
                             </div>
@@ -226,19 +232,139 @@
                                 <input v-model="yeniFirma.telefon" autocomplete="off" id="telefon" type="text"
                                     class="form-control" placeholder="Telefon" />
                             </div>
-                            {{-- <div class="col-12 col-sm-6 col-md-4">
-                                <label for="renk">Renk *</label>
-                                <v-select v-model="yeniFirma.renk" :options="renkler" label="ad"
-                                    id="renk">
-                                    <template slot="option" slot-scope="renk">
-                                        <span :class="'bg-' + renk.kod" class="p-2 me-1"></span>
-                                        @{{ renk.ad }}
-                                    </template>
-                                    <div slot="no-options">Renk bulunamadı!</div>
-                                </v-select>
-                            </div> --}}
+                            <div class="col-12 col-sm-6 col-md-4">
+                                <label for="telefon">E-posta</label>
+                                <input v-model="yeniFirma.eposta" autocomplete="off" id="eposta" type="text"
+                                    class="form-control" placeholder="E-posta" />
+                            </div>
+                            <div class="col-12 col-sm-6 col-md-4">
+                                <label for="telefon">Adres</label>
+                                <textarea v-model="yeniFirma.adres" autocomplete="off" id="adres" type="text"
+                                    class="form-control" placeholder="Adres" rows="1" cols="50"></textarea>
+                            </div>
                         </div>
                     </template>
+                    <template v-else-if="aktifSayfa.kod === 'TEKLIF_HAZIRLAMA'">
+                        <div class="row g-3">
+                            <div class="col-12 col-sm-6 col-md-4">
+                                <label for="name">Firma adı *</label>
+                                <input v-model="yeniFirma.firmaAdi" autocomplete="off" id="name" type="text"
+                                    class="form-control" placeholder="Firma adı" />
+                            </div>
+                            <div class="col-12 col-sm-6 col-md-4">
+                                <label for="firma_sorumlusu">Firma Sorumlusu</label>
+                                <input v-model="yeniFirma.sorumluKisi" autocomplete="off" id="firma_sorumlusu"
+                                    type="text" class="form-control" placeholder="Firma Sorumlusu" />
+                            </div>
+                            <div class="col-12 col-sm-6 col-md-4">
+                                <label for="telefon">Telefon</label>
+                                <input v-model="yeniFirma.telefon" autocomplete="off" id="telefon" type="text"
+                                    class="form-control" placeholder="Telefon" />
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div ref="siparisRaporlama" style="display: none; background: white; color: black;">
+        <!-- 1. sayfa -->
+        <div class="printable-page" id="page-1">
+            <div class="row d-flex justify-content-center align-items-center">
+                <div class="col-4">
+                    <div>
+                        <img style="width: 100%" src="/img/doruk-logo.png" />
+                    </div>
+                </div>
+                <div class="col-4 text-center">
+                    <b><h2>DORUK ISIL İŞLEM FİYAT TEKLİFİ</h2></b>
+                </div>
+                <div class="col-4">
+                    <div>
+                        <img style="width: 100%" src="/img/doruk-sertifika.png" />
+                    </div>
+                </div>
+                <div class="col-12 text-end">
+                    <div>
+                        <h6><b>TARİH:</b> ${ rapor.tarih }</h6>
+                    </div>
+                </div>
+
+                <!-- Firma -->
+                {{-- <div class="col-2 text-start">
+                    <h6><b>Firma:</b></h6>
+                </div>
+                <div class="col-10 text-start">
+                    <h6>${ rapor.firma }</h6>
+                </div> --}}
+                <div class="col-12 text-start">
+                    <h6><b>Firma:</b> ${ rapor.firma }</h6>
+                </div>
+
+                <!-- Yetkili -->
+                <div class="col-6 text-start">
+                    <h6><b>Yetkili:</b> ${ rapor.yetkili }</h6>
+                </div>
+
+                <!-- Telefon -->
+                <div class="col-6 text-start">
+                    <h6><b>Telefon:</b> ${ rapor.telefon }</h6>
+                </div>
+
+                <!-- Adres -->
+                <div class="col-12 text-start">
+                    <h6><b>Adres:</b> ${ rapor.adres }</h6>
+                </div>
+
+                <!-- E-posta -->
+                <div class="col-12 text-start">
+                    <h6><b>E-posta:</b> ${ rapor.eposta }</h6>
+                </div>
+
+                <hr />
+
+                <div class="px-5">
+                    <div class="col-12" style="border-bottom: 1px solid #dddddd;">
+                        <div class="row d-flex align-items-center">
+                            <div class="col-8 text-start">
+                                <b>GELİŞ TARİHİ:</b>
+                            </div>
+                            <div class="col-8 text-start">
+                                <span>${ rapor.gelisTarihi }</span>
+                            </div>
+                            <div class="col-8 text-start">
+                                <span>${ rapor.gelisTarihi }</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. sayfa -->
+        <div class="printable-page" id="page-2">
+            <div class="col-12 text-center mt-4">
+                <b>ISIL İŞLEM SONRASI ÖLÇÜLEN SERTLİK DEĞERLERİ</b>
+            </div>
+            <hr />
+            <div class="px-5 my-3">
+                <div class="col-12">
+                    <div class="row d-flex align-items-center">
+                        <div class="col-6 text-center">
+                            <b>Ünal SANDAL</b>
+                            <br />
+                            <b>Metalurji ve Malzeme Mühendisi</b>
+                        </div>
+                        <div class="col-6 text-center">
+                            <img height="250" width="250" style="object-fit: contain;" src="/img/doruk-unal-imza.jpg" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12">
+                <div>
+                    <img style="width: 100%" src="/img/doruk-belge-alt-bilgi.jpg" />
                 </div>
             </div>
         </div>
@@ -254,13 +380,19 @@
                         kod: "ANASAYFA",
                         baslik: "Firma Yönetimi",
                     },
-                    sayfalar: [{
+                    sayfalar: [
+                        {
                             kod: "ANASAYFA",
                             baslik: "Firma Yönetimi",
                         },
                         {
                             kod: "YENI_FIRMA",
                             baslik: "Firma Kaydet",
+                            geriFonksiyon: () => this.geriAnasayfa(),
+                        },
+                        {
+                            kod: "TEKLIF_HAZIRLAMA",
+                            baslik: "Teklif Hazırlama",
                             geriFonksiyon: () => this.geriAnasayfa(),
                         },
                     ],
@@ -274,7 +406,9 @@
                     yeniFirma: {
                         firmaAdi: "",
                         sorumluKisi: "",
-                        telefon: null,
+                        telefon: "",
+                        eposta: "",
+                        adres: "",
                     },
                     filtrelemeObjesi: {
                         arama: "",
@@ -334,7 +468,9 @@
                     this.yeniFirma = {
                         firmaAdi: "",
                         sorumluKisi: "",
-                        telefon: null,
+                        telefon: "",
+                        eposta: "",
+                        adres: "",
                     };
 
                     this.aktifSayfa = _.cloneDeep(this.aktifSayfa);
@@ -413,21 +549,21 @@
                         });
                     }
 
-                    if (!this.yeniFirma.sorumluKisi) {
-                        return this.uyariAc({
-                            baslik: 'Hata',
-                            mesaj: 'Firma sorumlusu boş olamaz!',
-                            tur: "error"
-                        });
-                    }
+                    // if (!this.yeniFirma.sorumluKisi) {
+                    //     return this.uyariAc({
+                    //         baslik: 'Hata',
+                    //         mesaj: 'Firma sorumlusu boş olamaz!',
+                    //         tur: "error"
+                    //     });
+                    // }
 
-                    if (!this.yeniFirma.telefon) {
-                        return this.uyariAc({
-                            baslik: 'Hata',
-                            mesaj: 'Telefon boş olamaz!',
-                            tur: "error"
-                        });
-                    }
+                    // if (!this.yeniFirma.telefon) {
+                    //     return this.uyariAc({
+                    //         baslik: 'Hata',
+                    //         mesaj: 'Telefon boş olamaz!',
+                    //         tur: "error"
+                    //     });
+                    // }
 
                     this.yukleniyorObjesi.firmaEkle = true;
 
@@ -436,41 +572,41 @@
                     // };
 
                     axios.post('/firmaEkle', {
-                            firma: this.yeniFirma,
-                        })
-                        .then(response => {
-                            this.yukleniyorObjesi.firmaEkle = false;
+                        firma: this.yeniFirma,
+                    })
+                    .then(response => {
+                        this.yukleniyorObjesi.firmaEkle = false;
 
-                            if (!response.data.durum) {
-                                return this.uyariAc({
-                                    baslik: 'Hata',
-                                    mesaj: response.data.mesaj,
-                                    tur: "error"
-                                });
-                            }
-
-                            const firma = response.data.firma;
-
-                            this.uyariAc({
-                                toast: {
-                                    status: true,
-                                    message: response.data.mesaj,
-                                },
-                            });
-
-                            this.firmalariGetir();
-                            this.geriAnasayfa();
-                        })
-                        .catch(error => {
-                            this.yukleniyorObjesi.firmaEkle = false;
-                            this.uyariAc({
+                        if (!response.data.durum) {
+                            return this.uyariAc({
                                 baslik: 'Hata',
-                                mesaj: error.response.data.mesaj + " - Hata Kodu: " + error.response.data
-                                    .hataKodu,
+                                mesaj: response.data.mesaj,
                                 tur: "error"
                             });
-                            console.log(error);
+                        }
+
+                        const firma = response.data.firma;
+
+                        this.uyariAc({
+                            toast: {
+                                status: true,
+                                message: response.data.mesaj,
+                            },
                         });
+
+                        this.firmalariGetir();
+                        this.geriAnasayfa();
+                    })
+                    .catch(error => {
+                        this.yukleniyorObjesi.firmaEkle = false;
+                        this.uyariAc({
+                            baslik: 'Hata',
+                            mesaj: error.response.data.mesaj + " - Hata Kodu: " + error.response.data
+                                .hataKodu,
+                            tur: "error"
+                        });
+                        console.log(error);
+                    });
                 },
                 siralamaYap(alan){
                     if(this.filtrelemeObjesi.siralamaTuru && this.filtrelemeObjesi.siralamaTuru[alan]){
@@ -583,6 +719,9 @@
                             fun();
                         }
                     });
+                },
+                teklifOlusturmaAc() {
+                    console.log("Teklif oluşturma aç")
                 },
             }
         };
