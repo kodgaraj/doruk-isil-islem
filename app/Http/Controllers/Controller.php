@@ -628,7 +628,7 @@ class Controller extends BaseController
         // $url = 'http://PhantomJScloud.com/api/browser/v2/a-demo-key-with-low-quota-per-ip-address/';
         $url = 'https://PhantomJScloud.com/api/browser/v2/ak-5ykcp-wxt7z-74k7b-8h7gv-c6548/';
         $payload = [
-            "url" => url("/pdf-exports/" . $parametreler["tur"], $params, true),
+            "url" => url("/pdf-exports/" . $parametreler["tur"] . "?q=" . $params["q"], [], true),
             "renderType" => "pdf",
             "overseerScript" => '
                 await page.waitForSelector(".printable-page");

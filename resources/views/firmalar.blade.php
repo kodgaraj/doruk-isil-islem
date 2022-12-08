@@ -1329,8 +1329,11 @@
                     //     renk: this.yeniFirma.renk.kod
                     // };
 
+                    const dosyaAdi = this.teklif.teklifBilgileri.firma ? this.teklif.teklifBilgileri.firma : "Teklif";
+
                     axios.post('/createPDF', {
                         data: url,
+                        dosyaAdi,
                     }, {
                         responseType: 'blob',
                     })
@@ -1338,13 +1341,19 @@
                         console.log(response);
                         this.yukleniyorObjesi.firmaEkle = false;
 
-                        if (!response.data.durum) {
+                        if (response.data && response.data.durum === false) {
                             return this.uyariAc({
                                 baslik: 'Hata',
                                 mesaj: response.data.mesaj,
                                 tur: "error"
                             });
                         }
+
+                        const url = window.URL.createObjectURL(new Blob([response.data]));
+                        const link = document.createElement('a');
+                        link.href = url;
+                        link.setAttribute('download', 'teklif.pdf');
+                        link.click();
 
                         this.uyariAc({
                             toast: {
@@ -1355,16 +1364,15 @@
 
                         this.aktifSayfa.geriFonksiyon();
                     })
-                    .catch(error => {
+                    .catch(async error => {
                         console.log(error);
                         this.yukleniyorObjesi.firmaEkle = false;
+                        error = JSON.parse(await error.response.data.text());
                         this.uyariAc({
                             baslik: 'Hata',
-                            mesaj: error.response.data.mesaj + " - Hata Kodu: "
-                                + error.response.data.hataKodu,
+                            mesaj: error.mesaj + " - Hata Kodu: " + error.hataKodu,
                             tur: "error"
                         });
-                        console.log(error);
                     });
                 },
                 decodeHTMLEntities(text) {

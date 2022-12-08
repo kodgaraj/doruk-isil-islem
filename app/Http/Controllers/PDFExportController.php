@@ -22,7 +22,9 @@ class PDFExportController extends Controller
     {
         try
         {
-            $pdf = $this->pdfOlustur("deneme", [
+            $dosyaAdi = $request->dosyaAdi;
+
+            $pdf = $this->pdfOlustur($dosyaAdi, [
                 "tur" => "teklifler",
                 "query" => [
                     "q" => $request->data,
@@ -34,21 +36,17 @@ class PDFExportController extends Controller
                 return response()->json([
                     'durum' => false,
                     'mesaj' => 'PDF oluşturulurken bir hata oluştu!',
-                ], 200);
+                    "hataKodu" => "CPDF002",
+                ], 400);
             }
 
-            return response()->json([
-                'durum' => true,
-                'mesaj' => 'PDF başarılı bir şekilde oluşturuldu.',
-                "data" => $pdf,
-            ], 200);
+            return response()->file(storage_path("/app/public/teklifler/" . $dosyaAdi . ".pdf"));
         }
         catch (\Exception $e)
         {
             return response()->json([
                 'durum' => false,
-                'mesaj' => $e->getMessage(),
-                "satir" => $e->getLine(),
+                'mesaj' => "İşlem sırasında bir hata oluştu",
                 "hataKodu" => "CPDF001",
             ], 500);
         }
