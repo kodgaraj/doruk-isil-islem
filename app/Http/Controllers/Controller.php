@@ -623,10 +623,12 @@ class Controller extends BaseController
         }
         // dd($altKlasor);
 
+        $params = isset($parametreler["query"]) && $parametreler["query"] ? $parametreler["query"] : [];
+
         // $url = 'http://PhantomJScloud.com/api/browser/v2/a-demo-key-with-low-quota-per-ip-address/';
         $url = 'https://PhantomJScloud.com/api/browser/v2/ak-5ykcp-wxt7z-74k7b-8h7gv-c6548/';
         $payload = [
-            "url" => url("/pdf-exports/" . $parametreler["tur"], [], true),
+            "url" => url("/pdf-exports/" . $parametreler["tur"], $params, true),
             "renderType" => "pdf",
             "overseerScript" => '
                 await page.waitForSelector(".printable-page");
@@ -634,8 +636,8 @@ class Controller extends BaseController
                 page.done()
             ',
         ];
-        $output = new ConsoleOutput();
-        $output->writeln("<info>" . $payload["url"] . "</info>");
+        // $output = new ConsoleOutput();
+        // $output->writeln("<info>" . $payload["url"] . "</info>");
         $options = [
             'http' => [
                 'header'  => "Content-type: application/json\r\n",
@@ -651,10 +653,13 @@ class Controller extends BaseController
 
         $context  = stream_context_create($options);
         $result = file_get_contents($url, false, $context);
-        if ($result === FALSE) {
-            dd($result, "HATA VAR!");
+        if ($result === false) {
+            // dd($result, "HATA VAR!");
+            return false;
         }
 
         Storage::disk('local')->put("public/" . $altKlasor . $dosyaAdi . ".pdf", $result);
+
+        return $result;
     }
 }

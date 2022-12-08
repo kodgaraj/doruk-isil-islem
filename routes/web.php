@@ -30,7 +30,6 @@ use App\Http\Controllers\UpdateController;
 */
 
 Route::get('/update/{sifre}', [UpdateController::class, 'index']);
-Route::get("/pdf-exports/createPDF", [PDFExportController::class, "createPDF"]);
 Route::get("/pdf-exports/{tur}", [PDFExportController::class, "index"]);
 
 Route::group(['middleware' => ['auth']], function () {
@@ -106,6 +105,8 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/bildirimleriGetir', [BildirimlerController::class, 'bildirimleriGetir'])->name("bildirimleriGetir");
     Route::get('/okunmamisBildirimSayisiGetir', [BildirimlerController::class, 'okunmamisBildirimSayisiGetir'])->name("okunmamisBildirimSayisiGetir");
     Route::get('/miniBildirimleriGetir', [BildirimlerController::class, 'miniBildirimleriGetir'])->name("miniBildirimleriGetir");
+
+    Route::post("/createPDF", [PDFExportController::class, "createPDF"]);
 });
 
 require __DIR__.'/auth.php';

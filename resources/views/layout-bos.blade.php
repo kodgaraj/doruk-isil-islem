@@ -62,7 +62,6 @@
 </head>
 
 <body data-layout="detached" data-topbar="colored">
-    <div>HEEEY!</div>
     <div id="app" class="container-fluid">
         <div id="layout-wrapper" ref="layoutWrapper">
             <div class="row doruk-content">

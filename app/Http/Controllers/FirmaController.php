@@ -11,7 +11,9 @@ class FirmaController extends Controller
 {
     public function index()
     {
-        return view("firmalar");
+        return view("firmalar", [
+            "paraBirimleri" => array_values($this->paraBirimleri),
+        ]);
     }
 
     public function firmaEkle(Request $request)
