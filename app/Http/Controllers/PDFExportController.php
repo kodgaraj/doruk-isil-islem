@@ -29,6 +29,22 @@ class PDFExportController extends Controller
                 "query" => [
                     "q" => $request->data,
                 ],
+                "payload" => [
+                    "renderSettings" => [
+                        "emulateMedia" => 'print',
+                        "pdfOptions" => [
+                            "format" => 'letter',
+                            "preferCSSPageSize" => true,
+                            "margin" => [
+                                "top" => 0,
+                                "bottom" => 0,
+                                "left" => 0,
+                                "right" => 0
+                            ],
+                            "zoomFactor" => 1,
+                        ],
+                    ],
+                ],
             ]);
 
             if ($pdf === false)

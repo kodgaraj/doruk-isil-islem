@@ -612,7 +612,8 @@ class Controller extends BaseController
         //     'teklif/request.pdf'
         // );
         // dd($url);
-
+        $_payload = isset($parametreler["payload"]) && $parametreler["payload"] ? $parametreler["payload"] : [];
+        
         if (isset($parametreler["klasor"]) && $parametreler["klasor"])
         {
             $altKlasor .= $parametreler["klasor"] . "/";
@@ -632,9 +633,9 @@ class Controller extends BaseController
             "renderType" => "pdf",
             "overseerScript" => '
                 await page.waitForSelector(".printable-page");
-                await page.waitForDelay(2000);
                 page.done()
             ',
+            ...$_payload,
         ];
         // $output = new ConsoleOutput();
         // $output->writeln("<info>" . $payload["url"] . "</info>");

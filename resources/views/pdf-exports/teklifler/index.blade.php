@@ -1,9 +1,9 @@
 @extends('layout-bos')
 
 @section('content')
-    <div v-html="html"></div>
+    <div v-html="html" class="p-0"></div>
 
-    <div ref="teklif" style="display: none; background: white; color: black;">
+    <div ref="teklif" style="display: none; background: white; color: black; font-size: 12px;">
         <!-- 1. sayfa -->
         <div class="printable-page" id="page-1">
             <div class="row d-flex justify-content-center align-items-center">
@@ -59,7 +59,7 @@
 
                 <hr class="m-0" />
 
-                <div class="col-12" style="min-height: 600px; width: 100% !important;">
+                <div class="col-12 printable-area-content">
                     <div class="row d-flex align-items-center">
                         <% _.forEach(data.icerikler, function (icerik) { %>
                             <div class="col-12 my-1">
@@ -197,7 +197,7 @@
 
                 <hr class="m-0" />
 
-                <div class="col-12">
+                <div class="col-12 printable-area-content">
                     <div class="row">
                         <div class="col-12">
                             1 - Fiyatlarımıza KDV dahil değildir.
@@ -240,6 +240,9 @@
                         </div>
                         <div class="col-12">
                             14 - Boyutsal kararlılık veya yüzey durumuna ilişkin talepler irsaliyelerde belirtilmelidir veya irsaliye ile ulaştırılmalıdır. Özellikle kaynaklanmış veya lehimlenmiş ve içinde boşluklar olan materyallere ilişkin bilgi vermelidir. Teslim edilen ürünleri ebat, ağırlık ve miktar yönünden kontrole tabi tutabiliriz. Ancak, teslim edilen ürünlerin kalitesi açısından kontrol görevimiz bulunmamaktadır. Bu kapsamda teslim edilen ürünlerin doğru ve elverişli olduğu kabul edilir. Bu kapsamda yükümlülüklerinizi yerine getirmemeniz veya eksik bırakmanızdan meydana gelecek zararlarda sorumluk size aittir. Açık talebiniz olması halinde ve masrafını karşılamanız şartıyla kontrol işlemini sizin adınıza yaptırabiliriz. Teslim edilen ürünlerdeki gizli kusurlardan kaynaklanan zararlardan firmamız sorumlu değildir.
+                        </div>
+                        <div class="col-12">
+                            15 - Ürün üzerinde bulunan köşeler, kesit farklılıkları, kenara yakın ve/veya kör delikler, kama kanalları, gerekli şekilde verilmemiş radyuslar, damgalar ve benzeri noktalardan kaynaklanan çatlamalar ve yine hammaddede bulunan hatalardan kaynaklanan çatlama veya deformasyonlardan firmamız sorumlu tutulmayacaktır.
                         </div>
                     </div>
                 </div>
@@ -355,11 +358,8 @@
 
                 <hr class="m-0" />
 
-                <div class="col-12">
+                <div class="col-12 printable-area-content">
                     <div class="row">
-                        <div class="col-12">
-                            15 - Ürün üzerinde bulunan köşeler, kesit farklılıkları, kenara yakın ve/veya kör delikler, kama kanalları, gerekli şekilde verilmemiş radyuslar, damgalar ve benzeri noktalardan kaynaklanan çatlamalar ve yine hammaddede bulunan hatalardan kaynaklanan çatlama veya deformasyonlardan firmamız sorumlu tutulmayacaktır.
-                        </div>
                         <div class="col-12">
                             16 - Isıl işlem uygulanan ürünlerde asgari dahi olsa distorsiyon - boyutsal ölçü değişikliği olabilir. Bu yüzden ısıl işleme tabi tutulacak ürünler nihai ölçüye getirilmeden, taşlama öncesi ölçüleriyle teslim edilmelidir. Ürünlerin çapı ve boyuna göre taşlama payı değişebilir. Bu nedenle ürünler teslim edilirken taşlama payı belirtilmeli veya taşlama payı ne kadar bırakalım diye sorulmalıdır. <strong>AKSİ DURUMDA SORUMLULUK FİRMAMIZDA OLMAYACAKTIR.</strong>
                         </div>
@@ -511,4 +511,20 @@
 
 @section('style')
     <link rel="stylesheet" href="/css/print.css">
+
+    <style>
+        body {
+
+        }
+
+        .printable-page {
+            margin: 0 !important;
+            padding: 10px !important;
+        }
+
+        .printable-area-content {
+            min-height: 580px;
+            width: 100% !important;
+        }
+    </style>
 @endsection
