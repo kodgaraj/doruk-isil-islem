@@ -464,28 +464,30 @@
                 return {
                     data: null,
                     html: "",
+                    yazdir: false,
                 };
             },
             beforeMount() {
                 const url = new URL(location.href);
                 const searchParams3 = new URLSearchParams(url.search);
                 const encodedData = searchParams3.get('q');
+                this.yazdir = searchParams3.get('yazdir') == "1" ? true : false;
 
                 if (encodedData) {
                     this.data = JSON.parse(decodeURIComponent(encodedData));
                 }
-
-                console.log(this.data);
             },
             mounted() {
                 if (this.data) {
                     this.teklifAlanlariDoldur();
                 }
+
+                if (this.yazdir) {
+                    print();
+                }
             },
             methods: {
                 teklifAlanlariDoldur() {
-                    console.log("ALANLAR DOLDURULUYOR");
-
                     const cloneRaporArea = this.$refs.teklif.cloneNode(true);
                     cloneRaporArea.style.display = "block";
                     cloneRaporArea.style.background = "white";

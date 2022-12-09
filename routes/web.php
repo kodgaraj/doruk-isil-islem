@@ -30,7 +30,7 @@ use App\Http\Controllers\UpdateController;
 */
 
 Route::get('/update/{sifre}', [UpdateController::class, 'index']);
-Route::get("/pdf-exports/{tur}", [PDFExportController::class, "index"]);
+Route::get("/pdf-exports/{tur}", [PDFExportController::class, "index"])->name("pdfExports");
 
 Route::group(['middleware' => ['auth']], function () {
     // sayfalar

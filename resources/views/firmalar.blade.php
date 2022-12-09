@@ -1338,7 +1338,6 @@
                         responseType: 'blob',
                     })
                     .then(response => {
-                        console.log(response);
                         this.yukleniyorObjesi.firmaEkle = false;
 
                         if (response.data && response.data.durum === false) {
@@ -1352,7 +1351,7 @@
                         const url = window.URL.createObjectURL(new Blob([response.data]));
                         const link = document.createElement('a');
                         link.href = url;
-                        link.setAttribute('download', 'teklif.pdf');
+                        link.setAttribute('download', dosyaAdi + '.pdf');
                         link.click();
 
                         this.uyariAc({
@@ -1373,6 +1372,8 @@
                             mesaj: error.mesaj + " - Hata Kodu: " + error.hataKodu,
                             tur: "error"
                         });
+
+                        window.location.href = "{{ route('pdfExports', ['tur' => 'teklifler', 'yazdir' => 1]) }}" + "&q=" + url;
                     });
                 },
                 decodeHTMLEntities(text) {
