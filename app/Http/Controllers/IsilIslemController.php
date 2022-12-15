@@ -599,6 +599,15 @@ class IsilIslemController extends Controller
                     ),
                     0
                 ) as tutarUSD,
+                IF(
+                    $islemTabloAdi.paraBirimi = 'EURO',
+                    IF (
+                        $islemTabloAdi.miktarFiyatCarp,
+                        $islemTabloAdi.birimFiyat * ($islemTabloAdi.miktar - $islemTabloAdi.dara),
+                        $islemTabloAdi.birimFiyat
+                    ),
+                    0
+                ) as tutarEURO,
                 ($islemTabloAdi.miktar - $islemTabloAdi.dara) as net,
                 $islemDurumTabloAdi.ad as islemDurumuAdi,
                 $islemDurumTabloAdi.kod as islemDurumuKodu,
@@ -716,6 +725,9 @@ class IsilIslemController extends Controller
                 $islem["tutarUSDYazi"] = $this->yaziyaDonustur($islem["tutarUSD"], [
                     "paraBirimi" => $this->paraBirimleri["USD"],
                 ]);
+                $islem["tutarEUROYazi"] = $this->yaziyaDonustur($islem["tutarEURO"], [
+                    "paraBirimi" => $this->paraBirimleri["EURO"],
+                ]);
                 $islem["birimFiyatYazi"] = $this->yaziyaDonustur($islem["birimFiyat"], [
                     "paraBirimi" => $this->paraBirimleri[$islem["paraBirimi"]],
                 ]);
@@ -746,6 +758,15 @@ class IsilIslemController extends Controller
                             ),
                             0
                         ) as tutarUSD,
+                        IF(
+                            $islemTabloAdi.paraBirimi = 'EURO',
+                            IF (
+                                $islemTabloAdi.miktarFiyatCarp,
+                                $islemTabloAdi.birimFiyat * ($islemTabloAdi.miktar - $islemTabloAdi.dara),
+                                $islemTabloAdi.birimFiyat
+                            ),
+                            0
+                        ) as tutarEURO,
                         ($islemTabloAdi.miktar - $islemTabloAdi.dara) as net,
                         $islemDurumTabloAdi.ad as islemDurumuAdi,
                         $islemDurumTabloAdi.kod as islemDurumuKodu,
@@ -797,6 +818,9 @@ class IsilIslemController extends Controller
                         $tekrarEdenIslem["tutarUSDYazi"] = $this->yaziyaDonustur($tekrarEdenIslem["tutarUSD"], [
                             "paraBirimi" => $this->paraBirimleri["USD"],
                         ]);
+                        $tekrarEdenIslem["tutarEUROYazi"] = $this->yaziyaDonustur($tekrarEdenIslem["tutarEURO"], [
+                            "paraBirimi" => $this->paraBirimleri["EURO"],
+                        ]);
                         $tekrarEdenIslem["netYazi"] = $this->yaziyaDonustur($tekrarEdenIslem["net"], ["kg" => true]);
                     }
                 }
@@ -839,6 +863,7 @@ class IsilIslemController extends Controller
                 {
                     $alanlar["tutarTLYazi"] = "Tutar (TL)";
                     $alanlar["tutarUSDYazi"] = "Tutar (USD)";
+                    $alanlar["tutarEUROYazi"] = "Tutar (EURO)";
                 }
 
                 $alanlar["malzemeAdi"] = "Malzeme";

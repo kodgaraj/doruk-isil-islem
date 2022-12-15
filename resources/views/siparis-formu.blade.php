@@ -247,6 +247,9 @@
                                                                         <div class="col-12" v-if="siparis.tutarUSD">
                                                                             @{{ siparis.tutarUSDYazi }}
                                                                         </div>
+                                                                        <div class="col-12" v-if="siparis.tutarEURO">
+                                                                            @{{ siparis.tutarEUROYazi }}
+                                                                        </div>
                                                                         @can("fatura_kesildi_listeleme")
                                                                             <div class="col-12">
                                                                                 <span :class="siparis.faturaKesildi ? 'text-success' : 'text-danger'">
@@ -624,7 +627,7 @@
                                 </template>
                             </div>
                             @can("siparis_ucreti_goruntuleme")
-                                <div class="col-6 col-sm-6 col-md-4 mb-2">
+                                <div class="col-4 mb-2">
                                     <template v-if="aktifSiparis.onizlemeModu">
                                         <div class="form-group">
                                             <label for="toplamTutar">Toplam TL (₺)</label>
@@ -642,7 +645,7 @@
                                         />
                                     </template>
                                 </div>
-                                <div class="col-6 col-sm-6 col-md-4 mb-2">
+                                <div class="col-4 mb-2">
                                     <template v-if="aktifSiparis.onizlemeModu">
                                         <div class="form-group">
                                             <label for="toplamTutar">Toplam USD ($)</label>
@@ -654,6 +657,24 @@
                                         <input
                                             v-model.lazy="aktifSiparis.tutarUSDYazi"
                                             v-money="maskeler.usd"
+                                            class="form-control"
+                                            placeholder="Toplam tutarını giriniz..."
+                                            disabled
+                                        />
+                                    </template>
+                                </div>
+                                <div class="col-4 mb-2">
+                                    <template v-if="aktifSiparis.onizlemeModu">
+                                        <div class="form-group">
+                                            <label for="toplamTutar">Toplam EURO (€)</label>
+                                            <h5 id="toplamTutar">@{{ aktifSiparis.tutarEUROYazi }} $</h5>
+                                        </div>
+                                    </template>
+                                    <template v-else>
+                                        <label class="form-label">Toplam EURO (€)</label>
+                                        <input
+                                            v-model.lazy="aktifSiparis.tutarEUROYazi"
+                                            v-money="maskeler.euro"
                                             class="form-control"
                                             placeholder="Toplam tutarını giriniz..."
                                             disabled
@@ -972,7 +993,7 @@
                                                             </label>
                                                         </div>
                                                     </td>
-                                                    <td class="orta-uzunluk ps-0">
+                                                    <td class="orta-uzunluk ps-0 pe-2">
                                                         <v-select
                                                             v-model="islem.paraBirimi"
                                                             :options="paraBirimleri"
@@ -1276,6 +1297,13 @@
                         suffix: " $",
                         precision: 2,
                     },
+                    euro: {
+                        prefix: "",
+                        thousands: ".",
+                        decimal: ",",
+                        suffix: " €",
+                        precision: 2,
+                    },
                     kg: {
                         prefix: "",
                         thousands: ".",
@@ -1375,7 +1403,7 @@
                 handler: function (newValue, oldValue) {
                     if (!this.aktifSiparis) return;
 
-                    let tutarTL = 0, tutarUSD = 0;
+                    let tutarTL = 0, tutarUSD = 0, tutarEURO = 0;
                     for (let i in this.aktifSiparis.islemler) {
                         const islem = this.aktifSiparis.islemler[i];
 
@@ -1391,6 +1419,9 @@
                         if (islem.paraBirimi.kod == "USD") {
                             tutarUSD += birimFiyat;
                         }
+                        else if (islem.paraBirimi.kod == "EURO") {
+                            tutarEURO += birimFiyat;
+                        }
                         else {
                             tutarTL += birimFiyat;
                         }
@@ -1398,9 +1429,12 @@
 
                     tutarTL = _.round(tutarTL, 2);
                     tutarUSD = _.round(tutarUSD, 2);
+                    tutarEURO = _.round(tutarEURO, 2);
 
                     this.aktifSiparis.tutarUSD = tutarUSD;
                     this.aktifSiparis.tutarUSDYazi = this.yaziyaDonustur(tutarUSD);
+                    this.aktifSiparis.tutarEURO = tutarEURO;
+                    this.aktifSiparis.tutarEUROYazi = this.yaziyaDonustur(tutarEURO);
                     this.aktifSiparis.tutarTL = tutarTL;
                     this.aktifSiparis.tutarTLYazi = this.yaziyaDonustur(tutarTL);
                 },
@@ -1410,7 +1444,7 @@
                 handler: function (newValue, oldValue) {
                     if (!this.aktifSiparis) return;
 
-                    let tutarTL = 0, tutarUSD = 0;
+                    let tutarTL = 0, tutarUSD = 0, tutarEURO = 0;
                     for (let i in this.aktifSiparis.bolunmusToplamliIslemler) {
                         const islem = this.aktifSiparis.bolunmusToplamliIslemler[i];
 
@@ -1426,6 +1460,9 @@
                         if (islem.paraBirimi.kod == "USD") {
                             tutarUSD += birimFiyat;
                         }
+                        else if (islem.paraBirimi.kod == "EURO") {
+                            tutarEURO += birimFiyat;
+                        }
                         else {
                             tutarTL += birimFiyat;
                         }
@@ -1433,9 +1470,12 @@
 
                     tutarTL = _.round(tutarTL, 2);
                     tutarUSD = _.round(tutarUSD, 2);
+                    tutarEURO = _.round(tutarEURO, 2);
 
                     this.aktifSiparis.tutarUSD = tutarUSD;
                     this.aktifSiparis.tutarUSDYazi = this.yaziyaDonustur(tutarUSD);
+                    this.aktifSiparis.tutarEURO = tutarEURO;
+                    this.aktifSiparis.tutarEUROYazi = this.yaziyaDonustur(tutarEURO);
                     this.aktifSiparis.tutarTL = tutarTL;
                     this.aktifSiparis.tutarTLYazi = this.yaziyaDonustur(tutarTL);
                 },

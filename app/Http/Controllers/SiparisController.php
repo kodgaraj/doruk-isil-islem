@@ -84,7 +84,18 @@ class SiparisController extends Controller
                             ),
                             0
                         )
-                    ) as tutarUSD
+                    ) as tutarUSD,
+                    SUM(
+                        IF(
+                            $islemTabloAdi.paraBirimi = 'EURO',
+                            IF (
+                                $islemTabloAdi.miktarFiyatCarp,
+                                $islemTabloAdi.birimFiyat * ($islemTabloAdi.miktar - $islemTabloAdi.dara),
+                                $islemTabloAdi.birimFiyat
+                            ),
+                            0
+                        )
+                    ) as tutarEURO
                 "))
                 ->join($firmaTabloAdi, $firmaTabloAdi . '.id', '=', $siparisTabloAdi . '.firmaId')
                 ->join($siparisDurumTabloAdi, $siparisDurumTabloAdi . '.id', '=', $siparisTabloAdi . '.durumId')
@@ -165,6 +176,9 @@ class SiparisController extends Controller
                 $siparis["tutarUSDYazi"] = $this->yaziyaDonustur($siparis["tutarUSD"], [
                     "paraBirimi" => $this->paraBirimleri["USD"],
                 ]);
+                $siparis["tutarEUROYazi"] = $this->yaziyaDonustur($siparis["tutarEURO"], [
+                    "paraBirimi" => $this->paraBirimleri["EURO"],
+                ]);
                 $siparis["netYazi"] = $this->yaziyaDonustur($siparis["net"], ["kg" => true]);
                 $siparis["tarihTR"] = Carbon::parse($siparis["tarih"])->format("d.m.Y");
                 $siparis["faturaKesildi"] = $siparis["faturaKesildi"] == 1 ? true : false;
@@ -194,6 +208,7 @@ class SiparisController extends Controller
                 {
                     $siparisAlanlar["tutarTL"] = "Tutar (₺)";
                     $siparisAlanlar["tutarUSD"] = "Tutar ($)";
+                    $siparisAlanlar["tutarEURO"] = "Tutar (€)";
 
                     $islemlerAlanlar["birimFiyat"] = "Tutar";
                 }

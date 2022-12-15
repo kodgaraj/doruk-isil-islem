@@ -41,6 +41,12 @@ class Controller extends BaseController
             "ad" => "USD ($)",
             "maske" => "usd",
         ],
+        "EURO" => [
+            "kod" => "EURO",
+            "sembol" => "€",
+            "ad" => "EURO (€)",
+            "maske" => "euro",
+        ],
     ];
 
     public function terminHesapla($tarih, $terminSuresi = 5, $sonTarih = null)

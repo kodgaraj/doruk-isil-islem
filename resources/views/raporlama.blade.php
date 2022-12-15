@@ -153,6 +153,7 @@
                                             <th>Birim Fiyat</th>
                                             <th>Tutar (₺)</th>
                                             <th>Tutar ($)</th>
+                                            <th>Tutar (€)</th>
                                         @endcan
                                     </tr>
                                 </thead>
@@ -206,6 +207,9 @@
                                                     </td>
                                                     <td>
                                                         @{{ islem.tutarUSDYazi }}
+                                                    </td>
+                                                    <td>
+                                                        @{{ islem.tutarEUROYazi }}
                                                     </td>
                                                 @endcan
                                             </tr>
@@ -323,7 +327,8 @@
                                     @{{ firinBazliTonaj.toplamlar.firinSayisi ?? 0 }} Fırın |
                                     @{{ firinBazliTonaj.toplamlar.tonajYazi ? ins1000Sep(firinBazliTonaj.toplamlar.tonajYazi) : 0 }} |
                                     @{{ firinBazliTonaj.toplamlar.tutarTLYazi ? ins1000Sep(firinBazliTonaj.toplamlar.tutarTLYazi) : 0 }} &
-                                    @{{ firinBazliTonaj.toplamlar.tutarUSDYazi ? ins1000Sep(firinBazliTonaj.toplamlar.tutarUSDYazi) : 0 }}
+                                    @{{ firinBazliTonaj.toplamlar.tutarUSDYazi ? ins1000Sep(firinBazliTonaj.toplamlar.tutarUSDYazi) : 0 }} &
+                                    @{{ firinBazliTonaj.toplamlar.tutarEUROYazi ? ins1000Sep(firinBazliTonaj.toplamlar.tutarEUROYazi) : 0 }}
                                 </h6>
                             </div>
 
@@ -431,6 +436,9 @@
                                     </h5>
                                     <h5>
                                         Kazanılan USD Tutar: @{{ ins1000Sep(firin.tutarUSDYazi) }}
+                                    </h5>
+                                    <h5>
+                                        Kazanılan EURO Tutar: @{{ ins1000Sep(firin.tutarEUROYazi) }}
                                     </h5>
                                     {{-- <h6>
                                         KG Başı Tutar: @{{ ins1000Sep(
@@ -646,6 +654,11 @@
                                             <div class="col-12">
                                                 <b>
                                                     @{{ firma.tutarUSDYazi }}
+                                                </b>
+                                            </div>
+                                            <div class="col-12">
+                                                <b>
+                                                    @{{ firma.tutarEUROYazi }}
                                                 </b>
                                             </div>
                                         </td>
