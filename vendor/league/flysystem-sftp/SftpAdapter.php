@@ -136,7 +136,7 @@ class SftpAdapter implements FilesystemAdapter
             $visibility
         ) : $this->visibilityConverter->defaultForDirectories();
 
-        if ( ! $connection->mkdir($location, $mode, true)) {
+        if ( ! $connection->mkdir($location, $mode, true) && ! $connection->is_dir($location)) {
             throw UnableToCreateDirectory::atLocation($directory);
         }
     }
@@ -308,7 +308,7 @@ class SftpAdapter implements FilesystemAdapter
         $permissions = $attributes['permissions'] & 0777;
         $lastModified = $attributes['mtime'] ?? null;
 
-        if ($attributes['type'] === NET_SFTP_TYPE_DIRECTORY) {
+        if (($attributes['type'] ?? null) === NET_SFTP_TYPE_DIRECTORY) {
             return new DirectoryAttributes(
                 ltrim($path, '/'),
                 $this->visibilityConverter->inverseForDirectory($permissions),

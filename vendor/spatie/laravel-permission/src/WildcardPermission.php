@@ -3,9 +3,10 @@
 namespace Spatie\Permission;
 
 use Illuminate\Support\Collection;
+use Spatie\Permission\Contracts\Wildcard;
 use Spatie\Permission\Exceptions\WildcardPermissionNotProperlyFormatted;
 
-class WildcardPermission
+class WildcardPermission implements Wildcard
 {
     /** @var string */
     public const WILDCARD_TOKEN = '*';
@@ -22,9 +23,6 @@ class WildcardPermission
     /** @var Collection */
     protected $parts;
 
-    /**
-     * @param string $permission
-     */
     public function __construct(string $permission)
     {
         $this->permission = $permission;
@@ -34,9 +32,7 @@ class WildcardPermission
     }
 
     /**
-     * @param string|WildcardPermission $permission
-     *
-     * @return bool
+     * @param  string|WildcardPermission  $permission
      */
     public function implies($permission): bool
     {
@@ -47,8 +43,9 @@ class WildcardPermission
         $otherParts = $permission->getParts();
 
         $i = 0;
+        $partsCount = $this->getParts()->count();
         foreach ($otherParts as $otherPart) {
-            if ($this->getParts()->count() - 1 < $i) {
+            if ($partsCount - 1 < $i) {
                 return true;
             }
 
@@ -60,7 +57,7 @@ class WildcardPermission
             $i++;
         }
 
-        for ($i; $i < $this->parts->count(); $i++) {
+        for ($i; $i < $partsCount; $i++) {
             if (! $this->parts->get($i)->contains(static::WILDCARD_TOKEN)) {
                 return false;
             }
@@ -69,12 +66,6 @@ class WildcardPermission
         return true;
     }
 
-    /**
-     * @param Collection $part
-     * @param Collection $otherPart
-     *
-     * @return bool
-     */
     protected function containsAll(Collection $part, Collection $otherPart): bool
     {
         foreach ($otherPart->toArray() as $item) {
@@ -86,9 +77,6 @@ class WildcardPermission
         return true;
     }
 
-    /**
-     * @return Collection
-     */
     public function getParts(): Collection
     {
         return $this->parts;
@@ -96,8 +84,6 @@ class WildcardPermission
 
     /**
      * Sets the different parts and subparts from permission string.
-     *
-     * @return void
      */
     protected function setParts(): void
     {
