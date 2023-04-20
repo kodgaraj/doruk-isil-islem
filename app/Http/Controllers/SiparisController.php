@@ -114,6 +114,7 @@ class SiparisController extends Controller
                     $siparisTabloAdi . '.terminSuresi',
                     $siparisTabloAdi . '.faturaKesildi',
                     $siparisTabloAdi . '.aciklama',
+                    $siparisTabloAdi . '.bitisTarihi',
                     $siparisDurumTabloAdi . '.ad',
                     $firmaTabloAdi . '.firmaAdi',
                     $firmaTabloAdi . '.sorumluKisi',
