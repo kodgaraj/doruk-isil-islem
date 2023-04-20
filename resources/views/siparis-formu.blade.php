@@ -856,24 +856,24 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="row d-flex align-items-end">
-                                            <div class="form-group">
-                                                <div class="form-check form-switch">
-                                                    <input
-                                                        class="form-check-input"
-                                                        type="checkbox"
-                                                        id="islemDuzenle"
-                                                        v-model="aktifSiparis.islemDuzenle"
-                                                    />
-                                                    <label class="form-check-label" for="islemDuzenle">
-                                                        <span  class="text-primary">İşlem Düzenle</span>
-                                                    </label>
-                                                </div>
-                                            </div>
-                                        </div>
                                     </template>
                                 </div>
                             @endcan
+                            <div class="col-12 col-sm-6 col-md-4" v-if="aktifSiparis.siparisId">
+                                <div class="form-group">
+                                    <div class="form-check form-switch">
+                                        <input
+                                            class="form-check-input"
+                                            type="checkbox"
+                                            id="islemDuzenle"
+                                            v-model="aktifSiparis.islemDuzenle"
+                                        />
+                                        <label class="form-check-label" for="islemDuzenle">
+                                            <span  class="text-primary">İşlem Düzenle</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
                             <div class="form-group col-12 mb-2">
                                 <template v-if="aktifSiparis.onizlemeModu">
                                     <label for="aciklama">Açıklama</label>
@@ -1665,6 +1665,7 @@
                     firma: null,
                     onizlemeModu: false,
                     faturaKesildi: false,
+                    islemDuzenle: true,
                 };
 
                 this.numaralariGetir();
