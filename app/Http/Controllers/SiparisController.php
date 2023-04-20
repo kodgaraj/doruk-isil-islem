@@ -57,6 +57,7 @@ class SiparisController extends Controller
                     $siparisTabloAdi.terminSuresi,
                     $siparisTabloAdi.faturaKesildi,
                     $siparisTabloAdi.aciklama,
+                    $siparisTabloAdi.bitisTarihi,
                     $siparisDurumTabloAdi.ad as siparisDurumAdi,
                     $firmaTabloAdi.firmaAdi,
                     $firmaTabloAdi.sorumluKisi,
@@ -181,6 +182,7 @@ class SiparisController extends Controller
                 ]);
                 $siparis["netYazi"] = $this->yaziyaDonustur($siparis["net"], ["kg" => true]);
                 $siparis["tarihTR"] = Carbon::parse($siparis["tarih"])->format("d.m.Y");
+                $siparis["bitisTarihiTR"] = $siparis["bitisTarihi"] ? Carbon::parse($siparis["bitisTarihi"])->format("d.m.Y") : null;
                 $siparis["faturaKesildi"] = $siparis["faturaKesildi"] == 1 ? true : false;
                 $siparis["faturaKesildiYazi"] = $siparis["faturaKesildi"] ? "Kesildi" : "Kesilmedi";
             }

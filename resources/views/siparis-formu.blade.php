@@ -207,6 +207,7 @@
                                                             :key="index + 'siparis'"
                                                             @click="hizliDetayAc(index)"
                                                             style="cursor: pointer"
+                                                            :class="!siparis.faturaKesildi && siparis.bitisTarihi ? 'table-warning' : ''"
                                                         >
                                                             <td class="kisa-uzunluk">
                                                                 <div class="row">
@@ -477,25 +478,56 @@
                                                         <hr />
 
                                                         <template v-if="siparisRaporlama.islem">
-                                                            <div class="col-12 m-0 mb-2 text-start">
-                                                                <label class="form-label">Geliş Tarihi</label>
+                                                            <div class="row">
+
+                                                            <div class="col-4 m-0 mb-2 text-start">
+                                                                <label class="form-label" for="gelisTarihi">Geliş Tarihi</label>
                                                                 <input
                                                                     v-model="siparisRaporlama.islem.gelisTarihi"
+                                                                    type="date"
                                                                     class="form-control"
+                                                                    data-date-container='#datepicker2'
+                                                                    data-provide="datepicker"
+                                                                    data-date-autoclose="true" id="gelisTarihi"
                                                                     @input="gecikmeliFonksiyon.siparisRaporlama('GELIS')"
                                                                 />
                                                             </div>
-
-                                                            <div class="col-12 m-0 mb-2 text-start">
-                                                                <label class="form-label">Not</label>
-                                                                <textarea
-                                                                    v-model="siparisRaporlama.islem.not"
+                                                            <div class="col-4 m-0 mb-2 text-start">
+                                                                <label class="form-label">Ürün Kalitesi</label>
+                                                                <input
+                                                                    v-model="siparisRaporlama.islem.kalite"
                                                                     class="form-control"
+                                                                    @input="gecikmeliFonksiyon.siparisRaporlama('KALITE')"
+                                                                />
+                                                            </div>
+                                                            <div class="col-4 m-0 mb-2 text-start">
+                                                                <label class="form-label">İstenen Sertlik</label>
+                                                                <input
+                                                                    v-model="siparisRaporlama.islem.istenilenSertlik"
+                                                                    class="form-control"
+                                                                    @input="gecikmeliFonksiyon.siparisRaporlama('SERTLIK')"
+                                                                />
+                                                            </div>
+                                                            <div class="col-12 m-0 mb-2 text-start">
+                                                                <label class="form-label">Yapılacak İşlem</label>
+                                                                <v-select
+                                                                    v-model="siparisRaporlama.islem.yapilacakIslem"
+                                                                    :options="islemTurleri"
+                                                                    label="ad"
                                                                     @input="gecikmeliFonksiyon.siparisRaporlama('NOT')"
-                                                                ></textarea>
+                                                                >
+                                                                    <template #selected-option="option">
+                                                                        <div class="row">
+                                                                            <div class="col-12">
+                                                                                @{{ _.truncate(option.ad, { length: 15, omission: "..." }) }}
+                                                                            </div>
+                                                                        </div>
+                                                                    </template>
+                                                                    <div slot="no-options">Malzeme bulunamadı!</div>
+                                                                </v-select>
                                                             </div>
 
-                                                            <div class="col-12 m-0 text-start">
+                                                            <div class="col-4 m-0 text-start">
                                                                 <label class="form-label">Ölçümler</label>
                                                                 <input
                                                                     v-model="siparisRaporlama.islem.olcumler"
@@ -506,6 +538,37 @@
                                                                 <small class="text-muted">
                                                                     Virgülle ayrılmış şekilde yazınız... (Örn: 65, 72, 70)
                                                                 </small>
+                                                            </div>
+                                                            <div class="col-4 m-0 text-start">
+                                                                <label class="form-label">Ölçüm Adı "X" </label>
+                                                                <input
+                                                                    v-model="siparisRaporlama.grafikOptions.xaxis.title.text"
+                                                                    class="form-control"
+                                                                    placeholder="Ölçüm No"
+                                                                    @input="gecikmeliFonksiyon.siparisRaporlama('XAXIS')"
+                                                                />
+
+                                                            </div>
+                                                            <div class="col-4 m-0 text-start">
+                                                                <label class="form-label">Ölçüm Adı "Y"</label>
+                                                                <input
+                                                                    v-model="siparisRaporlama.grafikOptions.yaxis.title.text"
+                                                                    class="form-control"
+                                                                    placeholder="Sertlik"
+                                                                    @input="gecikmeliFonksiyon.siparisRaporlama('YAXIS')"
+                                                                />
+
+                                                            </div>
+                                                            <div class="col-12 m-0 mb-2 text-start">
+                                                                <label class="form-label">Not</label>
+                                                                <textarea
+                                                                    v-model="siparisRaporlama.islem.not"
+                                                                    class="form-control"
+                                                                    @input="gecikmeliFonksiyon.siparisRaporlama('NOT')"
+                                                                ></textarea>
+                                                            </div>
+
+
                                                             </div>
                                                         </template>
 
@@ -520,8 +583,9 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-secondary" @click="raporOlusturKapat">VAZGEÇ</button>
+                                            <div class="modal-footer justify-content-between">
+                                                <button type="button" class="btn btn-warning" data-toggle="tooltip" data-placement="top" title="Yukarıdaki alanlara girilen değerler rapora yansımadıysa bu butona basarak verileri senkronize edebilirsiniz." @click="raporAlanlariDoldur">SENKRONİZE ET</button>
+                                                <button type="button" class="btn btn-danger" @click="raporOlusturKapat">VAZGEÇ</button>
                                                 <button type="button" class="btn btn-primary" @click="raporOlustur" :disabled="!siparisRaporlama.islem || !siparisRaporlama.islem.id">RAPOR OLUŞTUR</button>
                                             </div>
                                         </div>
@@ -792,6 +856,21 @@
                                                 </div>
                                             </div>
                                         </div>
+                                        <div class="row d-flex align-items-end">
+                                            <div class="form-group">
+                                                <div class="form-check form-switch">
+                                                    <input
+                                                        class="form-check-input"
+                                                        type="checkbox"
+                                                        id="islemDuzenle"
+                                                        v-model="aktifSiparis.islemDuzenle"
+                                                    />
+                                                    <label class="form-check-label" for="islemDuzenle">
+                                                        <span  class="text-primary">İşlem Düzenle</span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </template>
                                 </div>
                             @endcan
@@ -813,6 +892,7 @@
                         </div>
                         <div class="mb-3 row overflow-auto">
                             <div class="col-12">
+                              <label for="aciklama">İşlem Detayları</label>
                                 <table class="table table-bordered nowrap" id="urun-detay">
                                     <thead>
                                         <th>Sıra No</th>
@@ -824,16 +904,16 @@
                                         <th class="text-center">Net (KG)</th>
                                         @can("siparis_ucreti_goruntuleme")
                                             <th class="text-center">Tutar</th>
-                                            <th v-if="!aktifSiparis.onizlemeModu">Para Birimi</th>
+                                            <th v-if="('islemDuzenle' in aktifSiparis) && aktifSiparis.islemDuzenle">Para Birimi</th>
                                         @endcan
                                         <th>Kalite</th>
                                         <th>Yapılacak İşlem</th>
                                         <th>İstenilen Sertlik</th>
                                         <th>İşlem Durumu</th>
-                                        <th v-if="!aktifSiparis.onizlemeModu">İşlemler</th>
+                                        <th v-if="('islemDuzenle' in aktifSiparis) && aktifSiparis.islemDuzenle">İşlemler</th>
                                     </thead>
                                     <tbody id="islem-satir-ekle">
-                                        <template v-if="aktifSiparis.onizlemeModu">
+                                        <template v-if="!('islemDuzenle' in aktifSiparis) || !aktifSiparis.islemDuzenle ">
                                             <tr v-for="(islem, index) in aktifSiparis.bolunmusToplamliIslemler">
                                                 <td>@{{ index + 1 }}</td>
                                                 <td class="text-center">
@@ -1055,7 +1135,7 @@
                                             </tr>
                                         </template>
                                     </tbody>
-                                    <tfoot v-if="!aktifSiparis.onizlemeModu">
+                                    <tfoot v-if="('islemDuzenle' in aktifSiparis) && aktifSiparis.islemDuzenle">
                                         <tr>
                                             <td colspan="100%">
                                                 <div class="d-grid">
@@ -1601,6 +1681,7 @@
                 this.aktifSiparis = null;
             },
             numaralariGetir() {
+                console.log("numaralariGetir");
                 this.yukleniyorObjesi.numaralar = true;
                 axios.get("/numaralariGetir")
                 .then(response => {
