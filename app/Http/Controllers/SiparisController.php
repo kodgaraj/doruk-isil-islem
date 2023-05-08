@@ -56,6 +56,7 @@ class SiparisController extends Controller
                     $siparisTabloAdi.durumId,
                     $siparisTabloAdi.terminSuresi,
                     $siparisTabloAdi.faturaKesildi,
+                    $siparisTabloAdi.faturaTarihi,
                     $siparisTabloAdi.aciklama,
                     $siparisTabloAdi.bitisTarihi,
                     $siparisDurumTabloAdi.ad as siparisDurumAdi,
@@ -113,6 +114,7 @@ class SiparisController extends Controller
                     $siparisTabloAdi . '.durumId',
                     $siparisTabloAdi . '.terminSuresi',
                     $siparisTabloAdi . '.faturaKesildi',
+                    $siparisTabloAdi . '.faturaTarihi',
                     $siparisTabloAdi . '.aciklama',
                     $siparisTabloAdi . '.bitisTarihi',
                     $siparisDurumTabloAdi . '.ad',
@@ -153,6 +155,15 @@ class SiparisController extends Controller
             if (isset($filtrelemeler["bitisTarihi"]) && $filtrelemeler["bitisTarihi"] != "")
             {
                 $siparisler = $siparisler->where("$siparisTabloAdi.tarih", "<=", $filtrelemeler["bitisTarihi"]);
+            }
+            if (isset($filtrelemeler["faturaBaslangicTarihi"]) && $filtrelemeler["faturaBaslangicTarihi"] != "")
+            {
+                $siparisler = $siparisler->where("$siparisTabloAdi.faturaTarihi", ">=", $filtrelemeler["faturaBaslangicTarihi"]);
+            }
+
+            if (isset($filtrelemeler["faturaBitisTarihi"]) && $filtrelemeler["faturaBitisTarihi"] != "")
+            {
+                $siparisler = $siparisler->where("$siparisTabloAdi.faturaTarihi", "<=", $filtrelemeler["faturaBitisTarihi"]);
             }
 
             if (isset($filtrelemeler["siparisId"]) && $filtrelemeler["siparisId"])
@@ -395,7 +406,14 @@ class SiparisController extends Controller
             $siparis->tarih = $siparisBilgileri['tarih'];
             $siparis->tutar = $siparisBilgileri['tutar'] ?? null;
             $siparis->terminSuresi = $siparisBilgileri['terminSuresi'] ?? 5;
-            $siparis->faturaKesildi = $siparisBilgileri['faturaKesildi'] ?? false;
+            if($siparisBilgileri['faturaKesildi']){
+                $siparis->faturaKesildi = $siparisBilgileri['faturaKesildi'];
+                $siparis->faturaTarihi = now();
+            }else{
+                $siparis->faturaKesildi =  false;
+                $siparis->faturaTarihi = null;
+
+            }
 
             if (!$siparis->save())
             {

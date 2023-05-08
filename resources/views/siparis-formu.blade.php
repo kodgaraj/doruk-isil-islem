@@ -157,6 +157,57 @@
                                                                 aria-label="Bitiş"
                                                             />
                                                         </div>
+
+                                                    </div>
+                                                </div>
+                                                <div class="col-12 m-0">
+                                                    <div class="form-group">
+                                                        <div class="row d-flex align-items-center justify-space-between">
+                                                            <div class="col">
+                                                                <label for="faturaTarihFiltre">Fatura Tarihi</label>
+                                                            </div>
+                                                            <div class="col-auto">
+                                                                <button
+                                                                    v-if="filtrelemeObjesi.faturaBaslangicTarihi || filtrelemeObjesi.faturaBitisTarihi"
+                                                                    @click="filtrelemeFaturaTarihTemizle()"
+                                                                    class="btn btn-sm btn-outline-danger p-0 m-0"
+                                                                    type="button"
+                                                                    aria-label="Tarih temizle"
+                                                                >
+                                                                    <span class="px-1">
+                                                                        Tarihleri Temizle
+                                                                        <i class="fa fa-times"></i>
+                                                                    </span>
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                        <div class="input-group mb-3">
+                                                            <span class="input-group-text">Başlangıç</span>
+                                                            <input
+                                                                v-model="filtrelemeObjesi.faturaBaslangicTarihi"
+                                                                type="date"
+                                                                class="form-control"
+                                                                placeholder="Başlangıç"
+                                                                data-date-container='#datepicker2'
+                                                                data-provide="datepicker"
+                                                                data-date-autoclose="true"
+                                                                id="faturaTarih"
+                                                                aria-label="Başlangıç"
+                                                            />
+                                                            <span class="input-group-text">Bitiş</span>
+                                                            <input
+                                                                v-model="filtrelemeObjesi.faturaBitisTarihi"
+                                                                type="date"
+                                                                class="form-control"
+                                                                placeholder="Bitiş"
+                                                                data-date-container='#datepicker2'
+                                                                data-provide="datepicker"
+                                                                data-date-autoclose="true"
+                                                                id="faturaTarih"
+                                                                aria-label="Bitiş"
+                                                            />
+                                                        </div>
+
                                                     </div>
                                                 </div>
                                             </div>
@@ -853,6 +904,9 @@
                                                         <span v-if="aktifSiparis.faturaKesildi" class="text-success">Fatura kesildi</span>
                                                         <span v-else class="text-danger">Fatura kesilmedi</span>
                                                     </label>
+                                                    <span v-if="aktifSiparis.faturaTarihi">@{{aktifSiparis.faturaTarihi}}</span>
+                                                </div>
+                                                <div>
                                                 </div>
                                             </div>
                                         </div>
@@ -1358,6 +1412,8 @@
                     firma: null,
                     baslangicTarihi: null,
                     bitisTarihi: null,
+                    faturaBaslangicTarihi: null,
+                    faturaBitisTarihi: null,
                     limit: 10,
                 },
                 sayfalamaSayilari: [10, 25, 50, 100],
@@ -2562,6 +2618,10 @@
             filtrelemeTarihTemizle() {
                 this.filtrelemeObjesi.baslangicTarihi = null;
                 this.filtrelemeObjesi.bitisTarihi = null;
+            },
+            filtrelemeFaturaTarihTemizle() {
+                this.filtrelemeObjesi.faturaBaslangicTarihi = null;
+                this.filtrelemeObjesi.faturaBitisTarihi = null;
             },
             floatDonustur(deger, obj = {}) {
                 const arr = _.split(deger, ".");
