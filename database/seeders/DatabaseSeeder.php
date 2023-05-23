@@ -87,8 +87,8 @@ class DatabaseSeeder extends Seeder
         if (!Schema::hasTable("bildirimler")) {
             Schema::create("bildirimler", function (Blueprint $table) {
                 $table->bigIncrements('id')->comment("Bildirimlerin tutulduğu tablo");
-                $table->integer('btid')->comment("Bildirim türü idsi (bildirim_turleri tablosundan)");
-                $table->integer('kullaniciId')->comment("Bildirimin alındığı kullanıcı idsi (users tablosundan)");
+                $table->time('btid')->comment("Bildirim türü idsi (bildirim_turleri tablosundan)");
+                $table->time('kullaniciId')->comment("Bildirimin alındığı kullanıcı idsi (users tablosundan)");
                 $table->string('baslik', 100)->comment("Bildirimin başlığı");
                 $table->text('icerik')->comment("Bildirimin içeriği");
                 $table->text('json')->nullable()->comment("Bildirimin ekstra verileri (Örn: Bildirime tıklandığında gösterilecek veriler)");
@@ -359,6 +359,67 @@ class DatabaseSeeder extends Seeder
             });
 
             $mesajlar[] = 'Siparişler tablosuna faturaTarihi alanı eklendi > ' . date('Y-m-d H:i:s');
+        }
+        // sablonlar tablosu oluşturulması
+        if (!Schema::hasTable("sablonlar")) {
+            Schema::create("sablonlar", function (Blueprint $table) {
+                $table->bigIncrements('id')->comment("Şablonların tutulduğu tablo idsi");
+                $table->string('sablonAdi', 100)->comment("Şablonların Adı");
+                $table->longText('icerik')->comment("Şablonların içeriğinin delta türünde tutulduğu alan")->nullable();
+                $table->longText('icerik_html')->comment("Şablonların içeriğinin html türünde tutulduğu alan")->nullable();
+                $table->string('tur', 10)->comment("Şablon Türü (TEKLIF, ISLEM, MAIL)");
+                $table->string('kullanilabilirOgeler', 255)->comment("Şablonların içerisinde geçen öğelerin listesi");
+                $table->timestamps();
+                $table->softDeletes();
+            });
+
+            $mesajlar[] = 'Şablonlar tablosu oluşturuldu > ' . date('Y-m-d H:i:s');
+        }
+        // teklifler tablosu oluşturulması
+        if (!Schema::hasTable("teklifler")) {
+            Schema::create("teklifler", function (Blueprint $table) {
+                $table->bigIncrements('id')->comment("Tekliflerin tutulduğu tablo idsi");
+                $table->integer('firmaId')->comment("Tekliflerin alındığı firma idsi (firmalarım tablosundan)");
+                $table->string('teklifAdi', 100)->comment("Tekliflerin başlığı")->nullable();
+                $table->string('url', 255)->comment("Tekliflerin başlığı")->nullable();
+                $table->string('tur', 10)->comment("Tekliflerin Türü (TEKLIF, ISLEM, MAIL)");
+                $table->longText('icerik_html')->comment("Teklifin içeriğinin html türünde tutulduğu alan")->nullable();
+                $table->text('json')->nullable()->comment("Teklifin ekstra verileri (Örn: Mail gönderildiğinde tutulacak veriler)");
+                $table->timestamps();
+                $table->softDeletes();
+            });
+
+            $mesajlar[] = 'Teklifler tablosu oluşturuldu > ' . date('Y-m-d H:i:s');
+        }
+
+        // kisitlar tablosu oluşturulması
+        if (!Schema::hasTable("kisitlar")) {
+            Schema::create("kisitlar", function (Blueprint $table) {
+                $table->bigIncrements('id')->comment("Kısıtların oluştuğu tablo idsi");
+                $table->time('saatBaslangic')->comment("Kısıtlama Saat Başlangıç Değeri")->nullable();
+                $table->time('saatBitis')->comment("Kısıtlama Saat Bitiş Değeri")->nullable();
+                $table->text('ipler')->nullable()->comment("Kısıtlanacak ip'lerin verileri virgül ile ayrılarak girilir")->nullable();
+                $table->text('kullanicilar')->nullable()->comment("Kısıtlanacak kullanıcıların verileri virgül ile ayrılarak girilir")->nullable();
+                $table->text('roller')->nullable()->comment("Kısıtlanacak rollerin verileri virgül ile ayrılarak girilir")->nullable();
+                $table->timestamps();
+                $table->softDeletes();
+            });
+
+            $mesajlar[] = 'Kısıtlar tablosu oluşturuldu > ' . date('Y-m-d H:i:s');
+        }
+
+        if (!Schema::hasTable("login_log")) {
+            Schema::create('login_log', function (Blueprint $table) {
+                $table->bigIncrements('id');
+                $table->integer('user_id');
+                $table->string('aciklama',100);
+                $table->integer('islem_kodu');
+                $table->string('ip',50);
+                $table->timestamps();
+            });
+
+
+            $mesajlar[] = 'Log Login tablosu oluşturuldu > ' . date('Y-m-d H:i:s');
         }
 
         $mesajlar[] = 'Veritabanı güncellendi > ' . date('Y-m-d H:i:s');
