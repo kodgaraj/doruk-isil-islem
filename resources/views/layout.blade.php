@@ -13,6 +13,7 @@
     <link href="assets/css/doruk.css" rel="stylesheet" type="text/css" />
     <link rel="stylesheet" href="https://unpkg.com/vue-select@3/dist/vue-select.css">
 
+
     <style>
         table td.en-kisa-uzunluk {
             max-width: 50px;
@@ -166,14 +167,6 @@
                                             </a>
                                         </li>
                                     @endcan
-                                    @can('log_listeleme')
-                                        <li class="waves-effect">
-                                            <a href="{{ route('log-kayitlari') }}">
-                                                <i class="fa fa-clipboard-list"></i>
-                                                Log Kayıtları
-                                            </a>
-                                        </li>
-                                    @endcan
                                     @can('firin_listeleme')
                                         <li class="waves-effect">
                                             <a href="{{ route('firinlar') }}">
@@ -182,6 +175,12 @@
                                             </a>
                                         </li>
                                     @endcan
+                                    <li class="waves-effect">
+                                        <a href="{{ route('sablonlar') }}">
+                                            <i class="fas fa-sticky-note"></i>
+                                            Şablonlar
+                                        </a>
+                                    </li>
                                     @can('firma_listeleme')
                                         <li class="waves-effect">
                                             <a href="{{ route('firmalar') }}">
@@ -190,13 +189,53 @@
                                             </a>
                                         </li>
                                     @endcan
+
+                                    <li class="waves-effect">
+                                        <a href="{{ route('teklifler') }}">
+                                            <i class="fas fa-file-pdf"></i>
+                                            Teklifler
+                                        </a>
+                                    </li>
                                     {{-- <li><a href="#">Firmalar</a></li>
                                     <li><a href="#">İşlem Türleri</a></li>
                                     <li><a href="#">Fırınlar</a></li> --}}
                                 </ul>
                             </li>
                         @endcan
-
+                        <li>
+                            <a
+                                href="javascript:
+                                    (document.getElementById('sistem-ust-menu')).classList.toggle('mm-active');
+                                    (document.getElementById('sistem-alt-menu')).classList.toggle('mm-show');
+                                "
+                                class="has-arrow waves-effect"
+                                id="sistem-ust-menu"
+                            >
+                                <i class="fa fa-cogs"></i> Sistem
+                            </a>
+                            <ul class="sub-menu mm-collapse" aria-expanded="true" id="sistem-alt-menu">
+                                <li class="waves-effect">
+                                    <a href="{{ route('kisitlamalar') }}">
+                                        <i class="fa fa-low-vision"></i>
+                                        Kısıtlamalar
+                                    </a>
+                                </li>
+                                @can('log_listeleme')
+                                    <li class="waves-effect">
+                                        <a href="{{ route('log-kayitlari') }}">
+                                            <i class="fa fa-clipboard-list"></i>
+                                            Log Kayıtları
+                                        </a>
+                                    </li>
+                                    <li class="waves-effect">
+                                        <a href="{{ route('login-kayitlari') }}">
+                                            <i class="fa fa-sign"></i>
+                                            Login Kayıtları
+                                        </a>
+                                    </li>
+                                @endcan
+                            </ul>
+                        </li>
                         <li>
                             <a target="_blank" href="/assets/dokuman.pdf" class="waves-effect">
                                 <div class="d-flex justify-content-between align-items-center">
@@ -366,7 +405,6 @@
 
     <!-- or point to a specific vue-select release -->
     <script src="https://unpkg.com/vue-select@3.20.0/dist/vue-select.js"></script>
-
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.js"></script>
 
     <script>
@@ -378,8 +416,8 @@
         Vue.use(VueMask.VueMaskPlugin);
         Vue.component('v-select', VueSelect.VueSelect);
 
-        @if (in_array(request()->getHost(), ['localhost', 'localhost:8000', "dev.doruk.kodgaraj.com"]))
-            let vm = 
+        @if (in_array(request()->getHost(), ['localhost', 'localhost:8000', "dev.doruk.kodgaraj.com", "127.0.0.1:8000", "127.0.0.1"]))
+            let vm =
         @endif
         new Vue({
             mixins: [mixinApp],
@@ -523,10 +561,10 @@
                 },
                 /**
                  * Aktif sayfaya göre pagination dizisi oluşturur.
-                 * 
+                 *
                  * @param {Integer} toplamSayfaSayisi
                  * @param {Integer} aktifSayfa
-                 * 
+                 *
                  * @return {Array}
                  */
                 sayfalamaAyarla(toplamSayfaSayisi = 1, aktifSayfa = 1) {

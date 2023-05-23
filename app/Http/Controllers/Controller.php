@@ -283,10 +283,10 @@ class Controller extends BaseController
 
     /**
      * Bildirim atma
-     * 
+     *
      * @param integer $kullaniciId Kullanıcı id
      * @param array $veriler Bildirim bilgileri
-     * 
+     *
      * @example $this->bildirimAt(1, [
      *    "baslik" => "Bildirim Başlığı",
      *    "icerik" => "Bildirim içeriği",
@@ -613,13 +613,11 @@ class Controller extends BaseController
 
     public function pdfOlustur($dosyaAdi, $parametreler = [])
     {
+
         $altKlasor = "";
-        // $url = Storage::url(
-        //     'teklif/request.pdf'
-        // );
-        // dd($url);
+
         $_payload = isset($parametreler["payload"]) && $parametreler["payload"] ? $parametreler["payload"] : [];
-        
+
         if (isset($parametreler["klasor"]) && $parametreler["klasor"])
         {
             $altKlasor .= $parametreler["klasor"] . "/";
@@ -628,7 +626,6 @@ class Controller extends BaseController
         {
             $altKlasor .= $parametreler["tur"] . "/";
         }
-        // dd($altKlasor);
 
         $params = isset($parametreler["query"]) && $parametreler["query"] ? $parametreler["query"] : [];
 
@@ -658,15 +655,96 @@ class Controller extends BaseController
             ],
         ];
 
+
         $context  = stream_context_create($options);
         $result = file_get_contents($url, false, $context);
         if ($result === false) {
-            // dd($result, "HATA VAR!");
             return false;
         }
 
         Storage::disk('local')->put("public/" . $altKlasor . $dosyaAdi . ".pdf", $result);
 
         return $result;
+    }
+    public function pdfOlustur2($dosyaAdi,$altKlasor, $parametreler = [])
+    {
+
+        $_payload = isset($parametreler["payload"]) && $parametreler["payload"] ? $parametreler["payload"] : [];
+        // dd(url("/pdf-exports2/" . $parametreler["tur"] ."/". $parametreler["id"], [], false));
+        $url = 'http://PhantomJScloud.com/api/browser/v2/a-demo-key-with-low-quota-per-ip-address/';
+        //$url = 'https://PhantomJScloud.com/api/browser/v2/ak-5ykcp-wxt7z-74k7b-8h7gv-c6548/';
+
+        $payload = [
+            "url" => url("/pdf-exports2/" . $parametreler["tur"] . $parametreler["id"], [], false),
+            "renderType" => "pdf",
+            "overseerScript" => '
+                await page.waitForSelector(".printable-page");
+                page.done()
+            ',
+            ...$_payload,
+        ];
+
+        $options = [
+            'http' => [
+                'header'  => "Content-type: application/json\r\n",
+                'method'  => 'POST',
+                'content' => json_encode($payload)
+            ],
+            // 'https' => [
+            //     'header'  => "Content-type: application/json\r\n",
+            //     'method'  => 'POST',
+            //     'content' => json_encode($payload)
+            // ],
+        ];
+
+        $context  = stream_context_create($options);
+        $result = file_get_contents($url, false, $context);
+        if ($result === false) {
+            return false;
+        }
+
+        $ek = 1;
+        $teklifUrl = "storage/". $altKlasor . $dosyaAdi . $ek .".pdf";
+        while(file_exists($url)){
+            $ek++;
+            $teklifUrl = "storage/". $altKlasor . $dosyaAdi . $ek. ".pdf";
+        }
+        $pdf = Storage::disk('local')->put("public/" . $altKlasor . $dosyaAdi . $ek . ".pdf", $result);
+        if($pdf) {
+            return $teklifUrl;
+        }
+        return false;
+    }
+    function XMLPOST($PostAddress, $xmlData)
+    {
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $PostAddress);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, "data=" . $xmlData);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+        $results = curl_exec($ch);
+        return $results;
+    }
+
+    function smsSend($msg)
+    {
+        $sms_user = 'kullaniciAdi';
+        $sms_pass = 'sifre';
+        $sms_title = 'baslik';
+
+        $xml = '
+            <MultiTextSMS>
+                <UserName>' . $sms_user . '</UserName>
+                <PassWord>' . $sms_pass . '</PassWord>
+                <Action>11</Action>
+                <Messages>' . $msg . '</Messages>
+                <Originator>' . $sms_title . '</Originator>
+                <SDate></SDate>
+            </MultiTextSMS>';
+        //return $xml;
+        $gelen = XMLPOST('http://www.smspaketim.com.tr/api/mesaj_gonder', $xml);
+        return $gelen;
     }
 }

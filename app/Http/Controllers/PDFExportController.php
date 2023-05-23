@@ -2,22 +2,52 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Teklifler;
+use GuzzleHttp\Client;
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\View;
+use Dompdf\Dompdf;
 class PDFExportController extends Controller
 {
     public function index($tur)
     {
-        $view = "pdf-exports.$tur.index";
-
-        if (!view()->exists($view))
+        try
         {
-            return redirect()->route("home");
+            $view = "pdf-exports.$tur.index";
+            if (!view()->exists($view))
+            {
+                return redirect()->route("home");
+            }
+
+            return view($view);
+        }
+        catch (\Exception $e)
+        {
+            return $e->getMessage();
         }
 
-        return view($view);
     }
+    public function index2($tur,$id)
+    {
+        try
+        {
+            $view = "pdf-exports.$tur.sablon";
+            $teklif = Teklifler::find($id);
+            $teklif->icerik_html = json_decode($teklif->icerik_html,true);
+            if (!view()->exists($view))
+            {
+                return redirect()->route("home");
+            }
 
+            return view($view)->with("teklif",$teklif);
+        }
+        catch (\Exception $e)
+        {
+            return $e->getMessage();
+        }
+
+    }
     public function createPDF(Request $request)
     {
         try
@@ -66,5 +96,6 @@ class PDFExportController extends Controller
                 "hataKodu" => "CPDF001",
             ], 500);
         }
+
     }
 }

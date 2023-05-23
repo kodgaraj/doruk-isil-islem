@@ -1,4 +1,20 @@
 @extends('layout')
+@section('style')
+<link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+<link href="https://unpkg.com/quill-table-ui@1.0.5/dist/index.css" rel="stylesheet">
+<style>
+    .a4 {
+        width: 21cm;
+        min-height: 29.7cm;
+        padding: 2cm;
+        margin: 1cm auto;
+        border: 1px #D3D3D3 solid;
+        border-radius: 5px;
+        background: white;
+        box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    }
+</style>
+@endsection
 @section('content')
     <div class="row doruk-content">
         <h4 style="color:#999"><i class="fas fa-globe"></i> FİRMALAR</h4>
@@ -46,7 +62,7 @@
                             <div class="row">
                                 <div class="col-12 text-center text-sm-end">
                                     <button v-if="aktifSayfa.kod === 'ANASAYFA'" class="btn btn-sm btn-outline-info"
-                                        @click="teklifOlusturmaAc()">
+                                        @click="teklifModalAc()">
                                         <i class="fas fa-file-signature"></i> TEKLİF OLUŞTUR
                                     </button>
                                     <button v-if="aktifSayfa.kod === 'ANASAYFA'" class="btn btn-sm btn-primary"
@@ -128,7 +144,39 @@
                         </div>
                     </div>
                 </div>
-
+                <div class="modal fade" id="sablonModal" tabindex="-1" aria-labelledby="sablonModalTitle" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="sablonModalTitle">Şablonlar</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="col m-0">
+                                    <div class="form-group">
+                                        <label for="sablonlar">Şablonlar</label>
+                                        <v-select
+                                            v-model="sablonObjesi.sablon"
+                                            :options="sablonObjesi.sablonlar"
+                                            label="sablonAdi"
+                                            id="id"
+                                        ></v-select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button
+                                    type="button"
+                                    class="btn btn-primary"
+                                    @click="teklifOlusturmaAc()"
+                                >
+                                Teklif Oluştur
+                                </button>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">VAZGEÇ</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <div class="card-body">
                     <template v-if="aktifSayfa.kod === 'ANASAYFA'">
                         <template v-if="yukleniyorObjesi.firmalariGetir">
@@ -177,7 +225,7 @@
                                                         @{{ firma.telefon }}
                                                     </td>
                                                     <td class="kisa-uzunluk text-center">
-                                                        <button class="btn btn-sm btn-outline-info" @click="teklifOlusturmaAc(firma)">
+                                                        <button class="btn btn-sm btn-outline-info" @click="teklifModalAc(firma)">
                                                             <i class="fa fa-file-signature"></i>
                                                         </button>
                                                         <button class="btn btn-sm btn-primary" @click="firmaDuzenle(firma)">
@@ -259,11 +307,12 @@
                                 <textarea v-model="yeniFirma.adres" autocomplete="off" id="adres" type="text"
                                     class="form-control" placeholder="Adres" rows="1" cols="50"></textarea>
                             </div>
+
                         </div>
                     </template>
                     <template v-else-if="aktifSayfa.kod === 'TEKLIF_HAZIRLAMA'">
                         <div class="row g-3">
-                            <div class="col-12 col-sm-6 col-md-4">
+                            <div class="col-12 col-sm-6 col-md-4" v-if="sablonObjesi.sablon.kullanilabilirOgeler.includes('[firmaAdi]')">
                                 <label for="name">Firma adı *</label>
                                 <input
                                     v-model="teklif.firma.firmaAdi"
@@ -275,7 +324,7 @@
                                     placeholder="Firma adı"
                                 />
                             </div>
-                            <div class="col-12 col-sm-6 col-md-4">
+                            <div class="col-12 col-sm-6 col-md-4" v-if="sablonObjesi.sablon.kullanilabilirOgeler.includes('[sorumluKisi]')">
                                 <label for="firma_sorumlusu">Firma Sorumlusu</label>
                                 <input
                                     v-model="teklif.firma.sorumluKisi"
@@ -287,7 +336,7 @@
                                     placeholder="Firma Sorumlusu"
                                 />
                             </div>
-                            <div class="col-12 col-sm-6 col-md-4">
+                            <div class="col-12 col-sm-6 col-md-4" v-if="sablonObjesi.sablon.kullanilabilirOgeler.includes('[telefon]')">
                                 <label for="telefon">Telefon</label>
                                 <input
                                     v-model="teklif.firma.telefon"
@@ -299,7 +348,7 @@
                                     placeholder="Telefon"
                                 />
                             </div>
-                            <div class="col-12 col-sm-6 col-md-4">
+                            <div class="col-12 col-sm-6 col-md-4" v-if="sablonObjesi.sablon.kullanilabilirOgeler.includes('[eposta]')">
                                 <label for="telefon">E-posta</label>
                                 <input
                                     v-model="teklif.firma.eposta"
@@ -311,7 +360,7 @@
                                     placeholder="E-posta"
                                 />
                             </div>
-                            <div class="col-12 col-sm-6 col-md-4">
+                            <div class="col-12 col-sm-6 col-md-4" v-if="sablonObjesi.sablon.kullanilabilirOgeler.includes('[adres]')">
                                 <label for="telefon">Adres</label>
                                 <textarea
                                     v-model="teklif.firma.adres"
@@ -325,7 +374,23 @@
                                     cols="50"
                                 ></textarea>
                             </div>
-
+                            <div class="col-12 col-sm-6 col-md-4">
+                                <label for="telefon">Şablon</label>
+                                <textarea
+                                    v-model="sablonObjesi.sablon.sablonAdi"
+                                    autocomplete="off"
+                                    disabled
+                                    id="sablon"
+                                    type="text"
+                                    class="form-control"
+                                    placeholder="Şablon"
+                                    rows="1"
+                                    cols="50"
+                                ></textarea>
+                            </div>
+                            <div class="col-12">
+                                <span class="badge badge-pill bg-primary" style="font-size: 90%; margin: 3px;" v-for="ogeler in sablonObjesi.sablon.kullanilabilirOgeler">@{{ogeler}}</span>
+                            </div>
                             <hr class="mb-0" />
 
                             <div class="col-12 text-center">
@@ -349,12 +414,22 @@
                                         </button>
                                     </div>
                                     <div class="col-7 text-start">
-                                        <input
+                                        <select
                                             v-model="icerik.ad"
-                                            @input="gecikmeliFonksiyon.teklif()"
-                                            placeholder="İşlem"
+                                            @change="gecikmeliFonksiyon.teklif()"
+                                            name="islem"
+                                            id="ad"
                                             class="small form-control"
-                                        />
+                                        >
+                                            <option value="" disabled>İşlem türünü seçiniz...</option>
+                                            <option
+                                                v-for="(islem, pIndex) in teklif.islemTurleri"
+                                                :value="islem.ad"
+                                                :key="pIndex"
+                                            >
+                                                @{{ islem.ad }}
+                                            </option>
+                                        </select>
                                     </div>
                                     <div class="col-2 text-start">
                                         <input
@@ -402,15 +477,14 @@
                                     </div>
                                 </div>
                             </div>
-
-                            <div class="col-12">
-                                <div class="overflow-auto">
-                                    <div
-                                        v-html="teklif.html"
-                                        :key="teklif.htmlKey"
-                                    ></div>
+                            <div class="col-12 col-sm-12 col-md-12">
+                                <div class="card" v-for="(sayi, index) in teklif.teklifBilgileri.icerik_html.length">
+                                    <div class="card-body ql-editor a4 p-0">
+                                        <div v-html="teklif.teklifBilgileri.icerik_html[index]"></div>
+                                    </div>
                                 </div>
                             </div>
+
                         </div>
                     </template>
                 </div>
@@ -418,458 +492,6 @@
         </div>
     </div>
 
-    <div ref="teklif" style="display: none; background: white; color: black;">
-        <!-- 1. sayfa -->
-        <div class="printable-page" id="page-1">
-            <div class="row d-flex justify-content-center align-items-center">
-                <div class="col-4">
-                    <div>
-                        <img style="width: 100%" src="/img/doruk-logo.png" />
-                    </div>
-                </div>
-                <div class="col-4 text-center">
-                    <b><h3>DORUK ISIL İŞLEM FİYAT TEKLİFİ</h3></b>
-                </div>
-                <div class="col-4">
-                    <div>
-                        <img style="width: 100%" src="/img/doruk-sertifika.png" />
-                    </div>
-                </div>
-                <div class="col-12 text-end">
-                    <div>
-                        <h6><b>TARİH:</b> ${ data.tarih }</h6>
-                    </div>
-                </div>
-
-                <!-- Firma -->
-                {{-- <div class="col-2 text-start">
-                    <h6><b>Firma:</b></h6>
-                </div>
-                <div class="col-10 text-start">
-                    <h6>${ data.firma }</h6>
-                </div> --}}
-                <div class="col-12 text-start">
-                    <h6><b>Firma:</b> ${ data.firma }</h6>
-                </div>
-
-                <!-- Yetkili -->
-                <div class="col-6 text-start">
-                    <h6><b>Yetkili:</b> ${ data.yetkili }</h6>
-                </div>
-
-                <!-- Telefon -->
-                <div class="col-6 text-start">
-                    <h6><b>Telefon:</b> ${ data.telefon }</h6>
-                </div>
-
-                <!-- Adres -->
-                <div class="col-12 text-start">
-                    <h6><b>Adres:</b> ${ data.adres }</h6>
-                </div>
-
-                <!-- E-posta -->
-                <div class="col-12 text-start">
-                    <h6><b>E-posta:</b> ${ data.eposta }</h6>
-                </div>
-
-                <hr class="m-0" />
-
-                <div class="col-12" style="min-height: 600px; width: 100% !important;">
-                    <div class="row d-flex align-items-center">
-                        <% _.forEach(data.icerikler, function (icerik) { %>
-                            <div class="col-12 my-1">
-                                <div class="row d-flex align-items-center">
-                                    <div class="col-8 text-start">
-                                        <span><%- icerik.ad %></span>
-                                    </div>
-                                    <div class="col-2 text-end">
-                                        <span><%- icerik.fiyat %></span>
-                                    </div>
-                                    <div class="col-1 text-end pe-0">
-                                        <span><%- icerik.paraBirimi %></span>
-                                    </div>
-                                    <div class="col-1 text-start ps-1">
-                                        <% if (icerik.olcumTuru) { %>
-                                            /
-                                            <span><%- icerik.olcumTuru %></span>
-                                        <% } %>
-                                    </div>
-                                </div>
-                            </div>
-                            <hr class="m-0" />
-                        <% }); %>
-                    </div>
-                </div>
-
-                <hr class="m-0" />
-
-                <div class="col-12">
-                    <b>* Fiyat teklifimizi onaylamanız durumunda kaşe/imza yapmanızı önemle rica ederiz.</b>
-                </div>
-
-                <div class="col-12 mt-2">
-                    <div class="row text-center">
-                        <div class="col-4">
-                            Müşteri Onay Kaşe/İmza
-                        </div>
-                        <div class="col-4">
-                            <div class="row">
-                                <div class="col-12">
-                                    <b>Hazırlayan</b>
-                                </div>
-                                <div class="col-12">
-                                    Aziz KALEM
-                                </div>
-                                <div class="col-12 text-muted small">
-                                    Metalurji ve Malzeme Mühendisi
-                                </div>
-                                <div class="col-12">
-                                    <img style="width: 100%" src="/img/doruk-aziz-imza.png" />
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-4">
-                            <div class="row">
-                                <div class="col-12">
-                                    <b>Onaylayan</b>
-                                </div>
-                                <div class="col-12">
-                                    Gökhan ÇELİK
-                                </div>
-                                <div class="col-12 text-muted small">
-                                    İnşaat Mühendisi
-                                    <br />
-                                    Genel Müdür
-                                </div>
-                                <div class="col-12">
-                                    <img style="width: 100%" src="/img/doruk-gokhan-imza.png" />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-12">
-                    <div>
-                        <img style="width: 100%" src="/img/doruk-belge-alt-bilgi.jpg" />
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 2. sayfa -->
-        <div class="printable-page" id="page-2">
-            <div class="row d-flex justify-content-center align-items-center">
-                <div class="col-4">
-                    <div>
-                        <img style="width: 100%" src="/img/doruk-logo.png" />
-                    </div>
-                </div>
-                <div class="col-4 text-center">
-                    <b><h3>DORUK ISIL İŞLEM FİYAT TEKLİFİ</h3></b>
-                </div>
-                <div class="col-4">
-                    <div>
-                        <img style="width: 100%" src="/img/doruk-sertifika.png" />
-                    </div>
-                </div>
-                <div class="col-12 text-end">
-                    <div>
-                        <h6><b>TARİH:</b> ${ data.tarih }</h6>
-                    </div>
-                </div>
-
-                <!-- Firma -->
-                {{-- <div class="col-2 text-start">
-                    <h6><b>Firma:</b></h6>
-                </div>
-                <div class="col-10 text-start">
-                    <h6>${ data.firma }</h6>
-                </div> --}}
-                <div class="col-12 text-start">
-                    <h6><b>Firma:</b> ${ data.firma }</h6>
-                </div>
-
-                <!-- Yetkili -->
-                <div class="col-6 text-start">
-                    <h6><b>Yetkili:</b> ${ data.yetkili }</h6>
-                </div>
-
-                <!-- Telefon -->
-                <div class="col-6 text-start">
-                    <h6><b>Telefon:</b> ${ data.telefon }</h6>
-                </div>
-
-                <!-- Adres -->
-                <div class="col-12 text-start">
-                    <h6><b>Adres:</b> ${ data.adres }</h6>
-                </div>
-
-                <!-- E-posta -->
-                <div class="col-12 text-start">
-                    <h6><b>E-posta:</b> ${ data.eposta }</h6>
-                </div>
-
-                <hr class="m-0" />
-
-                <div class="col-12">
-                    <div class="row">
-                        <div class="col-12">
-                            1 - Fiyatlarımıza KDV dahil değildir.
-                        </div>
-                        <div class="col-12">
-                            2 - Tek seferde gelen ürün/işlem fatura tutarının <strong class="text-danger"><u>600,00 $</u></strong> altında kalması halinde <strong class="text-danger"><u>şarj bedeli</u></strong> uygulanır.
-                        </div>
-                        <div class="col-12">
-                            3 - Gelen malzemelerde kalite veya istenen sertlik değerleri farklı olması halinde her ürün grubu için minimum iş bedeli uygulanır.
-                        </div>
-                        <div class="col-12">
-                            4 - Özel ürünlerde ve / veya özel proses gerektiren ürünlerde fiyatlar ayrıca görüşülecektir.
-                        </div>
-                        <div class="col-12">
-                            5 - Ödeme: Ürün tesliminde <strong class="text-danger"><u>nakit, maksimum 30 günlük çek</u></strong> ile ya da <strong class="text-danger"><u>30 gün</u></strong> içinde banka havalesi şeklinde yapılacaktır.
-                        </div>
-                        <div class="col-12">
-                            6 - Teklifin geçerlilik süresi <strong class="text-danger"><u>15 gün</u></strong>dür. <strong class="text-danger"><u>15 gün</u></strong> içinde teklifin onaylanması durumunda; yukarıdaki fiyatlar <strong class="text-danger"><u>${ data.gecerlilikTarihi }</u></strong> tarihine kadar geçerli olacaktır. <strong class="text-danger"><u>15 gün</u></strong> içinde teklifin onaylanmaması durumunda ise tekrar fiyat teklifi istemenizi rica ederiz.
-                        </div>
-                        <div class="col-12">
-                            7 - Ürün teslim (termin) süresi, ürünün fimamıza tesliminden itibaren <strong class="text-danger"><u>5+1</u></strong> iş günüdür
-                        </div>
-                        <div class="col-12">
-                            8 - Firmamızın hazırlamış olduğu fiyat teklifi tarafınızdan imza edilmemiş / onaylanmamış olsa dahi ısıl işleme tabi tutulacak ürünün / ürünlerin tesisimize gönderilmesi durumunda, fiyat teklifi ile sözleşme şartları kabul edilmiş sayılır.
-                        </div>
-                        <div class="col-12">
-                            9 - Isıl İşleme tabi tutulan ürünlerinizi teslim etmeyi öngördüğümüz sürelere, enerji kesintisi, arıza ve benzeri sorunlar dışında, uyacağımızı taahüt ederiz. Teknik sorunlar da mücbir sebep olarak gecikmeye neden olabilecektir. Bu durumlarda tarafınıza bilgilendirme yapılacaktır.
-                        </div>
-                        <div class="col-12">
-                            10 - Ürünlere uygulanması istenilen ısıl işlem operasyonu ve özellikleri ile ürün / ürünlere ait teknik resmi, var ise ısıl işlem şartnamesini, ürünün teslimi ile birlikte tarafımıza iletilmelidir. Bu bilgi ve belgelerin teslim edilmemesinden meydana gelecek her türlü zarardan firmamız sorumlu tutulamayacaktır.
-                        </div>
-                        <div class="col-12">
-                            11 - Malzeme bilgilerinin sertifikasının ürünle beraber gönderilmediği durumda spesifikasyon limitleri dışında elde edilen sertlik ve sertlik derinliğinden ve ölçülerden firmamız sorumlu değildir.
-                        </div>
-                        <div class="col-12">
-                            12 - İletilen bilgiler hatalı, yanlış ve eksik olması nedenleriyle ısıl işlem başarısız olsa dahi, ısıl işlem ücretinin tamamı ödenecektir.
-                        </div>
-                        <div class="col-12">
-                            13 - Firmamız bünyesinde Isıl işleme tabi tutulan ürünlerin sertlik değerleri, tarafınızdan iletilen bilgilerde belirttiğiniz sertlik değer aralığı dışında kaldığında hiçbir bedel gözetmeksizin ısıl işlemin tekrarını gerçekleştirerek belirtilen sertlik değer aralığına getireleceğini kabul ve taahhüt ederiz.
-                        </div>
-                        <div class="col-12">
-                            14 - Boyutsal kararlılık veya yüzey durumuna ilişkin talepler irsaliyelerde belirtilmelidir veya irsaliye ile ulaştırılmalıdır. Özellikle kaynaklanmış veya lehimlenmiş ve içinde boşluklar olan materyallere ilişkin bilgi vermelidir. Teslim edilen ürünleri ebat, ağırlık ve miktar yönünden kontrole tabi tutabiliriz. Ancak, teslim edilen ürünlerin kalitesi açısından kontrol görevimiz bulunmamaktadır. Bu kapsamda teslim edilen ürünlerin doğru ve elverişli olduğu kabul edilir. Bu kapsamda yükümlülüklerinizi yerine getirmemeniz veya eksik bırakmanızdan meydana gelecek zararlarda sorumluk size aittir. Açık talebiniz olması halinde ve masrafını karşılamanız şartıyla kontrol işlemini sizin adınıza yaptırabiliriz. Teslim edilen ürünlerdeki gizli kusurlardan kaynaklanan zararlardan firmamız sorumlu değildir.
-                        </div>
-                    </div>
-                </div>
-
-                <hr class="m-0" />
-
-                <div class="col-12">
-                    <b>* Fiyat teklifimizi onaylamanız durumunda kaşe/imza yapmanızı önemle rica ederiz.</b>
-                </div>
-
-                <div class="col-12 mt-2">
-                    <div class="row text-center">
-                        <div class="col-4">
-                            Müşteri Onay Kaşe/İmza
-                        </div>
-                        <div class="col-4">
-                            <div class="row">
-                                <div class="col-12">
-                                    <b>Hazırlayan</b>
-                                </div>
-                                <div class="col-12">
-                                    Aziz KALEM
-                                </div>
-                                <div class="col-12 text-muted small">
-                                    Metalurji ve Malzeme Mühendisi
-                                </div>
-                                <div class="col-12">
-                                    <img style="width: 100%" src="/img/doruk-aziz-imza.png" />
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-4">
-                            <div class="row">
-                                <div class="col-12">
-                                    <b>Onaylayan</b>
-                                </div>
-                                <div class="col-12">
-                                    Gökhan ÇELİK
-                                </div>
-                                <div class="col-12 text-muted small">
-                                    İnşaat Mühendisi
-                                    <br />
-                                    Genel Müdür
-                                </div>
-                                <div class="col-12">
-                                    <img style="width: 100%" src="/img/doruk-gokhan-imza.png" />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-12">
-                    <div>
-                        <img style="width: 100%" src="/img/doruk-belge-alt-bilgi.jpg" />
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 3. sayfa -->
-        <div class="printable-page" id="page-2">
-            <div class="row d-flex justify-content-center align-items-center">
-                <div class="col-4">
-                    <div>
-                        <img style="width: 100%" src="/img/doruk-logo.png" />
-                    </div>
-                </div>
-                <div class="col-4 text-center">
-                    <b><h3>DORUK ISIL İŞLEM FİYAT TEKLİFİ</h3></b>
-                </div>
-                <div class="col-4">
-                    <div>
-                        <img style="width: 100%" src="/img/doruk-sertifika.png" />
-                    </div>
-                </div>
-                <div class="col-12 text-end">
-                    <div>
-                        <h6><b>TARİH:</b> ${ data.tarih }</h6>
-                    </div>
-                </div>
-
-                <!-- Firma -->
-                {{-- <div class="col-2 text-start">
-                    <h6><b>Firma:</b></h6>
-                </div>
-                <div class="col-10 text-start">
-                    <h6>${ data.firma }</h6>
-                </div> --}}
-                <div class="col-12 text-start">
-                    <h6><b>Firma:</b> ${ data.firma }</h6>
-                </div>
-
-                <!-- Yetkili -->
-                <div class="col-6 text-start">
-                    <h6><b>Yetkili:</b> ${ data.yetkili }</h6>
-                </div>
-
-                <!-- Telefon -->
-                <div class="col-6 text-start">
-                    <h6><b>Telefon:</b> ${ data.telefon }</h6>
-                </div>
-
-                <!-- Adres -->
-                <div class="col-12 text-start">
-                    <h6><b>Adres:</b> ${ data.adres }</h6>
-                </div>
-
-                <!-- E-posta -->
-                <div class="col-12 text-start">
-                    <h6><b>E-posta:</b> ${ data.eposta }</h6>
-                </div>
-
-                <hr class="m-0" />
-
-                <div class="col-12">
-                    <div class="row">
-                        <div class="col-12">
-                            15 - Ürün üzerinde bulunan köşeler, kesit farklılıkları, kenara yakın ve/veya kör delikler, kama kanalları, gerekli şekilde verilmemiş radyuslar, damgalar ve benzeri noktalardan kaynaklanan çatlamalar ve yine hammaddede bulunan hatalardan kaynaklanan çatlama veya deformasyonlardan firmamız sorumlu tutulmayacaktır.
-                        </div>
-                        <div class="col-12">
-                            16 - Isıl işlem uygulanan ürünlerde asgari dahi olsa distorsiyon - boyutsal ölçü değişikliği olabilir. Bu yüzden ısıl işleme tabi tutulacak ürünler nihai ölçüye getirilmeden, taşlama öncesi ölçüleriyle teslim edilmelidir. Ürünlerin çapı ve boyuna göre taşlama payı değişebilir. Bu nedenle ürünler teslim edilirken taşlama payı belirtilmeli veya taşlama payı ne kadar bırakalım diye sorulmalıdır. <strong>AKSİ DURUMDA SORUMLULUK FİRMAMIZDA OLMAYACAKTIR.</strong>
-                        </div>
-                        <div class="col-12">
-                            17 - Firmamız bünyesinde ısıl işleme tabi tutulan ürünlerin takribi %10 oranında sertlik kontrolü yapılacağını belirtiriz. Ancak çok küçük ve yüksek adetli ürünlerde ise her bir kilogram ürün için 1 adet numuneye sertlik kontrolü yapılacaktır.
-                        </div>
-                        <div class="col-12">
-                            18 - Isıl işlem sonrasında ürünlere uygulatılacak ek işlemler (taşlama, kaynak, tornalama, ısıl işlem kaplama vb.) sonrası parçada ortaya çıkabilecek hasarlardan firmamız sorumlu tutulmayacaktır.
-                        </div>
-                        <div class="col-12">
-                            19 - Isıl işleme tabi tutulan üründen dolayı, üçüncü kişilerin herhangi bir şekilde zarar görmesi halinde bu zararlardan firmamız sorumlu tutulamaz. Tarafınızdan üçüncü kişilere yapılan ödemeler, firmamıza rücu edilemez.
-                        </div>
-                        <div class="col-12">
-                            20 - Isıl işlemi tamamlanan ürünler <strong class="text-danger"><u>7 (yedi) gün</u></strong> içerisinde teslim alınmalıdır.
-                        </div>
-                        <div class="col-12">
-                            21 - Ürünlerinize ısıl işlemi uygulayabilmemiz için özel olarak imal edilmesi ve / veya satın alınması gereken aparatların olması durumunda; talep ettiğiniz takdirde, bu özel aparatların bedeli tarafınıza ait olacaktır.
-                        </div>
-                        <div class="col-12">
-                            22 - Teslime hazır ürünlerin yazılı ya da e-posta ile bildiriminden sonra <strong class="text-danger"><u>15 gün</u></strong> içerisinde teslim alınmamasından dolayı oluşabilecek zararlardan firmamız sorumlu tutulamaz. <strong class="text-danger"><u>30 gün</u></strong>den daha uzun teslim alınmayan ürünlere depolama ücreti uygulanacaktır.
-                        </div>
-                        <div class="col-12">
-                            23 - Ödemeler, faturaları alınır alınmaz herhangi bir (EK) indirime tabi olmaksızın (anlaşılan şekilde / vadede) ödenecektir. Ödemelerinizde gecikme olur ise, yıllık olarak Türkiye Merkez Bankası reeskont faizi uygulanır.
-                        </div>
-                        <div class="col-12">
-                            24 - Ödemelerinizi, ürün tesliminde nakit olarak veya banka havalesi ile yapabilirsiniz. Vadeli anlaşmalarda vade tarihi en son ödeme günüdür.
-                        </div>
-                        <div class="col-12">
-                            25 - Anlaşılan şekilde / vadede ödeme yapılmaması durumunda, herhangi bir görüşmeye gerek olmadan, yine teklifinde belirttiği faiz oranları üzerinden vade farkı faturası kesilecektir.
-                        </div>
-                        <div class="col-12">
-                            26 - Müşteri tarafından verilen çek, vadeli anlaşmalarda vade tarihini geçemez. Vade tarihinden ileri tarihli çek verilmesi durumunda müşteri, çek miktarının <strong class="text-danger"><u>%8</u></strong> kadarının (çek işletme maliyeti olarak) eksik tahsil edilmiş olduğunu kabul ve taahhüt eder.
-                        </div>
-                        <div class="col-12">
-                            27 - Tesisimize gönderilen ürünlere ait tarafımıza iletilen tüm bilgiler ve dokümantasyon eksiksiz ve doğru olmasına rağmen tesisimiz bünyesindeki ekipmanlardan ve / veya firmamız çalışanlarından kaynaklı hatalardan ve ısıl işlemin yanlış yapılmasından dolayı ürünlerde oluşabilecek zararlarda ürün hammadde bedelini karşılayacağımızı kabul ve taahhüt ederiz. Ürün işleme ve işçilik ücretlerinin sorumluluğu ve taahhüdü tarafınıza aittir.
-                        </div>
-                    </div>
-                </div>
-
-                <hr class="m-0" />
-
-                <div class="col-12">
-                    <b>* Fiyat teklifimizi onaylamanız durumunda kaşe/imza yapmanızı önemle rica ederiz.</b>
-                </div>
-
-                <div class="col-12 mt-2">
-                    <div class="row text-center">
-                        <div class="col-4">
-                            Müşteri Onay Kaşe/İmza
-                        </div>
-                        <div class="col-4">
-                            <div class="row">
-                                <div class="col-12">
-                                    <b>Hazırlayan</b>
-                                </div>
-                                <div class="col-12">
-                                    Aziz KALEM
-                                </div>
-                                <div class="col-12 text-muted small">
-                                    Metalurji ve Malzeme Mühendisi
-                                </div>
-                                <div class="col-12">
-                                    <img style="width: 100%" src="/img/doruk-aziz-imza.png" />
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-4">
-                            <div class="row">
-                                <div class="col-12">
-                                    <b>Onaylayan</b>
-                                </div>
-                                <div class="col-12">
-                                    Gökhan ÇELİK
-                                </div>
-                                <div class="col-12 text-muted small">
-                                    İnşaat Mühendisi
-                                    <br />
-                                    Genel Müdür
-                                </div>
-                                <div class="col-12">
-                                    <img style="width: 100%" src="/img/doruk-gokhan-imza.png" />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-12">
-                    <div>
-                        <img style="width: 100%" src="/img/doruk-belge-alt-bilgi.jpg" />
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 @endsection
 
 @section('script')
@@ -928,11 +550,19 @@
                         firma: null,
                         modal: null,
                     },
+                    sablonObjesi:{
+                        sablonlar:[],
+                        sablon: {},
+                        firma: {},
+                        modal:null,
+                    },
                     teklif: {
                         firma: {},
+                        baslik: "Doruk Isıl İşlem",
                         html: "",
                         htmlKey: 123,
                         icerikler: [],
+                        islemTurleri:[],
                         // paraBirimleri: [
                         //     { ad: "Türk Lirası", kod: "TL", sembol: "₺" },
                         //     { ad: "Dolar", kod: "USD", sembol: "$" },
@@ -1077,27 +707,7 @@
                         });
                     }
 
-                    // if (!this.yeniFirma.sorumluKisi) {
-                    //     return this.uyariAc({
-                    //         baslik: 'Hata',
-                    //         mesaj: 'Firma sorumlusu boş olamaz!',
-                    //         tur: "error"
-                    //     });
-                    // }
-
-                    // if (!this.yeniFirma.telefon) {
-                    //     return this.uyariAc({
-                    //         baslik: 'Hata',
-                    //         mesaj: 'Telefon boş olamaz!',
-                    //         tur: "error"
-                    //     });
-                    // }
-
                     this.yukleniyorObjesi.firmaEkle = true;
-
-                    // this.yeniFirma.json = {
-                    //     renk: this.yeniFirma.renk.kod
-                    // };
 
                     axios.post('/firmaEkle', {
                         firma: this.yeniFirma,
@@ -1248,7 +858,40 @@
                         }
                     });
                 },
-                teklifOlusturmaAc(firma = {}) {
+                teklifModalAc(firma = {}) {
+
+                    this.sablonObjesi.modal = new bootstrap.Modal(document.getElementById("sablonModal"));
+                    this.sablonObjesi.sablon = null;
+                    this.sablonObjesi.firma = firma;
+                    return axios.get("/sablonlariGetir",{
+                        params: {
+                            tur: "TEKLIF",
+                        },
+                    })
+                    .then(response => {
+                        if (!response.data.durum) {
+                            return this.uyariAc({
+                                baslik: 'Hata',
+                                mesaj: response.data.mesaj,
+                                tur: "error"
+                            });
+                        }
+                        this.sablonObjesi.sablonlar = response.data.sablonlar;
+
+                        this.sablonObjesi.modal.show();
+                    })
+                    .catch(error => {
+                        this.uyariAc({
+                            baslik: 'Hata',
+                            mesaj: error.response.data.mesaj + " - Hata Kodu: " + error.response.data.hataKodu,
+                            tur: "error"
+                        });
+                        console.log(error);
+                    });
+                },
+                teklifOlusturmaAc() {
+                    this.sablonObjesi.modal.hide();
+                    this.islemTurleriGetir();
                     this.teklif._teklif = _.cloneDeep(this.teklif);
 
                     this.teklif.firma = {
@@ -1257,7 +900,7 @@
                         telefon: "",
                         adres: "",
                         eposta: "",
-                        ...firma,
+                        ...this.sablonObjesi.firma,
                     };
 
                     this.teklifIcerikEkle();
@@ -1268,7 +911,31 @@
                         kod: "TEKLIF_HAZIRLAMA"
                     }));
                 },
+                islemTurleriGetir(){
+                    axios.get("{{ route('islemTurleriGetir') }}")
+                        .then(response => {
+                            if (!response.data.durum) {
+                                return this.uyariAc({
+                                    baslik: 'Hata',
+                                    mesaj: response.data.mesaj,
+                                    tur: "error"
+                                });
+                            }
+
+                            this.teklif.islemTurleri = response.data.islemTurleri;
+                        })
+                        .catch(error => {
+                            this.uyariAc({
+                                baslik: 'Hata',
+                                mesaj: error.response.data.mesaj + " - Hata Kodu: " + error.response.data
+                                    .hataKodu,
+                                tur: "error"
+                            });
+                            console.log(error);
+                        });
+                },
                 teklifAlanlariDoldur(teklifBilgileri = {}) {
+
                     this.teklif.teklifBilgileri = {
                         tarih: this.m().format("L"),
                         firma: this.teklif.firma.firmaAdi,
@@ -1277,24 +944,29 @@
                         adres: this.teklif.firma.adres ? this.teklif.firma.adres : "---",
                         eposta: this.teklif.firma.eposta ? this.teklif.firma.eposta : "---",
                         icerikler: this.teklif.icerikler,
+                        tur: this.sablonObjesi.sablon.tur,
+                        klasor: this.teklif.firma.id,
                         gecerlilikTarihi: this.m().add(15, 'd').format("LL"),
                         ...teklifBilgileri,
                     };
 
-                    const cloneRaporArea = this.$refs.teklif.cloneNode(true);
-                    cloneRaporArea.style.display = "block";
-                    cloneRaporArea.style.background = "white";
-
-                    const compiled = _.template(
-                        this.decodeHTMLEntities(
-                            cloneRaporArea.outerHTML
-                        )
-                    );
-                    this.teklif.html = compiled({
-                        data: this.teklif.teklifBilgileri,
-                    });
-
-                    this.teklif.htmlKey = this.m().valueOf();
+                    this.teklif.teklifBilgileri.icerik_html = _.assignIn([], this.sablonObjesi.sablon.icerik_html);
+                    for (let index = 0; index < this.teklif.teklifBilgileri.icerik_html.length; index++) {
+                        this.teklif.teklifBilgileri.icerik_html[index] = this.teklif.teklifBilgileri.icerik_html[index].replaceAll('[baslik]', this.teklif.baslik + " " + this.sablonObjesi.sablon.tur + " Formu" );
+                        this.teklif.teklifBilgileri.icerik_html[index] = this.teklif.teklifBilgileri.icerik_html[index].replaceAll('[firmaAdi]', this.teklif.firma.firmaAdi);
+                        this.teklif.teklifBilgileri.icerik_html[index] = this.teklif.teklifBilgileri.icerik_html[index].replaceAll('[sorumluKisi]', this.teklif.firma.sorumluKisi);
+                        this.teklif.teklifBilgileri.icerik_html[index] = this.teklif.teklifBilgileri.icerik_html[index].replaceAll('[telefon]', this.teklif.firma.telefon);
+                        this.teklif.teklifBilgileri.icerik_html[index] = this.teklif.teklifBilgileri.icerik_html[index].replaceAll('[adres]', this.teklif.firma.adres);
+                        this.teklif.teklifBilgileri.icerik_html[index] = this.teklif.teklifBilgileri.icerik_html[index].replaceAll('[eposta]', this.teklif.firma.eposta);
+                        let iceriklerHtml = "<div class='table-rep-plugin'><div class='table-responsive mb-0'><table class='table table-striped'><thead><tr><th>İşlem</th><th>Fiyat</th><th>Ölçü</th><th>Birim</th></tr></thead><tbody>";
+                        this.teklif.teklifBilgileri.icerikler.forEach(icerik => {
+                            iceriklerHtml += `<tr><td>${icerik.ad}</td><td>${icerik.fiyat}</td><td>${icerik.olcumTuru ? icerik.olcumTuru : ""}</td><td>${icerik.paraBirimi}</td></tr>`;
+                        });
+                        iceriklerHtml += "</tbody></table></div></div>";
+                        this.teklif.teklifBilgileri.icerik_html[index] = this.teklif.teklifBilgileri.icerik_html[index].replaceAll('[teklifIcerikleri]', iceriklerHtml);
+                        this.teklif.teklifBilgileri.icerik_html[index] = this.teklif.teklifBilgileri.icerik_html[index].replaceAll('[tarih]', this.m().format("L"));
+                        this.teklif.teklifBilgileri.icerik_html[index] = this.teklif.teklifBilgileri.icerik_html[index].replaceAll('[gecerlilikTarihi]', this.m().add(15, 'd').format("LL"));
+                    }
                 },
                 teklifIcerikEkle(icerik = {}, yenidenDoldur = false) {
                     this.teklif.icerikler.push({
@@ -1319,62 +991,45 @@
                     this.teklifAlanlariDoldur();
                 },
                 teklifOlustur() {
-                    console.log(this.teklif.teklifBilgileri);
-                    let url = encodeURIComponent(JSON.stringify(this.teklif.teklifBilgileri))
-                    console.log(url);
 
                     this.yukleniyorObjesi.firmaEkle = true;
-
-                    // this.yeniFirma.json = {
-                    //     renk: this.yeniFirma.renk.kod
-                    // };
-
-                    const dosyaAdi = this.teklif.teklifBilgileri.firma ? this.teklif.teklifBilgileri.firma : "Teklif";
-
-                    axios.post('/createPDF', {
-                        data: url,
-                        dosyaAdi,
-                    }, {
-                        responseType: 'blob',
-                    })
-                    .then(response => {
-                        this.yukleniyorObjesi.firmaEkle = false;
-
-                        if (response.data && response.data.durum === false) {
-                            return this.uyariAc({
+                    // this.teklif.teklifBilgileri.icerik_html = JSON.stringify(this.teklif.teklifBilgileri.icerik_html);
+                    // let url = encodeURIComponent(JSON.stringify(this.teklif.teklifBilgileri));
+                    const dosyaAdi = this.turkceKarakterCevir(this.teklif.teklifBilgileri.firma ? this.teklif.teklifBilgileri.firma : "TEKLIF");
+                    // this.teklif.teklifBilgileri.icerik_html = JSON.stringify(this.teklif.teklifBilgileri.icerik_html);
+                    // window.location.href = "{{ route('pdfExports', ['tur' => 'TEKLIF', 'yazdir' => 1]) }}" + "&q=" + data;
+                    axios.post('/teklifEkle', {
+                            firmaId: this.teklif.firma.id,
+                            tur: this.sablonObjesi.sablon.tur,
+                            html: JSON.stringify(this.teklif.teklifBilgileri.icerik_html),
+                            teklifBilgileri: this.teklif.teklifBilgileri,
+                            dosyaAdi,
+                        }).then(response => {
+                            if (!response.data.durum) {
+                                return this.uyariAc({
+                                    baslik: 'Hata',
+                                    mesaj: response.data.mesaj,
+                                    tur: "error"
+                                });
+                            }
+                            this.uyariAc({
+                                toast: {
+                                    status: true,
+                                    message: response.data.mesaj,
+                                },
+                            });
+                            this.aktifSayfa.geriFonksiyon();
+                        })
+                        .catch(error => {
+                            this.uyariAc({
                                 baslik: 'Hata',
-                                mesaj: response.data.mesaj,
+                                mesaj: error.response.data.mesaj + " - Hata Kodu: " + error.response.data
+                                    .hataKodu,
                                 tur: "error"
                             });
-                        }
-
-                        const url = window.URL.createObjectURL(new Blob([response.data]));
-                        const link = document.createElement('a');
-                        link.href = url;
-                        link.setAttribute('download', dosyaAdi + '.pdf');
-                        link.click();
-
-                        this.uyariAc({
-                            toast: {
-                                status: true,
-                                message: response.data.mesaj,
-                            },
+                            console.log(error);
+                            // window.location.href = "{{ route('pdfExports2', ['tur' => 'TEKLIF', 'id' => '42']) }}";
                         });
-
-                        this.aktifSayfa.geriFonksiyon();
-                    })
-                    .catch(async error => {
-                        console.log(error);
-                        this.yukleniyorObjesi.firmaEkle = false;
-                        error = JSON.parse(await error.response.data.text());
-                        this.uyariAc({
-                            baslik: 'Hata',
-                            mesaj: error.mesaj + " - Hata Kodu: " + error.hataKodu,
-                            tur: "error"
-                        });
-
-                        window.location.href = "{{ route('pdfExports', ['tur' => 'teklifler', 'yazdir' => 1]) }}" + "&q=" + url;
-                    });
                 },
                 decodeHTMLEntities(text) {
                     let textArea = document.createElement('textarea');
