@@ -1,0 +1,7 @@
+<html>
+
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+@foreach ($mesaj as $m )
+    {!! $m !!}
+@endforeach
+</html>

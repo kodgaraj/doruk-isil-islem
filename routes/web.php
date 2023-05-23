@@ -9,14 +9,18 @@ use App\Http\Controllers\IslemDurumlariController;
 use App\Http\Controllers\IslemTurleriController;
 use App\Http\Controllers\KullanicilarController;
 use App\Http\Controllers\LogKayitlariController;
+use App\Http\Controllers\MailController;
+use App\Http\Controllers\SablonController;
 use App\Http\Controllers\MalzemeController;
 use App\Http\Controllers\PDFExportController;
 use App\Http\Controllers\RaporlamaController;
 use App\Http\Controllers\RolController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SiparisController;
+use App\Http\Controllers\TeklifController;
 use App\Http\Controllers\TumIslemlerController;
 use App\Http\Controllers\UpdateController;
+use App\Http\Controllers\SistemController;
 
 /*
 |--------------------------------------------------------------------------
@@ -31,10 +35,13 @@ use App\Http\Controllers\UpdateController;
 
 Route::get('/update/{sifre}', [UpdateController::class, 'index']);
 Route::get("/pdf-exports/{tur}", [PDFExportController::class, "index"])->name("pdfExports");
+Route::get("/pdf-exports2/{tur}/{id}", [PDFExportController::class, "index2"])->name("pdfExports2");
 
-Route::group(['middleware' => ['auth']], function () {
+Route::group(['middleware' => ['auth','kontrol']], function () {
     // sayfalar
     Route::get('/', [HomeController::class, "index"])->name("home");
+    Route::get('/kisitlamalar', [SistemController::class, "index"])->name("kisitlamalar");
+    Route::post('/kisitGuncelle', [SistemController::class, "kisitGuncelle"])->name("kisitGuncelle");
     Route::get('/siparis-formu', [SiparisController::class, 'index'])->name("siparis-formu")->middleware(['can:siparis_listeleme']);
     Route::get('/isil-islemler', [IsilIslemController::class, 'index'])->name("isil-islemler")->middleware(['can:isil_islem_formu_listeleme']);
     Route::get('/tum-islemler', [TumIslemlerController::class, 'index'])->name("tum-islemler")->middleware(['can:isil_islem_listeleme']);
@@ -42,9 +49,11 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/roller', [RolController::class, 'index'])->name("roller")->middleware(['can:rol_listeleme']);
     Route::get('/raporlama', [RaporlamaController::class, 'index'])->name("raporlama")->middleware(['can:rapor_listeleme']);
     Route::get('/log-kayitlari', [LogKayitlariController::class, 'index'])->name("log-kayitlari")->middleware(['can:log_listeleme']);
+    Route::get('/login-kayitlari', [LogKayitlariController::class, 'login'])->name("login-kayitlari")->middleware(['can:log_listeleme']);
     Route::get('/firinlar', [FirinlarController::class, 'index'])->name("firinlar")->middleware(['can:firin_listeleme']);
     Route::get('/firmalar', [FirmaController::class, 'index'])->name("firmalar")->middleware(['can:firma_listeleme']);
     Route::get('/bildirimler', [BildirimlerController::class, 'index'])->name("bildirimler");
+    Route::get('/logsuccessfullGetir', [BildirimlerController::class, 'index'])->name("logsuccessfullGetir");
 
     // apiler
     Route::get('/siparisler', [SiparisController::class, 'siparisler'])->name("siparisler");
@@ -101,12 +110,27 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/firinBazliIslemTurleriGetir', [RaporlamaController::class, 'firinBazliIslemTurleriGetir'])->name("firinBazliIslemTurleriGetir");
 
     Route::get('/logKayitlariGetir', [LogKayitlariController::class, 'logKayitlariGetir'])->name("logKayitlariGetir");
+    Route::get('/loginKayitlariGetir', [LogKayitlariController::class, 'loginKayitlariGetir'])->name("loginKayitlariGetir");
 
     Route::get('/bildirimleriGetir', [BildirimlerController::class, 'bildirimleriGetir'])->name("bildirimleriGetir");
     Route::get('/okunmamisBildirimSayisiGetir', [BildirimlerController::class, 'okunmamisBildirimSayisiGetir'])->name("okunmamisBildirimSayisiGetir");
     Route::get('/miniBildirimleriGetir', [BildirimlerController::class, 'miniBildirimleriGetir'])->name("miniBildirimleriGetir");
 
     Route::post("/createPDF", [PDFExportController::class, "createPDF"]);
+    Route::post("/createPDF2", [PDFExportController::class, "createPDF2"]);
+
+    Route::get('/sablonlar', [SablonController::class, 'index'])->name("sablonlar");
+    Route::get('/sablonlariGetir', [SablonController::class, 'sablonlariGetir'])->name("sablonlariGetir");
+    Route::post('/sablonEkle', [SablonController::class, 'sablonEkle'])->name("sablonEkle");
+    Route::post('/sablonSil', [SablonController::class, 'sablonSil'])->name("sablonSil");
+
+    Route::get('/teklifler', [TeklifController::class, 'index'])->name("teklifler");
+    Route::get('/teklifleriGetir', [TeklifController::class, 'teklifleriGetir'])->name("teklifleriGetir");
+    Route::post('/teklifEkle', [TeklifController::class, 'teklifEkle'])->name("teklifEkle");
+    Route::post('/teklifSil', [TeklifController::class, 'teklifSil'])->name("teklifSil");
+
+
+    Route::post('/mailGonder', [MailController::class, "mail"]);
 });
 
 require __DIR__.'/auth.php';
