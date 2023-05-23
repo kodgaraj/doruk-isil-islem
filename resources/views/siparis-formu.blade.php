@@ -531,7 +531,7 @@
                                                         <template v-if="siparisRaporlama.islem">
                                                             <div class="row">
 
-                                                            <div class="col-4 m-0 mb-2 text-start">
+                                                            <div class="col-3 m-0 mb-2 text-start">
                                                                 <label class="form-label" for="gelisTarihi">Geliş Tarihi</label>
                                                                 <input
                                                                     v-model="siparisRaporlama.islem.gelisTarihi"
@@ -543,7 +543,7 @@
                                                                     @input="gecikmeliFonksiyon.siparisRaporlama('GELIS')"
                                                                 />
                                                             </div>
-                                                            <div class="col-4 m-0 mb-2 text-start">
+                                                            <div class="col-3 m-0 mb-2 text-start">
                                                                 <label class="form-label">Ürün Kalitesi</label>
                                                                 <input
                                                                     v-model="siparisRaporlama.islem.kalite"
@@ -551,12 +551,20 @@
                                                                     @input="gecikmeliFonksiyon.siparisRaporlama('KALITE')"
                                                                 />
                                                             </div>
-                                                            <div class="col-4 m-0 mb-2 text-start">
+                                                            <div class="col-3 m-0 mb-2 text-start">
                                                                 <label class="form-label">İstenen Sertlik</label>
                                                                 <input
                                                                     v-model="siparisRaporlama.islem.istenilenSertlik"
                                                                     class="form-control"
                                                                     @input="gecikmeliFonksiyon.siparisRaporlama('SERTLIK')"
+                                                                />
+                                                            </div>
+                                                            <div class="col-3 m-0 mb-2 text-start">
+                                                                <label class="form-label">Son Sertlik</label>
+                                                                <input
+                                                                    v-model="siparisRaporlama.islem.sonSertlik"
+                                                                    class="form-control"
+                                                                    @input="gecikmeliFonksiyon.siparisRaporlama('SONSERTLIK')"
                                                                 />
                                                             </div>
                                                             <div class="col-12 m-0 mb-2 text-start">
@@ -1302,6 +1310,16 @@
                     </div>
                     <div class="col-8 text-start">
                         <span>${ rapor.istenenSertlik }</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12" style="border-bottom: 1px solid #dddddd;">
+                <div class="row d-flex align-items-center">
+                    <div class="col-4 text-end">
+                        <b>SON SERTLİK:</b>
+                    </div>
+                    <div class="col-8 text-start">
+                        <span>${ rapor.sonSertlik }</span>
                     </div>
                 </div>
             </div>
@@ -2805,6 +2823,7 @@
                     urunAdedi: this.siparisRaporlama.islem.adet,
                     yapilanIslem: this.siparisRaporlama.islem.yapilacakIslem ? this.siparisRaporlama.islem.yapilacakIslem.ad : "---",
                     istenenSertlik: this.siparisRaporlama.islem.istenilenSertlik ? this.siparisRaporlama.islem.istenilenSertlik : "---",
+                    sonSertlik: this.siparisRaporlama.islem.sonSertlik ? this.siparisRaporlama.islem.sonSertlik : "---",
                     not: this.siparisRaporlama.islem.not ? this.siparisRaporlama.islem.not : "---",
                     urunFotografi: this.siparisRaporlama.islem.resimYolu ? this.siparisRaporlama.islem.resimYolu : "/no-image.jpg",
                 }
