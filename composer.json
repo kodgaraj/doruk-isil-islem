@@ -6,6 +6,7 @@
     "license": "MIT",
     "require": {
         "php": "^8.0.2",
+        "barryvdh/laravel-dompdf": "^2.0",
         "ctwillie/expo-server-sdk-php": "^2.0",
         "firebase/php-jwt": "^6.2",
         "guzzlehttp/guzzle": "^7.2",
