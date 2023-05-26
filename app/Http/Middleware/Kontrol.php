@@ -32,7 +32,7 @@ class Kontrol
             $kullanicilar = isset($kisitlar->kullanicilar) && $kisitlar->kullanicilar != null ? json_decode($kisitlar->kullanicilar) : [];
             $roller = isset($kisitlar->roller) && $kisitlar->roller != null ? json_decode($kisitlar->roller) : [];
             $ipler =  isset($kisitlar->ipler) && $kisitlar->ipler != null ? $kisitlar->ipler : [];
-            $ipRanges = explode(',', $ipler);
+            $ipRanges = $ipler != null ? explode(',', $ipler) : [];
             $ipAddresses = [];
 
             foreach ($ipRanges as $ipRange) {
@@ -50,7 +50,6 @@ class Kontrol
                     $ipAddresses[] = trim($ipRange);
                 }
             }
-
             foreach($kullanicilar as $kullanici){
                 if($kullanici->id == $request->user()->id){
                     return $next($request);
@@ -61,11 +60,9 @@ class Kontrol
                     return $next($request);
                 }
             }
-
-            if (!in_array($ip, $ipAddresses)) {
+            if ($ipAddresses != null && !in_array($ip, $ipAddresses)) {
                 return redirect()->route("logout");
             }
-
             if(isset($saatBaslangic) && isset($saatBitis) && $saatBaslangic != null && $saatBitis != null){
                 if ($saat >= $saatBaslangic && $saat <= $saatBitis) {
                     return redirect()->route("logout");

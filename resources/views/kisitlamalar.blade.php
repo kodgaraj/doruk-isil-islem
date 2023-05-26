@@ -159,7 +159,7 @@
 
                         })
                         .catch(error => {
-                            this.yukleniyorObjesi.teklifSil = false;
+                            this.yukleniyor = false;
                             this.uyariAc({
                                 baslik: 'Hata',
                                 mesaj: error.response.data.mesaj + " - Hata Kodu: " + error.response
