@@ -668,7 +668,7 @@ class Controller extends BaseController
         return $result;
     }
 
-    public function pdfOlustur2($dosyaAdi,$altKlasor, $parametreler = [])
+    public function pdfOlustur2($dosyaAdi, $altKlasor, $parametreler = [])
     {
 
         $_payload = isset($parametreler["payload"]) && $parametreler["payload"] ? $parametreler["payload"] : [];
@@ -706,18 +706,18 @@ class Controller extends BaseController
         }
 
         $ek = 1;
-        $publicKlasor = public_path("pdf/");
-        $dosyaAdi = $altKlasor . $dosyaAdi;
+        $klasor = public_path("pdf/") . $altKlasor;
+        // $dosyaAdi =  . $dosyaAdi;
 
-        $teklifUrl = $publicKlasor . $dosyaAdi . $ek . ".pdf";
+        $teklifUrl = $klasor . $dosyaAdi . $ek . ".pdf";
         while (File::exists($teklifUrl)) {
             $ek++;
-            $teklifUrl = $publicKlasor . $dosyaAdi . $ek . ".pdf";
+            $teklifUrl = $klasor . $dosyaAdi . $ek . ".pdf";
         }
 
         // Hedef klasörü oluştur
-        if (!File::isDirectory($publicKlasor)) {
-            File::makeDirectory($publicKlasor, 0777, true);
+        if (!File::isDirectory($klasor)) {
+            File::makeDirectory($klasor, 0777, true);
         }
 
         $pdf = File::put($teklifUrl, $result);
