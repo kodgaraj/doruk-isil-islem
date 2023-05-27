@@ -21,6 +21,7 @@ use ExpoSDK\Expo;
 use ExpoSDK\ExpoMessage;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\Console\Output\ConsoleOutput;
 
@@ -709,17 +710,17 @@ class Controller extends BaseController
         $dosyaAdi = $altKlasor . $dosyaAdi;
 
         $teklifUrl = $publicKlasor . $dosyaAdi . $ek . ".pdf";
-        while (file_exists($teklifUrl)) {
+        while (File::exists($teklifUrl)) {
             $ek++;
             $teklifUrl = $publicKlasor . $dosyaAdi . $ek . ".pdf";
         }
 
         // Hedef klasörü oluştur
-        if (!is_dir($publicKlasor)) {
-            mkdir($publicKlasor, 0777, true);
+        if (!File::isDirectory($publicKlasor)) {
+            File::makeDirectory($publicKlasor, 0777, true);
         }
 
-        $pdf = file_put_contents($teklifUrl, $result);
+        $pdf = File::put($teklifUrl, $result);
         if ($pdf) {
             return $teklifUrl;
         }
