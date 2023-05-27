@@ -391,12 +391,13 @@
                         return prev.concat(curr.match(/\[(.*?)\]/g));
                     }, []);
                     let kullanilabilirOgeler = [...new Set(kullanilabilirOgelerDizesi)];
-                    this.yeniSablon.icerik = JSON.stringify(this.yeniSablon.icerik);
-                    this.yeniSablon.icerik_html = JSON.stringify(this.yeniSablon.icerik_html);
-                    this.yeniSablon.kullanilabilirOgeler = JSON.stringify(kullanilabilirOgeler);
+                    const sablon = _.assignIn({}, this.yeniSablon);
+                    sablon.icerik = JSON.stringify(sablon.icerik);
+                    sablon.icerik_html = JSON.stringify(sablon.icerik_html);
+                    sablon.kullanilabilirOgeler = JSON.stringify(kullanilabilirOgeler);
 
                     axios.post('/sablonEkle', {
-                            sablon: this.yeniSablon,
+                            sablon,
                         })
                         .then(response => {
                             this.yukleniyorObjesi.sablonEkle = false;

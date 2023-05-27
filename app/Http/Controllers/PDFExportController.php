@@ -28,7 +28,7 @@ class PDFExportController extends Controller
         }
 
     }
-    public function index2($tur,$id)
+    public function index2($tur, $id)
     {
         try
         {

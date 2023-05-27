@@ -37,10 +37,11 @@
                             <template v-else>
                                 <div class="col-12 col-sm-6 col-md-6 mb-2">
                                     <div class="form-group">
-                                        <label for="saatBaslangic">Saat Başlangıç</label>
+                                        <label for="saatBaslangic">Kısıtlama Başlangıç Saati</label>
                                         <input
                                             v-model="kisitlar.saatBaslangic"
                                             type="time"
+                                            :max="kisitlar.saatBitis"
                                             class="form-control"
                                             data-time-container='#datepicker2'
                                             data-provide="datepicker"
@@ -50,10 +51,11 @@
                                 </div>
                                 <div class="col-12 col-sm-6 col-md-6 mb-2">
                                     <div class="form-group">
-                                        <label for="saatBitis">Saat Bitiş</label>
+                                        <label for="saatBitis">Kısıtlama Bitiş Saati</label>
                                         <input
                                             v-model="kisitlar.saatBitis"
                                             type="time"
+                                            :min="kisitlar.saatBaslangic"
                                             class="form-control"
                                             data-date-container='#datepicker2'
                                             data-provide="datepicker"
@@ -63,7 +65,7 @@
                                 </div>
                                 <div class="col-12 col-sm-6 col-md-6 mb-2">
                                     <div class="form-group">
-                                        <label for="kullanicilar">Kullanıcılar</label>
+                                        <label for="kullanicilar">İzin Verilen Kullanıcılar</label>
                                         <v-select
                                             v-model="kisitlar.kullanicilar"
                                             :options="kullanicilar"
@@ -75,7 +77,7 @@
                                 </div>
                                 <div class="col-12 col-sm-6 col-md-6 mb-2">
                                     <div class="form-group">
-                                        <label for="roller">Roller</label>
+                                        <label for="roller">İzin Verilen Roller</label>
                                         <v-select
                                             v-model="kisitlar.roller"
                                             :options="roller"
@@ -92,8 +94,9 @@
                                             class="form-control"
                                             id="ip"
                                             rows="3"
-                                            placeholder="İzin Verilen IP'leri virgül ile giriniz... Bir aralık - ile belirtilir Örn: 192.345.1.2, 192.345.1.3 - 192.345.1.255"
+                                            placeholder="İzin Verilen IP'leri virgül ile giriniz..."
                                         ></textarea>
+                                        <small class="text-muted">Bir aralık - ile belirtilir Örn: 192.345.1.2, 192.345.1.3 - 192.345.1.255</small>
                                 </div>
                             </template>
                         </div>

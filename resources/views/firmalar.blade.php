@@ -1018,6 +1018,7 @@
                                     message: response.data.mesaj,
                                 },
                             });
+                            this.yukleniyorObjesi.firmaEkle = false;
                             this.aktifSayfa.geriFonksiyon();
                         })
                         .catch(error => {
@@ -1027,6 +1028,7 @@
                                     .hataKodu,
                                 tur: "error"
                             });
+                            this.yukleniyorObjesi.firmaEkle = false;
                             console.log(error);
                             // window.location.href = "{{ route('pdfExports2', ['tur' => 'TEKLIF', 'id' => '42']) }}";
                         });

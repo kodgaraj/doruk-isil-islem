@@ -22,6 +22,7 @@ use App\Http\Controllers\TumIslemlerController;
 use App\Http\Controllers\UpdateController;
 use App\Http\Controllers\SistemController;
 
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -132,5 +133,6 @@ Route::group(['middleware' => ['auth','kontrol']], function () {
 
     Route::post('/mailGonder', [MailController::class, "mail"]);
 });
+
 
 require __DIR__.'/auth.php';

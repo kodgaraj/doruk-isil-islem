@@ -671,11 +671,11 @@ class Controller extends BaseController
 
         $_payload = isset($parametreler["payload"]) && $parametreler["payload"] ? $parametreler["payload"] : [];
         // dd(url("/pdf-exports2/" . $parametreler["tur"] ."/". $parametreler["id"], [], false));
-        $url = 'http://PhantomJScloud.com/api/browser/v2/a-demo-key-with-low-quota-per-ip-address/';
-        //$url = 'https://PhantomJScloud.com/api/browser/v2/ak-5ykcp-wxt7z-74k7b-8h7gv-c6548/';
+        //$url = 'http://PhantomJScloud.com/api/browser/v2/a-demo-key-with-low-quota-per-ip-address/';
+        $url = 'https://PhantomJScloud.com/api/browser/v2/ak-5ykcp-wxt7z-74k7b-8h7gv-c6548/';
 
         $payload = [
-            "url" => url("/pdf-exports2/" . $parametreler["tur"] . $parametreler["id"], [], false),
+            "url" => url("/pdf-exports2/" . $parametreler["tur"] ."/". $parametreler["id"], [], false),
             "renderType" => "pdf",
             "overseerScript" => '
                 await page.waitForSelector(".printable-page");
@@ -690,11 +690,11 @@ class Controller extends BaseController
                 'method'  => 'POST',
                 'content' => json_encode($payload)
             ],
-            // 'https' => [
-            //     'header'  => "Content-type: application/json\r\n",
-            //     'method'  => 'POST',
-            //     'content' => json_encode($payload)
-            // ],
+            'https' => [
+                'header'  => "Content-type: application/json\r\n",
+                'method'  => 'POST',
+                'content' => json_encode($payload)
+            ],
         ];
 
         $context  = stream_context_create($options);
