@@ -705,15 +705,25 @@ class Controller extends BaseController
         }
 
         $ek = 1;
-        $teklifUrl = "public/pdf/" . $altKlasor . $dosyaAdi . $ek .".pdf";
-        while(file_exists($teklifUrl)){
+        $publicKlasor = public_path("pdf/");
+        $dosyaAdi = $altKlasor . $dosyaAdi;
+
+        $teklifUrl = $publicKlasor . $dosyaAdi . $ek . ".pdf";
+        while (file_exists($teklifUrl)) {
             $ek++;
-            $teklifUrl = "public/pdf/" . $altKlasor . $dosyaAdi . $ek. ".pdf";
+            $teklifUrl = $publicKlasor . $dosyaAdi . $ek . ".pdf";
         }
+
+        // Hedef klasörü oluştur
+        if (!is_dir($publicKlasor)) {
+            mkdir($publicKlasor, 0777, true);
+        }
+
         $pdf = file_put_contents($teklifUrl, $result);
-        if($pdf) {
+        if ($pdf) {
             return $teklifUrl;
         }
+
         return false;
     }
 
