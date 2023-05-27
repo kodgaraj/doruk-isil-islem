@@ -666,6 +666,7 @@ class Controller extends BaseController
 
         return $result;
     }
+
     public function pdfOlustur2($dosyaAdi,$altKlasor, $parametreler = [])
     {
 
@@ -704,17 +705,18 @@ class Controller extends BaseController
         }
 
         $ek = 1;
-        $teklifUrl = "storage/". $altKlasor . $dosyaAdi . $ek .".pdf";
-        while(file_exists($url)){
+        $teklifUrl = "public/pdf/" . $altKlasor . $dosyaAdi . $ek .".pdf";
+        while(file_exists($teklifUrl)){
             $ek++;
-            $teklifUrl = "storage/". $altKlasor . $dosyaAdi . $ek. ".pdf";
+            $teklifUrl = "public/pdf/" . $altKlasor . $dosyaAdi . $ek. ".pdf";
         }
-        $pdf = Storage::disk('local')->put("public/" . $altKlasor . $dosyaAdi . $ek . ".pdf", $result);
+        $pdf = file_put_contents($teklifUrl, $result);
         if($pdf) {
             return $teklifUrl;
         }
         return false;
     }
+
     function XMLPOST($PostAddress, $xmlData)
     {
         $ch = curl_init();
