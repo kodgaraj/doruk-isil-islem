@@ -722,7 +722,8 @@ class Controller extends BaseController
 
         $pdf = File::put($teklifUrl, $result);
         if ($pdf) {
-            return $teklifUrl;
+            // return $teklifUrl;
+            return "public/pdf/" . $altKlasor . $dosyaAdi . $ek .".pdf";
         }
 
         return false;

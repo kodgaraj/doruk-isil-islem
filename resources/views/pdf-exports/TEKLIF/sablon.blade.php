@@ -14,6 +14,9 @@
         min-height: 580px;
         width: 100% !important;
     }
+    img {
+        max-width: 100%;
+    }
 </style>
 @endsection
 @section('content')
