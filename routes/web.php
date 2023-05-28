@@ -125,7 +125,7 @@ Route::group(['middleware' => ['auth','kontrol']], function () {
     Route::post('/sablonEkle', [SablonController::class, 'sablonEkle'])->name("sablonEkle");
     Route::post('/sablonSil', [SablonController::class, 'sablonSil'])->name("sablonSil");
 
-    Route::get('/teklifler', [TeklifController::class, 'index'])->name("teklifler");
+    Route::get('/teklifler/{firmaId?}', [TeklifController::class, 'index'])->name("teklifler");
     Route::get('/teklifleriGetir', [TeklifController::class, 'teklifleriGetir'])->name("teklifleriGetir");
     Route::post('/teklifEkle', [TeklifController::class, 'teklifEkle'])->name("teklifEkle");
     Route::post('/teklifSil', [TeklifController::class, 'teklifSil'])->name("teklifSil");

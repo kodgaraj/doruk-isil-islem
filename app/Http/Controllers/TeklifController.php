@@ -3,15 +3,26 @@
 namespace App\Http\Controllers;
 
 use App\Models\Firmalar;
+use App\Models\Sablonlar;
 use App\Models\Teklifler;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class TeklifController extends Controller
 {
-    public function index()
+    public function index($firmaId = null)
     {
-        return view("teklifler");
+        $sablonlars = Sablonlar::all();
+        $sablonlar = [];
+        foreach ($sablonlars as $sablon)
+        {
+            $sablonlar[] = [
+                "id" => $sablon->id,
+                "ad" => $sablon->sablonAdi,
+                "tur" => $sablon->tur,
+            ];
+        }
+        return view("teklifler")->with(["sablonlar" => $sablonlar, "firmaId" => $firmaId]);
     }
  /**
      * @global
@@ -19,20 +30,22 @@ class TeklifController extends Controller
     public function teklifleriGetir(Request $request)
     {
         try {
+
             $filtreleme = isset($request->filtreleme) ? json_decode($request->filtreleme, true) : [];
             $sayfalama = $request->sayfalama ?? false;
-            $sablonTabloAdi = (new Teklifler())->getTable();
+            $firmaTabloAdi = (new Firmalar())->getTable();
+            $teklifTabloAdi = (new Teklifler())->getTable();
 
-            if (!$sayfalama) {
-                $teklifler = Teklifler::select('teklifler.*', 'firmalar.firmaAdi', 'firmalar.eposta')
-                    ->join('firmalar', 'firmalar.id', '=', 'teklifler.firmaId')
-                    ->orderBy("created_at", "desc")->get();
-            } else {
+
+            $teklifler = Teklifler::select('teklifler.*', 'firmalar.id as firmaId', 'firmalar.firmaAdi as firmaAdi', 'firmalar.eposta as eposta')
+                ->join('firmalar', 'firmalar.id', '=', 'teklifler.firmaId');
+
+            if ($filtreleme) {
                 if (isset($filtreleme["siralamaTuru"]) && $filtreleme["siralamaTuru"])
                 {
                     $alan = array_keys($filtreleme["siralamaTuru"])[0];
                     $siralamaTuru = array_values($filtreleme["siralamaTuru"])[0];
-                    $teklifler = Teklifler::orderBy($alan, $siralamaTuru);
+                    $teklifler->orderBy($alan, $siralamaTuru);
                 }
                 else
                 {
@@ -41,11 +54,47 @@ class TeklifController extends Controller
 
                 if (isset($filtreleme["arama"]) && $filtreleme["arama"] != "")
                 {
-                    $teklifler->where("$firmaTabloAdi.teklifAdi", "like", "%" . $filtreleme["arama"] . "%")
-                        ->orWhere("$firmaTabloAdi.tur", "like", "%" . $filtreleme["arama"] . "%");
+                    $teklifler->where($teklifTabloAdi.".teklifAdi", "like", "%" . $filtreleme["arama"] . "%")
+                        ->orWhere($teklifTabloAdi.".id", "like", "%" . $filtreleme["arama"] . "%")
+                        ->orWhere($teklifTabloAdi.".tur", "like", "%" . $filtreleme["arama"] . "%")
+                        ->orwhere($teklifTabloAdi.".created_at", "like", "%" . $filtreleme["arama"] . "%");
                 }
-                $teklifler = $teklifler->paginate(10);
+                if (isset($filtreleme["firmaAdi"]) && $filtreleme["firmaAdi"] != "")
+                {
+                    $teklifler->where($teklifTabloAdi.".firmaAdi", "like", "%" . $filtreleme["firmaAdi"] . "%");
+                }
+                if (isset($filtreleme["firmaId"]) && $filtreleme["firmaId"] != "")
+                {
+                    $teklifler->where($teklifTabloAdi.".firmaId", $filtreleme["firmaId"]);
+                }
+                if (isset($filtreleme["tur"]) && $filtreleme["tur"] != "")
+                {
+                    $teklifler->whereIn($teklifTabloAdi.".tur", array_column($filtreleme["tur"],"tur") . "%");
+                }
+                if (isset($filtreleme["teklifAdi"]) && $filtreleme["teklifAdi"] != "")
+                {
+                    $teklifler->where($teklifTabloAdi.".teklifAdi", "like", "%". $filtreleme["teklifAdi"] . "%");
+                }
 
+                if (isset($filtreleme["baslangicTarihi"]) && $filtreleme["baslangicTarihi"] != "")
+                {
+                    $teklifler->where($teklifTabloAdi.".created_at", ">=", $filtreleme["baslangicTarihi"]);
+
+                    if (isset($filtreleme["bitisTarihi"]) && $filtreleme["bitisTarihi"] != "")
+                    {
+                        $teklifler->where($teklifTabloAdi.".created_at", "<=", $filtreleme["bitisTarihi"]);
+                    }
+                }
+                else if (isset($filtreleme["bitisTarihi"]) && $filtreleme["bitisTarihi"] != "")
+                {
+                    $teklifler->where($teklifTabloAdi.".created_at", "<=", $filtreleme["bitisTarihi"]);
+                }
+
+            }
+            if ($sayfalama) {
+                $teklifler = $teklifler->paginate($request->sayfalamaSayisi ?? 10);
+            }else{
+                $teklifler = $teklifler->get();
             }
 
             return response()->json([
