@@ -208,6 +208,7 @@
                                                     </template>
                                                 </th>
                                                 <th @click="siralamaYap('telefon')" class="text-center">Telefon</th>
+                                                <th class="text-center">Teklifler</th>
                                                 <th class="text-center">İşlemler</th>
                                             </tr>
                                         </thead>
@@ -223,6 +224,11 @@
                                                     </td>
                                                     <td class="kisa-uzunluk text-center">
                                                         @{{ firma.telefon }}
+                                                    </td>
+                                                    <td class="kisa-uzunluk text-center">
+                                                        <a v-if="firma.teklifVarMi" class="btn btn-sm btn-warning" :href="'{{ route('teklifler') }}/' + firma.id" class="btn btn-sm btn-warning">
+                                                            <i class="fas fa-file-pdf"></i> TEKLİFLERİ GÖSTER
+                                                        </a>
                                                     </td>
                                                     <td class="kisa-uzunluk text-center">
                                                         <button class="btn btn-sm btn-outline-info" @click="teklifModalAc(firma)">
@@ -1062,7 +1068,7 @@
                     });
 
                     this.teklifAlanlariDoldur();
-                },
+                }
             }
         };
     </script>

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Firmalar;
 use App\Models\Siparisler;
+use App\Models\Teklifler;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -127,6 +128,11 @@ class FirmaController extends Controller
                 }
 
                 $firmalar = $firmalar->paginate(10);
+
+                foreach ($firmalar as $firma) {
+                    $teklifSayisi = Teklifler::where('firmaId', $firma->id)->count();
+                    $firma->teklifVarMi = ($teklifSayisi > 0) ? true : false;
+                }
             }
 
             return response()->json([

@@ -1,7 +1,5 @@
 @extends('layout')
-@section('style')
 
-@endsection
 @section('content')
     <div class="row doruk-content">
         <h4 style="color:#999"><i class="fa fa-home"></i> TEKLİFLER</h4>
@@ -17,6 +15,114 @@
                                 </button>
                                 @{{ aktifSayfa.baslik }}
                             </h4>
+                        </div>
+                        <div class="col-auto">
+                            <div class="row d-flex align-items-center">
+                                <div class="col">
+                                    <div class="input-group">
+                                        <input
+                                            v-model="filtrelemeObjesi.arama"
+                                            type="text"
+                                            class="form-control"
+                                            placeholder="Arama"
+                                            aria-label="Arama"
+                                            aria-describedby="arama"
+                                            @keyup.enter="teklifleriGetir()"
+                                            @input="gecikmeliFonksiyon.varsayilan()"
+                                        />
+                                        <span @click="teklifleriGetir()" class="input-group-text waves-effect" id="arama">
+                                            <i class="mdi mdi-magnify"></i>
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div class="col-auto ps-0">
+                                    <!-- Filtreleme butonu -->
+                                    <button class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#filtrelemeModal">
+                                        <i class="fa fa-filter"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12">
+                                    <small class="text-muted">
+                                        Teklif adı, Firma Adı, Teklif Türü, Oluşturma Tarihi...
+                                    </small>
+                                </div>
+                            </div>
+
+                            <div class="modal fade" id="filtrelemeModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="exampleModalLabel">Filtreleme</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="row gap-3">
+                                                <div class="col-12 m-0">
+                                                    <div class="form-group">
+                                                        <label for="islemDurumuFiltre">Teklif Adı</label>
+                                                        <input
+                                                            v-model="filtrelemeObjesi.teklifAdi"
+                                                            label="teklifAdi"
+                                                            class="form-control"
+                                                            id="teklifAdiFiltre"
+                                                        >
+                                                    </div>
+                                                </div>
+                                                <div class="col-12 m-0">
+                                                    <div class="form-group">
+                                                        <label for="islemDurumuFiltre">Teklif Türü</label>
+                                                        <v-select
+                                                            v-model="filtrelemeObjesi.tur"
+                                                            :options="sablonlar"
+                                                            label="tur"
+                                                            multiple
+                                                            id="teklifTuruFiltre"
+                                                        ></v-select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-12 m-0">
+                                                    <div class="input-group">
+                                                        <span class="input-group-text">Başlangıç</span>
+                                                        <input
+                                                            v-model="filtrelemeObjesi.baslangicTarihi"
+                                                            type="date"
+                                                            class="form-control"
+                                                            placeholder="Başlangıç"
+                                                            data-date-container='#datepicker2'
+                                                            data-provide="datepicker"
+                                                            data-date-autoclose="true"
+                                                            id="tarih"
+                                                            aria-label="Başlangıç"
+                                                        />
+                                                        <span class="input-group-text">Bitiş</span>
+                                                        <input
+                                                            v-model="filtrelemeObjesi.bitisTarihi"
+                                                            type="date"
+                                                            class="form-control"
+                                                            placeholder="Bitiş"
+                                                            data-date-container='#datepicker2'
+                                                            data-provide="datepicker"
+                                                            data-date-autoclose="true"
+                                                            id="tarih"
+                                                            aria-label="Bitiş"
+                                                        />
+                                                        <span @click="tarihleriTemizle()" class="input-group-text waves-effect" id="tarihTemizle">
+                                                            <i class="fa fa-eraser"></i>
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">VAZGEÇ</button>
+                                            <button type="button" class="btn btn-primary" data-bs-dismiss="modal" @click="teklifleriGetir()">ARA</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -37,37 +143,50 @@
                                     <table class="table table-striped table-hover">
                                         <thead>
                                             <tr>
-                                                <th>ID</th>
-                                                <th>Teklif Adı</th>
-                                                <th class="text-center">Teklif Türü</th>
+                                                <th @click="siralamaYap('id')">ID</th>
+                                                <th @click="siralamaYap('teklifAdi')">Teklif Adı</th>
+                                                <th @click="siralamaYap('tur')" class="text-center">Teklif Türü</th>
+                                                <th @click="siralamaYap('created_at')" class="text-center">Oluşturma Tarihi </th>
                                                 <th class="text-center">İşlemler</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <tr v-for="(teklif, index) in teklifler" :key="index">
-                                                <td># @{{ teklif.id }}</td>
-                                                <td class="uzun-uzunluk">
-                                                    <div class="col-12">
-                                                        @{{ teklif.teklifAdi }}
-                                                    </div>
+                                            <template v-if="_.size(teklifler.data)">
+                                                <tr v-for="(teklif, index) in teklifler.data" :key="index">
+                                                    <td># @{{ teklif.id }}</td>
+                                                    <td class="uzun-uzunluk">
+                                                        <div class="col-12">
+                                                            @{{ teklif.teklifAdi }}
+                                                        </div>
 
-                                                </td>
-                                                <td class="kisa-uzunluk text-center">
-                                                    @{{ teklif.tur }}
-                                                </td>
-                                                <td class="kisa-uzunluk text-center">
-                                                    <button class="btn btn-sm btn-success" @click="teklifGoruntule(teklif)">
-                                                        <i class="fa fa-eye"></i>
-                                                    </button>
-                                                    <button class="btn btn-sm btn-danger" @click="teklifSil(teklif)">
-                                                        <i class="fa fa-trash"></i>
-                                                    </button>
-                                                    <button class="btn btn-sm btn-primary"
-                                                        @click="sablonModalAc(teklif)">
-                                                        <i class="fa fa-envelope"></i> MAİL GÖNDER
-                                                    </button>
-                                                </td>
-                                            </tr>
+                                                    </td>
+                                                    <td class="kisa-uzunluk text-center">
+                                                        @{{ teklif.tur }}
+                                                    </td>
+                                                    <td class="kisa-uzunluk text-center">
+                                                        @{{ m(teklif.created_at).format("L LTS") }}
+                                                    </td>
+                                                    <td class="kisa-uzunluk text-center">
+                                                        <button class="btn btn-sm btn-success" @click="teklifGoruntule(teklif)">
+                                                            <i class="fa fa-eye"></i>
+                                                        </button>
+                                                        <button class="btn btn-sm btn-danger" @click="teklifSil(teklif)">
+                                                            <i class="fa fa-trash"></i>
+                                                        </button>
+                                                        <button class="btn btn-sm btn-primary"
+                                                            @click="sablonModalAc(teklif)">
+                                                            <i class="fa fa-envelope"></i> MAİL GÖNDER
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            </template>
+                                            <template v-else>
+                                                <tr>
+                                                    <td colspan="100%" class="text-center py-4">
+                                                        <h6>Kayıt bulunamadı</h6>
+                                                    </td>
+                                                </tr>
+                                            </template>
                                         </tbody>
                                         <tfoot>
                                     </table>
@@ -81,6 +200,35 @@
                             <iframe :src='url' width="100%" height="600px"></iframe>
                         </div>
                     </template>
+                    <div class="card-footer">
+                        <div class="row d-flex align-items-center justify-content-between">
+                            <div class="col-auto"></div>
+                            <div class="col">
+                                <ul class="pagination pagination-rounded justify-content-center mb-0">
+                                    <li class="page-item">
+                                        <button class="page-link" :disabled="!teklifler.prev_page_url" @click="teklifleriGetir(teklifler.prev_page_url)">
+                                            <i class="fas fa-angle-left"></i>
+                                        </button>
+                                    </li>
+                                    <li
+                                        v-for="sayfa in sayfalamaAyarla(teklifler.last_page, teklifler.current_page)"
+                                        class="page-item"
+                                        :class="[sayfa.aktif ? 'active' : '']"
+                                    >
+                                        <button class="page-link" @click="sayfa.tur === 'SAYFA' ? teklifleriGetir(`{{ route("teklifleriGetir") }}?page=` + sayfa.sayfa) : ()  => {}">@{{ sayfa.sayfa }}</button>
+                                    </li>
+                                    <li class="page-item">
+                                        <button class="page-link" :disabled="!teklifler.next_page_url" @click="teklifleriGetir(teklifler.next_page_url)">
+                                            <i class="fas fa-angle-right"></i>
+                                        </button>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="col-auto">
+                                <small class="text-muted">Toplam Kayıt: @{{ teklifler.total }}</small>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="modal fade" id="sablonModal" tabindex="-1" aria-labelledby="sablonModalTitle" aria-hidden="true">
                     <div class="modal-dialog">
@@ -149,24 +297,42 @@
                         teklifGoruntule: false,
                         mailGonder: false,
                     },
+                    filtrelemeObjesi: {
+                        arama: "",
+                        baslangicTarihi: "",
+                        bitisTarihi: "",
+                        teklifAdi: "",
+                        tur: "",
+                        firmaId: @json($firmaId ? $firmaId : ""),
+                        siralamaTuru:{}
+                    },
+                    sayfalamaSayilari: [10, 25, 50, 100],
+                    sayfalamaSayisi: 5,
                     sablonObjesi:{
                         sablonlar:[],
                         sablon: {},
                         teklif: {},
                         modal:null,
                     },
+                    sablonlar: @json($sablonlar),
                     teklifler: [],
                     url: "",
                 };
             },
             mounted() {
+                this.gecikmeliFonksiyonCalistir(this.teklifleriGetir);
                 this.teklifleriGetir();
             },
             methods: {
                 teklifleriGetir(url = "{{ route('teklifleriGetir') }}") {
                     this.yukleniyorObjesi.teklifleriGetir = true;
-                    axios.get(url)
-                        .then(response => {
+                    axios.get(url, {
+                        params: {
+                            filtreleme: this.filtrelemeObjesi,
+                            sayfalama: true,
+                            sayfalamaSayisi: this.sayfalamaSayisi,
+                        },
+                    }).then(response => {
                             this.yukleniyorObjesi.teklifleriGetir = false;
 
                             if (!response.data.durum) {
@@ -301,6 +467,26 @@
                         this.sablonObjesi.teklif.icerik_html[index] = this.sablonObjesi.teklif.icerik_html[index].replaceAll('[tur]', this.sablonObjesi.teklif.tur);
                         this.sablonObjesi.teklif.icerik_html[index] = this.sablonObjesi.teklif.icerik_html[index].replaceAll('[tarih]', this.m().format("L"));
                      }
+                },
+                siralamaYap(alan){
+                    if(this.filtrelemeObjesi.siralamaTuru && this.filtrelemeObjesi.siralamaTuru[alan]){
+                        if(this.filtrelemeObjesi.siralamaTuru[alan]==='desc'){
+                            this.filtrelemeObjesi.siralamaTuru[alan] = 'asc'
+                        }
+                        else {
+                            this.filtrelemeObjesi.siralamaTuru[alan] = 'desc'
+                        }
+                    }
+                    else {
+                        this.filtrelemeObjesi.siralamaTuru = {
+                            [alan]: "desc"
+                        };
+                    }
+                    this.teklifleriGetir();
+                },
+                tarihleriTemizle() {
+                    this.filtrelemeObjesi.baslangicTarihi = "";
+                    this.filtrelemeObjesi.bitisTarihi = "";
                 },
                 mailGonder() {
 

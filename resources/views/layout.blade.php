@@ -7,10 +7,10 @@
     <title>Doruk Otomasyon</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
     <link rel="shortcut icon" href="/img/favicon.png">
-    <link href="assets/css/bootstrap.min.css" id="bootstrap-style" rel="stylesheet" type="text/css" />
-    <link href="assets/css/icons.min.css" rel="stylesheet" type="text/css" />
-    <link href="assets/css/app.min.css" id="app-style" rel="stylesheet" type="text/css" />
-    <link href="assets/css/doruk.css" rel="stylesheet" type="text/css" />
+    <link href="{{URL::asset("assets/css/bootstrap.min.css")}}" id="bootstrap-style" rel="stylesheet" type="text/css" />
+    <link href="{{URL::asset("assets/css/icons.min.css")}}" rel="stylesheet" type="text/css" />
+    <link href="{{URL::asset("assets/css/app.min.css")}}" id="app-style" rel="stylesheet" type="text/css" />
+    <link href="{{URL::asset("assets/css/doruk.css")}}" rel="stylesheet" type="text/css" />
     <link rel="stylesheet" href="https://unpkg.com/vue-select@3/dist/vue-select.css">
 
 
@@ -84,7 +84,7 @@
                 <a href="javascript:void(0)" class="closebtn" @click="sidebarAcKapat(false)">&times;</a>
                 <div class="user-wid text-center py-4">
                     <div class="text-center">
-                        <img src="img/doruk-logo.png" alt="">
+                        <img src="{{URL::asset("img/doruk-logo.png")}}" alt="">
                     </div>
                 </div>
                 <div id="sidebar-menu">
@@ -382,13 +382,13 @@
 
     <!-- JAVASCRIPT -->
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
-    <script src="assets/libs/jquery/jquery.min.js"></script>
-    <script src="assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
-    <script src="assets/libs/metismenu/metisMenu.min.js"></script>
-    <script src="assets/libs/simplebar/simplebar.min.js"></script>
-    <script src="assets/libs/node-waves/waves.min.js"></script>
-    <script src="assets/libs/jquery-sparkline/jquery.sparkline.min.js"></script>
-    <script src="assets/js/app.js"></script>
+    <script src="{{URL::asset("assets/libs/jquery/jquery.min.js")}}"></script>
+    <script src="{{URL::asset("assets/libs/bootstrap/js/bootstrap.bundle.min.js")}}"></script>
+    <script src="{{URL::asset("assets/libs/metismenu/metisMenu.min.js")}}"></script>
+    <script src="{{URL::asset("assets/libs/simplebar/simplebar.min.js")}}"></script>
+    <script src="{{URL::asset("assets/libs/node-waves/waves.min.js")}}"></script>
+    <script src="{{URL::asset("assets/libs/jquery-sparkline/jquery.sparkline.min.js")}}"></script>
+    <script src="{{URL::asset("assets/js/app.js")}}"></script>
 
     <!-- axios cdn -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.27.2/axios.min.js"></script>
