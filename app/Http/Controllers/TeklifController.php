@@ -36,21 +36,14 @@ class TeklifController extends Controller
             $firmaTabloAdi = (new Firmalar())->getTable();
             $teklifTabloAdi = (new Teklifler())->getTable();
 
-
             $teklifler = Teklifler::select('teklifler.*', 'firmalar.id as firmaId', 'firmalar.firmaAdi as firmaAdi', 'firmalar.eposta as eposta')
                 ->join('firmalar', 'firmalar.id', '=', 'teklifler.firmaId');
 
+            $alan = isset($filtreleme["siralamaTuru"]) && $filtreleme["siralamaTuru"] != null ? array_keys($filtreleme["siralamaTuru"])[0] : "created_at";
+            $siralamaTuru = isset($filtreleme["siralamaTuru"]) && $filtreleme["siralamaTuru"] != null ? array_values($filtreleme["siralamaTuru"])[0] : "desc";
+            $teklifler->orderBy($alan, $siralamaTuru);
+
             if ($filtreleme) {
-                if (isset($filtreleme["siralamaTuru"]) && $filtreleme["siralamaTuru"])
-                {
-                    $alan = array_keys($filtreleme["siralamaTuru"])[0];
-                    $siralamaTuru = array_values($filtreleme["siralamaTuru"])[0];
-                    $teklifler->orderBy($alan, $siralamaTuru);
-                }
-                else
-                {
-                    $teklifler = Teklifler::orderBy("created_at", "desc");
-                }
 
                 if (isset($filtreleme["arama"]) && $filtreleme["arama"] != "")
                 {
@@ -91,11 +84,9 @@ class TeklifController extends Controller
                 }
 
             }
-            if ($sayfalama) {
-                $teklifler = $teklifler->paginate($request->sayfalamaSayisi ?? 10);
-            }else{
-                $teklifler = $teklifler->get();
-            }
+
+            $teklifler = $teklifler->paginate($request->sayfalamaSayisi ?? 10);
+
 
             return response()->json([
                 'durum' => true,

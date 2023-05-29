@@ -1025,6 +1025,7 @@
                                 },
                             });
                             this.yukleniyorObjesi.firmaEkle = false;
+                            this.firmalariGetir();
                             this.aktifSayfa.geriFonksiyon();
                         })
                         .catch(error => {

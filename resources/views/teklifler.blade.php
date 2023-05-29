@@ -71,7 +71,7 @@
                                                         >
                                                     </div>
                                                 </div>
-                                                <div class="col-12 m-0">
+                                                {{-- <div class="col-12 m-0">
                                                     <div class="form-group">
                                                         <label for="islemDurumuFiltre">Teklif Türü</label>
                                                         <v-select
@@ -82,7 +82,7 @@
                                                             id="teklifTuruFiltre"
                                                         ></v-select>
                                                     </div>
-                                                </div>
+                                                </div> --}}
                                                 <div class="col-12 m-0">
                                                     <div class="input-group">
                                                         <span class="input-group-text">Başlangıç</span>
