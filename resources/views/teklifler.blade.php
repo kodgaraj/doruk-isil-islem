@@ -422,7 +422,7 @@
                     this.aktifSayfa = _.find(this.sayfalar, {
                         kod: "TEKLIF_GORUNTULE"
                     });
-                    this.url = teklif.url
+                    this.url = "/" + teklif.url
                 },
                 sablonModalAc(teklif = {}) {
                     this.sablonObjesi.modal = new bootstrap.Modal(document.getElementById("sablonModal"));
@@ -489,10 +489,10 @@
                     this.filtrelemeObjesi.bitisTarihi = "";
                 },
                 mailGonder() {
-
                     this.yukleniyorObjesi.mailGonder = true;
                     this.sablonObjesi._teklif = _.cloneDeep(this.sablonObjesi.teklif);
                     this.teklifAlanlariDoldur();
+                    console.log(this.sablonObjesi.teklif);
 
                     if(this.sablonObjesi.teklif.eposta != null && this.sablonObjesi.teklif.eposta != "") {
 
