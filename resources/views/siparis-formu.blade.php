@@ -249,6 +249,7 @@
                                                             <th data-priority="4">Tutar</th>
                                                         @endcan
                                                         <th data-priority="5">Sipariş Tarihi</th>
+                                                        <th data-priority="5">Fatura Tarihi</th>
                                                         <th data-priority="6" class="text-center">İşlemler</th>
                                                     </tr>
                                                 </thead>
@@ -302,17 +303,23 @@
                                                                         <div class="col-12" v-if="siparis.tutarEURO">
                                                                             @{{ siparis.tutarEUROYazi }}
                                                                         </div>
-                                                                        @can("fatura_kesildi_listeleme")
-                                                                            <div class="col-12">
-                                                                                <span :class="siparis.faturaKesildi ? 'text-success' : 'text-danger'">
-                                                                                    Fatura: <i class="fas" :class="siparis.faturaKesildi ? 'fa-check-circle' : 'fa-times-circle'"></i>
-                                                                                </span>
-                                                                            </div>
-                                                                        @endcan
+
                                                                     </div>
                                                                 </td>
                                                             @endcan
                                                             <td class="kisa-uzunluk">@{{ m(siparis.tarih).format("L") }}</td>
+                                                            <td class="kisa-uzunluk">
+                                                                @can("fatura_kesildi_listeleme")
+                                                                    <div class="col-12">
+                                                                        <span :class="siparis.faturaKesildi ? 'text-success' : 'text-danger'">
+                                                                            Fatura: <i class="fas" :class="siparis.faturaKesildi ? 'fa-check-circle' : 'fa-times-circle'"></i>
+                                                                        </span>
+                                                                    </div>
+                                                                    <div class="col-12">
+                                                                        @{{ siparis.faturaTarihi ? m(siparis.faturaTarihi).format("L") : "-" }}
+                                                                    </div>
+                                                                @endcan
+                                                            </td>
                                                             <td class="uzun-uzunluk text-center">
                                                                 <div class="btn-group row d-inline-flex g-1">
                                                                     <div class="col">

@@ -550,14 +550,17 @@ class Controller extends BaseController
             if (isset($durumlar["TAMAMLANDI"]) && $durumlar["TAMAMLANDI"] === count($siparisIslemleri))
             {
                 $siparis->durumId = SiparisDurumlari::where("kod", "TAMAMLANDI")->first()->id;
+                $siparis->bitisTarihi = Carbon::now();
             }
             else if (isset($durumlar["ISLEMDE"]) && $durumlar["ISLEMDE"] > 0)
             {
                 $siparis->durumId = SiparisDurumlari::where("kod", "ISLEMDE")->first()->id;
+                $siparis->bitisTarihi = null;
             }
             else
             {
                 $siparis->durumId = SiparisDurumlari::where("kod", "SIPARIS_ALINDI")->first()->id;
+                $siparis->bitisTarihi = null;
             }
 
             $siparis->save();

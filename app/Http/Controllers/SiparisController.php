@@ -415,6 +415,7 @@ class SiparisController extends Controller
 
             }
 
+
             if (!$siparis->save())
             {
                 DB::rollBack();
@@ -426,6 +427,8 @@ class SiparisController extends Controller
                     "hataKodu" => "S001"
                 ], 500);
             }
+
+            $this->siparisDurumKontrol($siparis->id);
 
             foreach ($siparisBilgileri['islemler'] as $key => $islem)
             {
