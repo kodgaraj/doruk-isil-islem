@@ -13,6 +13,10 @@
         background: white;
         box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
     }
+    .img-fluid {
+        max-width: 100%;
+        height: auto;
+    }
 </style>
 @endsection
 @section('content')
@@ -419,7 +423,7 @@
                                             <i class="fa fa-minus"></i>
                                         </button>
                                     </div>
-                                    <div class="col-7 text-start">
+                                    <div class="col-6 text-start">
                                         <select
                                             v-model="icerik.ad"
                                             @change="gecikmeliFonksiyon.teklif()"
@@ -436,6 +440,14 @@
                                                 @{{ islem.ad }}
                                             </option>
                                         </select>
+                                    </div>
+                                    <div class="col-1 text-start">
+                                        <button
+                                            class="btn btn-primary"
+                                            @click="islemTuruEklemeAc(index)"
+                                        >
+                                            <i class="fas fa-plus"></i>
+                                        </button>
                                     </div>
                                     <div class="col-2 text-start">
                                         <input
@@ -538,6 +550,7 @@
                         firmaSil: false,
                         firmaEkle: false,
                         birlestirilecekFirmalar: false,
+                        islemTuruEkle: false,
                     },
                     firmalar: {},
                     yeniFirma: {
@@ -1039,6 +1052,69 @@
                             console.log(error);
                             // window.location.href = "{{ route('pdfExports2', ['tur' => 'TEKLIF', 'id' => '42']) }}";
                         });
+                },
+                islemTuruEklemeAc(islemIndex) {
+                    // İşlem türü adı
+                    Swal.fire({
+                        title: "İşlem Türü Ekle",
+                        html: `
+                            <div class="container">
+                                <div class="row g-3">
+                                    <div class="form-group col-12">
+                                        <input type="text" class="form-control" id="islemTuruAdi" placeholder="İşlem Türü Adı *">
+                                    </div>
+                                </div>
+                            </div>
+                        `,
+                        showCancelButton: true,
+                        confirmButtonText: 'Ekle',
+                        cancelButtonText: 'İptal',
+                    })
+                    .then((result) => {
+                        /* Read more about isConfirmed, isDenied below */
+                        if (result.isConfirmed) {
+                            const islemTuruAdi = document.getElementById("islemTuruAdi").value;
+
+                            this.yukleniyorObjesi.islemTuruEkle = true;
+                            axios.post("/islemTuruEkle", {
+                                islemTuru: {
+                                    islemTuruAdi,
+                                },
+                            })
+                            .then(response => {
+                                this.yukleniyorObjesi.islemTuruEkle = false;
+                                if (!response.data.durum) {
+                                    return this.uyariAc({
+                                        baslik: 'Hata',
+                                        mesaj: response.data.mesaj,
+                                        tur: "error"
+                                    });
+                                }
+
+                                this.uyariAc({
+                                    baslik: 'Başarılı',
+                                    mesaj: response.data.mesaj,
+                                    tur: "success",
+                                    ozellikler: {
+                                        icon: 'success',
+                                        showConfirmButton: false,
+                                        timer: 2000
+                                    }
+                                });
+
+                                this.islemTurleriGetir();
+                            })
+                            .catch(error => {
+                                this.yukleniyorObjesi.islemTuruEkle = false;
+                                this.uyariAc({
+                                    baslik: 'Hata',
+                                    mesaj: error.response.data.mesaj + " - Hata Kodu: " + error.response.data.hataKodu,
+                                    tur: "error"
+                                });
+                                console.log(error);
+                            });
+                        } else if (result.isDenied) {}
+                    });
                 },
                 decodeHTMLEntities(text) {
                     let textArea = document.createElement('textarea');
