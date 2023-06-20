@@ -166,6 +166,19 @@ class SiparisController extends Controller
                 $siparisler = $siparisler->where("$siparisTabloAdi.faturaTarihi", "<=", $filtrelemeler["faturaBitisTarihi"]);
             }
 
+            if (isset($filtrelemeler["faturaDurumu"]) && $filtrelemeler["faturaDurumu"] != "")
+            {
+                $siparisler = $siparisler->where("$siparisTabloAdi.faturaKesildi", $filtrelemeler["faturaDurumu"]);
+            }
+            if (isset($filtrelemeler["siparisDurumu"]) && $filtrelemeler["siparisDurumu"] != "")
+            {
+                $siparisler = $siparisler->where("$siparisTabloAdi.durumId", $filtrelemeler["siparisDurumu"]);
+            }
+            if (isset($filtrelemeler["tutar"]) && $filtrelemeler["tutar"] != "")
+            {
+                $siparisler = $siparisler->where("$siparisTabloAdi.tutar", "0");
+            }
+
             if (isset($filtrelemeler["siparisId"]) && $filtrelemeler["siparisId"])
             {
                 $siparisler = $siparisler->where("$siparisTabloAdi.id", $filtrelemeler["siparisId"]);
