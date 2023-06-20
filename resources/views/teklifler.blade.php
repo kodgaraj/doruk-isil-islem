@@ -240,6 +240,18 @@
                             <div class="modal-body">
                                 <div class="col m-0">
                                     <div class="form-group">
+                                        <label for="">Kime</label>
+                                        <input class="form-control" type="text" v-model="sablonObjesi.teklif.eposta">
+                                    </div>
+                                </div>
+                                <div class="col m-0">
+                                    <div class="form-group">
+                                        <label for="">CC</label>
+                                        <input class="form-control" type="text" v-model="sablonObjesi.teklif.cc">
+                                    </div>
+                                </div>
+                                <div class="col m-0">
+                                    <div class="form-group">
                                         <label for="sablonlar">Şablonlar</label>
                                         <v-select
                                             v-model="sablonObjesi.sablon"
@@ -247,7 +259,6 @@
                                             label="sablonAdi"
                                             id="id"
                                         ></v-select>
-
                                     </div>
                                 </div>
                             </div>
@@ -304,7 +315,7 @@
                         teklifAdi: "",
                         tur: "",
                         firmaId: @json($firmaId ? $firmaId : ""),
-                        siralamaTuru:{}
+                        siralamaTuru:[]
                     },
                     sayfalamaSayilari: [10, 25, 50, 100],
                     sayfalamaSayisi: 5,
