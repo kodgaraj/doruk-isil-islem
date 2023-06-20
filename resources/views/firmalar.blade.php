@@ -588,7 +588,8 @@
                         //     { ad: "Euro", kod: "EURO", sembol: "€" },
                         // ],
                         olcumTurleri: [
-                            { ad: "Kilogram", kod: "KG", sembol: "KG" }
+                            { ad: "Kilogram", kod: "KG", sembol: "KG" },
+                            { ad: "Adet", kod: "ADT", sembol: "ADT" }
                         ],
                         paraBirimleri: @json($paraBirimleri),
                         teklifBilgileri: {},
