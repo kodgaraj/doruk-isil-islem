@@ -589,7 +589,7 @@
                         // ],
                         olcumTurleri: [
                             { ad: "Kilogram", kod: "KG", sembol: "KG" },
-                            { ad: "Adet", kod: "ADT", sembol: "ADT" }
+                            { ad: "Adet", kod: "Adet", sembol: "Adet" }
                         ],
                         paraBirimleri: @json($paraBirimleri),
                         teklifBilgileri: {},
