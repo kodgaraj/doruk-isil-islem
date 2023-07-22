@@ -99,6 +99,13 @@
                             >
                                 <i class="fa fa-file-download"></i> TEKLİF OLUŞTUR
                             </button>
+                            <button
+                                v-if="aktifSayfa.kod === 'COKLU_TEKLIF_HAZIRLAMA' && !yukleniyorObjesi.firmaEkle"
+                                class="btn btn-primary"
+                                @click="teklifOlustur()"
+                            >
+                                <i class="fa fa-file-download"></i> TEKLİF OLUŞTUR
+                            </button>
 
                             <div v-else-if="yukleniyorObjesi.firmaEkle" class="spinner-border text-primary" role="status">
                                 <span class="sr-only">Yükleniyor...</span>
@@ -320,70 +327,93 @@
 
                         </div>
                     </template>
-                    <template v-else-if="aktifSayfa.kod === 'TEKLIF_HAZIRLAMA'">
+                    <template v-else-if="aktifSayfa.kod === 'TEKLIF_HAZIRLAMA' || aktifSayfa.kod === 'COKLU_TEKLIF_HAZIRLAMA'">
                         <div class="row g-3">
-                            <div class="col-12 col-sm-6 col-md-4" v-if="sablonObjesi.sablon.kullanilabilirOgeler.includes('[firmaAdi]')">
-                                <label for="name">Firma adı *</label>
-                                <input
-                                    v-model="teklif.firma.firmaAdi"
-                                    @input="gecikmeliFonksiyon.teklif()"
-                                    autocomplete="off"
-                                    id="name"
-                                    type="text"
-                                    class="form-control"
-                                    placeholder="Firma adı"
-                                />
-                            </div>
-                            <div class="col-12 col-sm-6 col-md-4" v-if="sablonObjesi.sablon.kullanilabilirOgeler.includes('[sorumluKisi]')">
-                                <label for="firma_sorumlusu">Firma Sorumlusu</label>
-                                <input
-                                    v-model="teklif.firma.sorumluKisi"
-                                    @input="gecikmeliFonksiyon.teklif()"
-                                    autocomplete="off"
-                                    id="firma_sorumlusu"
-                                    type="text"
-                                    class="form-control"
-                                    placeholder="Firma Sorumlusu"
-                                />
-                            </div>
-                            <div class="col-12 col-sm-6 col-md-4" v-if="sablonObjesi.sablon.kullanilabilirOgeler.includes('[telefon]')">
-                                <label for="telefon">Telefon</label>
-                                <input
-                                    v-model="teklif.firma.telefon"
-                                    @input="gecikmeliFonksiyon.teklif()"
-                                    autocomplete="off"
-                                    id="telefon"
-                                    type="text"
-                                    class="form-control"
-                                    placeholder="Telefon"
-                                />
-                            </div>
-                            <div class="col-12 col-sm-6 col-md-4" v-if="sablonObjesi.sablon.kullanilabilirOgeler.includes('[eposta]')">
-                                <label for="telefon">E-posta</label>
-                                <input
-                                    v-model="teklif.firma.eposta"
-                                    @input="gecikmeliFonksiyon.teklif()"
-                                    autocomplete="off"
-                                    id="eposta"
-                                    type="text"
-                                    class="form-control"
-                                    placeholder="E-posta"
-                                />
-                            </div>
-                            <div class="col-12 col-sm-6 col-md-4" v-if="sablonObjesi.sablon.kullanilabilirOgeler.includes('[adres]')">
-                                <label for="telefon">Adres</label>
-                                <textarea
-                                    v-model="teklif.firma.adres"
-                                    @input="gecikmeliFonksiyon.teklif()"
-                                    autocomplete="off"
-                                    id="adres"
-                                    type="text"
-                                    class="form-control"
-                                    placeholder="Adres"
-                                    rows="1"
-                                    cols="50"
-                                ></textarea>
-                            </div>
+                            <template v-if="aktifSayfa.kod === 'TEKLIF_HAZIRLAMA'">
+                                <div class="col-12 col-sm-6 col-md-4" v-if="sablonObjesi.sablon.kullanilabilirOgeler.includes('[firmaAdi]')">
+                                    <label for="name">Firma adı *</label>
+                                    <input
+                                        v-model="teklif.firma.firmaAdi"
+                                        @input="gecikmeliFonksiyon.teklif()"
+                                        autocomplete="off"
+                                        id="name"
+                                        type="text"
+                                        class="form-control"
+                                        placeholder="Firma adı"
+                                    />
+                                </div>
+                                <div class="col-12 col-sm-6 col-md-4" v-if="sablonObjesi.sablon.kullanilabilirOgeler.includes('[sorumluKisi]')">
+                                    <label for="firma_sorumlusu">Firma Sorumlusu</label>
+                                    <input
+                                        v-model="teklif.firma.sorumluKisi"
+                                        @input="gecikmeliFonksiyon.teklif()"
+                                        autocomplete="off"
+                                        id="firma_sorumlusu"
+                                        type="text"
+                                        class="form-control"
+                                        placeholder="Firma Sorumlusu"
+                                    />
+                                </div>
+                                <div class="col-12 col-sm-6 col-md-4" v-if="sablonObjesi.sablon.kullanilabilirOgeler.includes('[telefon]')">
+                                    <label for="telefon">Telefon</label>
+                                    <input
+                                        v-model="teklif.firma.telefon"
+                                        @input="gecikmeliFonksiyon.teklif()"
+                                        autocomplete="off"
+                                        id="telefon"
+                                        type="text"
+                                        class="form-control"
+                                        placeholder="Telefon"
+                                    />
+                                </div>
+                                <div class="col-12 col-sm-6 col-md-4" v-if="sablonObjesi.sablon.kullanilabilirOgeler.includes('[eposta]')">
+                                    <label for="telefon">E-posta</label>
+                                    <input
+                                        v-model="teklif.firma.eposta"
+                                        @input="gecikmeliFonksiyon.teklif()"
+                                        autocomplete="off"
+                                        id="eposta"
+                                        type="text"
+                                        class="form-control"
+                                        placeholder="E-posta"
+                                    />
+                                </div>
+                                <div class="col-12 col-sm-6 col-md-4" v-if="sablonObjesi.sablon.kullanilabilirOgeler.includes('[adres]')">
+                                    <label for="telefon">Adres</label>
+                                    <textarea
+                                        v-model="teklif.firma.adres"
+                                        @input="gecikmeliFonksiyon.teklif()"
+                                        autocomplete="off"
+                                        id="adres"
+                                        type="text"
+                                        class="form-control"
+                                        placeholder="Adres"
+                                        rows="1"
+                                        cols="50"
+                                    ></textarea>
+                                </div>
+                            </template>
+                            <template v-else-if="aktifSayfa.kod === 'COKLU_TEKLIF_HAZIRLAMA'">
+                                <div class="col-12 col-sm-6 col-md-8" v-if="sablonObjesi.sablon.kullanilabilirOgeler.includes('[firmaAdi]')">
+                                    <label for="name">Çoklu Firma adı *</label>
+                                    {{-- <input
+                                        v-model="teklif.firma.firmaAdi"
+                                        @input="gecikmeliFonksiyon.teklif()"
+                                        autocomplete="off"
+                                        id="name"
+                                        type="text"
+                                        class="form-control"
+                                        placeholder="Firma adı"
+                                    /> --}}
+                                    <v-select
+                                        v-model="teklif.firma"
+                                        :options="firmalar.data"
+                                        label="firmaAdi"
+                                        multiple
+                                        id="firmaFiltre"
+                                    ></v-select>
+                                </div>
+                            </template>
                             <div class="col-12 col-sm-6 col-md-4">
                                 <label for="telefon">Şablon</label>
                                 <textarea
@@ -544,6 +574,15 @@
                                 this.geriAnasayfa();
                             },
                         },
+                        {
+                            kod: "COKLU_TEKLIF_HAZIRLAMA",
+                            baslik: "Teklif Hazırlama",
+                            geriFonksiyon: () => {
+                                this.teklif = _.cloneDeep(this.teklif._teklif);
+
+                                this.geriAnasayfa();
+                            },
+                        },
                     ],
                     yukleniyorObjesi: {
                         firmalariGetir: false,
@@ -577,6 +616,7 @@
                     },
                     teklif: {
                         firma: {},
+                        topluKey: null,
                         baslik: "Doruk Isıl İşlem",
                         html: "",
                         htmlKey: 123,
@@ -914,22 +954,30 @@
                     this.islemTurleriGetir();
                     this.teklif._teklif = _.cloneDeep(this.teklif);
 
-                    this.teklif.firma = {
-                        firmaAdi: "",
-                        sorumluKisi: "",
-                        telefon: "",
-                        adres: "",
-                        eposta: "",
-                        ...this.sablonObjesi.firma,
-                    };
-
                     this.teklifIcerikEkle();
+                    // this.teklifAlanlariDoldur();
 
-                    this.teklifAlanlariDoldur();
+                    if (this.sablonObjesi.firma && this.sablonObjesi.firma.id) {
 
-                    this.aktifSayfa = _.cloneDeep(_.find(this.sayfalar, {
-                        kod: "TEKLIF_HAZIRLAMA"
-                    }));
+                        this.teklif.firma = {
+                            firmaAdi: "",
+                            sorumluKisi: "",
+                            telefon: "",
+                            adres: "",
+                            eposta: "",
+                            ...this.sablonObjesi.firma,
+                        };
+                        this.teklifAlanlariDoldur();
+                        this.aktifSayfa = _.cloneDeep(_.find(this.sayfalar, {
+                            kod: "TEKLIF_HAZIRLAMA"
+                        }));
+                    }else{
+                        this.teklif.firma = [];
+                        this.teklifAlanlariDoldur();
+                        this.aktifSayfa = _.cloneDeep(_.find(this.sayfalar, {
+                            kod: "COKLU_TEKLIF_HAZIRLAMA"
+                        }));
+                    }
                 },
                 islemTurleriGetir(){
                     axios.get("{{ route('islemTurleriGetir') }}")
@@ -973,11 +1021,11 @@
                     this.teklif.teklifBilgileri.icerik_html = _.assignIn([], this.sablonObjesi.sablon.icerik_html);
                     for (let index = 0; index < this.teklif.teklifBilgileri.icerik_html.length; index++) {
                         this.teklif.teklifBilgileri.icerik_html[index] = this.teklif.teklifBilgileri.icerik_html[index].replaceAll('[baslik]', this.teklif.baslik + " " + this.sablonObjesi.sablon.tur + " Formu" );
-                        this.teklif.teklifBilgileri.icerik_html[index] = this.teklif.teklifBilgileri.icerik_html[index].replaceAll('[firmaAdi]', this.teklif.firma.firmaAdi);
-                        this.teklif.teklifBilgileri.icerik_html[index] = this.teklif.teklifBilgileri.icerik_html[index].replaceAll('[sorumluKisi]', this.teklif.firma.sorumluKisi);
-                        this.teklif.teklifBilgileri.icerik_html[index] = this.teklif.teklifBilgileri.icerik_html[index].replaceAll('[telefon]', this.teklif.firma.telefon);
-                        this.teklif.teklifBilgileri.icerik_html[index] = this.teklif.teklifBilgileri.icerik_html[index].replaceAll('[adres]', this.teklif.firma.adres);
-                        this.teklif.teklifBilgileri.icerik_html[index] = this.teklif.teklifBilgileri.icerik_html[index].replaceAll('[eposta]', this.teklif.firma.eposta);
+                        this.teklif.teklifBilgileri.icerik_html[index] = this.teklif.teklifBilgileri.icerik_html[index].replaceAll('[firmaAdi]', this.teklif.teklifBilgileri.firma);
+                        this.teklif.teklifBilgileri.icerik_html[index] = this.teklif.teklifBilgileri.icerik_html[index].replaceAll('[sorumluKisi]', this.teklif.teklifBilgileri.yetkili);
+                        this.teklif.teklifBilgileri.icerik_html[index] = this.teklif.teklifBilgileri.icerik_html[index].replaceAll('[telefon]', this.teklif.teklifBilgileri.telefon);
+                        this.teklif.teklifBilgileri.icerik_html[index] = this.teklif.teklifBilgileri.icerik_html[index].replaceAll('[adres]', this.teklif.teklifBilgileri.adres);
+                        this.teklif.teklifBilgileri.icerik_html[index] = this.teklif.teklifBilgileri.icerik_html[index].replaceAll('[eposta]', this.teklif.teklifBilgileri.eposta);
                         let iceriklerHtml = "<div class='table-rep-plugin'><div class='table-responsive mb-0'><table class='table table-striped'><thead><tr><th>İşlem</th><th>Fiyat</th><th>Ölçü</th><th>Birim</th></tr></thead><tbody>";
                         this.teklif.teklifBilgileri.icerikler.forEach(icerik => {
                             iceriklerHtml += `<tr><td>${icerik.ad}</td><td>${icerik.fiyat}</td><td>${icerik.olcumTuru ? icerik.olcumTuru : ""}</td><td>${icerik.paraBirimi}</td></tr>`;
@@ -1011,48 +1059,100 @@
                     this.teklifAlanlariDoldur();
                 },
                 teklifOlustur() {
-
                     this.yukleniyorObjesi.firmaEkle = true;
-                    // this.teklif.teklifBilgileri.icerik_html = JSON.stringify(this.teklif.teklifBilgileri.icerik_html);
-                    // let url = encodeURIComponent(JSON.stringify(this.teklif.teklifBilgileri));
-                    const dosyaAdi = this.turkceKarakterCevir(this.teklif.teklifBilgileri.firma ? this.teklif.teklifBilgileri.firma : "TEKLIF");
-                    // this.teklif.teklifBilgileri.icerik_html = JSON.stringify(this.teklif.teklifBilgileri.icerik_html);
-                    // window.location.href = "{{ route('pdfExports', ['tur' => 'TEKLIF', 'yazdir' => 1]) }}" + "&q=" + data;
-                    axios.post('/teklifEkle', {
-                            firmaId: this.teklif.firma.id,
-                            tur: this.sablonObjesi.sablon.tur,
-                            html: JSON.stringify(this.teklif.teklifBilgileri.icerik_html),
-                            teklifBilgileri: this.teklif.teklifBilgileri,
-                            dosyaAdi,
-                        }).then(response => {
-                            if (!response.data.durum) {
-                                return this.uyariAc({
+
+                    const fun = async (index) => {
+                        return new Promise((resolve) => {
+                            if (index >= this.teklif.firma.length) {
+                                this.yukleniyorObjesi.firmaEkle = false;
+                                this.topluKey = null;
+                                this.firmalariGetir();
+                                this.aktifSayfa.geriFonksiyon();
+                                resolve();
+                                return;
+                            }
+
+                            let firmaBilgileri;
+
+                            if (index === null) {
+                                firmaBilgileri = this.teklif.firma;
+                            } else {
+                                firmaBilgileri = this.teklif.firma[index];
+                            }
+
+                            const dosyaAdi = this.turkceKarakterCevir(firmaBilgileri.firmaAdi ? firmaBilgileri.firmaAdi : "TEKLIF");
+                            const yeniTeklifBilgileri = {
+                                tarih: this.m().format("L"),
+                                topluKey: this.topluKey,
+                                firma: firmaBilgileri.firmaAdi,
+                                yetkili: firmaBilgileri.sorumluKisi ? firmaBilgileri.sorumluKisi : "---",
+                                telefon: firmaBilgileri.telefon ? firmaBilgileri.telefon : "---",
+                                adres: firmaBilgileri.adres ? firmaBilgileri.adres : "---",
+                                eposta: firmaBilgileri.eposta ? firmaBilgileri.eposta : "---",
+                                icerikler: this.teklif.icerikler,
+                                tur: this.sablonObjesi.sablon.tur,
+                                klasor: firmaBilgileri.id,
+                                gecerlilikTarihi: this.m().add(15, 'd').format("LL"),
+                            };
+
+                            this.teklifAlanlariDoldur(yeniTeklifBilgileri);
+
+                            // this.gecikmeliFonksiyon.teklif();
+                            console.log(this.teklif.teklifBilgileri.firma)
+
+                            axios.post('/teklifEkle', {
+                                firmaId: this.teklif.firma[index].id,
+                                tur: this.sablonObjesi.sablon.tur,
+                                html: JSON.stringify(this.teklif.teklifBilgileri.icerik_html),
+                                teklifBilgileri: this.teklif.teklifBilgileri,
+                                topluKey: this.topluKey,
+                                dosyaAdi,
+                            }).then(response => {
+                                if (!response.data.durum) {
+                                    return this.uyariAc({
+                                        baslik: 'Hata',
+                                        mesaj: response.data.mesaj,
+                                        tur: "error"
+                                    });
+                                }
+                                if (index === null) {
+                                    this.uyariAc({
+                                        toast: {
+                                            status: true,
+                                            message: response.data.mesaj,
+                                        },
+                                    });
+                                    this.yukleniyorObjesi.firmaEkle = false;
+                                    this.firmalariGetir();
+                                    this.aktifSayfa.geriFonksiyon();
+                                    resolve();
+                                }
+                            })
+                            .catch(error => {
+                                this.uyariAc({
                                     baslik: 'Hata',
-                                    mesaj: response.data.mesaj,
+                                    mesaj: error.response.data.mesaj + " - Hata Kodu: " + error.response.data
+                                        .hataKodu,
                                     tur: "error"
                                 });
-                            }
-                            this.uyariAc({
-                                toast: {
-                                    status: true,
-                                    message: response.data.mesaj,
-                                },
-                            });
-                            this.yukleniyorObjesi.firmaEkle = false;
-                            this.firmalariGetir();
-                            this.aktifSayfa.geriFonksiyon();
-                        })
-                        .catch(error => {
-                            this.uyariAc({
-                                baslik: 'Hata',
-                                mesaj: error.response.data.mesaj + " - Hata Kodu: " + error.response.data
-                                    .hataKodu,
-                                tur: "error"
-                            });
-                            this.yukleniyorObjesi.firmaEkle = false;
-                            console.log(error);
-                            // window.location.href = "{{ route('pdfExports2', ['tur' => 'TEKLIF', 'id' => '42']) }}";
+                                this.yukleniyorObjesi.firmaEkle = false;
+                                console.log(error);
+                                // window.location.href = "{{ route('pdfExports2', ['tur' => 'TEKLIF', 'id' => '42']) }}";
+                            })
+                            .finally(() => {
+                                resolve(fun(index + 1));
+                            })
+
                         });
+                    }
+
+                    if (this.aktifSayfa.kod === 'COKLU_TEKLIF_HAZIRLAMA'){
+                        this.topluKey = Date.now() | 0;
+                        console.log(this.topluKey);
+                        fun(0);
+                    } else {
+                        fun(null);
+                    }
                 },
                 islemTuruEklemeAc(islemIndex) {
                     // İşlem türü adı
@@ -1147,6 +1247,7 @@
 
                     this.teklifAlanlariDoldur();
                 }
+
             }
         };
     </script>
