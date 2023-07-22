@@ -221,6 +221,9 @@
                                                             <div class="input-group mb-3">
                                                                 <select class="form-control select2" v-model="filtrelemeObjesi.siparisDurumu">
                                                                     <optgroup label="Sipariş Durumu">
+                                                                        <option value="">
+                                                                            Tümü
+                                                                        </option>
                                                                         <option
                                                                             v-for="(durum, index) in siparisDurumlari"
                                                                             :value="durum.id"
@@ -243,6 +246,9 @@
                                                         <div class="input-group mb-3">
                                                             <select class="form-control select2" v-model="filtrelemeObjesi.faturaDurumu">
                                                                 <optgroup label="Fatura Durumu">
+                                                                    <option value="">
+                                                                        Tümü
+                                                                    </option>
                                                                     <option value="1">
                                                                         Kesildi
                                                                     </option>
@@ -1495,8 +1501,8 @@
                     faturaBaslangicTarihi: null,
                     faturaBitisTarihi: null,
                     limit: 10,
-                    siparisDurumu: null,
-                    faturaDurumu: null,
+                    siparisDurumu: "",
+                    faturaDurumu: "",
                     tutar: false,
                 },
                 sayfalamaSayilari: [10, 25, 50, 100],

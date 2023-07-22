@@ -176,7 +176,10 @@ class SiparisController extends Controller
             }
             if (isset($filtrelemeler["tutar"]) && $filtrelemeler["tutar"] != "")
             {
-                $siparisler = $siparisler->where("$siparisTabloAdi.tutar", "0");
+                // if all currencies are equal to 0
+                $siparisler = $siparisler->havingRaw("tutarTL = 0")
+                    ->havingRaw("tutarUSD = 0")
+                    ->havingRaw("tutarEURO = 0");
             }
 
             if (isset($filtrelemeler["siparisId"]) && $filtrelemeler["siparisId"])
