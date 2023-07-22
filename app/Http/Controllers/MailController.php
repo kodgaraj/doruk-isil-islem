@@ -13,14 +13,12 @@ class MailController extends Controller
 
     public function mail(Request $request)
     {
+
         $aliciMailAdres = $request->teklif["eposta"];
         $cc = $request->teklif["cc"] ?? "";
         $mesaj = $request->teklif["icerik_html"];
         $baslik = $request->teklif["teklifAdi"];
         $pathToFile = $request->teklif["url"];
-
-
-
         try {
             if (filter_var($aliciMailAdres, FILTER_VALIDATE_EMAIL)) {
                 if(isset($cc) && $cc != "" && filter_var($cc, FILTER_VALIDATE_EMAIL)){
@@ -29,7 +27,7 @@ class MailController extends Controller
                     ->send(new send($aliciMailAdres, $mesaj, $baslik, $pathToFile));
                     return response()->json([
                         'durum' => true,
-                        'mesaj' => 'Mail başarıyla gönderildi.',
+                        'mesaj' => $aliciMailAdres . ' ve ' . $cc . ' adreslerine mail başarıyla gönderildi.',
                         'mail' => $gonder
                     ]);
                 }else{
@@ -37,7 +35,7 @@ class MailController extends Controller
                     ->send(new send($aliciMailAdres, $mesaj, $baslik, $pathToFile));
                     return response()->json([
                         'durum' => true,
-                        'mesaj' => 'Mail başarıyla gönderildi.',
+                        'mesaj' => $aliciMailAdres . ' adresine mail başarıyla gönderildi.',
                         'mail' => $gonder
                     ]);}
             } else {
@@ -52,5 +50,7 @@ class MailController extends Controller
                 'mesaj' => $e->getMessage()
             ], 500);
         }
+
+
     }
 }
