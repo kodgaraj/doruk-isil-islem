@@ -394,7 +394,7 @@
                                 </div>
                             </template>
                             <template v-else-if="aktifSayfa.kod === 'COKLU_TEKLIF_HAZIRLAMA'">
-                                <div class="col-12 col-sm-6 col-md-8" v-if="sablonObjesi.sablon.kullanilabilirOgeler.includes('[firmaAdi]')">
+                                <div class="col-12 col-sm-6 col-md-8">
                                     <label for="name">Çoklu Firma adı *</label>
                                     {{-- <input
                                         v-model="teklif.firma.firmaAdi"

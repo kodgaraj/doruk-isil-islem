@@ -178,7 +178,7 @@
                                                     <td class="kisa-uzunluk text-center">
                                                             <button class="btn btn-sm btn-warning"
                                                             @click="sablonModalAc({'topluKey' : grup[0].topluKey})">
-                                                            <i class="fa fa-envelope"></i> MAİL GÖNDER
+                                                            <i class="fa fa-envelope"></i> TOPLU MAİL GÖNDER
                                                         </button>
                                                     </td>
                                                 </tr>
@@ -359,7 +359,7 @@
                         siralamaTuru:[]
                     },
                     sayfalamaSayilari: [10, 25, 50, 100],
-                    sayfalamaSayisi: 5,
+                    sayfalamaSayisi: 10,
                     sablonObjesi:{
                         sablonlar:[],
                         sablon: {},
@@ -417,6 +417,7 @@
                         teklif: {},
                         modal:null,
                     },
+                    this.sayfalamaSayisi = this.filtrelemeObjesi.topluTeklifleriGetir ? 100 : 10;
                     this.teklifleriGetir();
                 },
                 geriAnasayfa() {
