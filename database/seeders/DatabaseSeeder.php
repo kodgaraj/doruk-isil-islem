@@ -394,7 +394,7 @@ class DatabaseSeeder extends Seeder
         // Teklifler tablosuna topluKey alanlarının eklenmesi
         if (!Schema::hasColumn("teklifler", "topluKey")) {
             Schema::table("teklifler", function (Blueprint $table) {
-                $table->integer('topluKey')
+                $table->bigIncrements('topluKey')
                     ->nullable()
                     ->after('firmaId')
                     ->comment("Toplu oluşturulan tekliflerin aynı key ile gruplanması için kullanılan alan");

@@ -576,7 +576,7 @@
                         },
                         {
                             kod: "COKLU_TEKLIF_HAZIRLAMA",
-                            baslik: "Teklif Hazırlama",
+                            baslik: "Çoklu Teklif Hazırlama",
                             geriFonksiyon: () => {
                                 this.teklif = _.cloneDeep(this.teklif._teklif);
 
@@ -1069,7 +1069,6 @@
                             if (index >= this.teklif.firma.length) {
                                 this.yukleniyorObjesi.firmaEkle = false;
                                 this.topluKey = null;
-                                this.firmalariGetir();
                                 this.aktifSayfa.geriFonksiyon();
                                 resolve();
                                 return;
@@ -1150,7 +1149,7 @@
                     }
 
                     if (this.aktifSayfa.kod === 'COKLU_TEKLIF_HAZIRLAMA'){
-                        this.topluKey = Date.now() | 0;
+                        this.topluKey = Date.now();
                         console.log(this.topluKey);
                         fun(0);
                     } else {

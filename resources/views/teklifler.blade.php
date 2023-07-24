@@ -558,7 +558,7 @@
 
                     const fun = async (index) => {
                         return new Promise((resolve) => {
-                            if (this.sablonObjesi.teklif.topluKey && index >= this.grupluTeklifler[this.sablonObjesi.teklif.topluKey].length) {
+                            if (index !== null && this.sablonObjesi.teklif.topluKey && index >= this.grupluTeklifler[this.sablonObjesi.teklif.topluKey].length) {
                                 this.yukleniyorObjesi.mailGonder = false;
                                 this.sablonObjesi.modal.hide();
                                 setTimeout(() => {
@@ -580,7 +580,7 @@
                             } else {
                                 this.teklifAlanlariDoldur(this.grupluTeklifler[this.sablonObjesi._teklif.topluKey][index]);
                             }
-                            console.log( this.sablonObjesi.teklif);
+                            console.log(index, this.sablonObjesi.teklif);
 
                             axios.post('/mailGonder', {
                                 teklif: this.sablonObjesi.teklif,
@@ -602,10 +602,13 @@
                                 if (index === null) {
                                     this.yukleniyorObjesi.mailGonder = false;
                                     this.sablonObjesi.modal.hide();
+                                    console.log("indexe girmedi");
                                     resolve();
                                     return;
+                                }else{
+                                    console.log("index artı 1 e girdi");
+                                    resolve(fun(index + 1));
                                 }
-                                resolve(fun(index + 1));
 
                             })
                             .catch(error => {
@@ -622,7 +625,7 @@
                         });
                     }
 
-                    if(this.sablonObjesi.teklif.topluKey){
+                    if(this.filtrelemeObjesi.topluTeklifleriGetir){
                         fun(0);
                     }else {
                         if(this.sablonObjesi.teklif.eposta != null && this.sablonObjesi.teklif.eposta != "") {
