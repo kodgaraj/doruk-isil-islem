@@ -693,6 +693,7 @@
                     };
 
                     this.aktifSayfa = _.cloneDeep(this.aktifSayfa);
+                    this.firmalariGetir();
                 },
                 firmaDuzenle(firma) {
                     this.yeniFirma = _.cloneDeep(firma);
