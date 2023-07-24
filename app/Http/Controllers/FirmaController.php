@@ -8,6 +8,8 @@ use App\Models\Teklifler;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
+use function PHPUnit\Framework\isNull;
+
 class FirmaController extends Controller
 {
     public function index()
@@ -104,6 +106,7 @@ class FirmaController extends Controller
         try {
             $filtreleme = isset($request->filtreleme) ? json_decode($request->filtreleme, true) : [];
             $sayfalama = $request->sayfalama ?? false;
+            $toplu = $request->toplu ?? false;
             $firmaTabloAdi = (new Firmalar())->getTable();
 
             if (!$sayfalama) {
@@ -127,7 +130,7 @@ class FirmaController extends Controller
                         ->orWhere("$firmaTabloAdi.telefon", "like", "%" . $filtreleme["arama"] . "%");
                 }
 
-                $firmalar = $firmalar->paginate(10);
+                $firmalar = $firmalar->paginate($toplu == "true" ? 1000 : 10);
 
                 foreach ($firmalar as $firma) {
                     $teklifSayisi = Teklifler::where('firmaId', $firma->id)->count();

@@ -104,7 +104,7 @@
                                 class="btn btn-primary"
                                 @click="teklifOlustur()"
                             >
-                                <i class="fa fa-file-download"></i> TEKLİF OLUŞTUR
+                                <i class="fa fa-file-download"></i> ÇOKLU TEKLİF OLUŞTUR
                             </button>
 
                             <div v-else-if="yukleniyorObjesi.firmaEkle" class="spinner-border text-primary" role="status">
@@ -651,6 +651,7 @@
                     axios.get(url, {
                             params: {
                                 sayfalama: true,
+                                toplu: this.aktifSayfa.kod === "COKLU_TEKLIF_HAZIRLAMA" ? true : false,
                                 filtreleme: this.filtrelemeObjesi,
                             }
                         })
@@ -977,6 +978,7 @@
                         this.aktifSayfa = _.cloneDeep(_.find(this.sayfalar, {
                             kod: "COKLU_TEKLIF_HAZIRLAMA"
                         }));
+                        this.firmalariGetir();
                     }
                 },
                 islemTurleriGetir(){
@@ -1101,7 +1103,7 @@
                             console.log(this.teklif.teklifBilgileri.firma)
 
                             axios.post('/teklifEkle', {
-                                firmaId: this.teklif.firma[index].id,
+                                firmaId: firmaBilgileri.id,
                                 tur: this.sablonObjesi.sablon.tur,
                                 html: JSON.stringify(this.teklif.teklifBilgileri.icerik_html),
                                 teklifBilgileri: this.teklif.teklifBilgileri,
