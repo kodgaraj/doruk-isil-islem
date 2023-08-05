@@ -36,7 +36,10 @@ class ApiController
             ]);
         }
 
-        $kullanici->jwt = $this->jwtUret($kullanici);
+        $jwtsizKullanici = $kullanici->toArray();
+        unset($jwtsizKullanici['jwt']);
+
+        $kullanici->jwt = $this->jwtUret($jwtsizKullanici);
         $kullanici->pushToken = $pushToken;
 
         if (!$kullanici->save()) {
