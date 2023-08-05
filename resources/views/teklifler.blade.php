@@ -18,6 +18,13 @@
                         </div>
                         <div class="col-auto">
                             <div class="row d-flex align-items-center">
+                                <div class="col-auto">
+                                    <button :class="{'btn btn-sm btn-warning' : filtrelemeObjesi.topluTeklifleriGetir, 'btn btn-sm btn-primary' : !filtrelemeObjesi.topluTeklifleriGetir}"
+                                        @click="topluTeklifleriGetir()">
+                                        <i class="fas fa-object-group"></i> @{{filtrelemeObjesi.topluTeklifleriGetir ? 'TEKLİFLERİ GETİR' : 'TOPLU TEKLİFLERİ GETİR'}}
+                                    </button>
+
+                                </div>
                                 <div class="col">
                                     <div class="input-group">
                                         <input
@@ -144,6 +151,7 @@
                                         <thead>
                                             <tr>
                                                 <th @click="siralamaYap('id')">ID</th>
+                                                <th @click="siralamaYap('topluKey')">Toplu Teklif ID'si</th>
                                                 <th @click="siralamaYap('teklifAdi')">Teklif Adı</th>
                                                 <th @click="siralamaYap('tur')" class="text-center">Teklif Türü</th>
                                                 <th @click="siralamaYap('created_at')" class="text-center">Oluşturma Tarihi </th>
@@ -151,9 +159,35 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <template v-if="_.size(teklifler.data)">
+                                            <template v-if="_.size(teklifler.data) && filtrelemeObjesi.topluTeklifleriGetir">
+                                                <tr v-for="(grup, index) in grupluTeklifler" :key="index">
+                                                    <td>#---</td>
+                                                    <td><span class="badge badge-pill bg-danger"># @{{ grup[0].topluKey }} </span></td>
+                                                    <td class="uzun-uzunluk">
+                                                        <div class="col-12">
+                                                            @{{ grup[0].tur }} FORMU
+                                                        </div>
+
+                                                    </td>
+                                                    <td class="kisa-uzunluk text-center">
+                                                        @{{ grup[0].tur }}
+                                                    </td>
+                                                    <td class="kisa-uzunluk text-center">
+                                                        @{{ m(grup[0].created_at).format("L LTS") }}
+                                                    </td>
+                                                    <td class="kisa-uzunluk text-center">
+                                                            <button class="btn btn-sm btn-warning"
+                                                            @click="sablonModalAc({'topluKey' : grup[0].topluKey})">
+                                                            <i class="fa fa-envelope"></i> TOPLU MAİL GÖNDER
+                                                        </button>
+                                                    </td>
+                                                </tr>
+
+                                            </template>
+                                            <template v-else-if="_.size(teklifler.data)">
                                                 <tr v-for="(teklif, index) in teklifler.data" :key="index">
                                                     <td># @{{ teklif.id }}</td>
+                                                    <td><span :class="{'badge badge-pill bg-danger' : teklif.topluKey }"># @{{ teklif.topluKey ?? '---' }} </span></td>
                                                     <td class="uzun-uzunluk">
                                                         <div class="col-12">
                                                             @{{ teklif.teklifAdi }}
@@ -238,6 +272,24 @@
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <div class="modal-body">
+                                <div class="col m-0" v-if="">
+                                    <div class="col m-0" v-if="filtrelemeObjesi.topluTeklifleriGetir">
+                                        <div class="form-group">
+                                            <label for="">Toplu Teklif ID'si</label>
+                                            <input class="form-control" type="text" disabled v-model="sablonObjesi.teklif.topluKey">
+                                        </div>
+                                    </div>
+                                    <div class="form-group" v-else>
+                                        <label for="">Kime</label>
+                                        <input class="form-control" type="text" v-model="sablonObjesi.teklif.eposta">
+                                    </div>
+                                </div>
+                                <div class="col m-0">
+                                    <div class="form-group">
+                                        <label for="">CC</label>
+                                        <input class="form-control" type="text" v-model="sablonObjesi.teklif.cc">
+                                    </div>
+                                </div>
                                 <div class="col m-0">
                                     <div class="form-group">
                                         <label for="sablonlar">Şablonlar</label>
@@ -247,7 +299,6 @@
                                             label="sablonAdi"
                                             id="id"
                                         ></v-select>
-
                                     </div>
                                 </div>
                             </div>
@@ -303,11 +354,12 @@
                         bitisTarihi: "",
                         teklifAdi: "",
                         tur: "",
+                        topluTeklifleriGetir: false,
                         firmaId: @json($firmaId ? $firmaId : ""),
-                        siralamaTuru:{}
+                        siralamaTuru:[]
                     },
                     sayfalamaSayilari: [10, 25, 50, 100],
-                    sayfalamaSayisi: 5,
+                    sayfalamaSayisi: 10,
                     sablonObjesi:{
                         sablonlar:[],
                         sablon: {},
@@ -356,6 +408,17 @@
                             });
                             console.log(error);
                         });
+                },
+                topluTeklifleriGetir(){
+                    this.filtrelemeObjesi.topluTeklifleriGetir = this.filtrelemeObjesi.topluTeklifleriGetir ? false : true;
+                    this.sablonObjesi = {
+                        sablonlar:[],
+                        sablon: {},
+                        teklif: {},
+                        modal:null,
+                    },
+                    this.sayfalamaSayisi = this.filtrelemeObjesi.topluTeklifleriGetir ? 100 : 10;
+                    this.teklifleriGetir();
                 },
                 geriAnasayfa() {
                     this.aktifSayfa = _.find(this.sayfalar, {
@@ -453,11 +516,11 @@
                         console.log(error);
                     });
                 },
-                teklifAlanlariDoldur() {
+                teklifAlanlariDoldur(teklif) {
 
                     this.sablonObjesi.teklif = {
                         tarih: this.m().format("L"),
-                        ...this.sablonObjesi.teklif,
+                        ...teklif,
                     };
 
                     this.sablonObjesi.teklif.icerik_html = _.assignIn([], this.sablonObjesi.sablon.icerik_html);
@@ -484,6 +547,7 @@
                     }
                     this.teklifleriGetir();
                 },
+
                 tarihleriTemizle() {
                     this.filtrelemeObjesi.baslangicTarihi = "";
                     this.filtrelemeObjesi.bitisTarihi = "";
@@ -491,45 +555,99 @@
                 mailGonder() {
                     this.yukleniyorObjesi.mailGonder = true;
                     this.sablonObjesi._teklif = _.cloneDeep(this.sablonObjesi.teklif);
-                    this.teklifAlanlariDoldur();
-                    console.log(this.sablonObjesi.teklif);
 
-                    if(this.sablonObjesi.teklif.eposta != null && this.sablonObjesi.teklif.eposta != "") {
+                    const fun = async (index) => {
+                        return new Promise((resolve) => {
+                            if (index !== null && this.sablonObjesi.teklif.topluKey && index >= this.grupluTeklifler[this.sablonObjesi.teklif.topluKey].length) {
+                                this.yukleniyorObjesi.mailGonder = false;
+                                this.sablonObjesi.modal.hide();
+                                setTimeout(() => {
+                                    this.uyariAc({
+                                    toast: {
+                                            status: true,
+                                            message: this.sablonObjesi.teklif.topluKey + " ID'li Toplu Teklif Maili Tüm Alıcılara Gönderildi",
+                                        },
+                                    });
+                                }, 2000);
+                                resolve();
+                                return;
+                            }
 
-                        axios.post('/mailGonder', {
-                            teklif: this.sablonObjesi.teklif,
-                        })
-                        .then(response => {
-                            this.yukleniyorObjesi.mailGonder = false;
-                            this.sablonObjesi.modal.hide();
-                            if (!response.data.durum) {
-                                return this.uyariAc({
+                            let teklif;
+
+                            if (index === null) {
+                                this.teklifAlanlariDoldur(this.sablonObjesi.teklif);
+                            } else {
+                                this.teklifAlanlariDoldur(this.grupluTeklifler[this.sablonObjesi._teklif.topluKey][index]);
+                            }
+                            console.log(index, this.sablonObjesi.teklif);
+
+                            axios.post('/mailGonder', {
+                                teklif: this.sablonObjesi.teklif,
+                            })
+                            .then(response => {
+                                if (!response.data.durum) {
+                                    return this.uyariAc({
+                                        baslik: 'Hata',
+                                        mesaj: response.data.mesaj,
+                                        tur: "error"
+                                    });
+                                }
+                                this.uyariAc({
+                                    toast: {
+                                        status: true,
+                                        message: response.data.mesaj,
+                                    },
+                                });
+                                if (index === null) {
+                                    this.yukleniyorObjesi.mailGonder = false;
+                                    this.sablonObjesi.modal.hide();
+                                    console.log("indexe girmedi");
+                                    resolve();
+                                    return;
+                                }else{
+                                    console.log("index artı 1 e girdi");
+                                    resolve(fun(index + 1));
+                                }
+
+                            })
+                            .catch(error => {
+                                this.yukleniyorObjesi.teklifEkle = false;
+                                this.uyariAc({
                                     baslik: 'Hata',
-                                    mesaj: response.data.mesaj,
+                                    mesaj: error.response.data.mesaj + " - Hata Kodu: " + error.response.data
+                                        .hataKodu,
                                     tur: "error"
                                 });
-                            }
-                            this.uyariAc({
-                                toast: {
-                                    status: true,
-                                    message: response.data.mesaj,
-                                },
-                            });
-                        })
-                        .catch(error => {
-                            this.yukleniyorObjesi.teklifEkle = false;
-                            this.uyariAc({
-                                baslik: 'Hata',
-                                mesaj: error.response.data.mesaj + " - Hata Kodu: " + error.response.data
-                                    .hataKodu,
-                                tur: "error"
-                            });
-                            console.log(error);
+                                console.log(error);
+                                resolve(fun(index + 1));
+                            })
                         });
+                    }
 
-                    } else {  this.uyariAc({toast: {status: false,message: this.sablonObjesi.teklif.firmaAdi + " Firma Bilgilerinde Mail Mevcut Değil."}});}
+                    if(this.filtrelemeObjesi.topluTeklifleriGetir){
+                        fun(0);
+                    }else {
+                        if(this.sablonObjesi.teklif.eposta != null && this.sablonObjesi.teklif.eposta != "") {
+                            fun(null);
+                        } else {  this.uyariAc({toast: {status: false,message: this.sablonObjesi.teklif.firmaAdi + " Firma Bilgilerinde Mail Mevcut Değil."}});}
+                    }
                 }
-            }
+            },
+            computed: {
+                grupluTeklifler() {
+                    const grupluTeklifler = {};
+                    this.teklifler.data.forEach((teklif) => {
+                        if (teklif.topluKey !== null) {
+                            if (!grupluTeklifler[teklif.topluKey]) {
+                            grupluTeklifler[teklif.topluKey] = [];
+                            }
+                            grupluTeklifler[teklif.topluKey].push(teklif);
+                        }
+                    });
+                    return grupluTeklifler;
+                }
+            },
         };
     </script>
 @endsection

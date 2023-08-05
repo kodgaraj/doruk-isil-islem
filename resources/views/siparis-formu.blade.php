@@ -160,7 +160,7 @@
 
                                                     </div>
                                                 </div>
-                                                <div class="col-12 m-0">
+                                                <div class="col m-0">
                                                     <div class="form-group">
                                                         <div class="row d-flex align-items-center justify-space-between">
                                                             <div class="col">
@@ -210,6 +210,67 @@
 
                                                     </div>
                                                 </div>
+                                                <div class="row">
+                                                    <div class="col m-0">
+                                                        <div class="form-group">
+                                                            <div class="row d-flex align-items-center justify-space-between">
+                                                                <div class="col">
+                                                                    <label for="siparisDurumu">Sipariş Durumu</label>
+                                                                </div>
+                                                            </div>
+                                                            <div class="input-group mb-3">
+                                                                <select class="form-control select2" v-model="filtrelemeObjesi.siparisDurumu">
+                                                                    <optgroup label="Sipariş Durumu">
+                                                                        <option value="">
+                                                                            Tümü
+                                                                        </option>
+                                                                        <option
+                                                                            v-for="(durum, index) in siparisDurumlari"
+                                                                            :value="durum.id"
+                                                                            :key="index"
+                                                                        >
+                                                                            @{{ durum.ad }}
+                                                                        </option>
+                                                                    </optgroup>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-auto m-0">
+                                                        <div class="form-group">
+                                                        <div class="row d-flex align-items-center justify-space-between">
+                                                            <div class="col">
+                                                                <label for="siparisDurumu">Fatura Durumu</label>
+                                                            </div>
+                                                        </div>
+                                                        <div class="input-group mb-3">
+                                                            <select class="form-control select2" v-model="filtrelemeObjesi.faturaDurumu">
+                                                                <optgroup label="Fatura Durumu">
+                                                                    <option value="">
+                                                                        Tümü
+                                                                    </option>
+                                                                    <option value="1">
+                                                                        Kesildi
+                                                                    </option>
+                                                                    <option value="0">
+                                                                        Kesilmedi
+                                                                    </option>
+                                                                </optgroup>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+                                                <div class="row m-0">
+                                                    <div class="form-group">
+                                                        <div class="form-check form-switch">
+                                                            <input type="checkbox" id="tutar" class="form-check-input" v-model="filtrelemeObjesi.tutar">
+                                                            <label for="tutar" class="form-check-label" >
+                                                                <span class="text-primary">Toplam Tutar "0₺" Olanlar</span>
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                         <div class="modal-footer">
@@ -249,6 +310,7 @@
                                                             <th data-priority="4">Tutar</th>
                                                         @endcan
                                                         <th data-priority="5">Sipariş Tarihi</th>
+                                                        <th data-priority="5">Fatura Tarihi</th>
                                                         <th data-priority="6" class="text-center">İşlemler</th>
                                                     </tr>
                                                 </thead>
@@ -302,17 +364,23 @@
                                                                         <div class="col-12" v-if="siparis.tutarEURO">
                                                                             @{{ siparis.tutarEUROYazi }}
                                                                         </div>
-                                                                        @can("fatura_kesildi_listeleme")
-                                                                            <div class="col-12">
-                                                                                <span :class="siparis.faturaKesildi ? 'text-success' : 'text-danger'">
-                                                                                    Fatura: <i class="fas" :class="siparis.faturaKesildi ? 'fa-check-circle' : 'fa-times-circle'"></i>
-                                                                                </span>
-                                                                            </div>
-                                                                        @endcan
+
                                                                     </div>
                                                                 </td>
                                                             @endcan
                                                             <td class="kisa-uzunluk">@{{ m(siparis.tarih).format("L") }}</td>
+                                                            <td class="kisa-uzunluk">
+                                                                @can("fatura_kesildi_listeleme")
+                                                                    <div class="col-12">
+                                                                        <span :class="siparis.faturaKesildi ? 'text-success' : 'text-danger'">
+                                                                            Fatura: <i class="fas" :class="siparis.faturaKesildi ? 'fa-check-circle' : 'fa-times-circle'"></i>
+                                                                        </span>
+                                                                    </div>
+                                                                    <div class="col-12">
+                                                                        @{{ siparis.faturaTarihi ? m(siparis.faturaTarihi).format("L") : "-" }}
+                                                                    </div>
+                                                                @endcan
+                                                            </td>
                                                             <td class="uzun-uzunluk text-center">
                                                                 <div class="btn-group row d-inline-flex g-1">
                                                                     <div class="col">
@@ -952,7 +1020,7 @@
                                 </template>
                             </div>
                         </div>
-                        <div class="mb-3 row overflow-auto">
+                        <div id="onizlemeScroll" class="mb-3 row overflow-auto">
                             <div class="col-12">
                               <label for="aciklama">İşlem Detayları</label>
                                 <table class="table table-bordered nowrap" id="urun-detay">
@@ -1433,6 +1501,9 @@
                     faturaBaslangicTarihi: null,
                     faturaBitisTarihi: null,
                     limit: 10,
+                    siparisDurumu: "",
+                    faturaDurumu: "",
+                    tutar: false,
                 },
                 sayfalamaSayilari: [10, 25, 50, 100],
                 sayfalamaSayisi: 10,
@@ -1551,6 +1622,7 @@
         },
         mounted() {
             this.onyukleme();
+            this.siparisDurumlariGetir();
         },
         watch: {
             "aktifSiparis.islemler": {
@@ -1634,7 +1706,7 @@
                     this.aktifSiparis.tutarTLYazi = this.yaziyaDonustur(tutarTL);
                 },
                 deep: true
-            },
+            }
         },
         computed: {
             araYukleniyor() {
@@ -2597,7 +2669,17 @@
                 this.aktifSiparis.onizlemeModu = true;
                 this.aktifSiparis = _.cloneDeep(this.aktifSiparis);
                 this.$nextTick(() => {
-                    html2canvas(document.getElementById("onizlemeGorunumu")).then(canvas => {
+                    var element = document.getElementById('onizlemeGorunumu');
+                    var onizlemeScrollElement = element.querySelector('#onizlemeScroll');
+                        onizlemeScrollElement.classList.remove('overflow-auto');
+                    var scrollHeight = element.scrollHeight;
+                        element.style.height = scrollHeight + 'px';
+                    var scrollWidth = element.scrollWidth;
+                        element.style.width = scrollWidth + 'px';
+                    var options = {
+                        width: scrollWidth,
+                    };
+                    html2canvas(element, options).then(canvas => {
                         const uzanti = "png";
                         const base64 = canvas.toDataURL("image/png");
                         var a = document.createElement("a");
@@ -2613,6 +2695,9 @@
                             }));
                         }
                         a.click();
+                        onizlemeScrollElement.classList.add('overflow-auto');
+                        element.style.width = '';
+                        element.style.height = '';
                         this.aktifSiparis.onizlemeModu = baslangicDurum;
                     });
                 });

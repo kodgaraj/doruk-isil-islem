@@ -60,6 +60,7 @@ class TeklifController extends Controller
                 {
                     $teklifler->where($teklifTabloAdi.".firmaId", $filtreleme["firmaId"]);
                 }
+
                 if (isset($filtreleme["tur"]) && $filtreleme["tur"] != "")
                 {
                     $teklifler->whereIn($teklifTabloAdi.".tur", array_column($filtreleme["tur"],"tur") . "%");
@@ -81,6 +82,15 @@ class TeklifController extends Controller
                 else if (isset($filtreleme["bitisTarihi"]) && $filtreleme["bitisTarihi"] != "")
                 {
                     $teklifler->where($teklifTabloAdi.".created_at", "<=", $filtreleme["bitisTarihi"]);
+                }
+                if (isset($filtreleme["topluTeklifleriGetir"]) && $filtreleme["topluTeklifleriGetir"] != "")
+                {
+                    $teklifler->where($teklifTabloAdi.".topluKey" , '!=', null );
+                    // $teklifler->groupBy($teklifTabloAdi.".topluKey")->map(function ($grup) {
+                    //     $firmaIdler = $grup->pluck('firmaId')->toArray();
+                    //     return $firmaIdler;
+                    // })->toArray();
+
                 }
 
             }
@@ -104,12 +114,14 @@ class TeklifController extends Controller
     {
         try {
             $firmaId = $request->firmaId;
+            $topluKey = $request->topluKey ?? null;
             $tur = $request->tur;
             $html = $request->html;
             $teklifBilgileri = $request->teklifBilgileri;
 
             $teklif = new Teklifler();
             $teklif->firmaId = $firmaId;
+            $teklif->topluKey = $topluKey;
             $teklif->teklifAdi = $this->buyukHarf($teklifBilgileri["firma"] . " " . $tur . " Formu");
             $teklif->tur = $tur;
             $teklif->icerik_html = isset($html) && $html ? $html : null;

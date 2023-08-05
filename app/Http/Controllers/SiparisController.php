@@ -166,6 +166,22 @@ class SiparisController extends Controller
                 $siparisler = $siparisler->where("$siparisTabloAdi.faturaTarihi", "<=", $filtrelemeler["faturaBitisTarihi"]);
             }
 
+            if (isset($filtrelemeler["faturaDurumu"]) && $filtrelemeler["faturaDurumu"] != "")
+            {
+                $siparisler = $siparisler->where("$siparisTabloAdi.faturaKesildi", $filtrelemeler["faturaDurumu"]);
+            }
+            if (isset($filtrelemeler["siparisDurumu"]) && $filtrelemeler["siparisDurumu"] != "")
+            {
+                $siparisler = $siparisler->where("$siparisTabloAdi.durumId", $filtrelemeler["siparisDurumu"]);
+            }
+            if (isset($filtrelemeler["tutar"]) && $filtrelemeler["tutar"] != "")
+            {
+                // if all currencies are equal to 0
+                $siparisler = $siparisler->havingRaw("tutarTL = 0")
+                    ->havingRaw("tutarUSD = 0")
+                    ->havingRaw("tutarEURO = 0");
+            }
+
             if (isset($filtrelemeler["siparisId"]) && $filtrelemeler["siparisId"])
             {
                 $siparisler = $siparisler->where("$siparisTabloAdi.id", $filtrelemeler["siparisId"]);
@@ -415,6 +431,7 @@ class SiparisController extends Controller
 
             }
 
+
             if (!$siparis->save())
             {
                 DB::rollBack();
@@ -426,6 +443,8 @@ class SiparisController extends Controller
                     "hataKodu" => "S001"
                 ], 500);
             }
+
+            $this->siparisDurumKontrol($siparis->id);
 
             foreach ($siparisBilgileri['islemler'] as $key => $islem)
             {

@@ -391,6 +391,17 @@ class DatabaseSeeder extends Seeder
 
             $mesajlar[] = 'Teklifler tablosu oluşturuldu > ' . date('Y-m-d H:i:s');
         }
+        // Teklifler tablosuna topluKey alanlarının eklenmesi
+        if (!Schema::hasColumn("teklifler", "topluKey")) {
+            Schema::table("teklifler", function (Blueprint $table) {
+                $table->bigIncrements('topluKey')
+                    ->nullable()
+                    ->after('firmaId')
+                    ->comment("Toplu oluşturulan tekliflerin aynı key ile gruplanması için kullanılan alan");
+            });
+
+            $mesajlar[] = 'Teklifler tablosuna topluKey alanlarının eklenmesi > ' . date('Y-m-d H:i:s');
+        }
 
         // kisitlar tablosu oluşturulması
         if (!Schema::hasTable("kisitlar")) {

@@ -24,6 +24,10 @@ class Kontrol
         $saat = date("H:i");
         $ip = $request->ip();
 
+        if($user->hasRole("admin")){
+            return $next($request);
+        }
+
         $kisitlar = Kisitlar::get()->first();
         if (isset($kisitlar) && $kisitlar != null) {
 
