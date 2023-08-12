@@ -410,8 +410,16 @@
                                         :options="firmalar.data"
                                         label="firmaAdi"
                                         multiple
+                                        :close-on-select="false"
                                         id="firmaFiltre"
-                                    ></v-select>
+                                    >
+                                    <template v-slot:option="firma" >
+                                        <div class="d-flex mr-2" >
+                                            <i class="fas fa-check text-success" v-if="teklif.firma.find(f => f.id == firma.id)">&nbsp;</i>
+                                            <span :style="[teklif.firma.find(f => f.id == firma.id) ? {'color':'#45cb85'} : {}]"> @{{ firma.firmaAdi }}</span>
+                                        </div>
+                                      </template>
+                                </v-select>
                                 </div>
                             </template>
                             <div class="col-12 col-sm-6 col-md-4">
