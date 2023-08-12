@@ -64,7 +64,13 @@ class Controller extends BaseController
 
         if ($termin > $ikinciFaz)
         {
-            $renk = "danger";
+            if ($sonTarih)
+            {
+               $renk = "white";
+            }else{
+                $renk = "danger";
+            }
+
             $kod = "IKINCI_FAZ_GECIKMIS";
         }
         else if ($termin > $birinciFaz)

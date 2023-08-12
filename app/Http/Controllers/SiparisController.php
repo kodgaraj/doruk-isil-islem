@@ -194,7 +194,7 @@ class SiparisController extends Controller
 
             foreach ($siparisler["data"] as &$siparis)
             {
-                $terminBilgileri = $this->terminHesapla($siparis["tarih"], $siparis["terminSuresi"]);
+                $terminBilgileri = $this->terminHesapla($siparis["tarih"], $siparis["terminSuresi"], $siparis["bitisTarihi"]);
 
                 $siparis["gecenSure"] = $terminBilgileri["gecenSure"];
                 $siparis["gecenSureRenk"] = $terminBilgileri["gecenSureRenk"];

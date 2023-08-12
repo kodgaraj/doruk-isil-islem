@@ -328,7 +328,7 @@
                                                                         # @{{ siparis.siparisId }}
                                                                     </div>
                                                                     <div class="col-12">
-                                                                        <span class="badge badge-pill" :class="`bg-${ siparis.gecenSureRenk }`">@{{ siparis.gecenSure }} Gün</span>
+                                                                        <span class="badge badge-pill" style="color: black" :class="`bg-${ siparis.gecenSureRenk }`">@{{ siparis.gecenSure }} Gün</span>
                                                                         <div class="d-inline-flex" v-if="siparis.islemYukleniyor">
                                                                             <div class="spinner-grow text-primary m-1 spinner-grow-sm" role="status">
                                                                                 <span class="sr-only">Yükleniyor...</span>
