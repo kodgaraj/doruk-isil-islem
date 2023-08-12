@@ -44,13 +44,13 @@
                                 <div class="col-auto ps-0">
                                     <!-- Filtreleme butonu -->
                                     <button class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#filtrelemeModal">
-                                        <i class="fa fa-filter"></i>
+                                        <i class="fa fa-filter" data-bs-toggle="tooltip" data-bs-placement="top" title="Filtreleme Aç"></i>
                                     </button>
                                 </div>
 
                                 <div class="col-auto">
                                     @can("siparis_kaydetme")
-                                        <button @click="siparisEklemeAc" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> SİPARİŞ EKLE</button>
+                                        <button @click="siparisEklemeAc" class="btn btn-primary btn-sm"><i class="fas fa-plus" data-bs-toggle="tooltip" data-bs-placement="top" title="Sipariş Ekle"></i> SİPARİŞ EKLE</button>
                                     @endcan
                                 </div>
                             </div>
@@ -275,7 +275,7 @@
                                         </div>
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-success" data-bs-dismiss="modal" @click="excelCikti()">
-                                                <i class="fas fa-file-excel"></i>
+                                                <i class="fas fa-file-excel" data-bs-toggle="tooltip" data-bs-placement="top" title="Excell İndir"></i>
                                                 EXCEL
                                             </button>
                                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">VAZGEÇ</button>
@@ -384,18 +384,18 @@
                                                             <td class="uzun-uzunluk text-center">
                                                                 <div class="btn-group row d-inline-flex g-1">
                                                                     <div class="col">
-                                                                        <button @click.stop="siparisDetayAc(siparis)" class="btn btn-primary btn-sm"><i class="fas fa-eye"></i></button>
+                                                                        <button @click.stop="siparisDetayAc(siparis)" class="btn btn-primary btn-sm"><i class="fas fa-eye" data-bs-toggle="tooltip" data-bs-placement="top" title="Sipariş Detay"></i></button>
                                                                     </div>
 
                                                                     @can("siparis_duzenleme")
                                                                         <div class="col">
-                                                                            <button @click.stop="siparisDuzenle(siparis)" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></button>
+                                                                            <button @click.stop="siparisDuzenle(siparis)" class="btn btn-warning btn-sm"><i class="fas fa-edit" data-bs-toggle="tooltip" data-bs-placement="top" title="Sipariş Düzenle"></i></button>
                                                                         </div>
                                                                     @endcan
 
                                                                     @can("siparis_silme")
                                                                         <div class="col">
-                                                                            <button @click.stop="siparisSil(siparis)" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>
+                                                                            <button @click.stop="siparisSil(siparis)" class="btn btn-danger btn-sm"><i class="fas fa-trash" data-bs-toggle="tooltip" data-bs-placement="top" title="Sipariş Sil"></i></button>
                                                                         </div>
                                                                     @endcan
                                                                     <div class="col-12">
@@ -546,7 +546,7 @@
                         <div class="col-12 col-md-4 text-end">
                             @can("siparis_raporu_olusturma")
                                 <button @click="raporOlusturAc" class="btn btn-outline-primary" v-if="aktifSiparis.siparisId">
-                                    <i class="fas fa-chart-line"></i>
+                                    <i class="fas fa-chart-line" data-bs-toggle="tooltip" data-bs-placement="top" title="Rapor Oluştur"></i>
                                 </button>
 
                                 <div class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" id="raporlamaModal" tabindex="-1" aria-labelledby="raporlamaModal" aria-hidden="true">
@@ -721,8 +721,8 @@
                             @endcan
                             @can("siparis_duzenleme")
                                 <button @click="moduDegistir" class="btn btn-outline-info">
-                                    <i class="fas fa-eye" v-if="!aktifSiparis.onizlemeModu"></i>
-                                    <i class="fas fa-eye-slash" v-else></i>
+                                    <i class="fas fa-eye" data-bs-toggle="tooltip" data-bs-placement="top" title="Önizleme Moduna Geç" v-if="!aktifSiparis.onizlemeModu"></i>
+                                    <i class="fas fa-eye-slash" data-bs-toggle="tooltip" data-bs-placement="top" title="Önizleme Modundan Çık" v-else></i>
                                 </button>
                             @endcan
                             <button v-if="aktifSiparis.onizlemeModu" @click="ciktiAl" class="btn btn-primary">
@@ -735,7 +735,7 @@
                                     class="btn btn-success"
                                     :disabled="_.size(aktifSiparis.islemler) === 0"
                                 >
-                                    <i class="fas fa-save"></i> KAYDET
+                                    <i class="fas fa-save" data-bs-toggle="tooltip" data-bs-placement="top" title="Siparişi Kaydet"></i> KAYDET
                                 </button>
                             @endcan
                         </div>
@@ -997,6 +997,7 @@
                                             type="checkbox"
                                             id="islemDuzenle"
                                             v-model="aktifSiparis.islemDuzenle"
+                                            @click="siparisDurumDegisti()"
                                         />
                                         <label class="form-check-label" for="islemDuzenle">
                                             <span  class="text-primary">İşlem Düzenle</span>
@@ -2046,7 +2047,13 @@
 
                 this.aktifSiparis.islemler.splice(index, 1);
             },
-            siparisKaydet() {
+            siparisDurumDegisti() {
+                if (this.aktifSiparis.islemDuzenle) {
+                    this.siparisKaydet("geriGitme");
+                }
+            },
+            siparisKaydet(veri = null) {
+
                 if (!this.aktifSiparis.firma) {
                     return this.uyariAc({
                         baslik: 'Uyarı',
@@ -2093,8 +2100,14 @@
                                 timer: 2000
                             }
                         });
-                        this.siparisleriGetir();
-                        this.geri();
+                        console.log(veri);
+
+                        if(veri !== "geriGitme"){
+                            this.siparisleriGetir();
+                            this.geri();
+                        }else{
+                            this.siparisDuzenle(this.aktifSiparis);
+                        }
                     })
                     .catch(error => {
                         this.yukleniyorObjesi.kaydet = false;
