@@ -152,8 +152,7 @@ class DatabaseSeeder extends Seeder
                 ],
             ];
 
-            foreach ($bildirimTurleri as $bildirimTur)
-            {
+            foreach ($bildirimTurleri as $bildirimTur) {
                 $bildirim = new BildirimTurleri();
                 $bildirim->ad = $bildirimTur['ad'];
                 $bildirim->kod = $bildirimTur['kod'];
@@ -201,22 +200,19 @@ class DatabaseSeeder extends Seeder
             $daraTuru = DB::select("SELECT DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = 'islemler' AND COLUMN_NAME = 'dara'")[0]->DATA_TYPE;
             $birimFiyatTuru = DB::select("SELECT DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = 'islemler' AND COLUMN_NAME = 'birimFiyat'")[0]->DATA_TYPE;
 
-            if ($miktarTuru !== "double")
-            {
+            if ($miktarTuru !== "double") {
                 DB::statement('ALTER TABLE islemler MODIFY miktar DOUBLE(15, 2) DEFAULT 0');
 
                 $mesajlar[] = 'İşlemler tablosundaki miktar alanının tipi değiştirildi > ' . date('Y-m-d H:i:s');
             }
 
-            if ($daraTuru !== "double")
-            {
+            if ($daraTuru !== "double") {
                 DB::statement('ALTER TABLE islemler MODIFY dara DOUBLE(15, 2) DEFAULT 0');
 
                 $mesajlar[] = 'İşlemler tablosundaki dara alanının tipi değiştirildi > ' . date('Y-m-d H:i:s');
             }
 
-            if ($birimFiyatTuru !== "double")
-            {
+            if ($birimFiyatTuru !== "double") {
                 DB::statement('ALTER TABLE islemler MODIFY birimFiyat DOUBLE(15, 2) DEFAULT 0');
 
                 $mesajlar[] = 'İşlemler tablosundaki birimFiyat alanının tipi değiştirildi > ' . date('Y-m-d H:i:s');
@@ -349,8 +345,8 @@ class DatabaseSeeder extends Seeder
             $mesajlar[] = 'Firmalar tablosuna adres alanı eklendi > ' . date('Y-m-d H:i:s');
         }
 
-         // Siparişler tablosuna faturaTarihi alanı eklenmesi
-         if (!Schema::hasColumn("siparisler", "faturaTarihi")) {
+        // Siparişler tablosuna faturaTarihi alanı eklenmesi
+        if (!Schema::hasColumn("siparisler", "faturaTarihi")) {
             Schema::table("siparisler", function (Blueprint $table) {
                 $table->dateTime('faturaTarihi')
                     ->nullable()
@@ -394,7 +390,7 @@ class DatabaseSeeder extends Seeder
         // Teklifler tablosuna topluKey alanlarının eklenmesi
         if (!Schema::hasColumn("teklifler", "topluKey")) {
             Schema::table("teklifler", function (Blueprint $table) {
-                $table->bigIncrements('topluKey')
+                $table->bigInteger('topluKey')
                     ->nullable()
                     ->after('firmaId')
                     ->comment("Toplu oluşturulan tekliflerin aynı key ile gruplanması için kullanılan alan");
@@ -423,9 +419,9 @@ class DatabaseSeeder extends Seeder
             Schema::create('login_log', function (Blueprint $table) {
                 $table->bigIncrements('id');
                 $table->integer('user_id');
-                $table->string('aciklama',100);
+                $table->string('aciklama', 100);
                 $table->integer('islem_kodu');
-                $table->string('ip',50);
+                $table->string('ip', 50);
                 $table->timestamps();
             });
 
