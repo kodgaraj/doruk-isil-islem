@@ -268,11 +268,11 @@
                     <div class="modal-dialog">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h5 class="modal-title" id="sablonModalTitle">Şablonlar</h5>
+                                <h5 class="modal-title" id="sablonModalTitle">@{{sablonObjesi.teklif.teklifAdi}}</h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <div class="modal-body">
-                                <div class="col m-0" v-if="">
+                                <div class="col m-0">
                                     <div class="col m-0" v-if="filtrelemeObjesi.topluTeklifleriGetir">
                                         <div class="form-group">
                                             <label for="">Toplu Teklif ID'si</label>
@@ -283,14 +283,12 @@
                                         <label for="">Kime</label>
                                         <input class="form-control" type="text" v-model="sablonObjesi.teklif.eposta">
                                     </div>
-                                </div>
-                                <div class="col m-0">
+
                                     <div class="form-group">
                                         <label for="">CC</label>
                                         <input class="form-control" type="text" v-model="sablonObjesi.teklif.cc">
                                     </div>
-                                </div>
-                                <div class="col m-0">
+
                                     <div class="form-group">
                                         <label for="sablonlar">Şablonlar</label>
                                         <v-select
@@ -300,17 +298,23 @@
                                             id="id"
                                         ></v-select>
                                     </div>
+                                    <div class="form-group">
+                                        <label for="file">Ek Dosya</label>
+
+                                        <input type="file" class="form-control" multiple id="file" name="file" @change="onFileChange">
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="modal-footer">
-                                <button
-                                    type="button"
-                                    class="btn btn-primary"
-                                    @click="mailGonder()"
-                                >
-                                Mail Gönder
-                                </button>
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">VAZGEÇ</button>
+
+                                <div class="modal-footer">
+                                    <button
+                                        type="button"
+                                        class="btn btn-primary"
+                                        @click="mailGonder()"
+                                    >
+                                    Mail Gönder
+                                    </button>
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">VAZGEÇ</button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -364,6 +368,7 @@
                         sablonlar:[],
                         sablon: {},
                         teklif: {},
+                        dosyalar: [],
                         modal:null,
                     },
                     sablonlar: @json($sablonlar),
@@ -529,7 +534,7 @@
                         this.sablonObjesi.teklif.icerik_html[index] = this.sablonObjesi.teklif.icerik_html[index].replaceAll('[eposta]', this.sablonObjesi.teklif.eposta);
                         this.sablonObjesi.teklif.icerik_html[index] = this.sablonObjesi.teklif.icerik_html[index].replaceAll('[tur]', this.sablonObjesi.teklif.tur);
                         this.sablonObjesi.teklif.icerik_html[index] = this.sablonObjesi.teklif.icerik_html[index].replaceAll('[tarih]', this.m().format("L"));
-                     }
+                    }
                 },
                 siralamaYap(alan){
                     if(this.filtrelemeObjesi.siralamaTuru && this.filtrelemeObjesi.siralamaTuru[alan]){
@@ -551,6 +556,9 @@
                 tarihleriTemizle() {
                     this.filtrelemeObjesi.baslangicTarihi = "";
                     this.filtrelemeObjesi.bitisTarihi = "";
+                },
+                onFileChange(e) {
+                    this.sablonObjesi.dosyalar = Array.from(e.target.files);
                 },
                 mailGonder() {
                     this.yukleniyorObjesi.mailGonder = true;
@@ -576,14 +584,27 @@
                             let teklif;
 
                             if (index === null) {
+                                this.sablonObjesi.teklif.topluKey = null;
                                 this.teklifAlanlariDoldur(this.sablonObjesi.teklif);
                             } else {
                                 this.teklifAlanlariDoldur(this.grupluTeklifler[this.sablonObjesi._teklif.topluKey][index]);
                             }
-                            console.log(index, this.sablonObjesi.teklif);
 
-                            axios.post('/mailGonder', {
-                                teklif: this.sablonObjesi.teklif,
+                            const formData = new FormData();
+
+                            if(this.sablonObjesi.dosyalar == null || this.sablonObjesi.dosyalar == "") {
+                                formData.append('dosyalar[]', "");
+                            } else {
+                                this.sablonObjesi.dosyalar.forEach(file => {
+                                    formData.append('dosyalar[]', file);
+                                });
+                            }
+                            formData.append('teklif', JSON.stringify(this.sablonObjesi.teklif));
+
+                            axios.post('/mailGonder', formData, {
+                                headers: {
+                                    'Content-Type': 'multipart/form-data'
+                                }
                             })
                             .then(response => {
                                 if (!response.data.durum) {
@@ -620,7 +641,7 @@
                                     tur: "error"
                                 });
                                 console.log(error);
-                                resolve(fun(index + 1));
+                                resolve();
                             })
                         });
                     }

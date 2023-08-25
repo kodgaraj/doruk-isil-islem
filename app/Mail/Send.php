@@ -14,19 +14,20 @@ use Illuminate\Queue\SerializesModels;
 class Send extends Mailable
 {
     use Queueable, SerializesModels;
-    public $email,$mesaj,$baslik,$pathToFile;
+    public $email,$mesaj,$baslik,$pathToFile,$dosyalar;
 
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct($email,$mesaj,$baslik,$pathToFile)
+    public function __construct($email,$mesaj,$baslik,$pathToFile, $dosyalar)
     {
         $this->email=$email;
         $this->mesaj=$mesaj;
         $this->baslik=$baslik;
         $this->pathToFile=$pathToFile;
+        $this->dosyalar=$dosyalar;
     }
 
     /**
@@ -60,10 +61,15 @@ class Send extends Mailable
      */
     public function attachments()
     {
-        return [
-            Attachment::fromPath($this->pathToFile)
-            ->as($this->baslik .'.pdf')
-            ->withMime('application/pdf')
-        ];
+            $attachments = [
+                Attachment::fromPath($this->pathToFile)->as($this->baslik . '.pdf')
+            ];
+
+            foreach ($this->dosyalar as $dosya) {
+                $attachments[] = Attachment::fromPath($dosya->url)->as($dosya->getClientOriginalName());
+            }
+
+            return $attachments;
+
     }
 }
