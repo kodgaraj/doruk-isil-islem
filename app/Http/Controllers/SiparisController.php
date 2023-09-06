@@ -424,7 +424,7 @@ class SiparisController extends Controller
             $siparis->terminSuresi = $siparisBilgileri['terminSuresi'] ?? 5;
             if($siparisBilgileri['faturaKesildi']){
                 $siparis->faturaKesildi = $siparisBilgileri['faturaKesildi'];
-                $siparis->faturaTarihi = isset($siparisBilgileri['faturaTarihi']) ? $siparisBilgileri['faturaTarihi'] : now();
+                $siparis->faturaTarihi = isset($siparisBilgileri['faturaTarihi']) && $siparisBilgileri['faturaTarihi'] ? $siparisBilgileri['faturaTarihi'] : now();
             }else{
                 $siparis->faturaKesildi =  false;
                 $siparis->faturaTarihi = null;
