@@ -980,8 +980,8 @@
                                                         <span v-if="aktifSiparis.faturaKesildi" class="text-success">Fatura kesildi</span>
                                                         <span v-else class="text-danger">Fatura kesilmedi</span>
                                                     </label>
-                                                    {{-- <span v-if="aktifSiparis.faturaTarihi">@{{aktifSiparis.faturaTarihi}}</span> --}}
-                                                    <input v-if="aktifSiparis.faturaKesildi" type="datetime-local" class="form-control" v-model="aktifSiparis.faturaTarihi" />
+                                                    <span v-if="aktifSiparis.faturaTarihi">@{{aktifSiparis.faturaTarihi}}</span>
+                                                    {{-- <input v-if="aktifSiparis.faturaKesildi" type="datetime-local" class="form-control" v-model="aktifSiparis.faturaTarihi" /> --}}
                                                 </div>
                                                 <div>
                                                 </div>
