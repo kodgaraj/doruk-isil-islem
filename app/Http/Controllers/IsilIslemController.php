@@ -65,7 +65,7 @@ class IsilIslemController extends Controller
                 // Sipariş no, firma adı, irsaliye no
                 $formlar = $formlar->where(function ($query) use ($filtrelemeler, $formTabloAdi) {
                     $query->where($formTabloAdi . '.takipNo', 'like', '%' . $filtrelemeler["arama"] . '%')
-                        ->orWhere($formTabloAdi . '.formAdi', 'like', '%' . $filtrelemeler["arama"] . '%');                                            
+                        ->orWhere($formTabloAdi . '.formAdi', 'like', '%' . $filtrelemeler["arama"] . '%');
                 });
             }
 
@@ -132,7 +132,7 @@ class IsilIslemController extends Controller
     /**
      * Tarih ile başlayan takip numarasının bir sonraki numarasını döndürür.
      * Örn: TKP2022060301 -> TKP2022060302
-     * 
+     *
      * @return \Illuminate\Http\JsonResponse
      */
     public function takipNumarasiGetir()
@@ -234,7 +234,7 @@ class IsilIslemController extends Controller
 
             /**
              * DİKKAT!!!
-             * 
+             *
              * Aşağıdaki satırların sıralamasını değiştirmeyin.
              * Sebep; Laravel query builder sapıtıyor veya ben
              * gözümden bir şey kaçırıyorum.
@@ -256,7 +256,7 @@ class IsilIslemController extends Controller
                     ->orderBy('secildi', 'desc');
             }
 
-            $firmaGrupluIslemler = $firmaGrupluIslemler->orderBy($firmaTabloAdi . '.firmaAdi', 'asc')
+            $firmaGrupluIslemler = $firmaGrupluIslemler
                 ->orderBy($siparisTabloAdi . '.siparisNo', 'desc')
                 ->orderBy($islemTabloAdi . '.created_at', 'desc');
             /** DİKKAT SON!!! */
