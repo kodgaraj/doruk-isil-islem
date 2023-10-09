@@ -643,7 +643,7 @@
                                                                 <input
                                                                     v-model="siparisRaporlama.islem.sonSertlik"
                                                                     class="form-control"
-                                                                    @input="gecikmeliFonksiyon.siparisRaporlama('SONSERTLIK')"
+                                                                    @input="gecikmeliFonksiyon.siparisRaporlama('OLCUM')"
                                                                 />
                                                             </div>
                                                             <div class="col-12 m-0 mb-2 text-start">
@@ -2894,8 +2894,8 @@
 
                 switch (tur) {
                     case "OLCUM": {
-                        if (this.siparisRaporlama.islem.olcumler != "") {
-                            const olcumlerDizisi = _.map(_.split(this.siparisRaporlama.islem.olcumler, ","), _.trim);
+                        if (this.siparisRaporlama.islem.sonSertlik != "") {
+                            const olcumlerDizisi = _.map(_.split(this.siparisRaporlama.islem.sonSertlik, ","), _.trim);
 
                             this.siparisRaporlama.grafikSeries[0].data = [];
                             _.forEach(olcumlerDizisi, olcum => {
