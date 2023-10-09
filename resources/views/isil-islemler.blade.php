@@ -50,7 +50,7 @@
 
                                 <div class="col-auto">
                                     @can("isil_islem_formu_kaydetme")
-                                        <button @click="formEkleAc" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> FORM EKLE</button>                                
+                                        <button @click="formEkleAc" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> FORM EKLE</button>
                                     @endcan
                                 </div>
                             </div>
@@ -733,6 +733,27 @@
                                                 </div>
                                             </div>
                                         </div>
+                                        <div class="col-auto m-0">
+                                            <div class="row d-flex align-items-center">
+                                                <div class="col">
+                                                    <div class="input-group">
+                                                        <v-select
+                                                            v-model="islemSayfalamaSayisi"
+                                                            :options="sayfalamaSayilari"
+                                                            id="islemSayfalamaSayisi"
+                                                            @input="firmaGrupluIslemleriGetir()"
+                                                        ></v-select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-12">
+                                                    <small class="text-muted">
+                                                        Sayfalama
+                                                    </small>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -1323,8 +1344,9 @@
                     formAdi: '',
                     firmaArama: "",
                 },
-                sayfalamaSayilari: [10, 25, 50, 100],
-                sayfalamaSayisi: 10,
+                sayfalamaSayilari: [10, 25, 50, 100, 150],
+                sayfalamaSayisi: 50,
+                islemSayfalamaSayisi: 10,
                 aktifBolunecekIslem: {
                     islem: null,
                     bolunmusIslemler: [],
@@ -1550,7 +1572,8 @@
                         formId: formId || this.aktifForm.id,
                         filtreleme: {
                             arama: this.filtrelemeObjesi.firmaArama,
-                        }
+                        },
+                        islemSayfalamaSayisi: this.islemSayfalamaSayisi,
                     }
                 })
                 .then(response => {
@@ -1927,6 +1950,7 @@
                     params: {
                         formId,
                     }
+
                 }).then(response => {
                     if (!response.data.durum) {
                         return this.uyariAc({
@@ -2278,7 +2302,7 @@
                 }
 
                 if (_toplamNet !== this.aktifBolunecekIslem.islem.net) {
-                    this.aktifBolunecekIslem.hatalar.toplamNet = `Toplam net ağırlığı eşleşmiyor. 
+                    this.aktifBolunecekIslem.hatalar.toplamNet = `Toplam net ağırlığı eşleşmiyor.
                     (Böldüğünüz toplam net ağırlık ${_toplamNet} kg,
                     olması gereken net ağırlık ${this.aktifBolunecekIslem.islem.net} kg.
                     ${this.aktifBolunecekIslem.islem.net - _toplamNet > 0 ? 'Eksik' : 'Fazla'}

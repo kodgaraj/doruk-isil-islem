@@ -275,9 +275,11 @@ class IsilIslemController extends Controller
                         ->orWhere($malzemeTabloAdi . '.ad', 'like', '%' . $filtrelemeler["arama"] . '%')
                         ->orWhere($islemTuruTabloAdi . '.ad', 'like', '%' . $filtrelemeler["arama"] . '%');
                 });
+
             }
 
-            $islemler = $firmaGrupluIslemler->paginate(10);
+            $islemSayfalamaSayisi = $request->islemSayfalamaSayisi ?? 10;
+            $islemler = $firmaGrupluIslemler->paginate($islemSayfalamaSayisi);
 
             // dd($islemler->toArray());
             $islemler = $islemler->toArray();
