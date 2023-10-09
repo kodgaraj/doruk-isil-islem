@@ -438,7 +438,18 @@
                                                                         </thead>
                                                                         <tbody id="islem-satir-ekle">
                                                                             <tr v-for="(islem, iIndex) in siparis.bolunmusToplamliIslemler">
-                                                                                <td class="kisa-uzunluk">@{{ iIndex + 1 }}</td>
+                                                                                <td class="kisa-uzunluk">
+                                                                                    <div class="col-12">
+                                                                                        @{{ iIndex + 1 }}
+                                                                                    </div>
+                                                                                    <div class="col-12" v-if="islem.islemTermini">
+                                                                                        <span class="badge badge-pill" style="color: black" :class="`bg-${ siparis.gecenSureRenk }`">@{{ islem.islemTermini }} Gün</span>
+
+                                                                                    </div>
+                                                                                    <div class="col-12">
+                                                                                        <span class="badge badge-pill bg-primary"><a href="/isil-islemler" style="color:white">@{{ islem.formId }}</a></span>
+                                                                                    </div>
+                                                                                </td>
                                                                                 <td class="text-center">
                                                                                     <img
                                                                                         :src="islem.resimYolu ? islem.resimYolu : varsayilanResimYolu"

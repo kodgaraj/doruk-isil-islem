@@ -621,6 +621,8 @@ class SiparisController extends Controller
                 $donecekVeriler["siparisDetaylari"] = $siparisDetaylari;
             }
 
+            $siparisTarihi = Siparisler::where('id', $siparisId)->first()->tarih;
+
             $bolunmusToplamliIslemler = [];
 
             foreach ($donecekVeriler["islemler"] as $islem)
@@ -637,6 +639,11 @@ class SiparisController extends Controller
 
                 $islem["daraSonraGirilecek"] = $islem["json"] && $islem["json"]["daraSonraGirilecek"];
                 $islem["miktarFiyatCarp"] = $islem["miktarFiyatCarp"] == 1 ? true : false;
+
+                $islem["bitisTarihiTR"] = Carbon::parse($islem["bitisTarihi"])->format("d.m.Y");
+
+                $islem["islemTermini"] = $islem["durumId"] == "3" ? Carbon::parse($siparisTarihi)->diffInDays(Carbon::parse($islem["bitisTarihi"])) : null ;
+
 
                 $id = $islem["bolunmusId"] ? $islem["bolunmusId"] : $islem["id"];
 
