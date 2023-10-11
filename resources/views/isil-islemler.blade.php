@@ -1351,7 +1351,7 @@
                     islem: null,
                     bolunmusIslemler: [],
                     hatalar: {},
-                    kaydettiktenSonraSec: true,
+                    kaydettiktenSonraSec: false,
                     modal: null,
                     firma: null,
                 },
@@ -2212,7 +2212,7 @@
                     },
                     bolunmusIslemler: [],
                     hatalar: {},
-                    kaydettiktenSonraSec: true,
+                    kaydettiktenSonraSec: false,
                     modal: new bootstrap.Modal(document.getElementById("islemBolModal")),
                 };
 
