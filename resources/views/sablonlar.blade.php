@@ -189,7 +189,7 @@
                         sablonCogalt: false,
                         sablonGoster: false,
                     },
-                    sablonTurleri: [{"adi":"","ogeler":[]},{"adi":"TEKLIF","ogeler":["[baslik]","[tarih]","[firmaAdi]","[sorumluKisi]","[telefon]","[adres]","[eposta]","[teklifIcerikleri]","[gecerlilikTarihi]"]}, {"adi":"ISLEM","ogeler":["[tarih]","[firmaAdi]","[sorumluKisi]","[gecerlilikTarihi]"]},{"adi":"MAIL","ogeler":["[firmaAdi]","[tur]","[eposta]"]}],
+                    sablonTurleri: [{"adi":"","ogeler":[]},{"adi":"TEKLIF","ogeler":["[baslik]","[tarih]","[firmaAdi]","[sorumluKisi]","[telefon]","[adres]","[eposta]","[teklifIcerikleri]","[gecerlilikTarihi]"]}, {"adi":"ISLEM","ogeler":["[tarih]","[firmaAdi]","[sorumluKisi]","[gecerlilikTarihi]"]},{"adi":"MAIL","ogeler":["[firmaAdi]","[sorumluKisi]","[tur]","[eposta]"]}],
                     sablonlar: [],
                     sablonSayfaSayisi: 0,
                     yeniSablon: {

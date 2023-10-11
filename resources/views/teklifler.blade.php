@@ -531,6 +531,7 @@
                     this.sablonObjesi.teklif.icerik_html = _.assignIn([], this.sablonObjesi.sablon.icerik_html);
                     for (let index = 0; index < this.sablonObjesi.teklif.icerik_html.length; index++) {
                         this.sablonObjesi.teklif.icerik_html[index] = this.sablonObjesi.teklif.icerik_html[index].replaceAll('[firmaAdi]', this.sablonObjesi.teklif.firmaAdi);
+                        this.sablonObjesi.teklif.icerik_html[index] = this.sablonObjesi.teklif.icerik_html[index].replaceAll('[sorumluKisi]', this.sablonObjesi.teklif.sorumluKisi);
                         this.sablonObjesi.teklif.icerik_html[index] = this.sablonObjesi.teklif.icerik_html[index].replaceAll('[eposta]', this.sablonObjesi.teklif.eposta);
                         this.sablonObjesi.teklif.icerik_html[index] = this.sablonObjesi.teklif.icerik_html[index].replaceAll('[tur]', this.sablonObjesi.teklif.tur);
                         this.sablonObjesi.teklif.icerik_html[index] = this.sablonObjesi.teklif.icerik_html[index].replaceAll('[tarih]', this.m().format("L"));

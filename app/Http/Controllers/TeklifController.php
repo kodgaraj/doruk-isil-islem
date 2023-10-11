@@ -36,7 +36,7 @@ class TeklifController extends Controller
             $firmaTabloAdi = (new Firmalar())->getTable();
             $teklifTabloAdi = (new Teklifler())->getTable();
 
-            $teklifler = Teklifler::select('teklifler.*', 'firmalar.id as firmaId', 'firmalar.firmaAdi as firmaAdi', 'firmalar.eposta as eposta')
+            $teklifler = Teklifler::select('teklifler.*', 'firmalar.id as firmaId', 'firmalar.firmaAdi as firmaAdi', 'firmalar.eposta as eposta', 'firmalar.sorumluKisi as sorumluKisi')
                 ->join('firmalar', 'firmalar.id', '=', 'teklifler.firmaId');
 
             $alan = isset($filtreleme["siralamaTuru"]) && $filtreleme["siralamaTuru"] != null ? array_keys($filtreleme["siralamaTuru"])[0] : "created_at";
