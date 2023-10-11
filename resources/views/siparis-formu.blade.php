@@ -1327,7 +1327,8 @@
             <div class="col-12" style="border-bottom: 1px solid #dddddd;">
                 <div class="row d-flex align-items-center">
                     <div class="col-4 text-end">
-                        <b>GELİŞ TARİHİ:</b>
+                        <b>GELİŞ TARİHİ:</b><br>
+                        <small>THE ARRIVAL DATE</small>
                     </div>
                     <div class="col-8 text-start">
                         <span>${ rapor.gelisTarihi }</span>
@@ -1337,7 +1338,8 @@
             <div class="col-12" style="border-bottom: 1px solid #dddddd;">
                 <div class="row d-flex align-items-center">
                     <div class="col-4 text-end">
-                        <b>FİRMA:</b>
+                        <b>FİRMA:</b><br>
+                        <small>COMPANY</small>
                     </div>
                     <div class="col-8 text-start">
                         <span>${ rapor.firma }</span>
@@ -1347,7 +1349,8 @@
             <div class="col-12" style="border-bottom: 1px solid #dddddd;">
                 <div class="row d-flex align-items-center">
                     <div class="col-4 text-end">
-                        <b>ÜRÜN KALİTESİ:</b>
+                        <b>ÜRÜN KALİTESİ:</b><br>
+                        <small>PRODUCT QUALITY</small>
                     </div>
                     <div class="col-8 text-start">
                         <span>${ rapor.urunKalitesi }</span>
@@ -1357,7 +1360,8 @@
             <div class="col-12" style="border-bottom: 1px solid #dddddd;">
                 <div class="row d-flex align-items-center">
                     <div class="col-4 text-end">
-                        <b>MALZEME TANIMI:</b>
+                        <b>MALZEME TANIMI:</b><br>
+                        <small>MATERIAL DESCRIPTION</small>
                     </div>
                     <div class="col-8 text-start">
                         <span>${ rapor.malzeme }</span>
@@ -1367,7 +1371,8 @@
             <div class="col-12" style="border-bottom: 1px solid #dddddd;">
                 <div class="row d-flex align-items-center">
                     <div class="col-4 text-end">
-                        <b>ADET:</b>
+                        <b>ADET:</b><br>
+                        <small>PIECE</small>
                     </div>
                     <div class="col-8 text-start">
                         <span>${ rapor.urunAdedi }</span>
@@ -1377,7 +1382,8 @@
             <div class="col-12" style="border-bottom: 1px solid #dddddd;">
                 <div class="row d-flex align-items-center">
                     <div class="col-4 text-end">
-                        <b>YAPILAN İŞLEM:</b>
+                        <b>YAPILAN İŞLEM:</b><br>
+                        <small>ACTION TAKEN</small>
                     </div>
                     <div class="col-8 text-start">
                         <span>${ rapor.yapilanIslem }</span>
@@ -1387,7 +1393,8 @@
             <div class="col-12" style="border-bottom: 1px solid #dddddd;">
                 <div class="row d-flex align-items-center">
                     <div class="col-4 text-end">
-                        <b>İSTENEN SERTLİK:</b>
+                        <b>İSTENEN SERTLİK:</b><br>
+                        <small>DESIRED HARDNESS</small>
                     </div>
                     <div class="col-8 text-start">
                         <span>${ rapor.istenenSertlik }</span>
@@ -1397,7 +1404,8 @@
             <div class="col-12" style="border-bottom: 1px solid #dddddd;">
                 <div class="row d-flex align-items-center">
                     <div class="col-4 text-end">
-                        <b>SON SERTLİK:</b>
+                        <b>SON SERTLİK:</b><br>
+                        <small>FINAL HARDNESS</small>
                     </div>
                     <div class="col-8 text-start">
                         <span>${ rapor.sonSertlik }</span>
@@ -1407,7 +1415,8 @@
             <div class="col-12" style="border-bottom: 1px solid #dddddd;">
                 <div class="row d-flex align-items-center">
                     <div class="col-4 text-end">
-                        <b>NOT:</b>
+                        <b>NOT:</b><br>
+                        <small>NOTE</small>
                     </div>
                     <div class="col-8 text-start">
                         <span>${ rapor.not }</span>
@@ -1416,7 +1425,8 @@
             </div>
         </div>
         <div class="col-12 text-center mt-4">
-            <b>SİPARİŞ FOTOĞRAFI</b>
+            <b>SİPARİŞ FOTOĞRAFI</b><br>
+            <small>ORDER PHOTO</small>
         </div>
         <div class="col-12 text-center mb-2">
             <img height="400" style="object-fit: contain; width: 190mm;" src="${ rapor.urunFotografi }" />
@@ -1424,7 +1434,8 @@
     </div>
     <div class="printable-page" id="page-2">
         <div class="col-12 text-center mt-4">
-            <b>ISIL İŞLEM SONRASI ÖLÇÜLEN SERTLİK DEĞERLERİ</b>
+            <b>ISIL İŞLEM SONRASI ÖLÇÜLEN SERTLİK DEĞERLERİ</b><br>
+            <small>HARDNESS VALUES MEASURED AFTER HEAT TREATMENT</small>
         </div>
         <div class="col-12 d-flex justify-content-center">
             <div class="siparis-raporlama-chart"></div>
@@ -1588,7 +1599,7 @@
                         grid: {
                             borderColor: '#e7e7e7',
                             row: {
-                                colors: ['#f3f3f3', 'transparent'], // takes an array which will be repeated on columns
+                                colors: ['#bbbaba', 'transparent'], // takes an array which will be repeated on columns
                                 opacity: 0.5
                             },
                         },
