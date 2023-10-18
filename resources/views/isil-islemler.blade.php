@@ -1178,7 +1178,7 @@
                                                                 :rowspan="sarj.toplamIslemSayisi"
                                                                 style="border-right: 2px solid black; padding: 4px;max-width: 25px !important;"
                                                                 v-if="islemIndex === 0"
-                                                                class="kisa-uzunluk"
+                                                                class="en-kisa-uzunluk"
                                                             >
                                                                 <template v-if="aktifForm.onizlemeModu">
                                                                     <span>@{{ islem.sicaklik }}</span>
@@ -1197,7 +1197,7 @@
                                                                 :rowspan="sarj.toplamIslemSayisi"
                                                                 style="border-right: 2px solid black; padding: 4px;max-width: 25px !important;"
                                                                 v-if="islemIndex === 0"
-                                                                class="kisa-uzunluk"
+                                                                class="en-kisa-uzunluk"
                                                             >
                                                                 <template v-if="aktifForm.onizlemeModu">
                                                                     <span>@{{ islem.carbon }}</span>
@@ -1205,7 +1205,7 @@
                                                                 <template v-else>
                                                                     <input
                                                                         v-model="islem.carbon"
-                                                                        type="number"
+                                                                        type="text"
                                                                         class="form-control"
                                                                         placeholder="Carbon"
                                                                     />
@@ -1216,7 +1216,7 @@
                                                                 :rowspan="sarj.toplamIslemSayisi"
                                                                 style="border-right: 2px solid black; padding: 4px;max-width: 25px !important;"
                                                                 v-if="islemIndex === 0"
-                                                                class="kisa-uzunluk"
+                                                                class="en-kisa-uzunluk"
                                                             >
                                                                 <template v-if="aktifForm.onizlemeModu">
                                                                     <span>@{{ islem.beklenenSure }}</span>
@@ -1224,13 +1224,13 @@
                                                                 <template v-else>
                                                                     <input
                                                                         v-model="islem.beklenenSure"
-                                                                        type="number"
+                                                                        type="text"
                                                                         class="form-control"
                                                                         placeholder="Süre"
                                                                     />
                                                                 </template>
                                                             </td>
-                                                            <td style="border-right: 2px solid black; padding: 4px;max-width: 25px !important;" :style="islemIndex === (_.size(sarj.islemler) - 1) && sarjIndex === (_.size(firin.sarjlar) - 1) ? 'border-bottom: 2px solid black; border-bottom: 2px solid red;' : 'border-bottom: 2px solid black !important'" class="kisa-uzunluk">
+                                                            <td style="border-right: 2px solid black; padding: 4px;max-width: 25px !important;" :style="islemIndex === (_.size(sarj.islemler) - 1) && sarjIndex === (_.size(firin.sarjlar) - 1) ? 'border-bottom: 2px solid black; border-bottom: 2px solid red;' : 'border-bottom: 2px solid black !important'" class="en-kisa-uzunluk">
                                                                 <template v-if="aktifForm.onizlemeModu">
                                                                     <span>@{{ islem.cikisSertligi }}</span>
                                                                 </template>
@@ -1243,7 +1243,7 @@
                                                                     />
                                                                 </template>
                                                             </td>
-                                                            <td style="border-right: 2px solid black; padding: 4px;max-width: 25px !important;" :style="islemIndex === (_.size(sarj.islemler) - 1) && sarjIndex === (_.size(firin.sarjlar) - 1) ? 'border-bottom: 2px solid black; border-bottom: 2px solid red;' : 'border-bottom: 2px solid black !important'" class="kisa-uzunluk">
+                                                            <td style="border-right: 2px solid black; padding: 4px;max-width: 25px !important;" :style="islemIndex === (_.size(sarj.islemler) - 1) && sarjIndex === (_.size(firin.sarjlar) - 1) ? 'border-bottom: 2px solid black; border-bottom: 2px solid red;' : 'border-bottom: 2px solid black !important'" class="en-kisa-uzunluk">
                                                                 <template v-if="aktifForm.onizlemeModu">
                                                                     <span>@{{ islem.menevisSicakligi }}</span>
                                                                 </template>
@@ -1256,7 +1256,7 @@
                                                                     />
                                                                 </template>
                                                             </td>
-                                                            <td style="border-right: 2px solid black; padding: 4px;max-width: 25px !important;" :style="islemIndex === (_.size(sarj.islemler) - 1) && sarjIndex === (_.size(firin.sarjlar) - 1) ? 'border-bottom: 2px solid black; border-bottom: 2px solid red;' : 'border-bottom: 2px solid black !important'" class="kisa-uzunluk">
+                                                            <td style="border-right: 2px solid black; padding: 4px;max-width: 25px !important;" :style="islemIndex === (_.size(sarj.islemler) - 1) && sarjIndex === (_.size(firin.sarjlar) - 1) ? 'border-bottom: 2px solid black; border-bottom: 2px solid red;' : 'border-bottom: 2px solid black !important'" class="en-kisa-uzunluk">
                                                                 <template v-if="aktifForm.onizlemeModu">
                                                                     <span>@{{ islem.cikisSuresi }}</span>
                                                                 </template>
