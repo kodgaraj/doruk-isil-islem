@@ -469,7 +469,7 @@
                         });
                     }
 
-                    Swal.fire({
+                    return Swal.fire({
                         title: obje.baslik,
                         text: obje.mesaj,
                         icon: obje.tur,
