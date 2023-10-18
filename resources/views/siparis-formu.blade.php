@@ -447,7 +447,7 @@
 
                                                                                     </div>
                                                                                     <div class="col-12">
-                                                                                        <span class="badge badge-pill bg-primary"><a href="/isil-islemler" style="color:white">@{{ islem.formId }}</a></span>
+                                                                                        <span class="badge badge-pill bg-warning"><a :href="'/isil-islemler?formId='+ (islem.formId || '')" style="color:white">Form ID: @{{ islem.formId || "-" }}</a></span>
                                                                                     </div>
                                                                                 </td>
                                                                                 <td class="text-center">
@@ -643,8 +643,12 @@
                                                                 <input
                                                                     v-model="siparisRaporlama.islem.sonSertlik"
                                                                     class="form-control"
+                                                                    placeholder="Örn: 65, 72, 70"
                                                                     @input="gecikmeliFonksiyon.siparisRaporlama('OLCUM')"
                                                                 />
+                                                                <small class="text-muted">
+                                                                    Virgülle ayrılmış şekilde yazınız... (Örn: 65, 72, 70)
+                                                                </small>
                                                             </div>
                                                             <div class="col-12 m-0 mb-2 text-start">
                                                                 <label class="form-label">Yapılacak İşlem</label>
@@ -665,19 +669,8 @@
                                                                 </v-select>
                                                             </div>
 
-                                                            <div class="col-4 m-0 text-start">
-                                                                <label class="form-label">Ölçümler</label>
-                                                                <input
-                                                                    v-model="siparisRaporlama.islem.olcumler"
-                                                                    class="form-control"
-                                                                    placeholder="Örn: 65, 72, 70"
-                                                                    @input="gecikmeliFonksiyon.siparisRaporlama('OLCUM')"
-                                                                />
-                                                                <small class="text-muted">
-                                                                    Virgülle ayrılmış şekilde yazınız... (Örn: 65, 72, 70)
-                                                                </small>
-                                                            </div>
-                                                            <div class="col-4 m-0 text-start">
+
+                                                            <div class="col-6 m-0 text-start">
                                                                 <label class="form-label">Ölçüm Adı "X" </label>
                                                                 <input
                                                                     v-model="siparisRaporlama.grafikOptions.xaxis.title.text"
@@ -687,7 +680,7 @@
                                                                 />
 
                                                             </div>
-                                                            <div class="col-4 m-0 text-start">
+                                                            <div class="col-6 m-0 text-start">
                                                                 <label class="form-label">Ölçüm Adı "Y"</label>
                                                                 <input
                                                                     v-model="siparisRaporlama.grafikOptions.yaxis.title.text"
@@ -1058,7 +1051,16 @@
                                     <tbody id="islem-satir-ekle">
                                         <template v-if="!('islemDuzenle' in aktifSiparis) || !aktifSiparis.islemDuzenle ">
                                             <tr v-for="(islem, index) in aktifSiparis.bolunmusToplamliIslemler">
-                                                <td>@{{ index + 1 }}</td>
+                                                <td>
+                                                    <div class="row d-flex">
+                                                        <div class="col-12">
+                                                            @{{ index + 1 }}
+                                                        </div>
+                                                        <div class="col-12">
+                                                            <span class="badge badge-pill bg-warning"><a :href="'/isil-islemler?formId='+ (islem.formId || '')" style="color:white">Form ID: @{{ islem.formId || "-"}}</a></span>
+                                                        </div>
+                                                    </div>
+                                                </td>
                                                 <td class="text-center">
                                                     <img
                                                         :src="islem.resimYolu ? islem.resimYolu : varsayilanResimYolu"
@@ -1100,6 +1102,9 @@
                                                         </div>
                                                         <div class="col-12" v-if="islem.id">
                                                             <span class="badge badge-pill bg-primary">ID: @{{ islem.id }}</span>
+                                                        </div>
+                                                        <div class="col-12">
+                                                            <span class="badge badge-pill bg-warning"><a :href="'/isil-islemler?formId='+ (islem.formId || '')" style="color:white">Form ID: @{{ islem.formId || "-"}}</a></span>
                                                         </div>
                                                     </div>
                                                 </td>
@@ -1305,7 +1310,7 @@
     <div class="printable-page" id="page-1">
         <div class="col-12">
             <div>
-                <img style="width: 100%" src="/img/doruk-belge-baslik.png" />
+                <img style="width: 100%" src="/img/doruk-belge-baslik-yeni.jpg" />
             </div>
         </div>
         <div class="col-12 text-center">
@@ -1455,7 +1460,8 @@
                     <div class="col-6 text-center">
                         <b>Ünal SANDAL</b>
                         <br />
-                        <b>Metalurji ve Malzeme Mühendisi</b>
+                        <b>Metalurji ve Malzeme Mühendisi</b><br>
+                        <small>Metallurgical and Materials Engineer</small>
                     </div>
                     <div class="col-6 text-center">
                         <img height="250" width="250" style="object-fit: contain;" src="/img/doruk-unal-imza.jpg" />
@@ -1573,6 +1579,7 @@
                     grafikOptions: {
                         chart: {
                             height: 350,
+                            width: 500,
                             type: 'line',
                             dropShadow: {
                                 enabled: true,
@@ -1609,12 +1616,12 @@
                         xaxis: {
                             categories: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
                             title: {
-                                text: 'Ölçüm No'
+                                text: 'Ölçüm No (Measurement Number)',
                             }
                         },
                         yaxis: {
                             title: {
-                                text: 'Sertlik'
+                                text: 'Sertlik (Hardness)'
                             },
                             min: 0,
                             forceNiceScale: true,
@@ -2962,7 +2969,10 @@
                         series: _.cloneDeep(this.siparisRaporlama.grafikSeries),
                         ..._.cloneDeep(this.siparisRaporlama.grafikOptions),
                     });
+
                     this.siparisRaporlama.islem.onizlemeChart.render();
+
+                    this.raporAlanlariGuncelle("OLCUM");
                 });
             }
         }
@@ -2972,4 +2982,13 @@
 
 @section('style')
     <link rel="stylesheet" href="/css/print.css">
+
+    <style>
+        .apexcharts-yaxis text {
+            fill: black!important;
+        }
+        .apexcharts-xaxis text {
+            fill: black!important;
+        }
+    </style>
 @endsection

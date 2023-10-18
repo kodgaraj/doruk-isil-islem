@@ -663,11 +663,19 @@ class SiparisController extends Controller
                 $toplamlar = [
                     "miktar" => 0,
                     "dara" => 0,
+                    "sonSertlik" => "0",
                 ];
                 foreach ($_islemler as $index => $islem)
                 {
                     $toplamlar["miktar"] += (float) $islem["miktar"];
                     $toplamlar["dara"] += (float) $islem["dara"];
+                    $sonSertlik = (float) $islem["sonSertlik"];
+
+                    if ($toplamlar["sonSertlik"] == "0") {
+                        $toplamlar["sonSertlik"] = $sonSertlik;
+                    } else {
+                        $toplamlar["sonSertlik"] .= "," . $sonSertlik;
+                    }
                     if ($bolunmusIslemId == $islem["id"])
                     {
                         $anaIslemIndex = $index;
@@ -681,6 +689,7 @@ class SiparisController extends Controller
 
                     $anaIslem["miktar"] = $toplamlar["miktar"];
                     $anaIslem["dara"] = $toplamlar["dara"];
+                    $anaIslem["sonSertlik"] = $toplamlar["sonSertlik"];
 
                     $anaIslem["miktarYazi"] = $this->yaziyaDonustur($anaIslem["miktar"], ["kg" => true]);
                     $anaIslem["daraYazi"] = $this->yaziyaDonustur($anaIslem["dara"], ["kg" => true]);
