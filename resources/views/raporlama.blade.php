@@ -1,4 +1,4 @@
-@extends('layout') 
+@extends('layout')
 @section('content')
 <div class="row doruk-content">
     <h4 style="color:#999"><i class="fa fa-chart-line"></i> RAPORLAMA</h4>
@@ -322,7 +322,7 @@
                                 </h4>
                             </div>
 
-                            <div class="col-12">
+                            {{-- <div class="col-12">
                                 <h6>
                                     @{{ firinBazliTonaj.toplamlar.firinSayisi ?? 0 }} Fırın |
                                     @{{ firinBazliTonaj.toplamlar.tonajYazi ? ins1000Sep(firinBazliTonaj.toplamlar.tonajYazi) : 0 }} |
@@ -330,7 +330,7 @@
                                     @{{ firinBazliTonaj.toplamlar.tutarUSDYazi ? ins1000Sep(firinBazliTonaj.toplamlar.tutarUSDYazi) : 0 }} &
                                     @{{ firinBazliTonaj.toplamlar.tutarEUROYazi ? ins1000Sep(firinBazliTonaj.toplamlar.tutarEUROYazi) : 0 }}
                                 </h6>
-                            </div>
+                            </div> --}}
 
                             <div class="col-12">
                                 <div class="btn-group mr-2" role="group" aria-label="First group">
@@ -414,6 +414,58 @@
             </div>
             <template v-else>
                 <template v-if="_.size(firinBazliTonaj.firinlar) > 0">
+                    <div class="col-12 col-md-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="row d-flex justify-content-between">
+                                    <div class="col">
+                                        Aylık Kaç kilogram işlem yapıldı, kaç para kazanıldı ?
+                                    </div>
+
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <h3>@{{ firinBazliTonaj.toplamlar.firinSayisi ?? 0 }} Fırın</h3>
+                                <h5>@{{ firinBazliTonaj.toplamlar.tonajYazi ? ins1000Sep(firinBazliTonaj.toplamlar.tonajYazi) : 0 }} </h5>
+                                @can("siparis_ucreti_goruntuleme")
+                                    <hr />
+                                    <h5>
+                                        Kazanılan TL Tutar: @{{ firinBazliTonaj.toplamlar.tutarTLYazi ? ins1000Sep(firinBazliTonaj.toplamlar.tutarTLYazi) : 0 }}
+                                    </h5>
+                                    <h5>
+                                        Kazanılan USD Tutar: @{{ firinBazliTonaj.toplamlar.tutarUSDYazi ? ins1000Sep(firinBazliTonaj.toplamlar.tutarUSDYazi) : 0 }}
+                                    </h5>
+                                    <h5>
+                                        Kazanılan EURO Tutar: @{{ firinBazliTonaj.toplamlar.tutarEUROYazi ? ins1000Sep(firinBazliTonaj.toplamlar.tutarEUROYazi) : 0 }}
+                                    </h5>
+                                    {{-- <h6>
+                                        KG Başı Tutar: @{{ ins1000Sep(
+                                            formatNum(
+                                                birimBasiTutar(firin.tonaj, firin.tutar)
+                                            )
+                                        )}} ₺
+                                    </h6> --}}
+                                @endcan
+                            </div>
+                            <hr class="m-0" />
+                            <div class="card-body">
+                                <h5>Toplam Kazançlar</h5>
+                                <!-- yükleniyor -->
+                                <div class="text-center" v-if="yukleniyorObjesi.firinBazliIslemTurleri">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="sr-only">Yükleniyor...</span>
+                                    </div>
+                                </div>
+                                <apexchart
+                                    v-else
+                                    :options="toplamCiro.chartOptions"
+                                    :series="toplamCiroSeries"
+                                    type="bar"
+                                    height="400"
+                                ></apexchart>
+                            </div>
+                        </div>
+                    </div>
                     <div v-for="(firin, index) in firinBazliTonaj.firinlar" class="col-12 col-md-6" :key="index">
                         <div class="card">
                             <div class="card-header">
@@ -862,6 +914,66 @@
                             },
                         ]
                     },
+                    toplamCiro: {
+                        chartOptions: {
+                            chart: {
+                                id: 'chart-toplam-ciro'
+                            },
+                            xaxis: {
+                                labels: {
+                                    rotate: -45
+                                },
+                                categories: ["Toplam Kazanç"]
+                            },
+                            yaxis: {
+                                labels: {
+                                    formatter: function (val) {
+                                        return ins1000Sep(formatNum(val));
+                                    }
+                                }
+                            },
+
+                            dataLabels: {
+                                formatter: function (val, opts) {
+                                    let paraBirimi = opts.w.config.series[opts.seriesIndex].name === "TL" ? " ₺" : " $";
+                                    return ins1000Sep(formatNum(val)) + paraBirimi;
+                                }
+                            },
+                            plotOptions: {
+                                bar: {
+                                    borderRadius: 10,
+                                }
+                            },
+                            tooltip: {
+                                y: {
+                                    formatter: function (val, opts) {
+                                        let paraBirimi = opts.w.config.series[opts.seriesIndex].name === "TL" ? " ₺" : " $";
+                                        return ins1000Sep(formatNum(val)) + paraBirimi;
+                                    }
+                                },
+                                enabled: true,
+                                shared: true,
+                                intersect: false,
+                            },
+                            noData: {
+                                text: "Veri bulunamadı",
+                            },
+                        },
+                        series: [
+                            {
+                                name: 'TL',
+                                data: [100000]
+                            },
+                            {
+                                name: 'Dolar',
+                                data: [20000]
+                            },
+                            {
+                                name: 'Euro',
+                                data: [50000]
+                            },
+                        ],
+                    },
                     firinBazliTonaj: {
                         orderTuru: "tonaj",
                         baslangicTarihi: null,
@@ -944,6 +1056,20 @@
                     }
                     return yillar;
                 },
+                toplamCiroSeries(){
+                    let series = [{
+                        name: 'TL',
+                        data: [this.firinBazliTonaj.toplamlar.tutarTLYazi]
+                    },{
+                        name: 'Dolar',
+                        data: [this.firinBazliTonaj.toplamlar.tutarUSDYazi ]
+                    },{
+                        name: 'Euro',
+                        data: [this.firinBazliTonaj.toplamlar.tutarEUROYazi]
+                    }];
+
+                    return series;
+                }
             },
             created() {
                 Vue.use(VueApexCharts);
