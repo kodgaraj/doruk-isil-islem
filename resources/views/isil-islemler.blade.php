@@ -1349,8 +1349,8 @@
                     firmaArama: "",
                 },
                 sayfalamaSayilari: [10, 25, 50, 100, 150],
-                sayfalamaSayisi: 50,
-                islemSayfalamaSayisi: 10,
+                sayfalamaSayisi: 10,
+                islemSayfalamaSayisi: 50,
                 aktifBolunecekIslem: {
                     islem: null,
                     bolunmusIslemler: [],
