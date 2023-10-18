@@ -249,6 +249,18 @@ class IsilIslemController extends Controller
 
             $firmaGrupluIslemler = $firmaGrupluIslemler->where($islemDurumTabloAdi . '.kod', "BASLANMADI");
 
+            if (isset($filtrelemeler["arama"]) && $filtrelemeler["arama"] != "")
+            {
+                // dd($filtrelemeler["arama"]);
+                $firmaGrupluIslemler = $firmaGrupluIslemler->where(function ($query) use ($filtrelemeler, $firmaTabloAdi, $malzemeTabloAdi, $islemTuruTabloAdi) {
+                    $query->orWhere($firmaTabloAdi . '.firmaAdi', 'like', '%' . $filtrelemeler["arama"] . '%')
+                        ->orWhere($firmaTabloAdi . '.sorumluKisi', 'like', '%' . $filtrelemeler["arama"] . '%')
+                        ->orWhere($malzemeTabloAdi . '.ad', 'like', '%' . $filtrelemeler["arama"] . '%')
+                        ->orWhere($islemTuruTabloAdi . '.ad', 'like', '%' . $filtrelemeler["arama"] . '%');
+                });
+
+            }
+
             if ($formId)
             {
                 $firmaGrupluIslemler = $firmaGrupluIslemler->orWhere($islemTabloAdi . '.formId', $formId)
@@ -266,17 +278,7 @@ class IsilIslemController extends Controller
                 $firmaGrupluIslemler = $firmaGrupluIslemler->where($siparisTabloAdi . '.firmaId', $firmaId);
             }
 
-            if (isset($filtrelemeler["arama"]) && $filtrelemeler["arama"] != "")
-            {
-                // dd($filtrelemeler["arama"]);
-                $firmaGrupluIslemler = $firmaGrupluIslemler->where(function ($query) use ($filtrelemeler, $firmaTabloAdi, $malzemeTabloAdi, $islemTuruTabloAdi) {
-                    $query->orWhere($firmaTabloAdi . '.firmaAdi', 'like', '%' . $filtrelemeler["arama"] . '%')
-                        ->orWhere($firmaTabloAdi . '.sorumluKisi', 'like', '%' . $filtrelemeler["arama"] . '%')
-                        ->orWhere($malzemeTabloAdi . '.ad', 'like', '%' . $filtrelemeler["arama"] . '%')
-                        ->orWhere($islemTuruTabloAdi . '.ad', 'like', '%' . $filtrelemeler["arama"] . '%');
-                });
 
-            }
 
             $islemSayfalamaSayisi = $request->islemSayfalamaSayisi ?? 10;
             $islemler = $firmaGrupluIslemler->paginate($islemSayfalamaSayisi);
