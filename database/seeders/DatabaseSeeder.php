@@ -195,10 +195,13 @@ class DatabaseSeeder extends Seeder
         }
 
         // İşlemler tablosundaki miktar, dara ve birimFiyat alanlarının tipinin değiştirilmesi
-        if (Schema::hasColumn("islemler", "miktar") && Schema::hasColumn("islemler", "dara") && Schema::hasColumn("islemler", "birimFiyat")) {
+        if (Schema::hasColumn("islemler", "miktar") && Schema::hasColumn("islemler", "dara") && Schema::hasColumn("islemler", "birimFiyat") && Schema::hasColumn("islemler", "sicaklik") && Schema::hasColumn("islemler", "carbon")&& Schema::hasColumn("islemler", "beklenenSure")) {
             $miktarTuru = DB::select("SELECT DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = 'islemler' AND COLUMN_NAME = 'miktar'")[0]->DATA_TYPE;
             $daraTuru = DB::select("SELECT DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = 'islemler' AND COLUMN_NAME = 'dara'")[0]->DATA_TYPE;
             $birimFiyatTuru = DB::select("SELECT DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = 'islemler' AND COLUMN_NAME = 'birimFiyat'")[0]->DATA_TYPE;
+            $sicaklikTuru = DB::select("SELECT DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = 'islemler' AND COLUMN_NAME = 'sicaklik'")[0]->DATA_TYPE;
+            $carbonTuru = DB::select("SELECT DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = 'islemler' AND COLUMN_NAME = 'carbon'")[0]->DATA_TYPE;
+            $beklenenSureTuru = DB::select("SELECT DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = 'islemler' AND COLUMN_NAME = 'beklenenSure'")[0]->DATA_TYPE;
 
             if ($miktarTuru !== "double") {
                 DB::statement('ALTER TABLE islemler MODIFY miktar DOUBLE(15, 2) DEFAULT 0');
@@ -216,6 +219,24 @@ class DatabaseSeeder extends Seeder
                 DB::statement('ALTER TABLE islemler MODIFY birimFiyat DOUBLE(15, 2) DEFAULT 0');
 
                 $mesajlar[] = 'İşlemler tablosundaki birimFiyat alanının tipi değiştirildi > ' . date('Y-m-d H:i:s');
+            }
+            //sicaklik varcar değilse varchar yap
+            if ($sicaklikTuru !== "varchar") {
+                DB::statement('ALTER TABLE islemler MODIFY sicaklik VARCHAR(50) DEFAULT null');
+
+                $mesajlar[] = 'İşlemler tablosundaki sicaklik alanının tipi değiştirildi > ' . date('Y-m-d H:i:s');
+            }
+            //carbon varcar değilse varchar yap
+            if ($carbonTuru !== "varchar") {
+                DB::statement('ALTER TABLE islemler MODIFY carbon VARCHAR(50) DEFAULT null');
+
+                $mesajlar[] = 'İşlemler tablosundaki carbon alanının tipi değiştirildi > ' . date('Y-m-d H:i:s');
+            }
+            //beklenenSure varcar değilse varchar yap
+            if ($beklenenSureTuru !== "varchar") {
+                DB::statement('ALTER TABLE islemler MODIFY beklenenSure VARCHAR(50) DEFAULT null');
+
+                $mesajlar[] = 'İşlemler tablosundaki beklenenSure alanının tipi değiştirildi > ' . date('Y-m-d H:i:s');
             }
         }
 
