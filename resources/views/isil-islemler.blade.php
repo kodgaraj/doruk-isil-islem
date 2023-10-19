@@ -1117,13 +1117,13 @@
                                                         <tr
                                                             :key="firinId + '-' + sarjId + '-' + islemIndex"
                                                             :id="firinId"
-                                                            style="color: black; border: 2px solid black;"
+                                                            style="color: black; border-left: 2px solid black;"
                                                         >
                                                             <td
                                                                 v-if="sarjIndex === 0 && islemIndex === 0"
                                                                 :style="sarjIndex === 0 && islemIndex === 0 ? 'border-right: 2px solid black; border-bottom: 2px solid red;' : ''"
                                                                 :rowspan="firin.toplamIslemSayisi"
-                                                                style="border-right: 2px solid black; border-bottom: 2px solid black; padding: 4px;"
+                                                                style="border-right: 2px solid black;"
                                                                 class="dikey"
                                                             >
                                                                 <span>@{{ firin.firinAdi }}</span>
