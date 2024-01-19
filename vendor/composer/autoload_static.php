@@ -399,8 +399,8 @@ class ComposerStaticInit9a86cbb47424ecade41361b7b6bc9b2d
         ),
         'Psr\\Http\\Message\\' => 
         array (
-            0 => __DIR__ . '/..' . '/psr/http-message/src',
-            1 => __DIR__ . '/..' . '/psr/http-factory/src',
+            0 => __DIR__ . '/..' . '/psr/http-factory/src',
+            1 => __DIR__ . '/..' . '/psr/http-message/src',
         ),
         'Psr\\Http\\Client\\' => 
         array (
@@ -5495,7 +5495,6 @@ class ComposerStaticInit9a86cbb47424ecade41361b7b6bc9b2d
         'Psy\\Sudo' => __DIR__ . '/..' . '/psy/psysh/src/Sudo.php',
         'Psy\\Sudo\\SudoVisitor' => __DIR__ . '/..' . '/psy/psysh/src/Sudo/SudoVisitor.php',
         'Psy\\SuperglobalsEnv' => __DIR__ . '/..' . '/psy/psysh/src/SuperglobalsEnv.php',
-        'Psy\\SystemEnv' => __DIR__ . '/..' . '/psy/psysh/src/SystemEnv.php',
         'Psy\\TabCompletion\\AutoCompleter' => __DIR__ . '/..' . '/psy/psysh/src/TabCompletion/AutoCompleter.php',
         'Psy\\TabCompletion\\Matcher\\AbstractContextAwareMatcher' => __DIR__ . '/..' . '/psy/psysh/src/TabCompletion/Matcher/AbstractContextAwareMatcher.php',
         'Psy\\TabCompletion\\Matcher\\AbstractDefaultParametersMatcher' => __DIR__ . '/..' . '/psy/psysh/src/TabCompletion/Matcher/AbstractDefaultParametersMatcher.php',
@@ -5989,11 +5988,6 @@ class ComposerStaticInit9a86cbb47424ecade41361b7b6bc9b2d
         'Spatie\\Ignition\\ErrorPage\\ErrorPageViewModel' => __DIR__ . '/..' . '/spatie/ignition/src/ErrorPage/ErrorPageViewModel.php',
         'Spatie\\Ignition\\ErrorPage\\Renderer' => __DIR__ . '/..' . '/spatie/ignition/src/ErrorPage/Renderer.php',
         'Spatie\\Ignition\\Ignition' => __DIR__ . '/..' . '/spatie/ignition/src/Ignition.php',
-        'Spatie\\Ignition\\Solutions\\OpenAi\\DummyCache' => __DIR__ . '/..' . '/spatie/ignition/src/Solutions/OpenAi/DummyCache.php',
-        'Spatie\\Ignition\\Solutions\\OpenAi\\OpenAiPromptViewModel' => __DIR__ . '/..' . '/spatie/ignition/src/Solutions/OpenAi/OpenAiPromptViewModel.php',
-        'Spatie\\Ignition\\Solutions\\OpenAi\\OpenAiSolution' => __DIR__ . '/..' . '/spatie/ignition/src/Solutions/OpenAi/OpenAiSolution.php',
-        'Spatie\\Ignition\\Solutions\\OpenAi\\OpenAiSolutionProvider' => __DIR__ . '/..' . '/spatie/ignition/src/Solutions/OpenAi/OpenAiSolutionProvider.php',
-        'Spatie\\Ignition\\Solutions\\OpenAi\\OpenAiSolutionResponse' => __DIR__ . '/..' . '/spatie/ignition/src/Solutions/OpenAi/OpenAiSolutionResponse.php',
         'Spatie\\Ignition\\Solutions\\SolutionProviders\\BadMethodCallSolutionProvider' => __DIR__ . '/..' . '/spatie/ignition/src/Solutions/SolutionProviders/BadMethodCallSolutionProvider.php',
         'Spatie\\Ignition\\Solutions\\SolutionProviders\\MergeConflictSolutionProvider' => __DIR__ . '/..' . '/spatie/ignition/src/Solutions/SolutionProviders/MergeConflictSolutionProvider.php',
         'Spatie\\Ignition\\Solutions\\SolutionProviders\\SolutionProviderRepository' => __DIR__ . '/..' . '/spatie/ignition/src/Solutions/SolutionProviders/SolutionProviderRepository.php',
