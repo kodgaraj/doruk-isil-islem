@@ -27,8 +27,7 @@
                                         <div class="input-group">
                                             <input v-model="filtrelemeObjesi.arama" type="text" class="form-control"
                                                 placeholder="Arama" aria-label="Arama" aria-describedby="arama"
-                                                @keyup.enter="filtrele()" @input="gecikmeliFonksiyon.varsayilan()"
-                                                id="aramaInput" />
+                                                @keyup.enter="filtrele()" id="aramaInput" />
                                             <span @click="filtrele()" class="input-group-text waves-effect" id="arama">
                                                 <i class="mdi mdi-magnify"></i>
                                             </span>
@@ -2902,7 +2901,7 @@
 
                     this.siparisRaporlama.islem = {
                         ...islem,
-                        gelisTarihi: today.toISOString().split('T')[0],
+                        gelisTarihi: this.aktifSiparis.tarih,
                         onizlemeChart: null,
                         siparisNo: this.aktifSiparis.siparisNo,
                         firma: _.cloneDeep(this.aktifSiparis.firma),
