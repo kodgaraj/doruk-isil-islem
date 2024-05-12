@@ -17,7 +17,7 @@
             <div class="card">
                 <div class="card-body">
                     <template v-if="aktifSayfa.kod === 'ANASAYFA'">
-                        <div class="row d-flex align-items-center">
+                        <div class="row d-flex align-items-center" key="anasayfa">
                             <div class="col">
                                 <h4 class="card-title">SİPARİŞLER</h4>
                             </div>
@@ -521,7 +521,7 @@
                                                                 <li class="page-item">
                                                                     <button class="page-link"
                                                                         :disabled="!siparisler.prev_page_url"
-                                                                        @click="siparisleriGetir(siparisler.prev_page_url)">
+                                                                        @click="siparisleriGetir(siparisler.prev_page_url+'&last_page='+siparisler.last_page)">
                                                                         <i class="fas fa-angle-left"></i>
                                                                     </button>
                                                                 </li>
@@ -529,12 +529,12 @@
                                                                     class="page-item"
                                                                     :class="[sayfa.aktif ? 'active' : '']">
                                                                     <button class="page-link"
-                                                                        @click="sayfa.tur === 'SAYFA' ? siparisleriGetir('/siparisler?page=' + sayfa.sayfa) : ()  => {}">@{{ sayfa.sayfa }}</button>
+                                                                        @click="sayfa.tur === 'SAYFA' ? siparisleriGetir('/siparisler?page=' + sayfa.sayfa+'&last_page='+siparisler.last_page) : ()  => {}">@{{ sayfa.sayfa }}</button>
                                                                 </li>
                                                                 <li class="page-item">
                                                                     <button class="page-link"
                                                                         :disabled="!siparisler.next_page_url"
-                                                                        @click="siparisleriGetir(siparisler.next_page_url)">
+                                                                        @click="siparisleriGetir(siparisler.next_page_url+'&last_page='+siparisler.last_page)">
                                                                         <i class="fas fa-angle-right"></i>
                                                                     </button>
                                                                 </li>
@@ -542,7 +542,7 @@
                                                         </div>
                                                         <div class="col-auto">
                                                             <small class="text-muted">Toplam Kayıt:
-                                                                @{{ siparisler.total }}</small>
+                                                                @{{ siparisler.toplamSiparis }}</small>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -559,7 +559,7 @@
                             </div>
                     </template>
                     <template v-else-if="aktifSayfa.kod === 'YENI_SIPARIS'">
-                        <div class="row gap-2 gap-sm-0">
+                        <div class="row gap-2 gap-sm-0" key="yeni">
                             <div class="col-12 col-md-8">
                                 <div class="d-flex flex-row align-items-center">
                                     <button @click="geri" class="btn btn-warning"><i class="fas fa-arrow-left"></i>
@@ -692,9 +692,10 @@
                                                                                 <div class="row">
                                                                                     <div class="col-12">
                                                                                         @{{ _.truncate(option.ad, {
-    length: 15,
-    omission: "..."
-}) }}
+                                                                                                length: 15,
+                                                                                                omission: "..."
+                                                                                            })
+                                                                                        }}
                                                                                     </div>
                                                                                 </div>
                                                                             </template>
@@ -1120,9 +1121,10 @@
                                                                         <div class="row">
                                                                             <div class="col-12">
                                                                                 @{{ _.truncate(option.ad, {
-    length: 15,
-    omission: "..."
-}) }}
+                                                                                        length: 15,
+                                                                                        omission: "..."
+                                                                                    })
+                                                                                }}
                                                                             </div>
                                                                         </div>
                                                                     </template>
@@ -1219,9 +1221,10 @@
                                                                         <div class="row">
                                                                             <div class="col-12">
                                                                                 @{{ _.truncate(option.ad, {
-    length: 15,
-    omission: "..."
-}) }}
+                                                                                        length: 15,
+                                                                                        omission: "..."
+                                                                                    })
+                                                                                }}
                                                                             </div>
                                                                         </div>
                                                                     </template>
@@ -1284,7 +1287,7 @@
 
     <div ref="siparisRaporlama" style="background: white; display: none; color: black;">
         <div class="printable-page" id="page-1">
-            <div class="col-12">
+            <div class="col-12 p-4">
                 <div>
                     <img style="width: 100%" src="/img/doruk-belge-baslik-yeni.jpg" />
                 </div>
@@ -1294,12 +1297,12 @@
                     <h3>KALİTE KONTROL RAPORU</h3>
                 </div>
             </div>
-            <div class="col-12 text-end">
+            <div class="col-12 text-end pe-4">
                 <div>
                     <h6><b>TARİH:</b> ${ rapor.tarih }</h6>
                 </div>
             </div>
-            <div class="col-12 text-end">
+            <div class="col-12 text-end pe-4">
                 <div>
                     <h6><b>RAPOR NO:</b> ${ rapor.no }</h6>
                 </div>
@@ -1414,7 +1417,7 @@
             </div>
         </div>
         <div class="printable-page" id="page-2">
-            <div class="col-12 text-center mt-4">
+            <div class="col-12 text-center p-4">
                 <b>ISIL İŞLEM SONRASI ÖLÇÜLEN SERTLİK DEĞERLERİ</b><br>
                 <small>HARDNESS VALUES MEASURED AFTER HEAT TREATMENT</small>
             </div>
@@ -1432,7 +1435,7 @@
             <hr />
             <div class="px-5 my-3">
                 <div class="col-12">
-                    <div class="row d-flex align-items-center">
+                    <div class="row align-items-center">
                         <div class="col-6 text-center">
                             <b>Ünal SANDAL</b>
                             <br />
@@ -1440,13 +1443,13 @@
                             <small>Metallurgical and Materials Engineer</small>
                         </div>
                         <div class="col-6 text-center">
-                            <img height="250" width="250" style="object-fit: contain;"
+                            <img width="100%"
                                 src="/img/doruk-unal-imza.jpg" />
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-12">
+            <div class="col-12 p-3">
                 <div>
                     <img style="width: 100%" src="/img/doruk-belge-alt-bilgi.jpg" />
                 </div>

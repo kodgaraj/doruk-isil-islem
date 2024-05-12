@@ -24,8 +24,8 @@ class Siparisler extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-        ->logOnly(["*"])
-        ->setDescriptionForEvent(fn (string $eventName) => $this->aciklamaOlustur($eventName));
+            ->logOnly(["*"])
+            ->setDescriptionForEvent(fn(string $eventName) => $this->aciklamaOlustur($eventName));
         // Chain fluent methods for configuration options
     }
 
@@ -44,5 +44,10 @@ class Siparisler extends Model
                 break;
         }
         return $aciklama;
+    }
+
+    public function islemler()
+    {
+        return $this->hasMany(Islemler::class);
     }
 }

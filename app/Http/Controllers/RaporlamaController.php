@@ -27,8 +27,7 @@ class RaporlamaController extends Controller
 
     public function yillikCiroGetir()
     {
-        try
-        {
+        try {
             $islemTabloAdi = (new Islemler())->getTable();
             $siparisTabloAdi = (new Siparisler())->getTable();
 
@@ -91,9 +90,7 @@ class RaporlamaController extends Controller
                     "tumu" => $yillikCiro->toArray(),
                 ],
             ]);
-        }
-        catch (\Exception $e)
-        {
+        } catch (\Exception $e) {
             return response()->json([
                 "durum" => false,
                 "mesaj" => "Yillik ciro getirilemedi",
@@ -106,8 +103,7 @@ class RaporlamaController extends Controller
 
     public function aylikCiroGetir(Request $request)
     {
-        try
-        {
+        try {
             $yil = $request->yil ?? date('Y');
 
             $islemTabloAdi = (new Islemler())->getTable();
@@ -149,7 +145,7 @@ class RaporlamaController extends Controller
                         )
                     ) as ciroEURO
                 ")
-                ->join($islemTabloAdi, $islemTabloAdi . '.siparisId', '=' , $siparisTabloAdi . '.id')
+                ->join($islemTabloAdi, $islemTabloAdi . '.siparisId', '=', $siparisTabloAdi . '.id')
                 ->whereYear("$siparisTabloAdi.tarih", $yil)
                 ->groupBy('ay')
                 ->get();
@@ -175,8 +171,7 @@ class RaporlamaController extends Controller
                 12 => 'Ara',
             ];
 
-            foreach ($aylar as &$ay)
-            {
+            foreach ($aylar as &$ay) {
                 $ay = $ayIsimleri[$ay];
             }
 
@@ -193,9 +188,7 @@ class RaporlamaController extends Controller
                     "tumu" => $aylikCiro->toArray(),
                 ],
             ]);
-        }
-        catch (\Exception $e)
-        {
+        } catch (\Exception $e) {
             return response()->json([
                 "durum" => false,
                 "mesaj" => "Aylik ciro getirilemedi",
@@ -208,8 +201,7 @@ class RaporlamaController extends Controller
 
     public function firinBazliTonaj(Request $request)
     {
-        try
-        {
+        try {
             $baslangicTarihi = $request->baslangicTarihi;
             $bitisTarihi = $request->bitisTarihi;
             $orderTuru = $request->orderTuru ?? "tonaj";
@@ -266,17 +258,13 @@ class RaporlamaController extends Controller
                 )
                 ->orderBy($orderTuru, 'desc');
 
-            if ($baslangicTarihi)
-            {
+            if ($baslangicTarihi) {
                 $firinlar = $firinlar->where("$islemTabloAdi.created_at", '>=', $baslangicTarihi);
 
-                if ($bitisTarihi)
-                {
+                if ($bitisTarihi) {
                     $firinlar = $firinlar->where("$islemTabloAdi.created_at", '<=', $bitisTarihi);
                 }
-            }
-            else if ($bitisTarihi)
-            {
+            } else if ($bitisTarihi) {
                 $firinlar = $firinlar->where("$islemTabloAdi.created_at", '<=', $bitisTarihi);
             }
 
@@ -289,8 +277,7 @@ class RaporlamaController extends Controller
                 "tutarEURO" => 0,
                 "firinSayisi" => 0,
             ];
-            foreach ($firinlar as &$firin)
-            {
+            foreach ($firinlar as &$firin) {
                 $firin->tutarTLYazi = $this->yaziyaDonustur($firin->tutarTL, [
                     "paraBirimi" => $this->paraBirimleri["TL"],
                 ]);
@@ -332,9 +319,7 @@ class RaporlamaController extends Controller
                 "firinlar" => $firinlar->toArray(),
                 "toplamlar" => $toplamlar,
             ]);
-        }
-        catch (\Exception $e)
-        {
+        } catch (\Exception $e) {
             return response()->json([
                 "durum" => false,
                 "mesaj" => "Firin bazli tonaj getirilemedi",
@@ -347,8 +332,7 @@ class RaporlamaController extends Controller
 
     public function firmaBazliBilgileriGetir(Request $request)
     {
-        try
-        {
+        try {
             $baslangicTarihi = $request->baslangicTarihi;
             $bitisTarihi = $request->bitisTarihi;
             $arama = $request->arama;
@@ -406,30 +390,24 @@ class RaporlamaController extends Controller
                 )
                 ->orderBy($orderTuru, 'desc');
 
-            if ($arama)
-            {
+            if ($arama) {
                 $firmalar = $firmalar->where("$firmaTabloAdi.firmaAdi", 'like', "%$arama%")
                     ->orWhere("$firmaTabloAdi.sorumluKisi", 'like', "%$arama%");
             }
 
-            if ($baslangicTarihi)
-            {
+            if ($baslangicTarihi) {
                 $firmalar = $firmalar->where("$islemTabloAdi.created_at", '>=', $baslangicTarihi);
 
-                if ($bitisTarihi)
-                {
+                if ($bitisTarihi) {
                     $firmalar = $firmalar->where("$islemTabloAdi.created_at", '<=', $bitisTarihi);
                 }
-            }
-            else if ($bitisTarihi)
-            {
+            } else if ($bitisTarihi) {
                 $firmalar = $firmalar->where("$islemTabloAdi.created_at", '<=', $bitisTarihi);
             }
 
             $firmalar = $firmalar->paginate(6);
 
-            foreach ($firmalar as &$firma)
-            {
+            foreach ($firmalar as &$firma) {
                 $firma->tonajYazi = $this->yaziyaDonustur($firma->tonaj, [
                     "kg" => true,
                 ]);
@@ -449,9 +427,7 @@ class RaporlamaController extends Controller
                 "mesaj" => "Firma bazli bilgiler getirildi",
                 "firmalar" => $firmalar->toArray(),
             ]);
-        }
-        catch (\Exception $e)
-        {
+        } catch (\Exception $e) {
             return response()->json([
                 "durum" => false,
                 "mesaj" => "Firma bazli bilgiler getirilemedi",
@@ -464,12 +440,10 @@ class RaporlamaController extends Controller
 
     public function firinBazliIslemTurleriGetir(Request $request)
     {
-        try
-        {
+        try {
             $baslangicTarihi = $request->baslangicTarihi;
             $bitisTarihi = $request->bitisTarihi;
             $orderTuru = $request->orderTuru ?? "toplam";
-
             $islemTabloAdi = (new Islemler())->getTable();
             $firinTabloAdi = (new Firinlar())->getTable();
             $islemTurleriTabloAdi = (new IslemTurleri())->getTable();
@@ -481,10 +455,10 @@ class RaporlamaController extends Controller
                 $firinTabloAdi.json,
                 $islemTabloAdi.islemTuruId,
                 $islemTurleriTabloAdi.ad as islemTuruAdi,
+                GROUP_CONCAT($islemTabloAdi.sarj) as sarjlar,
                 COUNT($islemTurleriTabloAdi.id) as toplam,
                 COUNT($islemTabloAdi.tekrarEdenId) as toplamTekrarEden
-            ")
-                ->join($islemTabloAdi, "$firinTabloAdi.id", '=', "$islemTabloAdi.firinId")
+            ")->join($islemTabloAdi, "$firinTabloAdi.id", '=', "$islemTabloAdi.firinId")
                 ->join($islemTurleriTabloAdi, "$islemTabloAdi.islemTuruId", '=', "$islemTurleriTabloAdi.id")
                 ->groupBy(
                     "$islemTabloAdi.islemTuruId",
@@ -493,38 +467,28 @@ class RaporlamaController extends Controller
                     "$firinTabloAdi.ad",
                     "$firinTabloAdi.kod",
                     "$firinTabloAdi.json",
-                )
-                ->orderBy($orderTuru, 'desc');
+                )->orderBy($orderTuru, 'desc');
 
-            if ($baslangicTarihi)
-            {
+            if ($baslangicTarihi) {
                 $islemTurleri = $islemTurleri->where("$islemTabloAdi.created_at", '>=', $baslangicTarihi);
-
-                if ($bitisTarihi)
-                {
+                if ($bitisTarihi) {
                     $islemTurleri = $islemTurleri->where("$islemTabloAdi.created_at", '<=', $bitisTarihi);
                 }
-            }
-            else if ($bitisTarihi)
-            {
+            } else if ($bitisTarihi) {
                 $islemTurleri = $islemTurleri->where("$islemTabloAdi.created_at", '<=', $bitisTarihi);
             }
 
             $islemTurleri = $islemTurleri->get()->toArray();
-
             $hazirlananVeriler = [
                 "veriler" => [],
                 "chartVerileri" => [],
             ];
-            foreach ($islemTurleri as &$islemTur)
-            {
-                $firinId = $islemTur["id"];
 
+            foreach ($islemTurleri as &$islemTur) {
+                $firinId = $islemTur["id"];
                 $islemTur["json"] = json_decode($islemTur["json"], true);
                 $islemTur["tekrarEtmeyenSayisi"] = $islemTur["toplam"] - $islemTur["toplamTekrarEden"];
-
-                if (!isset($hazirlananVeriler["veriler"][$firinId]))
-                {
+                if (!isset ($hazirlananVeriler["veriler"][$firinId])) {
                     $hazirlananVeriler["veriler"][$firinId] = [
                         "id" => $firinId,
                         "ad" => $islemTur["ad"],
@@ -535,12 +499,10 @@ class RaporlamaController extends Controller
                 }
 
                 unset($islemTur["id"], $islemTur["ad"], $islemTur["kod"], $islemTur["json"]);
-
                 $hazirlananVeriler["veriler"][$firinId]["islemTurleri"][] = $islemTur;
 
                 // Chart verileri hazırlanıyor
-                if (!isset($hazirlananVeriler["chartVerileri"][$firinId]))
-                {
+                if (!isset ($hazirlananVeriler["chartVerileri"][$firinId])) {
                     $hazirlananVeriler["chartVerileri"][$firinId] = [
                         "firinId" => $firinId,
                         "ad" => $hazirlananVeriler["veriler"][$firinId]["ad"],
@@ -553,15 +515,11 @@ class RaporlamaController extends Controller
                 }
 
                 $key = array_search($islemTur["islemTuruAdi"], $hazirlananVeriler["chartVerileri"][$firinId]["islemler"]);
-
-                if ($key === false)
-                {
+                if ($key === false) {
                     $hazirlananVeriler["chartVerileri"][$firinId]["islemler"][] = $islemTur["islemTuruAdi"];
                     $hazirlananVeriler["chartVerileri"][$firinId]["tekrarEtmeyenSayisi"][] = $islemTur["tekrarEtmeyenSayisi"];
                     $hazirlananVeriler["chartVerileri"][$firinId]["tekrarEdenSayisi"][] = $islemTur["toplamTekrarEden"];
-                }
-                else
-                {
+                } else {
                     $hazirlananVeriler["chartVerileri"][$firinId]["tekrarEtmeyenSayisi"][$key] += $islemTur["tekrarEtmeyenSayisi"];
                     $hazirlananVeriler["chartVerileri"][$firinId]["tekrarEdenSayisi"][$key] += $islemTur["toplamTekrarEden"];
                 }
@@ -575,9 +533,7 @@ class RaporlamaController extends Controller
                 "mesaj" => "Firin bazli bilgiler getirildi",
                 "islemTurleri" => $hazirlananVeriler,
             ]);
-        }
-        catch (\Exception $e)
-        {
+        } catch (\Exception $e) {
             return response()->json([
                 "durum" => false,
                 "mesaj" => "Firin bazli bilgiler getirilemedi",

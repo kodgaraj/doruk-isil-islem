@@ -25,11 +25,19 @@ class AuthenticatedSessionController extends Controller
      */
     public function store(LoginRequest $request): RedirectResponse
     {
-        $request->authenticate();
+        // $request->authenticate();
+        // $request->session()->regenerate();
+        // return redirect()->intended(RouteServiceProvider::HOME);
 
-        $request->session()->regenerate();
+        $credentials = $request->only('email', 'password');
+        if (Auth::attempt($credentials)) {
+            $request->session()->regenerate();
+            return redirect()->intended(RouteServiceProvider::Anasayfa);
+        }
 
-        return redirect()->intended(RouteServiceProvider::HOME);
+        return back()->withErrors([
+            'error' => 'Girilen e-posta veya şifre yanlış.',
+        ]);
     }
 
     /**

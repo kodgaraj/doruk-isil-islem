@@ -16,7 +16,7 @@
         .input-radius {
             border-radius: 15px;
         }
-        
+
         .btn-submit {
             color: #000;
             font-weight: bold;
@@ -37,18 +37,26 @@
                             <h2 style="margin-top:30px;font-weight: 200;">İŞ YÖNETİMİ<br>OTOMASYONU</h2>
                         </div>
                         <div class="card-body p-3">
+                            @if ($errors->any())
+                                <div class="alert alert-danger">
+                                    Giriş yaparken bir hata oluştu.<br>Lütfen bilgileri kontrol edip tekrar deneyin.
+                                </div>
+                            @endif
                             <div class="ps-5 pe-5">
                                 <h4>GİRİŞ YAP</h4>
-                                <form class="form-horizontal"  method="POST" action="{{ route('login') }}">
+                                <form class="form-horizontal" method="POST" action="{{ route('login') }}">
                                     @csrf
                                     <div class="mb-3">
-                                        <input type="text" class="form-control input-radius" name="email" id="email" placeholder="E-MAIL">
+                                        <input type="text" class="form-control input-radius" name="email" id="email"
+                                            placeholder="E-MAIL">
                                     </div>
                                     <div class="mb-3">
-                                        <input type="password" class="form-control input-radius" name="password" id="sifre" placeholder="ŞİFRE">
+                                        <input type="password" class="form-control input-radius" name="password"
+                                            id="sifre" placeholder="ŞİFRE">
                                     </div>
                                     <div class="mt-5">
-                                        <button class="btn btn-submit input-radius ps-4 pe-4" type="submit">GİRİŞ</button>
+                                        <button class="btn btn-submit input-radius ps-4 pe-4"
+                                            type="submit">GİRİŞ</button>
                                     </div>
                                 </form>
                             </div>
@@ -96,23 +104,24 @@
             <div>
                 <x-label for="email" :value="__('Email')" />
 
-                <x-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus />
+                <x-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required
+                    autofocus />
             </div>
 
             <!-- Password -->
             <div class="mt-4">
                 <x-label for="password" :value="__('Password')" />
 
-                <x-input id="password" class="block mt-1 w-full"
-                                type="password"
-                                name="password"
-                                required autocomplete="current-password" />
+                <x-input id="password" class="block mt-1 w-full" type="password" name="password" required
+                    autocomplete="current-password" />
             </div>
 
             <!-- Remember Me -->
             <div class="block mt-4">
                 <label for="remember_me" class="inline-flex items-center">
-                    <input id="remember_me" type="checkbox" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" name="remember">
+                    <input id="remember_me" type="checkbox"
+                        class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                        name="remember">
                     <span class="ml-2 text-sm text-gray-600">{{ __('Remember me') }}</span>
                 </label>
             </div>

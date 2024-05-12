@@ -38,7 +38,7 @@ Route::get('/update/{sifre}', [UpdateController::class, 'index']);
 Route::get("/pdf-exports/{tur}", [PDFExportController::class, "index"])->name("pdfExports");
 Route::get("/pdf-exports2/{tur}/{id}", [PDFExportController::class, "index2"])->name("pdfExports2");
 
-Route::group(['middleware' => ['auth','kontrol']], function () {
+Route::group(['middleware' => ['auth', 'kontrol']], function () {
     // sayfalar
     Route::get('/', [HomeController::class, "index"])->name("home");
     Route::get('/kisitlamalar', [SistemController::class, "index"])->name("kisitlamalar");
@@ -58,6 +58,7 @@ Route::group(['middleware' => ['auth','kontrol']], function () {
 
     // apiler
     Route::get('/siparisler', [SiparisController::class, 'siparisler'])->name("siparisler");
+    Route::get('/siparisler_yeni', [SiparisController::class, 'siparisler_yeni'])->name("siparisler_yeni");
     Route::get('/numaralariGetir', [SiparisController::class, 'numaralariGetir'])->name("numaralariGetir");
     Route::get('/siparisDurumlariGetir', [SiparisController::class, 'siparisDurumlariGetir'])->name("siparisDurumlariGetir");
     Route::post('/siparisKaydet', [SiparisController::class, 'siparisKaydet'])->name("siparisKaydet");
@@ -135,4 +136,4 @@ Route::group(['middleware' => ['auth','kontrol']], function () {
 });
 
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

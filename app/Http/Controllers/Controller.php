@@ -62,19 +62,15 @@ class Controller extends BaseController
         $renk = "success";
         $kod = "TEMIZ";
 
-        if ($termin > $ikinciFaz)
-        {
-            if ($sonTarih)
-            {
-               $renk = "white";
-            }else{
+        if ($termin > $ikinciFaz) {
+            if ($sonTarih) {
+                $renk = "white";
+            } else {
                 $renk = "danger";
             }
 
             $kod = "IKINCI_FAZ_GECIKMIS";
-        }
-        else if ($termin > $birinciFaz)
-        {
+        } else if ($termin > $birinciFaz) {
             $renk = "warning";
             $kod = "BIRINCI_FAZ_GECIKMIS";
         }
@@ -92,8 +88,7 @@ class Controller extends BaseController
      */
     public function islemBitisTarihleriAyarla($islemId)
     {
-        try
-        {
+        try {
             $islemTabloAdi = (new Islemler())->getTable();
             $formTabloAdi = (new Formlar())->getTable();
             $islemDurumTabloAdi = (new IslemDurumlari())->getTable();
@@ -105,8 +100,7 @@ class Controller extends BaseController
                 ->where("$islemTabloAdi.id", $islemId)
                 ->first();
 
-            if (!$form)
-            {
+            if (!$form) {
                 return false;
             }
 
@@ -116,8 +110,7 @@ class Controller extends BaseController
                 ->count();
 
             $guncellenecekForm = Formlar::find($form->formId);
-            if ($tamamlanmamisFormIslemler === 0)
-            {
+            if ($tamamlanmamisFormIslemler === 0) {
                 $guncellenecekForm->bitisTarihi = Carbon::now();
 
                 $this->bildirimAt(auth()->user()->id, [
@@ -127,14 +120,11 @@ class Controller extends BaseController
                     "kod" => "FORM_BILDIRIMI",
                     "actionId" => $form->formId,
                 ]);
-            }
-            else
-            {
+            } else {
                 $guncellenecekForm->bitisTarihi = null;
             }
 
-            if (!$guncellenecekForm->save())
-            {
+            if (!$guncellenecekForm->save()) {
                 return false;
             }
 
@@ -143,8 +133,7 @@ class Controller extends BaseController
                 ->where("$islemTabloAdi.id", $islemId)
                 ->first();
 
-            if (!$siparis)
-            {
+            if (!$siparis) {
                 return false;
             }
 
@@ -153,8 +142,7 @@ class Controller extends BaseController
                 ->where("$islemDurumTabloAdi.kod", "<>", "TAMAMLANDI")
                 ->count();
 
-            if ($tamamlanmamisSiparisIslemler === 0)
-            {
+            if ($tamamlanmamisSiparisIslemler === 0) {
                 $guncellenecekSiparis = Siparisler::find($siparis->siparisId);
                 // Burada tekrar aynı işlemin yapılmasının sebebi, işlem tekrar ederse tamamlanan sipariş olursa diye.
                 $siparisTamamlandiDurum = SiparisDurumlari::where("kod", "TAMAMLANDI")->first();
@@ -162,8 +150,7 @@ class Controller extends BaseController
                 $guncellenecekSiparis->durumId = $siparisTamamlandiDurum->id;
                 $guncellenecekSiparis->bitisTarihi = Carbon::now();
 
-                if (!$guncellenecekSiparis->save())
-                {
+                if (!$guncellenecekSiparis->save()) {
                     return false;
                 }
 
@@ -179,9 +166,7 @@ class Controller extends BaseController
             }
 
             return true;
-        }
-        catch (\Exception $e)
-        {
+        } catch (\Exception $e) {
             return false;
         }
     }
@@ -202,25 +187,20 @@ class Controller extends BaseController
             $klasorYolu = "uploads/$yil/$ay/";
             $dosyaAdi = "";
 
-            if (isset($parametreler["altKlasor"]) && count($parametreler["altKlasor"]) > 0)
-            {
+            if (isset($parametreler["altKlasor"]) && count($parametreler["altKlasor"]) > 0) {
                 $klasorYolu .= implode("/", $parametreler["altKlasor"]) . "/";
             }
 
-            if (!file_exists($klasorYolu))
-            {
+            if (!file_exists($klasorYolu)) {
                 mkdir(
                     directory: $klasorYolu,
                     recursive: true
                 );
             }
 
-            if (isset($parametreler["dosyaAdi"]) && $parametreler["dosyaAdi"])
-            {
+            if (isset($parametreler["dosyaAdi"]) && $parametreler["dosyaAdi"]) {
                 $dosyaAdi = $parametreler["dosyaAdi"];
-            }
-            else
-            {
+            } else {
                 $dosyaAdi = uniqid();
             }
 
@@ -256,8 +236,7 @@ class Controller extends BaseController
         // versiyon bilgisini siler
         $dosyaYolu = preg_replace('/\?v=[0-9]+/', '', $dosyaYolu);
 
-        if (file_exists($dosyaYolu))
-        {
+        if (file_exists($dosyaYolu)) {
             return unlink($dosyaYolu);
         }
 
@@ -266,8 +245,7 @@ class Controller extends BaseController
 
     public function buyukHarf($degisken)
     {
-        if (!$degisken)
-        {
+        if (!$degisken) {
             return $degisken;
         }
 
@@ -278,8 +256,7 @@ class Controller extends BaseController
 
     public function kucukHarf($degisken)
     {
-        if (!$degisken)
-        {
+        if (!$degisken) {
             return $degisken;
         }
 
@@ -304,8 +281,7 @@ class Controller extends BaseController
      */
     public function bildirimAt($kullaniciId, $veriler)
     {
-        try
-        {
+        try {
             $btid = BildirimTurleri::where("kod", $veriler["kod"])->first()->id;
             $kullaniciId = $kullaniciId ?? Auth::user()->id;
             $baslik = $veriler["baslik"];
@@ -325,8 +301,7 @@ class Controller extends BaseController
                 "actionId" => $actionId
             ]);
 
-            if (!$bildirim->save())
-            {
+            if (!$bildirim->save()) {
                 return [
                     "durum" => false,
                     "mesaj" => "Bildirim kaydedilemedi."
@@ -350,14 +325,12 @@ class Controller extends BaseController
 
             $kullanicilar = User::where("id", "<>", $kullaniciId)->get();
 
-            foreach ($kullanicilar as $kullanici)
-            {
+            foreach ($kullanicilar as $kullanici) {
                 $bildirimKullanicilar = new OkunmamisBildirimler();
                 $bildirimKullanicilar->bildirimId = $bildirim->id;
                 $bildirimKullanicilar->kullaniciId = $kullanici->id;
 
-                if (!$bildirimKullanicilar->save())
-                {
+                if (!$bildirimKullanicilar->save()) {
                     return [
                         "durum" => false,
                         "mesaj" => "Okunmamış bildirim kaydedilemedi.",
@@ -370,9 +343,7 @@ class Controller extends BaseController
             (new Expo())->send($mesajlar)->to($pushTokens)->push();
 
             return true;
-        }
-        catch (\Exception $e)
-        {
+        } catch (\Exception $e) {
             return [
                 "durum" => false,
                 "mesaj" => $e->getMessage(),
@@ -382,8 +353,7 @@ class Controller extends BaseController
 
     public function bildirimOku($bildirimIdleri, $kullaniciId = null)
     {
-        try
-        {
+        try {
             $kullaniciId = $kullaniciId ?: Auth::user()->id;
 
             $bildirimIdleri = is_array($bildirimIdleri) ? $bildirimIdleri : [$bildirimIdleri];
@@ -395,15 +365,12 @@ class Controller extends BaseController
                 ->where("kullaniciId", $kullaniciId)
                 ->get();
 
-            foreach ($bildirimKullanicilar as $bildirimKullanici)
-            {
+            foreach ($bildirimKullanicilar as $bildirimKullanici) {
                 $bildirimKullanici->delete();
             }
 
             return true;
-        }
-        catch (\Exception $e)
-        {
+        } catch (\Exception $e) {
             throw new \Exception($e->getMessage());
             return false;
         }
@@ -411,8 +378,7 @@ class Controller extends BaseController
 
     public function bildirimGetir($kullaniciId = null, $veriler = [])
     {
-        try
-        {
+        try {
             $limit = $veriler["sayfalama"] ?? 20;
             $okuma = $veriler["okuma"] ?? false;
             $kullaniciId = $kullaniciId ?: Auth::user()->id;
@@ -429,15 +395,14 @@ class Controller extends BaseController
                 $bildirimTuruTabloAdi.json as bildirimTuruJson,
                 IF($okunmamisBildirimTabloAdi.bildirimId IS NULL, 1, 0) as okundu
             ")
-            ->leftJoin($okunmamisBildirimTabloAdi, function ($join) use ($kullaniciId, $bildirimTabloAdi, $okunmamisBildirimTabloAdi) {
-                $join->on($okunmamisBildirimTabloAdi . ".bildirimId", "=", $bildirimTabloAdi . ".id");
-                $join->on($okunmamisBildirimTabloAdi . ".kullaniciId", "=", DB::raw($kullaniciId));
-            })
-            ->join($bildirimTuruTabloAdi, "$bildirimTuruTabloAdi.id", "=", $bildirimTabloAdi . ".btid")
-            ->orderBy("id", "desc");
+                ->leftJoin($okunmamisBildirimTabloAdi, function ($join) use ($kullaniciId, $bildirimTabloAdi, $okunmamisBildirimTabloAdi) {
+                    $join->on($okunmamisBildirimTabloAdi . ".bildirimId", "=", $bildirimTabloAdi . ".id");
+                    $join->on($okunmamisBildirimTabloAdi . ".kullaniciId", "=", DB::raw($kullaniciId));
+                })
+                ->join($bildirimTuruTabloAdi, "$bildirimTuruTabloAdi.id", "=", $bildirimTabloAdi . ".btid")
+                ->orderBy("id", "desc");
 
-            if (isset($filtreleme["arama"]) && $filtreleme["arama"] != "")
-            {
+            if (isset($filtreleme["arama"]) && $filtreleme["arama"] != "") {
                 $bildirimler->where("$bildirimTabloAdi.baslik", "like", "%" . $filtreleme["arama"] . "%")
                     ->orWhere("$bildirimTabloAdi.icerik", "like", "%" . $filtreleme["arama"] . "%")
                     ->orWhere("$bildirimTuruTabloAdi.ad", "like", "%" . $filtreleme["arama"] . "%");
@@ -445,20 +410,17 @@ class Controller extends BaseController
 
             $bildirimler = $bildirimler->paginate($limit)->toArray();
 
-            foreach ($bildirimler["data"] as &$bildirim)
-            {
+            foreach ($bildirimler["data"] as &$bildirim) {
                 $bildirim["json"] = json_decode($bildirim["json"]);
                 $bildirim["bildirimTuruJson"] = json_decode($bildirim["bildirimTuruJson"]);
                 $bildirim["okundu"] = $bildirim["okundu"] == 1;
             }
 
             // Eğer "okuma" gönderilmediyse dönecek bildirimleri okundu olarak işaretler
-            if (!$okuma)
-            {
+            if (!$okuma) {
                 $bildirimIdleri = array_column($bildirimler["data"], "id");
 
-                if (!$this->bildirimOku($bildirimIdleri, $kullaniciId))
-                {
+                if (!$this->bildirimOku($bildirimIdleri, $kullaniciId)) {
                     return [
                         "durum" => false,
                         "mesaj" => "Bildirimler okunamadı.",
@@ -474,9 +436,7 @@ class Controller extends BaseController
                 "toplamOkunmamisSayisi" => $toplamOkunmamisSayisi,
                 "durum" => true,
             ];
-        }
-        catch (\Exception $e)
-        {
+        } catch (\Exception $e) {
             return [
                 "durum" => false,
                 "mesaj" => $e->getMessage(),
@@ -497,12 +457,9 @@ class Controller extends BaseController
         $binliksizPara = implode("", $arr);
         $sayi = str_replace(",", ".", $binliksizPara);
 
-        if (isset($parametreler["paraBirimi"]))
-        {
+        if (isset($parametreler["paraBirimi"])) {
             $sayi = str_replace($parametreler["paraBirimi"]["sembol"], "", $sayi);
-        }
-        else if (isset($parametreler["kg"]))
-        {
+        } else if (isset($parametreler["kg"])) {
             $sayi = str_replace("kg", "", $sayi);
         }
 
@@ -514,21 +471,15 @@ class Controller extends BaseController
         $stringDeger = (string) $deger;
         $arr = explode(".", $stringDeger);
         $sayi = $arr[0];
-        if (isset($arr[1]) && $arr[1])
-        {
+        if (isset($arr[1]) && $arr[1]) {
             $sayi .= "," . str_pad($arr[1], 2, "0");
-        }
-        else
-        {
+        } else {
             $sayi .= ",00";
         }
 
-        if (isset($parametreler["paraBirimi"]))
-        {
+        if (isset($parametreler["paraBirimi"])) {
             $sayi = $sayi . " " . $parametreler["paraBirimi"]["sembol"];
-        }
-        else if (isset($parametreler["kg"]))
-        {
+        } else if (isset($parametreler["kg"])) {
             $sayi = $sayi . " kg";
         }
 
@@ -537,8 +488,7 @@ class Controller extends BaseController
 
     public function siparisDurumKontrol($siparisId)
     {
-        try
-        {
+        try {
             $islemTabloAdi = (new Islemler())->getTable();
             $islemDurumTabloAdi = (new IslemDurumlari())->getTable();
 
@@ -553,18 +503,13 @@ class Controller extends BaseController
             // Sipariş işlemlerinin hepsi tamamlandığında siparişi tamamlandı olarak işaretle
             $durumlar = array_count_values(array_column($siparisIslemleri, "islemDurumKodu"));
 
-            if (isset($durumlar["TAMAMLANDI"]) && $durumlar["TAMAMLANDI"] === count($siparisIslemleri))
-            {
+            if (isset($durumlar["TAMAMLANDI"]) && $durumlar["TAMAMLANDI"] === count($siparisIslemleri)) {
                 $siparis->durumId = SiparisDurumlari::where("kod", "TAMAMLANDI")->first()->id;
                 $siparis->bitisTarihi = Carbon::now();
-            }
-            else if (isset($durumlar["ISLEMDE"]) && $durumlar["ISLEMDE"] > 0)
-            {
+            } else if (isset($durumlar["ISLEMDE"]) && $durumlar["ISLEMDE"] > 0) {
                 $siparis->durumId = SiparisDurumlari::where("kod", "ISLEMDE")->first()->id;
                 $siparis->bitisTarihi = null;
-            }
-            else
-            {
+            } else {
                 $siparis->durumId = SiparisDurumlari::where("kod", "SIPARIS_ALINDI")->first()->id;
                 $siparis->bitisTarihi = null;
             }
@@ -572,17 +517,14 @@ class Controller extends BaseController
             $siparis->save();
 
             return true;
-        }
-        catch (\Exception $e)
-        {
+        } catch (\Exception $e) {
             return false;
         }
     }
 
     public function formDurumKontrol($formId)
     {
-        try
-        {
+        try {
             $islemTabloAdi = (new Islemler())->getTable();
             $islemDurumTabloAdi = (new IslemDurumlari())->getTable();
 
@@ -597,26 +539,20 @@ class Controller extends BaseController
             // Form işlemlerinin hepsi tamamlandığında formun bitisTarihi'ni ayarlar
             $durumlar = array_count_values(array_column($formIslemleri, "islemDurumKodu"));
 
-            if (isset($durumlar["TAMAMLANDI"]) && $durumlar["TAMAMLANDI"] === count($formIslemleri))
-            {
+            if (isset($durumlar["TAMAMLANDI"]) && $durumlar["TAMAMLANDI"] === count($formIslemleri)) {
                 $form->bitisTarihi = Carbon::now();
-            }
-            else
-            {
+            } else {
                 $form->bitisTarihi = null;
             }
 
             $form->save();
 
-            foreach ($formIslemleri as $islem)
-            {
+            foreach ($formIslemleri as $islem) {
                 $this->siparisDurumKontrol($islem["siparisId"]);
             }
 
             return true;
-        }
-        catch (\Exception $e)
-        {
+        } catch (\Exception $e) {
             return false;
         }
     }
@@ -628,12 +564,9 @@ class Controller extends BaseController
 
         $_payload = isset($parametreler["payload"]) && $parametreler["payload"] ? $parametreler["payload"] : [];
 
-        if (isset($parametreler["klasor"]) && $parametreler["klasor"])
-        {
+        if (isset($parametreler["klasor"]) && $parametreler["klasor"]) {
             $altKlasor .= $parametreler["klasor"] . "/";
-        }
-        else
-        {
+        } else {
             $altKlasor .= $parametreler["tur"] . "/";
         }
 
@@ -654,19 +587,19 @@ class Controller extends BaseController
         // $output->writeln("<info>" . $payload["url"] . "</info>");
         $options = [
             'http' => [
-                'header'  => "Content-type: application/json\r\n",
-                'method'  => 'POST',
+                'header' => "Content-type: application/json\r\n",
+                'method' => 'POST',
                 'content' => json_encode($payload)
             ],
             'https' => [
-                'header'  => "Content-type: application/json\r\n",
-                'method'  => 'POST',
+                'header' => "Content-type: application/json\r\n",
+                'method' => 'POST',
                 'content' => json_encode($payload)
             ],
         ];
 
 
-        $context  = stream_context_create($options);
+        $context = stream_context_create($options);
         $result = file_get_contents($url, false, $context);
         if ($result === false) {
             return false;
@@ -686,7 +619,7 @@ class Controller extends BaseController
         $url = 'https://PhantomJScloud.com/api/browser/v2/ak-5ykcp-wxt7z-74k7b-8h7gv-c6548/';
 
         $payload = [
-            "url" => url("/pdf-exports2/" . $parametreler["tur"] ."/". $parametreler["id"], [], false),
+            "url" => url("/pdf-exports2/" . $parametreler["tur"] . "/" . $parametreler["id"], [], false),
             "renderType" => "pdf",
             "overseerScript" => '
                 await page.waitForSelector(".printable-page");
@@ -697,18 +630,18 @@ class Controller extends BaseController
 
         $options = [
             'http' => [
-                'header'  => "Content-type: application/json\r\n",
-                'method'  => 'POST',
+                'header' => "Content-type: application/json\r\n",
+                'method' => 'POST',
                 'content' => json_encode($payload)
             ],
             'https' => [
-                'header'  => "Content-type: application/json\r\n",
-                'method'  => 'POST',
+                'header' => "Content-type: application/json\r\n",
+                'method' => 'POST',
                 'content' => json_encode($payload)
             ],
         ];
 
-        $context  = stream_context_create($options);
+        $context = stream_context_create($options);
         $result = file_get_contents($url, false, $context);
         if ($result === false) {
             return false;
@@ -732,7 +665,7 @@ class Controller extends BaseController
         $pdf = File::put($teklifUrl, $result);
         if ($pdf) {
             // return $teklifUrl;
-            return "pdf/" . $altKlasor . $dosyaAdi . $ek .".pdf";
+            return "pdf/" . $altKlasor . $dosyaAdi . $ek . ".pdf";
         }
 
         return false;

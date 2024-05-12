@@ -608,7 +608,7 @@
                         firin: null,
                         islemDurumu: null,
                         tekrarEdenleriGoster: false,
-                        limit: 10,
+                        limit: 50,
                     },
                     firinlar: @json($firinlar),
                     islemDurumlari: @json($islemDurumlari),

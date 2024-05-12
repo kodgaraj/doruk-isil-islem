@@ -288,7 +288,7 @@
                                                     class="bx bx-wrench font-size-16 align-middle me-1"></i> Ayarlar</a>
 
                                                 <div class="dropdown-divider"></div> --}}
-                                                <a class="dropdown-item text-danger" @click="cikisYap()"><i
+                                                <a class="dropdown-item text-danger" @click="cikisYap()" style="cursor: pointer"><i
                                                     class="bx bx-power-off font-size-16 align-middle me-1 text-danger"></i> Çıkış</a>
                                             </div>
                                         </div>
@@ -652,20 +652,33 @@
                     return sayfalamaDizisi;
                 },
                 cikisYap() {
-                    axios.get("{{ route('logout') }}")
-                    .then(response => {
-                        if (response.data.durum) {
-                            if (this.isNativeApp) {
+                    if (this.isNativeApp) {
                                 window.ReactNativeWebView.postMessage(JSON.stringify({
                                     kod: "CIKIS_YAPILDI",
                                     durum: true,
                                     mesaj: "Çıkış yapıldı"
                                 }));
                             }
+                     setTimeout(() => {
+                        window.location.href = "/cikis";
+                     }, 100);
 
-                            window.location.href = response.data.url;
-                        }
-                    })
+                    // axios.get("{{ route('logout') }}")
+                    // .then(response => {
+                    //     console.log(response);
+                    //     console.log(response.data.durum);
+                    //     if (response.data.durum) {
+                    //         if (this.isNativeApp) {
+                    //             window.ReactNativeWebView.postMessage(JSON.stringify({
+                    //                 kod: "CIKIS_YAPILDI",
+                    //                 durum: true,
+                    //                 mesaj: "Çıkış yapıldı"
+                    //             }));
+                    //         }
+
+                    //         //window.location.href = response.data.url;
+                    //     }
+                    // })
                 },
                 blobToBase64(blob) {
                     return new Promise((resolve, _) => {

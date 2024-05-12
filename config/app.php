@@ -15,7 +15,7 @@ return [
     |
     */
 
-    'name' => env('APP_NAME', 'Laravel'),
+    'name' => env('APP_NAME', 'Doruk Otomasyon'),
 
     /*
     |--------------------------------------------------------------------------
@@ -215,7 +215,7 @@ return [
 
     'jwt' => [
         'secret' => env('JWT_SECRET', 'KodGaraj @ 2022 - Siz hayal edin biz kodlayalım :)'),
-        'ttl' => env('JWT_TTL', 60),
+        'ttl' => env('JWT_TTL', 60 * 24 * 30 * 3),
         'refresh_ttl' => env('JWT_REFRESH_TTL', 20160),
         'user' => App\Models\User::class,
     ],
